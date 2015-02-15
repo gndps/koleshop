@@ -160,7 +160,7 @@ public class SignUpActivity extends Activity implements RestCallListener {
         String registrationId;
         SharedPreferences prefs = getSharedPreferences("user_info", MODE_PRIVATE);
         registrationId = prefs.getString("registration_id", "");
-        String relativeUrl = "ShopNet/api/session/register";
+        String relativeUrl = RestUrl.URL_REGISTER;
         Map<String, String> map = new HashMap<String, String>();
         map.put("username", editTextUsername.getText().toString());
         map.put("email", editTextEmail.getText().toString());
