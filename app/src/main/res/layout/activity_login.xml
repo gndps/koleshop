@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099cc"
+    tools:context="com.kolshop.kolshop.initial.LoginActivity">
+
+    <EditText
+        android:id="@+id/editTextUsername_Login"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginTop="49dp"
+        android:background="@drawable/edittext_rounded_corners"
+        android:drawableLeft="@drawable/username"
+        android:drawablePadding="5dp"
+        android:hint="Username"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:textSize="22sp" />
+
+    <EditText
+        android:id="@+id/editTextPassword_Login"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextUsername_Login"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/edittext_rounded_corners"
+        android:drawableLeft="@drawable/password"
+        android:drawablePadding="5dp"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:textSize="22sp" />
+
+    <Button
+        android:id="@+id/buttonLogin_Login"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTextPassword_Login"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:onClick="logIn"
+        android:padding="15dp"
+        android:text="Login"
+        android:textSize="30sp" />
+
+</RelativeLayout>

@@ -1,0 +1,126 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gndps.kolshopmaterial">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission
+        android:name="com.gndps.kolshopmaterial.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.gndps.kolshopmaterial.permission.C2D_MESSAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <application
+        android:name=".network.volley.VolleyUtil"
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".activities.InitialActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/FullscreenTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.SignUpActivity"
+            android:label="@string/title_activity_sign_up"
+            android:parentActivityName=".activities.InitialActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gndps.kolshopmaterial.activities.InitialActivity" />
+        </activity>
+
+        <receiver
+            android:name=".network.GcmBroadcastReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.kolshop" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".services.PushMessageProcessorService"
+            android:exported="false"></service>
+
+        <activity
+            android:name=".activities.ChooseActivity"
+            android:label="@string/title_activity_choose"></activity>
+
+        <service
+            android:name=".services.RestCallService"
+            android:exported="false"></service>
+
+        <activity
+            android:name=".activities.LoginActivity"
+            android:label="@string/title_activity_login"></activity>
+        <activity
+            android:name=".activities.GetStartedActivity"
+            android:label="@string/title_activity_get_started"></activity>
+        <activity
+            android:name=".activities.ShopSettingsActivity"
+            android:label="@string/title_activity_shop_settings"></activity>
+        <activity
+            android:name=".activities.LocationActivity"
+            android:label="@string/title_activity_location"></activity>
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyB8g4pxXoNrQcbR7Rp97C6bOtzHIVRvWag" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <service android:name="com.gndps.kolshopmaterial.network.sync.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+
+        <provider
+            android:name=".network.sync.StubProvider"
+            android:authorities="com.kolshop.kolshop.provider"
+            android:exported="false"
+            android:syncable="true" />
+
+        <service
+            android:name=".network.sync.SyncService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
+
+    </application>
+
+</manifest>

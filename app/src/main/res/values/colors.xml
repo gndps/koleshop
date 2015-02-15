@@ -1,0 +1,7 @@
+<resources>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="holo_light">#fff3f3f3</color>
+
+</resources>
