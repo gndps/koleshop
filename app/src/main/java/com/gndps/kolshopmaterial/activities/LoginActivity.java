@@ -1,6 +1,5 @@
 package com.gndps.kolshopmaterial.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -11,11 +10,15 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gndps.kolshopmaterial.R;
 import com.gndps.kolshopmaterial.common.constant.Constants;
@@ -29,21 +32,26 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends ActionBarActivity {
 
     private static final String ACTION_PROCESS_DEVICE_REGISTRATION = "com.kolshop.action.PROCESS_DEVICE_REGISTRATION_GOOGLE";
     private static final String REQUEST_LOG_IN = "login";
     private static final String TAG = "LoginActivity";
     EditText editTextUsername_Login, editTextPassword_Login;
+    TextView textViewSignUp;
     Context mContext;
     private BroadcastReceiver loginActivityBroadcastReciever;
     private ProgressDialog dialog;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mContext = this;
+        //toolbar = (Toolbar)findViewById(R.id.app_bar);
+        //setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
         initializeLoginScreen();
         initializeBroadcastReceivers();
     }
@@ -117,6 +125,13 @@ public class LoginActivity extends Activity {
 
         editTextUsername_Login = (EditText) findViewById(R.id.editTextUsername_Login);
         editTextPassword_Login = (EditText) findViewById(R.id.editTextPassword_Login);
+        textViewSignUp = (TextView) findViewById(R.id.textViewSignUp);
+        textViewSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSignUp(v);
+            }
+        });
 
     }
 
@@ -132,6 +147,12 @@ public class LoginActivity extends Activity {
             dialog = ProgressDialog.show(this, "Logging In", "Please wait...", true);
             kolShopLogin();
         }
+    }
+
+    public void onSignUp(View view)
+    {
+        Intent intent = new Intent(mContext, SignUpActivity.class);
+        startActivity(intent);
     }
 
     private void registerWithGoogleServers() {

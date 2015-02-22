@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:orientation="horizontal"
+    android:id="@+id/product_list_item"
+    tools:context="com.gndps.kolshopmaterial.fragments.ProductListFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <ImageView
+        android:layout_marginLeft="16dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:id="@+id/product_list_item_img_product_image"
+        android:src="@drawable/ice_cream"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_gravity="center|center_vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="@color/primary_text"
+            android:textSize="15sp"
+            android:text="@string/ice_cream"
+            android:id="@+id/product_list_item_txt_product_name" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="13sp"
+            android:textColor="@color/secondary_text"
+            android:id="@+id/product_list_item_txt_product_description"
+            android:text="Delicious ice cream to make your day"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="4dp"
+                android:textSize="11sp"
+                android:id="@+id/product_list_item_txt_product_flavors"
+                android:text="4 Flavors"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="11sp"
+                android:text="|"
+                android:layout_marginRight="4dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:textSize="11sp"
+                android:layout_height="match_parent"
+                android:id="@+id/product_list_item_txt_product_sizes"
+                android:text="2 Sizes"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

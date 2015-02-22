@@ -1,6 +1,5 @@
 package com.gndps.kolshopmaterial.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -11,12 +10,15 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -38,7 +40,7 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SignUpActivity extends Activity implements RestCallListener {
+public class SignUpActivity extends ActionBarActivity implements RestCallListener {
 
     private static final String ACTION_PROCESS_DEVICE_REGISTRATION = "com.kolshop.action.PROCESS_DEVICE_REGISTRATION_GOOGLE";
     private static final String REQUEST_SIGN_UP = "signup";
@@ -50,8 +52,11 @@ public class SignUpActivity extends Activity implements RestCallListener {
     Context mContext;
     SignUpActivity thisActivity;
     String requestId;
+    Button buttonSignUp;
     private BroadcastReceiver signUpActivityBroadcastReciever;
     private boolean usernameAvailable, checkingUsernameAvailability;
+    private Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,9 @@ public class SignUpActivity extends Activity implements RestCallListener {
         setContentView(R.layout.activity_sign_up);
         mContext = this;
         thisActivity = this;
+        toolbar = (Toolbar)findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         initializeBroadcastReceivers();
         initializeUIElements();
     }
@@ -189,6 +197,7 @@ public class SignUpActivity extends Activity implements RestCallListener {
         progressBarUsernameAvailable = (ProgressBar) findViewById(R.id.progressBarUsername);
         progressBarUsernameAvailable.setVisibility(View.GONE);
         imageViewUsernameAvailable = (ImageView) findViewById(R.id.imageViewUsernameAvailable);
+        buttonSignUp = (Button) findViewById(R.id.buttonSignUp);
 
         editTextUsername.addTextChangedListener(new TextWatcher() {
 

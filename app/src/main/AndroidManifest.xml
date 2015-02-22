@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gndps.kolshopmaterial">
+    package="com.gndps.kolshopmaterial" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -26,15 +27,13 @@
     <application
         android:name=".network.volley.VolleyUtil"
         android:allowBackup="true"
-        android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:theme="@style/AppTheme">
-
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".activities.InitialActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name"
-            android:theme="@style/FullscreenTheme">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,7 +43,7 @@
         <activity
             android:name=".activities.SignUpActivity"
             android:label="@string/title_activity_sign_up"
-            android:parentActivityName=".activities.InitialActivity">
+            android:parentActivityName=".activities.InitialActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.gndps.kolshopmaterial.activities.InitialActivity" />
@@ -53,7 +52,7 @@
         <receiver
             android:name=".network.GcmBroadcastReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
@@ -64,28 +63,28 @@
 
         <service
             android:name=".services.PushMessageProcessorService"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <activity
             android:name=".activities.ChooseActivity"
-            android:label="@string/title_activity_choose"></activity>
+            android:label="@string/title_activity_choose" />
 
         <service
             android:name=".services.RestCallService"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <activity
             android:name=".activities.LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login" />
         <activity
             android:name=".activities.GetStartedActivity"
-            android:label="@string/title_activity_get_started"></activity>
+            android:label="@string/title_activity_get_started" />
         <activity
             android:name=".activities.ShopSettingsActivity"
-            android:label="@string/title_activity_shop_settings"></activity>
+            android:label="@string/title_activity_shop_settings" />
         <activity
             android:name=".activities.LocationActivity"
-            android:label="@string/title_activity_location"></activity>
+            android:label="@string/title_activity_location" />
         <!-- Google Maps API Key -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
@@ -94,7 +93,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <service android:name="com.gndps.kolshopmaterial.network.sync.AuthenticatorService">
+        <service android:name=".network.sync.AuthenticatorService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -112,15 +111,24 @@
 
         <service
             android:name=".network.sync.SyncService"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
+
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
 
+        <activity
+            android:name=".activities.TestActivity"
+            android:label="@string/title_activity_test" >
+        </activity>
+        <activity
+            android:name=".activities.ProductActivity"
+            android:label="@string/title_activity_product" >
+        </activity>
     </application>
 
 </manifest>

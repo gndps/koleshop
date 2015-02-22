@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 
@@ -19,7 +20,7 @@ import com.gndps.kolshopmaterial.common.constant.Prefs;
 import com.gndps.kolshopmaterial.model.Session;
 import com.google.gson.Gson;
 
-public class InitialActivity extends Activity {
+public class InitialActivity extends ActionBarActivity {
 
     // Constants
 
@@ -83,7 +84,13 @@ public class InitialActivity extends Activity {
     }
 
     private void processIfUserLoggedIn() {
+        if(byPassEveryThingToTestActivity())
+        {
+            return;
+        }
+
         SharedPreferences prefs = getSharedPreferences(Prefs.USER_INFO, MODE_PRIVATE);
+        ///check if session exists, if yes -> login and load data
         if (!prefs.getString("session", "").trim().equalsIgnoreCase("")) {
             Gson gson = new Gson();
             GlobalData globalData = GlobalData.getInstance();
@@ -104,9 +111,23 @@ public class InitialActivity extends Activity {
                     startActivity(intent);
                 }
             } else if (!session.getUsername().isEmpty()) {
-                //go to login screen
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
             }
         }
+        else
+        {
+            //go to login screen (initial screen)
+            Intent intent = new Intent(this, TestActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    private boolean byPassEveryThingToTestActivity()
+    {
+        Intent intent = new Intent(this, ProductActivity.class);
+        startActivity(intent);
+        return true;
     }
 
     private void initializeButtonHandlers() {

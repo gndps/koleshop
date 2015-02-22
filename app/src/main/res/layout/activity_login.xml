@@ -1,21 +1,24 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:orientation="vertical"
+    android:theme="@style/AppTheme.Base"
     tools:context="com.kolshop.kolshop.initial.LoginActivity">
+
+    <include
+        android:id="@+id/app_bar"
+        layout="@layout/app_bar"></include>
 
     <EditText
         android:id="@+id/editTextUsername_Login"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:layout_marginTop="49dp"
-        android:background="@drawable/edittext_rounded_corners"
         android:drawableLeft="@drawable/username"
         android:drawablePadding="5dp"
         android:hint="Username"
@@ -32,7 +35,6 @@
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
-        android:background="@drawable/edittext_rounded_corners"
         android:drawableLeft="@drawable/password"
         android:drawablePadding="5dp"
         android:hint="Password"
@@ -50,8 +52,38 @@
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:onClick="logIn"
+        android:background="@color/primary"
+        android:textColor="@color/primary_light"
         android:padding="15dp"
         android:text="Login"
         android:textSize="30sp" />
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Account?"
+            android:textSize="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/textViewSignUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:paddingBottom="10dp"
+            android:textSize="20dp"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:text="Sign Up"
+            android:textColor="@color/blue" />
+    </LinearLayout>
+
+</LinearLayout>
