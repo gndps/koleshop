@@ -27,13 +27,15 @@ public class ProductListFragment extends Fragment {
     }
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_product_list, container, false);
         recyclerView = (RecyclerView) layout.findViewById(R.id.fragment_product_list_recycler_view);
-        recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity()).build());
+        recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
+                .margin(getResources().getDimensionPixelSize(R.dimen.recycler_view_left_margin),
+                        getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
+                .build());
         productListAdapter = new ProductListAdapter(getActivity(), null);
         recyclerView.setAdapter(productListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -45,7 +47,7 @@ public class ProductListFragment extends Fragment {
 
             @Override
             public void onItemLongClick(View v, int position) {
-                Toast.makeText(getActivity(), "item clicked "+ position, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
 
             }
         }));

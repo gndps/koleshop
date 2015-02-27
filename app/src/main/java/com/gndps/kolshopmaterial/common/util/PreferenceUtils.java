@@ -7,6 +7,10 @@ import com.gndps.kolshopmaterial.common.GlobalData;
 import com.gndps.kolshopmaterial.common.constant.Prefs;
 import com.gndps.kolshopmaterial.model.Session;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * Created by gundeepsingh on 17/10/14.
  */
@@ -17,6 +21,37 @@ public class PreferenceUtils {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(flagKey, flagValue);
         editor.commit();
+    }
+
+    public static void setPreferences(Context context, HashMap<String, String> map) {
+        SharedPreferences prefs = context.getSharedPreferences(Prefs.KOL_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        Iterator it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            String key = (String) pair.getKey();
+            String value = (String) pair.getValue();
+            if(key!=null && value!=null && !key.trim().equalsIgnoreCase(""))
+            {
+                editor.putString(key, value);
+            }
+        }
+        editor.apply();
+    }
+
+    public static void setPreferences(Context context, String key, String value) {
+        SharedPreferences prefs = context.getSharedPreferences(Prefs.KOL_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+            if(key!=null && value!=null && !key.trim().equalsIgnoreCase(""))
+            {
+                editor.putString(key, value);
+            }
+        editor.apply();
+    }
+
+    public static String getPreferences(Context context, String key) {
+        SharedPreferences prefs = context.getSharedPreferences(Prefs.KOL_PREFS, Context.MODE_PRIVATE);
+        return prefs.getString(key, "");
     }
 
     public static boolean getPreferencesFlag(Context context, String flagKey) {

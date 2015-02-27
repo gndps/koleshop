@@ -1,5 +1,5 @@
 {
-    "baselineGridVisible": true,
+    "baselineGridVisible": false,
     "baselineGridCellSize": 8,
     "keylines": [
         { "offset": 16,

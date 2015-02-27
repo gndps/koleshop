@@ -1,12 +1,19 @@
 package com.gndps.kolshopmaterial.activities;
 
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.gndps.kolshopmaterial.R;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
 
 public class ProductActivity extends ActionBarActivity {
 
@@ -17,6 +24,7 @@ public class ProductActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product);
         setupViews();
+        //hashmaptest();
     }
 
 
@@ -44,6 +52,31 @@ public class ProductActivity extends ActionBarActivity {
         toolbar = (Toolbar) findViewById(R.id.product_app_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    private void hashmaptest()
+    {
+        //create test hashmap
+        HashMap<String, String> testHashMap = new HashMap<String, String>();
+        testHashMap.put("key1", "value1");
+        testHashMap.put("key2", "value2");
+
+        //convert to string using gson
+        Gson gson = new Gson();
+        String hashMapString = gson.toJson(testHashMap);
+
+        //save in shared prefs
+        SharedPreferences prefs = getSharedPreferences("test", MODE_PRIVATE);
+        prefs.edit().putString("hashString", hashMapString).apply();
+
+        //get from shared prefs
+        String storedHashMapString = prefs.getString("hashString", "oopsDintWork");
+        Type type = new TypeToken<HashMap<String, String>>(){}.getType();
+        HashMap<String, String> testHashMap2 = gson.fromJson(storedHashMapString, type);
+
+        //use values
+        String toastString = testHashMap2.get("key1") + " | " + testHashMap2.get("key2");
+        Toast.makeText(this, toastString, Toast.LENGTH_LONG).show();
     }
 
 
