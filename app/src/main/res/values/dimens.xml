@@ -4,4 +4,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="recycler_view_left_margin">72dp</dimen>
     <dimen name="recycler_view_right_margin">0dp</dimen>
+    <dimen name="product_title_text_size">20sp</dimen>
+    <dimen name="material_left_margin">16dp</dimen>
+    <dimen name="material_right_margin">16dp</dimen>
+    <dimen name="material_right_margin_small_icon">32dp</dimen>
 </resources>

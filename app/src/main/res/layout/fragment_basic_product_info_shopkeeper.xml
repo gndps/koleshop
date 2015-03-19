@@ -1,0 +1,92 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.gndps.kolshopmaterial.fragments.BasicProductInfoShopkeeper">
+
+    <!-- name and description linear layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="@dimen/material_left_margin"
+            android:layout_marginRight="@dimen/material_right_margin_small_icon"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/ic_info_grey600_24dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="@dimen/material_right_margin"
+            android:orientation="vertical">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Product name"
+                android:maxLines="1"
+                android:inputType="textCapWords"
+                android:paddingBottom="8dp"
+                android:id="@+id/fragment_basic_product_info_shopkeeper_edittext_name" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Description"
+                android:paddingTop="16dp"
+                android:maxLines="1"
+                android:inputType="textCapWords"
+                android:paddingBottom="8dp"
+                android:id="@+id/fragment_basic_product_info_shopkeeper_edittext_description" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="4dp"
+                    android:textSize="@dimen/abc_text_size_medium_material"
+                    android:paddingRight="16dp"
+                    android:text="Available in stock"/>
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- image linear layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="@dimen/material_left_margin"
+            android:layout_marginRight="@dimen/material_right_margin_small_icon"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/ic_photo_camera_grey600_24dp" />
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/ic_add_grey600_48dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -5,91 +5,94 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    ripple:rv_centered="false">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:id="@+id/product_list_item"
-    tools:context="com.gndps.kolshopmaterial.fragments.ProductListFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <ImageView
-        android:layout_marginLeft="16dp"
-        android:layout_width="40dp"
-        android:layout_gravity="center_vertical"
-        android:layout_height="40dp"
-        android:id="@+id/product_list_item_img_product_image"
-        android:src="@drawable/ice_cream" />
+    ripple:rv_centered="false"
+    ripple:rv_rippleDuration="150"
+    ripple:rv_color="@color/highlight">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp">
+        android:orientation="horizontal"
+        android:id="@+id/product_list_item"
+        tools:context="com.gndps.kolshopmaterial.fragments.ProductListFragment">
+
+        <!-- TODO: Update blank fragment layout -->
+        <ImageView
+            android:layout_marginLeft="16dp"
+            android:layout_width="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_height="40dp"
+            android:id="@+id/product_list_item_img_product_image"
+            android:src="@drawable/ice_cream" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/primary_text"
-                android:textSize="20sp"
-                android:text="@string/ice_cream"
-                android:fontFamily="sans-serif-medium"
-                android:maxLines="1"
-                android:layout_gravity="left"
-                android:id="@+id/product_list_item_txt_product_name" />
+            android:orientation="vertical"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/primary_text"
+                    android:textSize="@dimen/product_title_text_size"
+                    android:text="@string/ice_cream"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:layout_gravity="left"
+                    android:id="@+id/product_list_item_txt_product_name" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="right|bottom"
+                    android:gravity="right|bottom">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginRight="4dp"
+                        android:textSize="14sp"
+                        android:id="@+id/product_list_item_txt_product_flavors"
+                        android:text="4 Flavors" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textSize="14sp"
+                        android:text="|"
+                        android:layout_marginRight="4dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:textSize="14sp"
+                        android:layout_height="match_parent"
+                        android:id="@+id/product_list_item_txt_product_sizes"
+                        android:text="2 Sizes" />
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="right|bottom"
-                android:gravity="right|bottom">
+                android:textSize="16sp"
+                android:textColor="@color/secondary_text"
+                android:id="@+id/product_list_item_txt_product_description"
+                android:text="Delicious ice cream to make your day Delicious ice cream to make your day Delicious ice cream to make your day"
+                android:maxLines="1" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="4dp"
-                    android:textSize="14sp"
-                    android:id="@+id/product_list_item_txt_product_flavors"
-                    android:text="4 Flavors" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="14sp"
-                    android:text="|"
-                    android:layout_marginRight="4dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:textSize="14sp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/product_list_item_txt_product_sizes"
-                    android:text="2 Sizes" />
-            </LinearLayout>
         </LinearLayout>
 
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@color/secondary_text"
-            android:id="@+id/product_list_item_txt_product_description"
-            android:text="Delicious ice cream to make your day Delicious ice cream to make your day Delicious ice cream to make your day"
-            android:maxLines="1" />
-
     </LinearLayout>
-
-</LinearLayout>
-    </com.andexert.library.RippleView>
+</com.andexert.library.RippleView>

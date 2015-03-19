@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:background="@drawable/ripple"
+    android:clickable="true"
     android:id="@+id/product_list_item"
     tools:context="com.gndps.kolshopmaterial.fragments.ProductListFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <ImageView
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="@dimen/material_left_margin"
         android:layout_width="40dp"
         android:layout_gravity="center_vertical"
         android:layout_height="40dp"
@@ -35,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textColor="@color/primary_text"
-                android:textSize="20sp"
+                android:textSize="12sp"
                 android:text="@string/ice_cream"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
