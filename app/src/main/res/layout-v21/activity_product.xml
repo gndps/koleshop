@@ -9,8 +9,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:theme="@style/AppTheme.Base"
-    tools:context="com.gndps.kolshopmaterial.activities.ProductActivity">
+    tools:context="com.kolshop.kolshopmaterial.activities.ProductActivity">
 
     <include
         android:id="@+id/product_app_bar"
@@ -21,7 +20,7 @@
         android:layout_height="match_parent"
         tools:layout="@layout/fragment_product_list"
         android:id="@+id/product_fragment_product_list"
-        android:name="com.gndps.kolshopmaterial.fragments.ProductListFragment" />
+        android:name="com.kolshop.kolshopmaterial.fragments.product.ProductListFragment" />
 
 </LinearLayout>
 

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/fragment_product_list"
-    tools:context="com.gndps.kolshopmaterial.fragments.ProductListFragment">
+    tools:context="com.kolshop.kolshopmaterial.fragments.product.ProductListFragment">
 
 
     <LinearLayout

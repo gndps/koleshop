@@ -27,5 +27,19 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="ice_cream">Ice cream</string>
     <string name="title_activity_product">Products</string>
+    <string name="title_activity_add_edit_product">Edit Product</string>
+    <string name="title_activity_exception_testing">ExceptionTesting</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+    <string name="category_prompt">Choose a Category...</string>
+    <string name="delete_variety">Delete</string>
+
+    <string-array name="navigation_drawer_array">
+        <item>Products</item>
+        <item>Log Out</item>
+        <item>Add/Edit Product</item>
+        <item>Settings</item>
+    </string-array>
 
 </resources>

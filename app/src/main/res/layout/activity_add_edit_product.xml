@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kolshop.kolshopmaterial.activities.AddEditProductActivity">
+
+
+    <include
+        android:id="@+id/add_edit_product_app_bar"
+        layout="@layout/app_bar"></include>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <fragment
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_product_info"
+                android:id="@+id/activity_add_edit_product_fragment_basic_product_info"
+                android:name="com.kolshop.kolshopmaterial.fragments.product.ProductBasicInfoShopkeeper" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linear_layout_product_varieties_details_container"
+                android:orientation="vertical"></LinearLayout>
+
+            <!--fragment
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                tools:layout="@layout/fragment_product_variety_details"
+                android:id="@+id/activity_add_edit_product_fragment_product_variety_details"
+                android:name="com.kolshop.kolshopmaterial.fragments.product.ProductVarietyDetailsFragment" /-->
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

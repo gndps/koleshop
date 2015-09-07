@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gndps.kolshopmaterial" >
+    package="com.kolshop.kolshopmaterial" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <permission
-        android:name="com.gndps.kolshopmaterial.permission.C2D_MESSAGE"
+        android:name="com.kolshop.kolshopmaterial.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.gndps.kolshopmaterial.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.kolshop.kolshopmaterial.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -29,7 +29,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme.Base" >
         <activity
             android:name=".activities.InitialActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -46,7 +46,7 @@
             android:parentActivityName=".activities.InitialActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.gndps.kolshopmaterial.activities.InitialActivity" />
+                android:value="com.kolshop.kolshopmaterial.activities.InitialActivity" />
         </activity>
 
         <receiver
@@ -57,7 +57,7 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="com.kolshop" />
+                <category android:name="com.kolshop.kolshopmaterial" />
             </intent-filter>
         </receiver>
 
@@ -129,6 +129,35 @@
             android:name=".activities.ProductActivity"
             android:label="@string/title_activity_product" >
         </activity>
+        <activity
+            android:name=".activities.AddEditProductActivity"
+            android:label="@string/title_activity_add_edit_product" >
+        </activity>
+
+        <service
+            android:name=".services.CloudEndpointService"
+            android:exported="false" >
+        </service>
+
+        <activity
+            android:name=".ExceptionTesting"
+            android:label="@string/title_activity_exception_testing" >
+        </activity>
+
+        <service
+            android:name=".services.SessionIntentService"
+            android:exported="false" >
+        </service>
+
+        <activity
+            android:name=".activities.HomeActivity"
+            android:label="@string/title_activity_home" >
+        </activity>
+
+        <service
+            android:name=".services.CommonIntentService"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/AppTheme.Base"
     android:orientation="vertical"
     tools:context="com.kolshop.kolshop.initial.SignUpActivity">
 
@@ -13,101 +12,105 @@
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
 
-    <EditText
-        android:id="@+id/editTextUsername_Login"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginTop="49dp"
-        android:drawableLeft="@drawable/username"
-        android:drawablePadding="5dp"
-        android:hint="Username"
-        android:padding="10dp"
-        android:singleLine="true"
-        android:textSize="22sp" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/editTextEmail"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/editTextUsername_Login"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:drawableLeft="@drawable/email"
-        android:drawablePadding="5dp"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:padding="10dp"
-        android:singleLine="true"
-        android:textSize="22sp" />
+            <EditText
+                android:id="@+id/editTextUsername_Login"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="49dp"
+                android:drawableLeft="@drawable/username"
+                android:drawablePadding="5dp"
+                android:hint="Username"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="22sp" />
 
-    <EditText
-        android:id="@+id/editTextPassword_Login"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/editTextEmail"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:drawableLeft="@drawable/password"
-        android:drawablePadding="5dp"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:padding="10dp"
-        android:singleLine="true"
-        android:textSize="22sp" />
+            <EditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextUsername_Login"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:drawableLeft="@drawable/email"
+                android:drawablePadding="5dp"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="22sp" />
 
-    <Button
-        android:id="@+id/buttonSignUp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:background="@color/primary"
-        android:onClick="signUp"
-        android:clickable="true"
-        android:padding="15dp"
-        android:text="Sign Up"
-        android:textSize="30sp" />
+            <EditText
+                android:id="@+id/editTextPassword_Login"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextEmail"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:drawableLeft="@drawable/password"
+                android:drawablePadding="5dp"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="22sp" />
 
-    <ProgressBar
-        android:id="@+id/progressBarUsername"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="46dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editTextUsername_Login"
-        android:layout_alignEnd="@+id/editTextUsername_Login"
-        android:layout_alignRight="@+id/editTextUsername_Login"
-        android:layout_alignTop="@+id/editTextUsername_Login" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/editTextUsername_Login"
+                android:layout_alignEnd="@+id/editTextUsername_Login"
+                android:layout_alignRight="@+id/editTextUsername_Login"
+                android:layout_alignTop="@+id/editTextUsername_Login">
 
-    <ImageView
-        android:id="@+id/imageViewUsernameAvailable"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editTextUsername_Login"
-        android:layout_alignEnd="@+id/buttonLogin_Login"
-        android:layout_alignLeft="@+id/progressBarUsername"
-        android:layout_alignRight="@+id/buttonLogin_Login"
-        android:layout_alignStart="@+id/progressBarUsername"
-        android:layout_alignTop="@+id/editTextUsername_Login"
-        android:paddingRight="10dp" />
+                <ProgressBar
+                    android:id="@+id/progressBarUsername"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_gravity="center"
+                    android:layout_width="46dp"
+                    android:layout_height="wrap_content" />
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignBottom="@+id/editTextPassword_Login"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:orientation="horizontal"></LinearLayout>
+                <ImageView
+                    android:id="@+id/imageViewUsernameAvailable"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="10dp" />
+
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/buttonSignUp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_below="@+id/editTextPassword_Login"
+                android:background="@color/primary"
+                android:textColor="@color/primary_light"
+                android:onClick="signUp"
+                android:clickable="true"
+                android:padding="15dp"
+                android:text="Sign Up"
+                android:textSize="30sp" />
+
+        </RelativeLayout>
+
+    </ScrollView>
 
 </LinearLayout>

@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
-    android:theme="@style/AppTheme.Base"
     tools:context=".InitialActivity">
 
 
@@ -16,41 +15,10 @@
         android:layout_marginTop="50dp"
         android:src="@drawable/kolshop_logo" />
 
-    <Button
-        android:id="@+id/buttonLogin_Login"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="12dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="6dp"
-        android:layout_toLeftOf="@+id/imageViewDummy"
-        android:layout_toStartOf="@+id/imageViewDummy"
-        android:clickable="true"
-        android:onClick="signUp"
-        android:text="Sign Up" />
-
-    <Button
-        android:id="@+id/buttonBuyer"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/buttonLogin_Login"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="12dp"
-        android:layout_toEndOf="@+id/buttonLogin_Login"
-        android:layout_toRightOf="@+id/buttonLogin_Login"
-        android:onClick="logIn"
-        android:text="Log In" />
-
     <ImageView
         android:id="@+id/imageViewDummy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/buttonBuyer"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="48dp" />
 

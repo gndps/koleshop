@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
+    android:paddingTop="8dp">
+    android:id="@+id/linear_layout_product_property"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Weight/Color/Flavour etc"
+        android:id="@+id/edittext_property"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:layout_gravity="center_vertical"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/edittext_property_value"></EditText>
+
+    <EditText
+        android:layout_width="156dp"
+        android:layout_height="wrap_content"
+        android:hint="amount/value"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:layout_gravity="center_vertical"
+        android:id="@+id/edittext_property_value"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/spinner_product_property_unit"/>
+
+    <Spinner
+        android:layout_width="64dp"
+        android:layout_alignParentRight="true"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner_product_property_unit"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_vertical"></Spinner>
+
+    </RelativeLayout>
+
+</LinearLayout>

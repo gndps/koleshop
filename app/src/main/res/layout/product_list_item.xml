@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:id="@+id/product_list_item"
-        tools:context="com.gndps.kolshopmaterial.fragments.ProductListFragment">
+        tools:context="com.kolshop.kolshopmaterial.fragments.product.ProductListFragment">
 
         <!-- TODO: Update blank fragment layout -->
         <ImageView

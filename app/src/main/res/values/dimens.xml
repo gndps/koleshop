@@ -8,4 +8,5 @@
     <dimen name="material_left_margin">16dp</dimen>
     <dimen name="material_right_margin">16dp</dimen>
     <dimen name="material_right_margin_small_icon">32dp</dimen>
+    <dimen name="nav_drawer_width">280dp</dimen>
 </resources>

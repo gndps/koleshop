@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/KolShop.iml" filepath="$PROJECT_DIR$/KolShop.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kol backend/kol backend.iml" filepath="$PROJECT_DIR$/kol backend/kol backend.iml" />
     </modules>
   </component>
 </project>
