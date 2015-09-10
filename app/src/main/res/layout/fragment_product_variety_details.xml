@@ -64,15 +64,20 @@
                     android:orientation="vertical">
 
                     <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="0dp" />
+
+                    <EditText
                         android:id="@+id/edittext_product_variety_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Variety name"
+                        android:imeOptions="actionDone"
                         android:inputType="textCapWords"
                         android:maxLines="1"
                         android:paddingBottom="8dp" />
 
-                    <RelativeLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -82,31 +87,32 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
-                            android:layout_alignParentTop="true"
                             android:paddingLeft="4dp"
+                            android:paddingRight="4dp"
                             android:text="Price"
+                            android:layout_gravity="center"
                             android:textSize="@dimen/abc_text_size_medium_material" />
 
                         <EditText
                             android:id="@+id/edittext_product_price"
-                            android:layout_width="156dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_alignTop="@+id/spinner_price_unit"
-                            android:layout_toLeftOf="@+id/spinner_price_unit"
-                            android:layout_toStartOf="@+id/spinner_price_unit"
+                            android:paddingRight="8dp"
                             android:hint="product price"
+                            android:layout_gravity="center"
+                            android:imeOptions="actionDone"
                             android:inputType="numberDecimal"
                             android:maxLines="1"
+                            android:layout_weight="1"
                             android:singleLine="true" />
 
                         <Spinner
                             android:id="@+id/spinner_price_unit"
-                            android:layout_width="64dp"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:layout_alignParentTop="true" />
+                            android:layout_gravity="center_vertical"
+                            android:layout_width="88dp"
+                            android:layout_height="wrap_content" />
 
-                    </RelativeLayout>
+                    </LinearLayout>
 
 
                     <RelativeLayout
@@ -135,9 +141,11 @@
                             android:layout_width="156dp"
                             android:layout_height="wrap_content"
                             android:layout_toLeftOf="@+id/switch_product_available"
-                            android:hint="∞"
+                            android:hint="how many?"
+                            android:imeOptions="actionDone"
                             android:inputType="number"
                             android:maxLines="1"
+                            android:visibility="gone"
                             android:singleLine="true" />
 
                         <Switch
@@ -145,13 +153,14 @@
                             android:layout_width="64dp"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
-                            android:checked="false" />
+                            android:checked="true" />
                     </RelativeLayout>
 
                     <LinearLayout
                         android:id="@+id/linear_layout_product_variety_properties_container"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
                         android:orientation="vertical"></LinearLayout>
 
 

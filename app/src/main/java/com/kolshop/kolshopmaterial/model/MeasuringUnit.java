@@ -1,6 +1,7 @@
 package com.kolshop.kolshopmaterial.model;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -20,9 +21,9 @@ public class MeasuringUnit extends RealmObject {
     public MeasuringUnit(){
     }
 
-    public MeasuringUnit(int id, String unitDimentions, String unit, boolean baseUnit, float conversionRate, String unitFullName) {
+    public MeasuringUnit(int id, String unitDimensions, String unit, boolean baseUnit, float conversionRate, String unitFullName) {
         this.id = id;
-        this.unitDimensions = unitDimentions;
+        this.unitDimensions = unitDimensions;
         this.unit = unit;
         this.baseUnit = baseUnit;
         this.conversionRate = conversionRate;

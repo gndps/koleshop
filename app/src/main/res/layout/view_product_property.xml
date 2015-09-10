@@ -7,41 +7,41 @@
     android:paddingTop="8dp">
     android:id="@+id/linear_layout_product_property"
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Weight/Color/Flavour etc"
+        android:hint="product info"
         android:id="@+id/edittext_property"
         android:singleLine="true"
+        android:imeOptions="actionNext"
         android:maxLines="1"
-        android:layout_gravity="center_vertical"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/edittext_property_value"></EditText>
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical"></EditText>
 
     <EditText
-        android:layout_width="156dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="amount/value"
+        android:hint="value"
         android:singleLine="true"
         android:maxLines="1"
+        android:layout_weight="1"
+        android:imeOptions="actionDone"
         android:layout_gravity="center_vertical"
-        android:id="@+id/edittext_property_value"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/spinner_product_property_unit"/>
+        android:id="@+id/edittext_property_value"/>
 
     <Spinner
-        android:layout_width="64dp"
+        android:layout_width="88dp"
         android:layout_alignParentRight="true"
         android:layout_height="wrap_content"
         android:id="@+id/spinner_product_property_unit"
         android:layout_alignParentTop="true"
         android:layout_gravity="center_vertical"></Spinner>
 
-    </RelativeLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -4,7 +4,6 @@ import java.util.Date;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
-import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -21,7 +20,8 @@ public class ProductVariety extends RealmObject {
     private Date dateAdded;
     private Date dateModified;
 
-    private RealmList<ProductVarietyAttribute> listProductVarietyAttributes;
+    private RealmList<VarietyAttribute> listVarietyAttributes;
+    private RealmList<AttributeValue> listAttributeValues;
 
     public ProductVariety() {
     }
@@ -92,11 +92,19 @@ public class ProductVariety extends RealmObject {
         this.dateModified = dateModified;
     }
 
-    public RealmList<ProductVarietyAttribute> getListProductVarietyAttributes() {
-        return listProductVarietyAttributes;
+    public RealmList<VarietyAttribute> getListVarietyAttributes() {
+        return listVarietyAttributes;
     }
 
-    public void setListProductVarietyAttributes(RealmList<ProductVarietyAttribute> listProductVarietyAttributes) {
-        this.listProductVarietyAttributes = listProductVarietyAttributes;
+    public void setListVarietyAttributes(RealmList<VarietyAttribute> listVarietyAttributes) {
+        this.listVarietyAttributes = listVarietyAttributes;
+    }
+
+    public RealmList<AttributeValue> getListAttributeValues() {
+        return listAttributeValues;
+    }
+
+    public void setListAttributeValues(RealmList<AttributeValue> listAttributeValues) {
+        this.listAttributeValues = listAttributeValues;
     }
 }

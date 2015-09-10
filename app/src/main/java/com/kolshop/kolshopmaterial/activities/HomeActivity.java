@@ -61,6 +61,12 @@ public class HomeActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(homeActivityBroadcastReceiver);
+        super.onPause();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
@@ -165,7 +171,7 @@ public class HomeActivity extends ActionBarActivity {
     private void loadInitialData()
     {
 
-        Realm.deleteRealmFile(this);
+        //Realm.deleteRealmFile(this);
 
         loadedProductCategories = Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_PRODUCT_CATEGORIES_LOADED));
         loadedMeasuringUnits = Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_MEASURING_UNITS_LOADED));

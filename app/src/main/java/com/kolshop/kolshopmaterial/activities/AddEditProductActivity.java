@@ -75,6 +75,7 @@ public class AddEditProductActivity extends ActionBarActivity {
 
     @Override
     protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
         super.onPause();
     }
 

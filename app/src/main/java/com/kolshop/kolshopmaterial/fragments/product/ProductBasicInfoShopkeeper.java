@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -22,8 +25,6 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ import io.realm.RealmResults;
 
 public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClickListener {
 
-    private EditText productName, productDescription;
+    private EditText editTextProductName, editTextDescription, editTextBrand;
     private Switch productAvailableSwitch;
     Spinner spinnerCategory,spinnerSubcategory;
     private List<ProductCategory> parentCategories,subCategories;
@@ -62,8 +63,9 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
     private void findViewsByIds(View productBasicFragment)
     {
-        productName = (EditText) productBasicFragment.findViewById(R.id.edittext_product_name);
-        productDescription = (EditText) productBasicFragment.findViewById(R.id.edittext_product_description);
+        editTextProductName = (EditText) productBasicFragment.findViewById(R.id.edittext_product_name);
+        editTextDescription = (EditText) productBasicFragment.findViewById(R.id.edittext_product_description);
+        editTextBrand = (EditText) productBasicFragment.findViewById(R.id.edittext_product_brand);
         productAvailableSwitch = (Switch) productBasicFragment.findViewById(R.id.switch_product_available);
         spinnerCategory = (Spinner) productBasicFragment.findViewById(R.id.spinner_product_category);
         spinnerSubcategory = (Spinner) productBasicFragment.findViewById(R.id.spinner_product_subcategory);
@@ -71,6 +73,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         textViewNumberOfVarieties = (TextView) productBasicFragment.findViewById(R.id.textview_product_number_of_varieties);
         buttonAddVariety = (ImageButton) productBasicFragment.findViewById(R.id.button_add_variety);
         buttonAddVariety.setOnClickListener(this);
+        addEditTextHandlers();
     }
 
     @Override
@@ -86,8 +89,8 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     public void setTestingInfo()
     {
         try {
-            productName.setText("Maggi Noodles");
-            productDescription.setText("Delecious Maggi Noodles and Maggi atta noodle");
+            editTextProductName.setText("Maggi Noodles");
+            editTextDescription.setText("Delecious Maggi Noodles and Maggi atta noodle");
             productAvailableSwitch.setChecked(true);
         }
         catch(Exception e)
@@ -234,6 +237,52 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         intent.putExtra("numberOfVarieties", numberOfVarieties);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
         textViewNumberOfVarieties.setText(numberOfVarieties + "");
+    }
+
+    private void addEditTextHandlers()
+    {
+        //to clear focus from brand when done is pressed
+        editTextBrand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    //Clear focus here from edittext
+                    editTextBrand.clearFocus();
+                }
+                return false;
+            }
+        });
+
+        //to hide keyboard on click outside edittexts
+        editTextBrand.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+        editTextProductName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+        editTextDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 }

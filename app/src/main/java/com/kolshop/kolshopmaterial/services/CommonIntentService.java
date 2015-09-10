@@ -169,7 +169,7 @@ public class CommonIntentService extends IntentService {
                 return;
             }
 
-            List<kolshopbackend.kolshop.com.commonEndpoint.model.ProductVarietyAttributeMeasuringUnit> measuringUnits = result.getItems();;
+            List<kolshopbackend.kolshop.com.commonEndpoint.model.ProductVarietyAttributeMeasuringUnit> measuringUnits = result.getItems();
             List<MeasuringUnit> mUnits = new ArrayList<>();
 
             for(kolshopbackend.kolshop.com.commonEndpoint.model.ProductVarietyAttributeMeasuringUnit currentMu : measuringUnits)
