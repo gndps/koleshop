@@ -39,7 +39,7 @@ public class ViewProductProperty extends LinearLayout{
     Spinner spinnerPropertyUnit;
     ImageButton imageButtonProductPropertyOptions;
     String propertyName;
-    Context context;
+    final Context context;
     List<MeasuringUnit> measuringUnitList;
     int currentMeasuringUnitId;
     String productVarietyAttributeId,productVarietyAttributeValueId,productVarietyId;
@@ -53,7 +53,6 @@ public class ViewProductProperty extends LinearLayout{
     public ViewProductProperty(Context context) {
         super(context);
         this.context = context;
-        final Context context1 = context;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.view_product_property, this, true);
@@ -63,31 +62,7 @@ public class ViewProductProperty extends LinearLayout{
         spinnerPropertyUnit = (Spinner) v.findViewById(R.id.spinner_product_property_unit);
         loadMeasuringUnits();
         bindSpinner();
-        editTextProperty.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == KeyEvent.ACTION_DOWN) {
-                    if (!isEmptyProperty()) {
-                        editTextProperty.clearFocus();
-                        editTextPropertyValue.requestFocus();
-                    }
-                    else
-                    {
-                        try {
-                            InputMethodManager imm = (InputMethodManager) context1.getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(editTextProperty.getWindowToken(), 0);
-                        }
-                        catch(Exception e)
-                        {
-
-                        }
-                    }
-                    handled = true;
-                }
-                return handled;
-            }
-        });
+        addEditorActionListener();
     }
 
     public void setOnOptionsClickListener(OnClickListener onOptionsClickListener) {
@@ -215,6 +190,26 @@ public class ViewProductProperty extends LinearLayout{
     public boolean isAboutToDelete()
     {
         return aboutToDelete;
+    }
+
+    public boolean isCurrentlyFocused()
+    {
+        return (editTextProperty.isFocused() || editTextPropertyValue.isFocused());
+    }
+
+    private void addEditorActionListener()
+    {
+        editTextProperty.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == KeyEvent.ACTION_DOWN) {
+                    editTextPropertyValue.requestFocus();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
     }
 
 }

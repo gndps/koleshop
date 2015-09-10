@@ -8,12 +8,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
@@ -44,7 +41,7 @@ public class AddEditProductActivity extends ActionBarActivity {
         setupViews();
         numberOfVarieties = 0;
         initializeBroadcastReceivers();
-        initializeOtherStuff();
+        initializeProductVarietyDetailsFragment();
     }
 
     private void initializeBroadcastReceivers()
@@ -115,7 +112,7 @@ public class AddEditProductActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
-    public void initializeOtherStuff()
+    public void initializeProductVarietyDetailsFragment()
     {
         /*if(product!=null){
             numberOfVarieties = product.getVarieties.size();
@@ -128,6 +125,9 @@ public class AddEditProductActivity extends ActionBarActivity {
             productVarietyDetailsFragment.setIndex(0);
             productVarietyDetailsFragment.setNumberOfVarieties(numberOfVarieties);
             productVarietyDetailsFragmentList.add(productVarietyDetailsFragment);
+            Bundle args = new Bundle();
+            args.putString("name", "creative shit");
+            productVarietyDetailsFragment.setArguments(args);
             getFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, ""+1).commit();
 
         //}

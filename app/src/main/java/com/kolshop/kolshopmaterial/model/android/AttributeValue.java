@@ -13,6 +13,7 @@ public class AttributeValue extends RealmObject {
     private String productVarietyId;
     private String productVarietyAttributeId;
     private String value;
+    private int sortOrder;
 
     public AttributeValue()
     {
@@ -58,4 +59,11 @@ public class AttributeValue extends RealmObject {
         this.value = value;
     }
 
+    public int getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(int sortOrder) {
+        this.sortOrder = sortOrder;
+    }
 }

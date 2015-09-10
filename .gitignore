@@ -4,4 +4,4 @@
 /.idea/libraries
 .DS_Store
 /build
-/app/kol backend/build
+kol backend/build

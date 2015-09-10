@@ -19,7 +19,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:clickable="true"
-            android:focusableInTouchMode="false">
+            android:focusableInTouchMode="true">
 
             <fragment
                 android:layout_width="match_parent"

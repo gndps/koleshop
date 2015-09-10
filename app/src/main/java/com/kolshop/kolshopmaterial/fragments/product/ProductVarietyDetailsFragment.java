@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -123,6 +125,25 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         {
             textViewHeading.setText("VARIETY DETAILS " + (index+1));
         }
+
+        Bundle bundle=getArguments();
+        if(bundle.getString("id")!=null && !bundle.getString("id").isEmpty()) {
+            id = bundle.getString("id");
+            name = bundle.getString("name");
+            limitedStock = bundle.getInt("stock");
+            imageUrl = bundle.getString("imageUrl")!=null?bundle.getString("imageUrl"):"";
+            dateAdded = (bundle.getLong("dateAdded")!=0)?(new Date(bundle.getLong("dateAdded"))):(new Date());
+            dateModified = (bundle.getLong("dateModified")!=0)?(new Date(bundle.getLong("dateModified"))):(new Date());
+        }
+        else {
+            id = UUID.randomUUID().toString();
+            name = "";
+            limitedStock = -1; //-1 = unlimited
+            imageUrl = "";
+            dateAdded = new Date();
+            dateModified = new Date();
+        }
+
     }
 
     public int getIndex() {
@@ -253,6 +274,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         {
             ViewProductProperty viewProductProperty = (ViewProductProperty) linearLayoutProperties.getChildAt(i);
             AttributeValue av = viewProductProperty.getAttributeValue();
+            av.setSortOrder(i);
             listAttributeValues.add(av);
         }
         return listAttributeValues;
@@ -301,12 +323,9 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         switchStock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(!isChecked)
-                {
+                if (!isChecked) {
                     editTextStock.setVisibility(View.GONE);
-                }
-                else
-                {
+                } else {
                     //to be implemented later
                     //editTextStock.setVisibility(View.VISIBLE);
                 }
@@ -324,18 +343,16 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
                     int indexOfThisProperty = linearLayoutProperties.indexOfChild(viewProductProperty);
                     int lastPropertyIndex = linearLayoutProperties.getChildCount() - 1;
                     boolean thisIsTheLastProperty = indexOfThisProperty == lastPropertyIndex;
-                    if (viewProductProperty.isEmptyProperty() && !thisIsTheLastProperty && !viewProductProperty.isAboutToDelete()) {
-                        viewProductProperty.setAboutToDelete();
+                    if (viewProductProperty.isEmptyProperty() && !thisIsTheLastProperty) {
+                        deleteThisPropertyIn1Second(viewProductProperty);
                         hideKeyboard(v);
-                        linearLayoutProperties.removeViewAt(indexOfThisProperty);
                     }
                     else
                     {
-                        hideKeyboard(v);
+                        if(!viewProductProperty.isCurrentlyFocused()) {
+                            hideKeyboard(v);
+                        }
                     }
-                    /*if (!viewProductProperty.isEmptyProperty() && thisIsTheLastProperty) {
-                        addViewPropertyAtEnd();
-                    }*/
                 }
                 else if(hasFocus && viewProductProperty.isAboutToDelete())
                 {
@@ -360,10 +377,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
                 int indexOfThisProperty = linearLayoutProperties.indexOfChild(viewProductProperty);
                 int lastPropertyIndex = linearLayoutProperties.getChildCount()-1;
                 boolean thisIsTheLastProperty = indexOfThisProperty==lastPropertyIndex;
-                /*if(viewProductProperty.isEmptyProperty() && !thisIsTheLastProperty)
-                {
-                    linearLayoutProperties.removeViewAt(indexOfThisProperty);
-                }*/
+
                 if(!viewProductProperty.isEmptyProperty() && thisIsTheLastProperty)
                 {
                     addViewPropertyAtEnd();
@@ -433,7 +447,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    hideKeyboard(v);
+                    hideKeyboardIfNothingFocused(v);
                 }
             }
         });
@@ -441,7 +455,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    hideKeyboard(v);
+                    hideKeyboardIfNothingFocused(v);
                 }
             }
         });
@@ -449,7 +463,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    hideKeyboard(v);
+                    hideKeyboardIfNothingFocused(v);
                 }
             }
         });
@@ -458,6 +472,49 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public void hideKeyboardIfNothingFocused(final View view)
+    {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                if(!editTextStock.isFocused() && !editTextPrice.isFocused() && !editTextProductName.isFocused() && !isAnyPropertyFocused()) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+        };
+        Handler h = new Handler();
+        h.postDelayed(r, 200);
+
+    }
+
+    private boolean isAnyPropertyFocused()
+    {
+        for(int i=0; i<linearLayoutProperties.getChildCount();i++)
+        {
+            if(((ViewProductProperty)linearLayoutProperties.getChildAt(i)).isCurrentlyFocused())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void deleteThisPropertyIn1Second(final ViewProductProperty v)
+    {
+        Runnable r = new Runnable() {
+            @Override
+            public void run(){
+                if(v.isEmptyProperty() && !v.isCurrentlyFocused()) {
+                    linearLayoutProperties.removeView(v);
+                }
+            }
+        };
+
+        Handler h = new Handler();
+        h.postDelayed(r, 1000);
     }
 
 }
