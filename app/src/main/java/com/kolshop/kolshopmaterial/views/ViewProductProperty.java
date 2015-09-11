@@ -65,6 +65,12 @@ public class ViewProductProperty extends LinearLayout{
         addEditorActionListener();
     }
 
+    public ViewProductProperty(Context context, String info)
+    {
+        this(context);
+        editTextProperty.setText(info);
+    }
+
     public void setOnOptionsClickListener(OnClickListener onOptionsClickListener) {
         imageButtonProductPropertyOptions.setOnClickListener(onOptionsClickListener);
     }

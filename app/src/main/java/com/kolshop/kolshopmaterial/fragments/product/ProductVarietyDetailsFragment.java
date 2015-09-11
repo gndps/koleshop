@@ -104,14 +104,11 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         spinnerPrice = (Spinner) v.findViewById(R.id.spinner_price_unit);
         context = v.getContext();
 
-
         addInitialProperty();
-
         loadPriceSpinner();
         bindSpinner();
         bindStockSwitch();
         addEditTextHandlers();
-
         initializeFragment();
         return v;
     }
@@ -435,7 +432,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
 
     private void addViewPropertyAtEnd()
     {
-        ViewProductProperty v = new ViewProductProperty(getActivity());
+        ViewProductProperty v = new ViewProductProperty(getActivity(), "ya wassa");
         linearLayoutProperties.addView(v);
         setFocusChangeListenerToProperty(v);
     }
