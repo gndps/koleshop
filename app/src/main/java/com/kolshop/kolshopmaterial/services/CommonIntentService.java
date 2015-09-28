@@ -15,6 +15,7 @@ import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.RealmUtils;
 import com.kolshop.kolshopmaterial.model.MeasuringUnit;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
+import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -175,6 +176,10 @@ public class CommonIntentService extends IntentService {
             for(kolshopbackend.kolshop.com.commonEndpoint.model.ProductVarietyAttributeMeasuringUnit currentMu : measuringUnits)
             {
                 MeasuringUnit mu = new MeasuringUnit(currentMu.getId(), currentMu.getUnitType(), currentMu.getUnit(), currentMu.getBaseUnit(), currentMu.getConversionRate(), currentMu.getUnitFullName());
+                if(mu.getUnitDimensions().equalsIgnoreCase("price"))
+                {
+                    KolShopSingleton.getSharedInstance().setDefaultPriceMeasuringUnitId(mu.getId());
+                }
                 mUnits.add(mu);
             }
 

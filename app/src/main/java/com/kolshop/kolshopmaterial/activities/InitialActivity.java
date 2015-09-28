@@ -75,8 +75,6 @@ public class InitialActivity extends ActionBarActivity {
         setContentView(R.layout.activity_initial);
 
         if (checkPlayServices()) {
-            loadUserProfileIfLoggedIn();
-
             // Create the dummy account
             mAccount = CreateSyncAccount(this);
         } else {
@@ -94,7 +92,10 @@ public class InitialActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        checkPlayServices();
+        if(checkPlayServices())
+        {
+            loadUserProfileIfLoggedIn();
+        }
     }
 
 

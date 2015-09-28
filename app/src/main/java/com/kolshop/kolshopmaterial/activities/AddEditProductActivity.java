@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -17,8 +18,11 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.fragments.product.ProductBasicInfoShopkeeper;
 import com.kolshop.kolshopmaterial.fragments.product.ProductVarietyDetailsFragment;
-import com.kolshop.kolshopmaterial.model.Product;
-import com.kolshop.kolshopmaterial.singletons.ProductPackageEditSingleton;
+import com.kolshop.kolshopmaterial.model.android.Product;
+import com.kolshop.kolshopmaterial.model.android.ProductVariety;
+
+import org.parceler.Parcel;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +31,15 @@ public class AddEditProductActivity extends ActionBarActivity {
 
     private Toolbar toolbar;
     private ProductBasicInfoShopkeeper productBasicInfoShopkeeper;
-    private ProductPackageEditSingleton currentProductPackage;
     private BroadcastReceiver mMessageReceiver;
     private int numberOfVarieties,deleteIndex;
     private LinearLayout varietyLinearLayoutContainer;
     private List<ProductVarietyDetailsFragment> productVarietyDetailsFragmentList;
     private Product product;
+    
+    //POJO Fields
+    private String id;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,17 +125,30 @@ public class AddEditProductActivity extends ActionBarActivity {
             numberOfVarieties = product.getVarieties.size();
         }
         else {*/
+        Intent i = getIntent();
+        Bundle bundle = i.getExtras();
+        Parcelable productParcel = bundle.getParcelable("varietyParcel");
+        Product product = Parcels.unwrap(productParcel);
+        id = product.getId();
+        name = product.getName();
+        brand = product.getBrand();
+        brandId = product.getBrandId();
+        description = product.getDescription();
+        categoryId = product.getProductCategoryId();
+        product.getUserId()
+        product.getMeasurementUnit()
 
-            productVarietyDetailsFragmentList = new ArrayList<ProductVarietyDetailsFragment>();
-            numberOfVarieties = 1;
-            ProductVarietyDetailsFragment productVarietyDetailsFragment = new ProductVarietyDetailsFragment();
-            productVarietyDetailsFragment.setIndex(0);
-            productVarietyDetailsFragment.setNumberOfVarieties(numberOfVarieties);
-            productVarietyDetailsFragmentList.add(productVarietyDetailsFragment);
-            Bundle args = new Bundle();
-            args.putString("name", "creative shit");
-            productVarietyDetailsFragment.setArguments(args);
-            getFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, ""+1).commit();
+
+        productVarietyDetailsFragmentList = new ArrayList<ProductVarietyDetailsFragment>();
+        numberOfVarieties = 1;
+        ProductVarietyDetailsFragment productVarietyDetailsFragment = new ProductVarietyDetailsFragment();
+        productVarietyDetailsFragment.setIndex(0);
+        productVarietyDetailsFragment.setNumberOfVarieties(numberOfVarieties);
+        productVarietyDetailsFragmentList.add(productVarietyDetailsFragment);
+        Bundle args = new Bundle();
+        args.putString("name", "creative shit");
+        productVarietyDetailsFragment.setArguments(args);
+        getFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, ""+1).commit();
 
         //}
     }

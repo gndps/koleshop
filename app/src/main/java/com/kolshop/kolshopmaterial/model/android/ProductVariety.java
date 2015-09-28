@@ -1,5 +1,7 @@
 package com.kolshop.kolshopmaterial.model.android;
 
+import org.parceler.Parcel;
+
 import java.util.Date;
 
 import io.realm.RealmList;
@@ -9,6 +11,7 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Gundeep on 05/09/15.
  */
+@Parcel(value = Parcel.Serialization.BEAN, analyze = { ProductVariety.class })
 public class ProductVariety extends RealmObject {
 
     @PrimaryKey

@@ -170,8 +170,9 @@ public class HomeActivity extends ActionBarActivity {
 
     private void loadInitialData()
     {
-
-        //Realm.deleteRealmFile(this);
+        if(Constants.RESET_REALM) {
+            Realm.deleteRealmFile(this);
+        }
 
         loadedProductCategories = Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_PRODUCT_CATEGORIES_LOADED));
         loadedMeasuringUnits = Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_MEASURING_UNITS_LOADED));
@@ -212,7 +213,7 @@ public class HomeActivity extends ActionBarActivity {
     private void showInternetConnectionPopup()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("No internet connection. Try Again?")
+        builder.setMessage("Device is not connected to internet. Try Again?")
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         loadInitialData();

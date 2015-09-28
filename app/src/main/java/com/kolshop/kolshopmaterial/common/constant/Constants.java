@@ -32,6 +32,9 @@ public class Constants {
     public static String ACCOUNT = "dummyaccount_kolshop";
     // Instance fields
 
+    //configurable constants
+    public static boolean RESET_REALM = false;
+
 
     //Broadcast Actions
     public static final String ACTION_SIGN_UP = "action_sign_up";
@@ -41,7 +44,7 @@ public class Constants {
     public static final String ACTION_CHOOSE_SESSION_TYPE_FAILED = "action_choose_session_type_failed";
     public static final String ACTION_LOGIN = "action_login";
     public static final String ACTION_LOGIN_SUCCESS = "action_login_success";
-    public static final String ACTION_LOGIN_INVALID_CREDENTIALS = "action_login_failed";
+    public static final String ACTION_LOGIN_INVALID_CREDENTIALS = "action_login_invalid_credentials";
     public static final String ACTION_LOGIN_FAILED = "action_login_failed";
     public static final String ACTION_NAVIGATION_ITEM_SELECTED = "action_navigation_item_selected";
     public static final String ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS = "action_product_categories_load_success";
@@ -50,6 +53,7 @@ public class Constants {
     public static final String ACTION_MEASURING_UNITS_LOAD_FAILED = "action_measuring_units_load_failed";
     public static final String ACTION_ADD_VARIETY = "action_add_variety";
     public static final String ACTION_DELETE_VARIETY = "action_delete_variety";
+    public static final String ACTION_PROPERTY_MODIFIED = "action_property_modified";
 
     //Shared preferences keys
     public static final String KEY_SIGN_UP_STATUS = "key_sign_up_status";
@@ -60,5 +64,7 @@ public class Constants {
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";
     public static final String FLAG_MEASURING_UNITS_LOADED = "measuring_units_loaded";
+
+    public static final String PRICE_PROPERTY_NAME = "price";
 
 }

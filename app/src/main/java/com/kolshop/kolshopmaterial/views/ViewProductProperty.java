@@ -1,12 +1,14 @@
 package com.kolshop.kolshopmaterial.views;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -16,11 +18,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.kolshop.kolshopmaterial.R;
+import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.model.MeasuringUnit;
-import com.kolshop.kolshopmaterial.model.android.VarietyAttribute;
 import com.kolshop.kolshopmaterial.model.android.AttributeValue;
-
-import org.w3c.dom.Text;
+import com.kolshop.kolshopmaterial.model.android.VarietyAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,12 +45,8 @@ public class ViewProductProperty extends LinearLayout{
     List<MeasuringUnit> measuringUnitList;
     int currentMeasuringUnitId;
     String productVarietyAttributeId,productVarietyAttributeValueId,productVarietyId;
-    boolean aboutToDelete;
-
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
-        editTextProperty.setText(propertyName);
-    }
+    int sortOrder;
+    static String TAG = "Kolshop - ViewProductProperty";
 
     public ViewProductProperty(Context context) {
         super(context);
@@ -65,10 +63,58 @@ public class ViewProductProperty extends LinearLayout{
         addEditorActionListener();
     }
 
-    public ViewProductProperty(Context context, String info)
+    public ViewProductProperty(Context context, VarietyAttribute varietyAttribute, AttributeValue attributeValue, String productVarietyId, int sortOrder)
     {
         this(context);
-        editTextProperty.setText(info);
+        if(varietyAttribute!=null && attributeValue!=null) {
+            String info = varietyAttribute.getName();
+            String value = attributeValue.getValue();
+            editTextProperty.setText(info!=null?info:"");
+            editTextPropertyValue.setText(value!=null?value:"");
+            productVarietyAttributeId = varietyAttribute.getId();
+            //just to double check
+            if(productVarietyAttributeId==null || productVarietyAttributeId.isEmpty()) {
+                productVarietyAttributeId = getRandomId();
+            }
+            productVarietyAttributeValueId = attributeValue.getId();
+            if(productVarietyAttributeValueId==null || productVarietyAttributeValueId.isEmpty()) {
+                productVarietyAttributeValueId = getRandomId();
+            }
+            this.productVarietyId = attributeValue.getProductVarietyId();
+            currentMeasuringUnitId = varietyAttribute.getMeasuringUnitId();
+            spinnerPropertyUnit.setSelection(currentMeasuringUnitId == 0 ? 0 : getSpinnerSelectionFromUnitId(currentMeasuringUnitId));
+            this.sortOrder = attributeValue.getSortOrder();
+        } else {
+            String info = "";
+            String value = "";
+            editTextProperty.setText(info);
+            editTextPropertyValue.setText(value);
+            productVarietyAttributeId = getRandomId();
+            productVarietyAttributeValueId = getRandomId();
+            this.productVarietyId = productVarietyId;
+            currentMeasuringUnitId = 0;
+            spinnerPropertyUnit.setSelection(0);
+            this.sortOrder = sortOrder;
+        }
+    }
+
+    private String getRandomId()
+    {
+        return "random" + CommonUtils.randomString(8);
+    }
+
+    private int getSpinnerSelectionFromUnitId(int unitId)
+    {
+        if(measuringUnitList!=null) {
+            for(int i=0;i<measuringUnitList.size();i++)
+            {
+                MeasuringUnit measuringUnit = measuringUnitList.get(i);
+                if(measuringUnit!=null && measuringUnit.getId() == unitId) {
+                     return i;
+                }
+            }
+        }
+        return 0;
     }
 
     public void setOnOptionsClickListener(OnClickListener onOptionsClickListener) {
@@ -117,6 +163,10 @@ public class ViewProductProperty extends LinearLayout{
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 int measuringUnitId = measuringUnitList.get(position).getId();
                 currentMeasuringUnitId = measuringUnitId;
+                Log.d(TAG, "Broadcasting property unit modified");
+                Intent intent = new Intent(Constants.ACTION_PROPERTY_MODIFIED);
+                intent.putExtra("productVarietyId", productVarietyId);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
 
             @Override
@@ -143,12 +193,17 @@ public class ViewProductProperty extends LinearLayout{
         attributeValue.setProductVarietyAttributeId(productVarietyAttributeId);
         attributeValue.setProductVarietyId(productVarietyId);
         attributeValue.setValue(editTextPropertyValue.getText().toString());
+        attributeValue.setSortOrder(sortOrder);
         return attributeValue;
     }
 
-    public void setOnFocusChangeListener(OnFocusChangeListener onFocusChangeListener)
+    public void setPropertyOnFocusChangeListener(OnFocusChangeListener onFocusChangeListener)
     {
         editTextProperty.setOnFocusChangeListener(onFocusChangeListener);
+    }
+
+    public void setPropertyValueOnFocusChangeListener(OnFocusChangeListener onFocusChangeListener)
+    {
         editTextPropertyValue.setOnFocusChangeListener(onFocusChangeListener);
     }
 
@@ -188,19 +243,12 @@ public class ViewProductProperty extends LinearLayout{
         }
     }
 
-    public void setAboutToDelete()
-    {
-        aboutToDelete = true;
-    }
-
-    public boolean isAboutToDelete()
-    {
-        return aboutToDelete;
-    }
-
     public boolean isCurrentlyFocused()
     {
-        return (editTextProperty.isFocused() || editTextPropertyValue.isFocused());
+        boolean isPropertyFocused = editTextProperty.isFocused();
+        boolean isPropertyValueFocused = editTextPropertyValue.isFocused();
+        //Log.d(TAG, "isPropertyFocused = " + String.valueOf(isPropertyFocused) + " and isPropertyValueFocused = " + String.valueOf(isPropertyValueFocused));
+        return (isPropertyFocused || isPropertyValueFocused);
     }
 
     private void addEditorActionListener()
@@ -209,13 +257,99 @@ public class ViewProductProperty extends LinearLayout{
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == KeyEvent.ACTION_DOWN) {
+
+                /*//Log event
+                if(event!=null && event.getAction()==KeyEvent.ACTION_DOWN) {
+                    Log.d(TAG, "event.action = action down");
+                } else if(event!=null && event.getAction()==KeyEvent.ACTION_UP) {
+                    Log.d(TAG, "event.action = action up");
+                } else if(event!=null && event.getAction()==EditorInfo.IME_ACTION_DONE) {
+                    Log.d(TAG, "event.action = ime action done");
+                } else if(event!=null) {
+                    Log.d(TAG, "event is not null. event.action = " + event.getAction());
+                } else {
+                    Log.d(TAG, "event is null");
+                }
+                //Log actionId
+                if(actionId == EditorInfo.IME_ACTION_NEXT) {
+                    Log.d(TAG, "actionId is ime action next");
+                } else if (actionId == KeyEvent.ACTION_DOWN) {
+                    Log.d(TAG, "actionId is action down");
+                }*/
+
+
+                if (event!=null && event.getAction() != KeyEvent.ACTION_DOWN && event.getAction() != EditorInfo.IME_ACTION_NEXT && event.getAction() != KeyEvent.ACTION_UP) {
+                    Log.d(TAG, "will return false");
+                    return false;
+                }
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    editTextPropertyValue.requestFocus();
+                    handled = true;
+                } else if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    Log.d(TAG, "--------testing 1--------");
+                    //editTextProperty.clearFocus();
                     editTextPropertyValue.requestFocus();
                     handled = true;
                 }
+                Log.d(TAG, "will return " + String.valueOf(handled) + " from end");
                 return handled;
             }
         });
+
+        editTextPropertyValue.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+
+                /*Log.d(TAG, "editor action listener for property value");
+                //Log event
+                if(event!=null && event.getAction()==KeyEvent.ACTION_DOWN) {
+                    Log.d(TAG, "event.action = action down");
+                } else if(event!=null && event.getAction()==KeyEvent.ACTION_UP) {
+                    Log.d(TAG, "event.action = action up");
+                } else if(event!=null && event.getAction()==EditorInfo.IME_ACTION_DONE) {
+                    Log.d(TAG, "event.action = ime action done");
+                } else if(event!=null) {
+                    Log.d(TAG, "event is not null. event.action = " + event.getAction());
+                } else {
+                    Log.d(TAG, "event is null");
+                }
+                //Log actionId
+                if(actionId == EditorInfo.IME_ACTION_NEXT) {
+                    Log.d(TAG, "actionId is ime action next");
+                } else if (actionId == KeyEvent.ACTION_DOWN) {
+                    Log.d(TAG, "actionId is action down");
+                }*/
+
+
+                if (event != null && event.getAction() != KeyEvent.ACTION_DOWN && event.getAction() != EditorInfo.IME_ACTION_DONE && event.getAction() != KeyEvent.ACTION_UP) {
+                    Log.d(TAG, "will return false");
+                    return false;
+                }
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == KeyEvent.ACTION_DOWN) {
+                    editTextPropertyValue.clearFocus();
+                    handled = true;
+                }
+                Log.d(TAG, "will return " + String.valueOf(handled) + " from end");
+                return handled;
+            }
+        });
+
+    }
+
+    public void refreshAttributeId()
+    {
+        if(productVarietyAttributeId==null || !productVarietyAttributeId.startsWith("random"))
+        {
+            Realm realm = Realm.getDefaultInstance();
+            RealmQuery<VarietyAttribute> query = realm.where(VarietyAttribute.class);
+            query.equalTo("name", editTextProperty.getText().toString());
+            VarietyAttribute attribute = query.findFirst();
+            if(attribute!=null)
+            {
+                productVarietyAttributeId = attribute.getId();
+            }
+        }
     }
 
 }
