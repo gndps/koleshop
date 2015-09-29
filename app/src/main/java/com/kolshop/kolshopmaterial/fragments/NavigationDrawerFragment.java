@@ -31,7 +31,7 @@ import java.util.List;
 
 
 /**
- * A simple {@link android.support.v4.app.Fragment} subclass.
+ * A simple {@link Fragment} subclass.
  */
 public class NavigationDrawerFragment extends Fragment {
 

@@ -226,21 +226,18 @@ public class SessionIntentService extends IntentService {
         @Override
         protected void onPostExecute(RestCallResponse restCallResponse) {
             //1. Save session to persistant storage if success
-            if(restCallResponse!=null && restCallResponse.getStatus().equalsIgnoreCase("success"))
+            if(restCallResponse!=null && restCallResponse.getStatus().equalsIgnoreCase("success"))          //success
             {
                 PreferenceUtils.saveSession(getApplicationContext(), restCallResponse.getData());
             }
-            else if(restCallResponse!=null && restCallResponse.getStatus().equalsIgnoreCase("failure")
-                    && restCallResponse.getReason().equalsIgnoreCase("Invalid Username or Password"))
-            {
+            else if(restCallResponse!=null && restCallResponse.getStatus().equalsIgnoreCase("failure")      //fail return;
+                    && restCallResponse.getReason().equalsIgnoreCase("Invalid Username or Password")) {
                 //invalid username passowrd while logging in
                 Log.d("SessionIntentService", "Invalid username and password combination");
                 Intent intent = new Intent(Constants.ACTION_LOGIN_INVALID_CREDENTIALS);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 return;
-            }
-            else
-            {
+            } else {                                                                                        //error return;
                 //some problem occured while logging in
                 Log.d("SessionIntentService", "some problem occured while logging in");
                 Intent intent = new Intent(Constants.ACTION_LOGIN_FAILED);

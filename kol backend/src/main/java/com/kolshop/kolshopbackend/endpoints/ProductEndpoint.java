@@ -32,6 +32,7 @@ public class ProductEndpoint {
         try {
             if(productService.saveProduct(product))
             {
+                //todo send back the generated product id
                 restCallResponse.setData("");
                 restCallResponse.setStatus("success");
                 restCallResponse.setReason("");

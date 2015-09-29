@@ -18,12 +18,12 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
+import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +35,13 @@ import io.realm.RealmResults;
 public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClickListener {
 
     private EditText editTextProductName, editTextDescription, editTextBrand;
-    private Switch productAvailableSwitch;
     Spinner spinnerCategory,spinnerSubcategory;
     private List<ProductCategory> parentCategories,subCategories;
     private TextView textViewSubcategory;
     private TextView textViewNumberOfVarieties;
     private ImageButton buttonAddVariety;
     private int numberOfVarieties;
+    private int brandId, productCategoryId;
     public ProductBasicInfoShopkeeper() {
     }
 
@@ -50,15 +50,29 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_product_info, container, false);
         findViewsByIds(v);
-        initializeVariables();
         loadCategories();
         loadAndBindSpinners();
+        extractDataFromBundle();
         return v;
     }
 
-    private void initializeVariables()
+    private void extractDataFromBundle()
     {
-        numberOfVarieties = 1;
+        Bundle basicInfoBundle = getArguments();
+        String name = basicInfoBundle.getString("name", "");
+        String brand = basicInfoBundle.getString("brand", "");
+        int brandId = basicInfoBundle.getInt("brandId", 0);
+        String description = basicInfoBundle.getString("description", "");
+        productCategoryId = basicInfoBundle.getInt("categoryId", 0);
+        numberOfVarieties = basicInfoBundle.getInt("numberOfVarieties", 1);
+
+        //initialize User Interface
+        editTextProductName.setText(name);
+        editTextBrand.setText(brand);
+        editTextDescription.setText(description);
+        textViewNumberOfVarieties.setText(numberOfVarieties + "");
+        selectCategory(productCategoryId);
+
     }
 
     private void findViewsByIds(View productBasicFragment)
@@ -66,7 +80,6 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         editTextProductName = (EditText) productBasicFragment.findViewById(R.id.edittext_product_name);
         editTextDescription = (EditText) productBasicFragment.findViewById(R.id.edittext_product_description);
         editTextBrand = (EditText) productBasicFragment.findViewById(R.id.edittext_product_brand);
-        productAvailableSwitch = (Switch) productBasicFragment.findViewById(R.id.switch_product_available);
         spinnerCategory = (Spinner) productBasicFragment.findViewById(R.id.spinner_product_category);
         spinnerSubcategory = (Spinner) productBasicFragment.findViewById(R.id.spinner_product_subcategory);
         textViewSubcategory = (TextView) productBasicFragment.findViewById(R.id.textview_product_subcategory);
@@ -86,19 +99,6 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         super.onDetach();
     }
 
-    public void setTestingInfo()
-    {
-        try {
-            editTextProductName.setText("Maggi Noodles");
-            editTextDescription.setText("Delecious Maggi Noodles and Maggi atta noodle");
-            productAvailableSwitch.setChecked(true);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
     public void loadCategories()
     {
         Realm realm = Realm.getInstance(getActivity());
@@ -108,7 +108,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
         final RealmResults<ProductCategory> productCategories = query.findAll();
 
-        parentCategories = new ArrayList<ProductCategory>();
+        parentCategories = new ArrayList<>();
         List<String> categoriesList = new ArrayList<>();
 
         for(ProductCategory pc:productCategories) {
@@ -175,6 +175,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 int parentCategoryId = parentCategories.get(position).getId();
+                productCategoryId = parentCategoryId;
                 loadSubcategoriesForId(parentCategoryId);
             }
 
@@ -183,6 +184,18 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
                 // your code here
             }
 
+        });
+
+        spinnerSubcategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                productCategoryId = subCategories.get(position).getId();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
         });
     }
 
@@ -195,7 +208,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
         final RealmResults<ProductCategory> productCategories = query.findAll();
 
-        subCategories= new ArrayList<ProductCategory>();
+        subCategories= new ArrayList<>();
         List<String> subcategoriesList = new ArrayList<>();
 
         for(ProductCategory pc:productCategories) {
@@ -206,6 +219,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         final Context context = getActivity();
 
         ArrayAdapter<String> subcategoryArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, subcategoriesList);
+        productCategoryId = subCategories.get(0).getId();
         spinnerSubcategory.setAdapter(subcategoryArrayAdapter);
         spinnerSubcategory.setSelection(0);
 
@@ -217,6 +231,27 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         {
             spinnerSubcategory.setVisibility(View.GONE);
             textViewSubcategory.setVisibility(View.GONE);
+        }
+    }
+
+    private void selectCategory(int categoryId)
+    {
+        Realm realm = Realm.getInstance(getActivity());
+        RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
+
+        query.equalTo("id", categoryId);
+
+        final ProductCategory productCategory = query.findFirst();
+        if(productCategory.getParentCategoryId()>0)
+        {
+            query = realm.where(ProductCategory.class);
+            query.equalTo("id", productCategory.getParentCategoryId());
+            final ProductCategory parentProductCategory = query.findFirst();
+            spinnerCategory.setSelection(parentCategories.indexOf(parentProductCategory));
+            //todo debug here
+            spinnerSubcategory.setSelection(subCategories.indexOf(productCategory));
+        } else {
+            spinnerCategory.setSelection(parentCategories.indexOf(productCategory));
         }
     }
 
@@ -283,6 +318,48 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private String getName() {
+        return editTextProductName.getText().toString();
+    }
+
+    private String getBrand() {
+        return editTextBrand.getText().toString();
+    }
+
+    private int getBrandId() {
+        return brandId;
+    }
+
+    private String getDescription() {
+        return editTextDescription.getText().toString();
+    }
+
+    private int getProductCategoryId() {
+        return productCategoryId;
+    }
+
+    public int getNumberOfVarieties()
+    {
+        return numberOfVarieties;
+    }
+
+    public BasicInfo getBasicInfo(boolean verifyForm)
+    {
+        if(verifyForm) {
+            if(getName().isEmpty()) {
+                putErrorOnEditText(editTextProductName, "Can't be empty");
+            }
+            if(getDescription().isEmpty()) {
+                put
+            }
+        }
+        return null;
+    }
+
+    private void putErrorOnEditText(EditText editText, String errorMessage) {
+        editText.setError(errorMessage);
     }
 
 }

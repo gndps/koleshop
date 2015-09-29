@@ -120,6 +120,7 @@ public class PreferenceUtils {
 
     public static void saveSession(Context context, String sessionGsonString)
     {
+        //todo later remove gson string method
         SharedPreferences prefs = context.getSharedPreferences(Prefs.USER_INFO, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(Constants.KEY_SESSION, sessionGsonString);

@@ -7,8 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -59,7 +59,6 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
 
     private static String TAG = "ProductVarietyDetailFragment";
     private int sortOrder;
-    private int numberOfVarieties;
     private BroadcastReceiver mMessageReceiver;
 
     //UI variables
@@ -203,11 +202,6 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
 
     }
 
-    public void setNumberOfVarieties(int numberOfVarieties) {
-        this.numberOfVarieties = numberOfVarieties;
-    }
-
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -236,7 +230,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     {
         Log.d("ProductInfoActivity", "Broadcasting variety deleted");
         Intent intent = new Intent(Constants.ACTION_DELETE_VARIETY);
-        intent.putExtra("sortOrder", sortOrder);
+        intent.putExtra("fragmentTag", getTag());
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
     }
 

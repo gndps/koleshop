@@ -4,17 +4,19 @@ public class Session {
 
     private String sessionId;
     private String username;
+    private int userId;
+    private String email;
     private int sessionType;
 
     public int getSessionType() {
-		return sessionType;
-	}
+        return sessionType;
+    }
 
-	public void setSessionType(int sessionType) {
-		this.sessionType = sessionType;
-	}
+    public void setSessionType(int sessionType) {
+        this.sessionType = sessionType;
+    }
 
-	public String getUsername() {
+    public String getUsername() {
         return username;
     }
 
@@ -30,10 +32,26 @@ public class Session {
         this.sessionId = sessionId;
     }
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public String toString() {
-        return "Session [sessionId=" + sessionId + ", username=" + username + ",sessionType=" 
-    + sessionType + "]";
+        return "Session [sessionId=" + sessionId + ", username=" + username + ",sessionType="
+                + sessionType + ", email=" + email + ", userId=" + userId + "]";
     }
 
 }
