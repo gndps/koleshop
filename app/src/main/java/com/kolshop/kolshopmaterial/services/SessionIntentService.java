@@ -42,81 +42,59 @@ public class SessionIntentService extends IntentService {
                 map.put("password", password);
                 map.put("email", email);
                 map.put("registrationId", registrationId);
-                new SignUpTaskAsync().execute(map);
-            }
-            else if(Constants.ACTION_CHOOSE_SESSION_TYPE.equals(action))
-            {
+                signUpTask(map);
+            } else if (Constants.ACTION_CHOOSE_SESSION_TYPE.equals(action)) {
                 final String sessionId = intent.getStringExtra("sessionId");
                 final String sessionType = intent.getStringExtra("sessionType");
                 Map<String, String> map = new HashMap<>();
                 map.put("sessionId", sessionId);
                 map.put("sessionType", sessionType);
-                new ChooseSessionTypeTaskAsync().execute(map);
-            }
-            else if(Constants.ACTION_LOGIN.equals(action))
-            {
+                chooseSessionTypeTaskAsync(map);
+            } else if (Constants.ACTION_LOGIN.equals(action)) {
                 Map<String, String> map = new HashMap<>();
                 map.put("username", intent.getStringExtra("username"));
                 map.put("password", intent.getStringExtra("password"));
-                new LoginTaskAsync().execute(map);
+                loginTask(map);
             }
         }
     }
 
-    class SignUpTaskAsync extends AsyncTask<Map<String, String>, Void, RestCallResponse> {
+    private void signUpTask(Map<String, String> map) {
 
-        private SessionApi sessionApi = null;
+        SessionApi sessionApi = null;
+        if (sessionApi == null) {
+            SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null)
+                    // use 10.0.2.2 for localhost testing
+                    .setRootUrl(Constants.SERVER_URL)
+                    .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                        @Override
+                        public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                            abstractGoogleClientRequest.setDisableGZipContent(true);
+                        }
+                    });
 
-        @Override
-        protected RestCallResponse doInBackground(Map<String, String>... params) {
-
-            if(sessionApi == null) {
-                SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
-                        new AndroidJsonFactory(), null)
-                        // use 10.0.2.2 for localhost testing
-                        .setRootUrl(Constants.SERVER_URL)
-                        .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
-                            @Override
-                            public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
-                                abstractGoogleClientRequest.setDisableGZipContent(true);
-                            }
-                        });
-
-                sessionApi = builder.build();
-            }
-
-            Map<String, String> map = params[0];
-            String username = map.get("username");
-            String password = map.get("password");
-            String email = map.get("email");
-            String registrationId = map.get("registrationId");
-
-
-            try {
-                RestCallResponse restCallResponse = sessionApi.register(username, password, email, registrationId, Integer.parseInt(Constants.DEVICE_TYPE)).execute();
-                return restCallResponse;
-            } catch (Exception e) {
-                Log.e(TAG, "exception", e);
-                return null;
-            }
+            sessionApi = builder.build();
         }
 
-        @Override
-        protected void onPostExecute(RestCallResponse result) {
+        String username = map.get("username");
+        String password = map.get("password");
+        String email = map.get("email");
+        String registrationId = map.get("registrationId");
 
+
+        try {
+            RestCallResponse restCallResponse = sessionApi.register(username, password, email, registrationId, Integer.parseInt(Constants.DEVICE_TYPE)).execute();
             //1. save sign up result in shared prefs
             String signUpStatus;
-            if(result!=null && !result.getStatus().equalsIgnoreCase("failure"))
-            {
-                if (result.getReason() != null && result.getReason().equalsIgnoreCase("Could not create session")) {
+            if (restCallResponse != null && !restCallResponse.getStatus().equalsIgnoreCase("failure")) {
+                if (restCallResponse.getReason() != null && restCallResponse.getReason().equalsIgnoreCase("Could not create session")) {
                     signUpStatus = "fail";
                 } else {
                     signUpStatus = "success";
-                    PreferenceUtils.saveSession(getApplicationContext(), result.getData());
+                    PreferenceUtils.saveSession(getApplicationContext(), restCallResponse.getData());
                 }
-            }
-            else
-            {
+            } else {
                 signUpStatus = "fail";
             }
             PreferenceUtils.setPreferences(getApplicationContext(), Constants.KEY_SIGN_UP_STATUS, signUpStatus);
@@ -125,54 +103,38 @@ public class SessionIntentService extends IntentService {
             Log.d("SessionIntentService", "Sign up result fetched");
             Intent intent = new Intent(Constants.ACTION_SIGN_UP_COMPLETE);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
         }
     }
 
-    class ChooseSessionTypeTaskAsync extends AsyncTask<Map<String, String>, Void, RestCallResponse> {
+    private void chooseSessionTypeTaskAsync(Map<String, String> map) {
+        SessionApi sessionApi = null;
+        if (sessionApi == null) {
+            SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null)
+                    // use 10.0.2.2 for localhost testing
+                    .setRootUrl(Constants.SERVER_URL)
+                    .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                        @Override
+                        public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                            abstractGoogleClientRequest.setDisableGZipContent(true);
+                        }
+                    });
 
-        private SessionApi sessionApi = null;
-
-        @Override
-        protected RestCallResponse doInBackground(Map<String, String>... params) {
-            if(sessionApi == null) {
-                SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
-                        new AndroidJsonFactory(), null)
-                        // use 10.0.2.2 for localhost testing
-                        .setRootUrl(Constants.SERVER_URL)
-                        .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
-                            @Override
-                            public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
-                                abstractGoogleClientRequest.setDisableGZipContent(true);
-                            }
-                        });
-
-                sessionApi = builder.build();
-            }
-
-            Map<String, String> map = params[0];
-            String sessionId = map.get("sessionId");
-            String sessionType = map.get("sessionType");
-
-
-            try {
-                RestCallResponse restCallResponse = sessionApi.chooseSessionType(sessionId, Integer.parseInt(sessionType)).execute();
-                return restCallResponse;
-            } catch (Exception e) {
-                Log.e(TAG, "exception", e);
-                return null;
-            }
+            sessionApi = builder.build();
         }
 
-        @Override
-        protected void onPostExecute(RestCallResponse restCallResponse) {
+        String sessionId = map.get("sessionId");
+        String sessionType = map.get("sessionType");
+
+
+        try {
+            RestCallResponse restCallResponse = sessionApi.chooseSessionType(sessionId, Integer.parseInt(sessionType)).execute();
             //1. Save session to persistant storage if success
-            if(restCallResponse!=null && restCallResponse.getStatus().equalsIgnoreCase("success"))
-            {
+            if (restCallResponse != null && restCallResponse.getStatus().equalsIgnoreCase("success")) {
                 PreferenceUtils.saveSession(getApplicationContext(), restCallResponse.getData());
-            }
-            else
-            {
+            } else {
                 //session choosing failed
                 Log.d("SessionIntentService", "Choose session type request failed");
                 Intent intent = new Intent(Constants.ACTION_CHOOSE_SESSION_TYPE_FAILED);
@@ -184,53 +146,42 @@ public class SessionIntentService extends IntentService {
             Log.d("SessionIntentService", "Choose session type result fetched");
             Intent intent = new Intent(Constants.ACTION_CHOOSE_SESSION_TYPE_COMPLETE);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
         }
     }
 
-    class LoginTaskAsync extends AsyncTask<Map<String, String>, Void, RestCallResponse> {
+    private void loginTask(Map<String, String> map) {
 
-        private SessionApi sessionApi = null;
+        SessionApi sessionApi = null;
+        if (sessionApi == null) {
+            SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null)
+                    // use 10.0.2.2 for localhost testing
+                    .setRootUrl(Constants.SERVER_URL)
+                    .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                        @Override
+                        public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                            abstractGoogleClientRequest.setDisableGZipContent(true);
+                        }
+                    });
 
-        @Override
-        protected RestCallResponse doInBackground(Map<String, String>... params) {
-            if(sessionApi == null) {
-                SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
-                        new AndroidJsonFactory(), null)
-                        // use 10.0.2.2 for localhost testing
-                        .setRootUrl(Constants.SERVER_URL)
-                        .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
-                            @Override
-                            public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
-                                abstractGoogleClientRequest.setDisableGZipContent(true);
-                            }
-                        });
-
-                sessionApi = builder.build();
-            }
-
-            Map<String, String> map = params[0];
-            String username = map.get("username");
-            String password = map.get("password");
-            String registrationId = PreferenceUtils.getRegistrationId(getApplicationContext());
-
-
-            try {
-                RestCallResponse restCallResponse = sessionApi.login(username, password, registrationId, Integer.parseInt(Constants.DEVICE_TYPE)).execute();
-                return restCallResponse;
-            } catch (Exception e) {
-                Log.e(TAG, "exception", e);
-                return null;
-            }
+            sessionApi = builder.build();
         }
 
-        @Override
-        protected void onPostExecute(RestCallResponse restCallResponse) {
+        String username = map.get("username");
+        String password = map.get("password");
+        String registrationId = PreferenceUtils.getRegistrationId(getApplicationContext());
+
+
+        try {
+            //todo check this
+            RestCallResponse restCallResponse = null;//sessionApi.login(username, password, registrationId, Integer.parseInt(Constants.DEVICE_TYPE)).execute();
             //1. Save session to persistant storage if success
-            if(restCallResponse!=null && restCallResponse.getStatus().equalsIgnoreCase("success"))          //success
+            if (restCallResponse != null && restCallResponse.getStatus().equalsIgnoreCase("success"))          //success
             {
                 PreferenceUtils.saveSession(getApplicationContext(), restCallResponse.getData());
-            }
-            else if(restCallResponse!=null && restCallResponse.getStatus().equalsIgnoreCase("failure")      //fail return;
+            } else if (restCallResponse != null && restCallResponse.getStatus().equalsIgnoreCase("failure")      //fail return;
                     && restCallResponse.getReason().equalsIgnoreCase("Invalid Username or Password")) {
                 //invalid username passowrd while logging in
                 Log.d("SessionIntentService", "Invalid username and password combination");
@@ -249,7 +200,10 @@ public class SessionIntentService extends IntentService {
             Log.d("SessionIntentService", "user logged in successfully");
             Intent intent = new Intent(Constants.ACTION_LOGIN_SUCCESS);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
         }
+
     }
 
 }

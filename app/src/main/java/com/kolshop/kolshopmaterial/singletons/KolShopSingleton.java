@@ -7,6 +7,7 @@ public class KolShopSingleton {
 
     public static KolShopSingleton sharedInstance = null;
     public int defaultPriceMeasuringUnitId;
+    public String googleAccessToken;
 
     protected KolShopSingleton() {
 

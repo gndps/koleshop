@@ -1,10 +1,12 @@
 package com.kolshop.kolshopmaterial.model.android;
 
+import com.kolshop.kolshopmaterial.helper.ProductVarietyParcelConverter;
+
 import org.parceler.Parcel;
+import org.parceler.ParcelPropertyConverter;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
-import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -98,6 +100,7 @@ public class Product extends RealmObject{
         return listProductVariety;
     }
 
+    @ParcelPropertyConverter(ProductVarietyParcelConverter.class)
     public void setListProductVariety(RealmList<ProductVariety> listProductVariety) {
         this.listProductVariety = listProductVariety;
     }

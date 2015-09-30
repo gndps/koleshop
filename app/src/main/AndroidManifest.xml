@@ -158,6 +158,11 @@
             android:name=".services.CommonIntentService"
             android:exported="false" >
         </service>
+
+        <activity
+            android:name=".activities.VerifyPhoneNumberActivity"
+            android:label="@string/title_activity_verify_phone_number" >
+        </activity>
     </application>
 
 </manifest>

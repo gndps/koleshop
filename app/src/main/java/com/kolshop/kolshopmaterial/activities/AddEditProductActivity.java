@@ -182,8 +182,8 @@ public class AddEditProductActivity extends ActionBarActivity {
         args.putString("imageUrl", productVariety.getImageUrl());
         args.putLong("dateAdded", productVariety.getDateAdded().getTime());
         args.putLong("dateModified", productVariety.getDateModified().getTime());
-        Parcelable parcelableListVarietyAttributes = Parcels.wrap(ArrayList.class, productVariety.getListVarietyAttributes());
-        Parcelable parcelableListAttributeValues = Parcels.wrap(ArrayList.class, productVariety.getListAttributeValues());
+        Parcelable parcelableListVarietyAttributes = Parcels.wrap(productVariety.getListVarietyAttributes());
+        Parcelable parcelableListAttributeValues = Parcels.wrap(productVariety.getListAttributeValues());
         args.putParcelable("listAttributeValue", parcelableListAttributeValues);
         args.putParcelable("listVarietyAttribute", parcelableListVarietyAttributes);
         productVarietyDetailsFragment.setArguments(args);
@@ -209,8 +209,9 @@ public class AddEditProductActivity extends ActionBarActivity {
     {
         Product product = new Product();
         //todo handle this shit
+        return null;
         //product.setUserId();
-        product.setProductCategoryId(productBasicInfoShopkeeper.getProductCategoryId());
-        product.setDescription(productBasicInfoShopkeeper.get);
+        //product.setProductCategoryId(productBasicInfoShopkeeper.getProductCategoryId());
+        //product.setDescription(productBasicInfoShopkeeper.);
     }
 }

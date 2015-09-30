@@ -31,6 +31,7 @@ public class Constants {
     // The account name
     public static String ACCOUNT = "dummyaccount_kolshop";
     // Instance fields
+    public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
     public static boolean RESET_REALM = false;

@@ -1,0 +1,53 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kolshop.kolshopmaterial.activities.VerifyPhoneNumberActivity">
+
+    <include
+        android:id="@+id/add_edit_product_app_bar"
+        layout="@layout/app_bar"></include>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="@color/primary"
+        android:gravity="bottom"
+        android:paddingLeft="72dp"
+        android:paddingBottom="8dp"
+        android:textSize="30sp"
+        android:shadowDy="10"
+        android:shadowColor="@color/accent_material_dark"
+        android:text="Login with phone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="72dp"
+        android:layout_marginRight="16dp"
+        android:text="KolShop"
+        android:textSize="20dp"
+        android:layout_marginTop="48dp"/>
+    
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="72dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="36dp"
+        android:hint="Enter number"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="8dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="36dp"
+        android:layout_gravity="right"
+        android:text="NEXT"
+        android:onClick="requestOtp"/>
+
+</LinearLayout>

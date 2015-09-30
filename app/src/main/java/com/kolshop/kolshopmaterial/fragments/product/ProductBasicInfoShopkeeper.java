@@ -352,7 +352,8 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
                 putErrorOnEditText(editTextProductName, "Can't be empty");
             }
             if(getDescription().isEmpty()) {
-                put
+                //todo do work here
+                //put
             }
         }
         return null;

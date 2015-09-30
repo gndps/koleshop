@@ -1,6 +1,10 @@
 package com.kolshop.kolshopmaterial.model.android;
 
+import com.kolshop.kolshopmaterial.helper.AttributeValueParcelConverter;
+import com.kolshop.kolshopmaterial.helper.VarietyAttributeParcelConverter;
+
 import org.parceler.Parcel;
+import org.parceler.ParcelPropertyConverter;
 
 import java.util.Date;
 
@@ -99,6 +103,7 @@ public class ProductVariety extends RealmObject {
         return listVarietyAttributes;
     }
 
+    @ParcelPropertyConverter(VarietyAttributeParcelConverter.class)
     public void setListVarietyAttributes(RealmList<VarietyAttribute> listVarietyAttributes) {
         this.listVarietyAttributes = listVarietyAttributes;
     }
@@ -107,6 +112,7 @@ public class ProductVariety extends RealmObject {
         return listAttributeValues;
     }
 
+    @ParcelPropertyConverter(AttributeValueParcelConverter.class)
     public void setListAttributeValues(RealmList<AttributeValue> listAttributeValues) {
         this.listAttributeValues = listAttributeValues;
     }

@@ -19,6 +19,7 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.GlobalData;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.constant.Prefs;
+import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.model.Session;
 import com.google.gson.Gson;
@@ -94,7 +95,11 @@ public class InitialActivity extends ActionBarActivity {
         super.onResume();
         if(checkPlayServices())
         {
-            loadUserProfileIfLoggedIn();
+            if(CommonUtils.isConnectedToInternet(this)) {
+                loadUserProfileIfLoggedIn();
+            } else {
+
+            }
         }
     }
 

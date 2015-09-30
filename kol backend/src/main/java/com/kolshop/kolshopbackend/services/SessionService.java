@@ -4,16 +4,267 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import com.google.gson.Gson;
+import com.kolshop.kolshopbackend.common.Constants;
 import com.kolshop.kolshopbackend.db.connection.DatabaseConnection;
 import com.kolshop.kolshopbackend.db.models.RestCallResponse;
 import com.kolshop.kolshopbackend.db.models.Session;
+import com.kolshop.kolshopbackend.utils.CommonUtils;
 import com.kolshop.kolshopbackend.utils.Md5Hash;
+import com.kolshop.kolshopbackend.utils.RestClient;
 
 public class SessionService {
 
+    public RestCallResponse requestOneTimePassword(int phone, String deviceId, int deviceType, int sessionType) {
+        int userId, sessionId;
+        userId = getUserId(phone);
+        String reasonText;
+        if(userId > 0) {
+            sessionId = createSession(userId, deviceId, deviceType, sessionType);
+            if(sessionId > 0) {
+                int otp = CommonUtils.generateOtp(4);
+                boolean otpSaved = saveOtpInDatabase(otp, sessionId);
+                if(otpSaved) {
+                    HashMap<String, String> hashmap = new HashMap<>();
+                    hashmap.put("to", String.valueOf(phone));
+                    hashmap.put("message", "Use " + otp + " to confirm your Kolshop account");
+                    RestCallResponse otpRequestResponse = RestClient.sendGet(Constants.SMS_GATEWAY_URL, hashmap);
+                    if(otpRequestResponse.getStatus().equalsIgnoreCase("success")) {
+                        RestCallResponse restCallResponse = new RestCallResponse();
+                        restCallResponse.setStatus("success");
+                        restCallResponse.setData("otp will shorty be received");
+                        restCallResponse.setReason(null);
+                        return restCallResponse;
+                    } else {
+                        RestCallResponse restCallResponse = new RestCallResponse();
+                        restCallResponse.setStatus("failure");
+                        restCallResponse.setData(null);
+                        restCallResponse.setReason(otpRequestResponse.getReason());
+                        return restCallResponse;
+                    }
+                } else {
+                    reasonText = "-- otp not saved for phone = " + phone + " and user id = " + userId + " --";
+                }
+            } else {
+                reasonText = "-- session not created for phone = " + phone + " and user id = " + userId + " --";
+            }
+        } else {
+            reasonText = "-- user not created for phone = " + phone + " and user id = " + userId + " --";
+        }
+
+        System.err.print(reasonText);
+        RestCallResponse restCallResponse = new RestCallResponse();
+        restCallResponse.setStatus("failure");
+        restCallResponse.setData(null);
+        restCallResponse.setReason(reasonText);
+        return restCallResponse;
+
+    }
+
+    public RestCallResponse verifyOneTimePassword(int phone, int otp) {
+        int userId;
+        userId = getUserId(phone);
+        RestCallResponse restCallResponse = new RestCallResponse();
+        if(userId>0) {
+            Connection dbConnection = null;
+            PreparedStatement preparedStatement = null;
+
+            String query = "select session_id from OneTimePassword where user_id=? and one_time_password =? and generation_time > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL(-15) MINUTES)";
+
+            try {
+                dbConnection = DatabaseConnection.getConnection();
+                preparedStatement = dbConnection.prepareStatement(query);
+                preparedStatement.setInt(1, userId);
+                preparedStatement.setInt(2, otp);
+                System.out.println(query);
+                ResultSet rs = preparedStatement.executeQuery();
+                if (rs!=null && rs.first()) {
+                    //otp verified
+                    int sessionId = rs.getInt(1);
+                    restCallResponse.setStatus("success");
+                    restCallResponse.setData("{userId:" + userId + "}");
+                    restCallResponse.setReason(null);
+                    validateSession(sessionId);
+                } else {
+                    //otp verification failed
+                    restCallResponse.setStatus("failure");
+                    restCallResponse.setReason("otp verification failed");
+                    restCallResponse.setData(null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                restCallResponse.setStatus("failure");
+                restCallResponse.setReason("otp verification failed");
+                restCallResponse.setData(null);
+            }
+        } else {
+            restCallResponse.setStatus("failure");
+            restCallResponse.setReason("otp verification failed");
+            restCallResponse.setData(null);
+        }
+        return restCallResponse;
+    }
+
+    private void validateSession(int sessionId) {
+        Connection dbConnection;
+        PreparedStatement preparedStatement;
+        String query = "update Session set valid='1' where id=?";
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setInt(1, sessionId);
+            System.out.println(query);
+            int executed = preparedStatement.executeUpdate();
+            if (executed>0) {
+                System.out.print("Session validated with id = " + sessionId);
+            } else {
+                System.out.print("Session NOT validated with id = " + sessionId);
+            }
+        } catch (Exception e) {
+            System.out.print("Session NOT validated with id = " + sessionId);
+            e.printStackTrace();
+        }
+    }
+
+    private static int createSession(int userId, String deviceId, int deviceType, int sessionType) {
+        //device id is registration id for android devices
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        int sessionId = 0;
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            String query = "insert into DeviceUser(device_id, user_id, device_type) values (?,?,?) on duplicate key update user_id=?, device_type=?";
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setString(1, deviceId);
+            preparedStatement.setInt(2, userId);
+            preparedStatement.setInt(3, deviceType);
+            preparedStatement.setInt(4, userId);
+            preparedStatement.setInt(5, deviceType);
+            if (preparedStatement.executeUpdate() > 0) {
+                //device user added or already existed...now create a invalid session that should be validated only after phone number verification
+                query = "insert into Session(session_type,user_id) values (?,?)";
+                preparedStatement = dbConnection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+                preparedStatement.setInt(1, sessionType);
+                preparedStatement.setInt(2, userId);
+                int executed = preparedStatement.executeUpdate();
+
+                ResultSet rsSession = preparedStatement.getGeneratedKeys();
+                if (executed > 0 && rsSession != null && rsSession.next()) {
+                    sessionId = rsSession.getInt(1);
+                } else {
+                    //problem while creating session
+                }
+            } else {
+                //problem while creating device user
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (dbConnection != null) {
+                    dbConnection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                return sessionId;
+            }
+
+        }
+
+    }
+
+    private static int getUserId(int phone) {
+        //device id is registration id for android devices
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        int userId = 0;
+        String query = "select id from User where phone=? and country_code=" + Constants.COUNTRY_CODE + ";";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setInt(1, phone);
+            System.out.println(query);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs != null && rs.first()) {
+                //user already exists
+                userId = rs.getInt(1);
+            } else {
+                //create user and return userId
+                query = "insert into User(phone, country_code) values (?," + Constants.COUNTRY_CODE + ");";
+                preparedStatement = dbConnection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+                preparedStatement.setInt(1, phone);
+                int executed = preparedStatement.executeUpdate();
+                ResultSet rsSession = preparedStatement.getGeneratedKeys();
+                if (executed > 0 && rsSession != null && rsSession.next()) {
+                    userId = rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (dbConnection != null) {
+                    dbConnection.close();
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                return userId;
+            }
+        }
+    }
+
+    private static boolean saveOtpInDatabase(int otp, int sessionId) {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        boolean success = false;
+        String query = "insert into OneTimePassword(one_time_password,user_id,session_id) values (?,?)";
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setInt(1, otp);
+            preparedStatement.setInt(2, sessionId);
+            System.out.println(query);
+            int executed = preparedStatement.executeUpdate();
+            if (executed>0) {
+                //one time password saved in db
+                success = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (dbConnection != null) {
+                    dbConnection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                return success;
+            }
+        }
+
+    }
+
+    @Deprecated
     public RestCallResponse login(String username, String password, String deviceId, int deviceType) {
         //device id is registration id for android devices
         Connection dbConnection = null;
@@ -49,8 +300,8 @@ public class SessionService {
                     if (preparedStatement.executeUpdate() > 0) {
                         Session session = new Session();
                         session.setSessionId(sessionId);
-                        session.setUsername(username);
-                        session.setUserId(userId);
+                        //session.setUsername(username);
+                        //session.setUserId(userId);
 
                         Gson gson = new Gson();
                         String result = gson.toJson(session);
@@ -95,7 +346,6 @@ public class SessionService {
                 }
 
             } catch (SQLException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
@@ -103,6 +353,7 @@ public class SessionService {
 
     }
 
+    @Deprecated
     public RestCallResponse isUsernameAvailable(String username, String uniqueId) {
 
         Connection dbConnection = null;
@@ -149,7 +400,6 @@ public class SessionService {
                     dbConnection.close();
                 }
             } catch (SQLException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
@@ -157,6 +407,7 @@ public class SessionService {
 
     }
 
+    @Deprecated
     public RestCallResponse register(String username, String password, String registrationId, String email, int deviceType) {
 
         Connection dbConnection = null;
@@ -204,7 +455,7 @@ public class SessionService {
                     if (preparedStatement.executeUpdate() > 0) {
                         Session session = new Session();
                         session.setSessionId(sessionId);
-                        session.setUsername(username);
+                        //session.setUsername(username);
                         Gson gson = new Gson();
                         String result = gson.toJson(session);
                         restCallResponse.setStatus("success");
@@ -213,7 +464,7 @@ public class SessionService {
                     } else {
                         Session session = new Session();
                         session.setSessionId(null);
-                        session.setUsername(username);
+                        //session.setUsername(username);
                         Gson gson = new Gson();
                         String result = gson.toJson(session);
                         restCallResponse.setStatus("success");
@@ -254,7 +505,6 @@ public class SessionService {
                     dbConnection.close();
                 }
             } catch (SQLException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
@@ -262,8 +512,8 @@ public class SessionService {
 
     }
 
-    public RestCallResponse chooseSessionType(String sessionId,
-                                              int sessionType) {
+    //todo will have to change this
+    public RestCallResponse chooseSessionType(String sessionId, int sessionType) {
         Connection dbConnection = null;
         PreparedStatement ps = null;
         RestCallResponse restCallResponse = new RestCallResponse();
@@ -288,7 +538,7 @@ public class SessionService {
                     Session session = new Session();
                     session.setSessionId(sessionId);
                     session.setSessionType(sessionType);
-                    session.setUsername(username);
+                    //session.setUsername(username);
                     String data = new Gson().toJson(session);
                     restCallResponse.setStatus("success");
                     restCallResponse.setData(data);
@@ -320,7 +570,6 @@ public class SessionService {
                     dbConnection.close();
                 }
             } catch (SQLException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
