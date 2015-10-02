@@ -9,8 +9,11 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -50,7 +53,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
         setContentView(R.layout.activity_verify_otp);
         mContext = this;
         Bundle bundle = getIntent().getExtras();
-        phone = bundle.getInt("phone") + "";
+        phone = bundle.getLong("phone") + "";
         userType = bundle.getString("userType");
         deviceId = bundle.getString("deviceId");
         editTextCode = (EditText) findViewById(R.id.editTextCodeVerify);
@@ -60,6 +63,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
         frameLayoutBottomButtons = (FrameLayout) findViewById(R.id.frame_layout_bottom_buttons_verify_otp);
         progressBar = (ProgressBar) findViewById(R.id.progressBarOtp);
         initializeBroadcastReceivers();
+        addTextListener();
     }
 
     @Override
@@ -103,6 +107,13 @@ public class VerifyOTPActivity extends AppCompatActivity {
                             .setMessage("Please try again")
                             .setPositiveButton("Ok", null)
                             .show();
+                } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_VERIFY_OTP_SUCCESS)) {
+                    stopProcessing();
+                    Intent intent1 = new Intent(mContext, GetStartedActivity.class);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startService(intent1);
+                } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_VERIFY_OTP_FAILED)) {
+                    stopProcessing();
                 }
             }
         };
@@ -175,5 +186,30 @@ public class VerifyOTPActivity extends AppCompatActivity {
         buttonResend.setVisibility(View.VISIBLE);
         textViewTitle.setText(titleBackup);
         progressBar.setVisibility(View.GONE);
+    }
+
+    private void addTextListener() {
+        editTextCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.toString().length() == 4) {
+                    //hide keyboard
+                    View view = getCurrentFocus();
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                    view.clearFocus();
+                }
+            }
+        });
     }
 }

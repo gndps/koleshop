@@ -11,9 +11,12 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -57,6 +60,7 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBarVerifyPhone);
         textInputLayout = (TextInputLayout) findViewById(R.id.input_layout_phone);
         initializeBroadcastReceivers();
+        addTextListener();
     }
 
     @Override
@@ -200,6 +204,7 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
         textViewSubtitle.setVisibility(View.GONE);
         titleBackup = textViewTitle.getText().toString();
         textViewTitle.setText(processingMessage);
+        textInputLayout.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -207,6 +212,32 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
         frameLayoutBottomButtons.setVisibility(View.VISIBLE);
         textViewSubtitle.setVisibility(View.VISIBLE);
         textViewTitle.setText(titleBackup);
+        textInputLayout.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
+    }
+
+    private void addTextListener() {
+        editTextPhone.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.toString().length()==10) {
+                    //hide keyboard
+                    View view = getCurrentFocus();
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                    view.clearFocus();
+                }
+            }
+        });
     }
 }

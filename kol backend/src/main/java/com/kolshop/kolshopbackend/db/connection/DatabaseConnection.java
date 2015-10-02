@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import com.google.appengine.api.utils.SystemProperty;
 import com.kolshop.kolshopbackend.common.Configuration;
+import com.kolshop.kolshopbackend.common.Constants;
 import com.kolshop.kolshopbackend.servlets.GenericServlet;
 
 
@@ -19,7 +20,11 @@ public class DatabaseConnection {
         } else {
             try {
                 if (connection == null || connection.isClosed()) {
-                    connection = getConnectionWithoutPool();
+                    if(Constants.USE_LOCAL_DATABASE) {
+                        connection = getLocalConnectionWithoutPool();
+                    } else {
+                        connection = getConnectionWithoutPool();
+                    }
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -30,9 +35,31 @@ public class DatabaseConnection {
 
     private static Connection getConnectionWithoutPool() {
         Connection connection = null;
+
         String url = Configuration.GOOGLE_CLOUD_SQL_URL;
         String username = Configuration.GOOGLE_CLOUD_SQL_ALTERNATIVE_USERNAME;
         String password = Configuration.GOOGLE_CLOUD_SQL_PASSWORD;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        try {
+            connection = DriverManager.getConnection(url, username, password);
+            return connection;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static Connection getLocalConnectionWithoutPool() {
+        Connection connection = null;
+
+        String url = Configuration.LOCAL_SQL_URL;
+        String username = Configuration.LOCAL_SQL_USERNAME;
+        String password = Configuration.LOCAL_SQL_PASSWORD;
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (Exception e) {

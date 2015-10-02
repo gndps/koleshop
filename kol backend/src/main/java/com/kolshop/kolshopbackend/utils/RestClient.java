@@ -138,28 +138,24 @@ public class RestClient {
 
     private static String prepareUrl(String url, HashMap<String, String> hashMap) {
         Iterator it = hashMap.entrySet().iterator();
+        List<NameValuePair> params = new LinkedList<>();
         while (it.hasNext()) {
             Map.Entry<String, String> pair = (Map.Entry)it.next();
-            url = addParameterToUrl(url, pair.getKey(), pair.getValue());
+            params.add(new BasicNameValuePair(pair.getKey(), pair.getValue()));
             it.remove(); // avoids a ConcurrentModificationException
         }
+        url = addParametersToUrl(url, params);
         return url;
     }
 
-    private static String addParameterToUrl(String url, String name, String value){
-        if(!url.endsWith("?"))
+    private static String addParametersToUrl(String url, List<NameValuePair> params){
+        if(!url.endsWith("?") && !url.contains("?")) {
             url += "?";
-
-        List<NameValuePair> params = new LinkedList<>();
-
-        if (name!=null && !name.isEmpty()){
-            params.add(new BasicNameValuePair(name, value));
+        } else {
+            url += "&";
         }
-
         String paramString = URLEncodedUtils.format(params, "utf-8");
-
         url += paramString;
-
         return url;
     }
 

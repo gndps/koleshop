@@ -11,4 +11,8 @@ public class Configuration {
     public static String GOOGLE_CLOUD_SQL_PASSWORD = "newyark";
     public static String GOOGLE_CLOUD_SQL_URL = "jdbc:mysql://173.194.243.193:3306/Kolshop";
 
+    public static String LOCAL_SQL_USERNAME = "root";
+    public static String LOCAL_SQL_PASSWORD = "kkkk";
+    public static String LOCAL_SQL_URL = "jdbc:mysql://localhost:3306/Kolshop";
+
 }

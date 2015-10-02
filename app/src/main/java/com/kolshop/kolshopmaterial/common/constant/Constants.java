@@ -25,7 +25,8 @@ public class Constants {
     public static int USER_TYPE_SELLER = 1;
     public static int USER_TYPE_BUYER = 2;
 
-    public static String SERVER_URL = "https://kol-server.appspot.com/_ah/api/";
+    public static String SERVER_URL = "https://kol-server.appspot.com/_ah/api/"; //production url
+    //public static String SERVER_URL = "10.0.3.2"; //local url
 
     // The authority for the sync adapter's content provider
     public static String AUTHORITY = "com.kolshop.kolshop.provider";

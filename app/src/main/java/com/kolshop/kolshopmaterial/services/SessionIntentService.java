@@ -2,7 +2,6 @@ package com.kolshop.kolshopmaterial.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -61,8 +60,8 @@ public class SessionIntentService extends IntentService {
                 String deviceId = intent.getStringExtra("deviceId");
                 requestOneTimePassword(phone, sessionType, deviceId);
             } else if(Constants.ACTION_VERIFY_OTP.equals(action)) {
-                Long phone = Long.parseLong(intent.getStringExtra("phone"));
-                int code = Integer.parseInt(intent.getStringExtra("code"));
+                Long phone = intent.getLongExtra("phone", 0);
+                int code = intent.getIntExtra("code", 0);
                 verifyOneTimePassword(phone, code);
             }
         }

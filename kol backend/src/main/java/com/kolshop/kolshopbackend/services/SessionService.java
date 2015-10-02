@@ -206,7 +206,7 @@ public class SessionService {
                 int executed = preparedStatement.executeUpdate();
                 ResultSet rsSession = preparedStatement.getGeneratedKeys();
                 if (executed > 0 && rsSession != null && rsSession.next()) {
-                    userId = rs.getLong(1);
+                    userId = rsSession.getLong(1);
                 }
             }
         } catch (Exception e) {
@@ -233,7 +233,7 @@ public class SessionService {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
         boolean success = false;
-        String query = "insert into OneTimePassword(one_time_password,user_id,session_id) values (?,?)";
+        String query = "insert into OneTimePassword(one_time_password,session_id) values (?,?)";
         try {
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
