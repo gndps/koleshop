@@ -42,5 +42,7 @@
         <item>Settings</item>
     </string-array>
     <string name="title_activity_verify_phone_number">VerifyPhoneNumberActivity</string>
+    <string name="title_activity_verify_otp">VerifyOTPActivity</string>
+    <string name="title_activity_progress">ProgressActivity</string>
 
 </resources>

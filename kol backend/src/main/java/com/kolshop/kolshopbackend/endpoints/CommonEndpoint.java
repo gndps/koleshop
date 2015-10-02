@@ -17,7 +17,7 @@ import javax.inject.Named;
  * Created by Gundeep on 30/05/15.
  */
 
-@Api(name = "commonEndpoint", version = "v1", namespace = @ApiNamespace(ownerDomain = "com.kolshop.kolshopbackend", ownerName = "com.kolshop.kolshopbackend", packagePath = ""))
+@Api(name = "commonEndpoint", version = "v1", namespace = @ApiNamespace(ownerDomain = "server.kolshop.com", ownerName = "kolshopserver", packagePath = ""))
 public class CommonEndpoint {
 
     @ApiMethod(name = "getProductCategories")

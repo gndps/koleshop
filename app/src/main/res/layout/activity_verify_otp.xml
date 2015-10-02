@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kolshop.kolshopmaterial.activities.VerifyPhoneNumberActivity">
+    tools:context="com.kolshop.kolshopmaterial.activities.VerifyOTPActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,11 +11,11 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:minHeight="72dp"
             android:layout_height="match_parent"
             android:layout_weight="3"
             android:background="@color/primary"
             android:gravity="bottom"
+            android:minHeight="72dp"
             android:paddingBottom="8dp"
             android:paddingLeft="72dp"
             android:shadowColor="@color/accent_material_dark"
@@ -23,7 +23,7 @@
             android:textSize="30sp" />
 
         <ProgressBar
-            android:id="@+id/progressBarVerifyPhone"
+            android:id="@+id/progressBarOtp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="?android:attr/progressBarStyleHorizontal"
@@ -36,57 +36,70 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textViewTitleVerifyPhone"
+                android:id="@+id/textViewTitleOtp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="72dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="48dp"
-                android:text="Verify your phone number"
+                android:text="Enter the code received"
                 android:textSize="20dp" />
 
             <TextView
-                android:id="@+id/textViewSubtitleVerifyPhone"
+                android:id="@+id/textViewSubtitleOtp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="72dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="10dp"
-                android:text="We will never send you promotional SMS"
-                android:textSize="8dp"/>
+                android:text="Kolshop will detect the received text"
+                android:textSize="8dp" />
 
             <LinearLayout
-                android:focusable="true" android:focusableInTouchMode="true"
-                android:layout_width="0px" android:layout_height="0px"/>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/input_layout_phone"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="72dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="36dp">
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-                <EditText
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/input_layout_verification_code"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/editTextPhoneVerify"
-                    android:hint="Enter phone number"
-                    android:textSize="20dp"
-                    android:inputType="phone" />
+                    android:layout_marginLeft="72dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="36dp">
 
-            </android.support.design.widget.TextInputLayout>
+                    <EditText
+                        android:id="@+id/editTextCodeVerify"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter code"
+                        android:inputType="phone"
+                        android:textSize="20dp" />
+
+                </android.support.design.widget.TextInputLayout>
+
+                <Button
+                    android:id="@+id/buttonResend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RESEND CODE"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="36dp"
+                    android:onClick="resendCode"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/frame_layout_bottom_buttons_verify_phone"
+        android:id="@+id/frame_layout_bottom_buttons_verify_otp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
@@ -111,10 +124,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:layout_marginRight="16dp"
-                android:onClick="requestOtp"
+                android:onClick="verifyOtp"
                 android:text="NEXT" />
         </LinearLayout>
 
     </FrameLayout>
 
 </FrameLayout>
+

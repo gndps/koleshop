@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 
-group = 'kolshopbackend.kolshop.com'
+group = 'com.kolshop.server'
 archivesBaseName = 'commonEndpoint'
 version = 'v1-1.20.0-SNAPSHOT'
 

@@ -16,6 +16,10 @@ import com.kolshop.kolshopmaterial.common.util.RealmUtils;
 import com.kolshop.kolshopmaterial.model.MeasuringUnit;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
 import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.server.commonEndpoint.CommonEndpoint;
+import com.kolshop.server.commonEndpoint.model.ProductCategoryCollection;
+import com.kolshop.server.commonEndpoint.model.ProductVarietyAttributeMeasuringUnit;
+import com.kolshop.server.commonEndpoint.model.ProductVarietyAttributeMeasuringUnitCollection;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
-import kolshopbackend.kolshop.com.commonEndpoint.CommonEndpoint;
-import kolshopbackend.kolshop.com.commonEndpoint.model.ProductCategoryCollection;
-import kolshopbackend.kolshop.com.commonEndpoint.model.ProductVarietyAttributeMeasuringUnitCollection;
 
 public class CommonIntentService extends IntentService {
 
@@ -100,10 +101,10 @@ public class CommonIntentService extends IntentService {
                 return;
             }
 
-            List<kolshopbackend.kolshop.com.commonEndpoint.model.ProductCategory> productCategories = result.getItems();
+            List<com.kolshop.server.commonEndpoint.model.ProductCategory> productCategories = result.getItems();
             List<ProductCategory> proCats = new ArrayList<>();
 
-            for(kolshopbackend.kolshop.com.commonEndpoint.model.ProductCategory pc : productCategories)
+            for(com.kolshop.server.commonEndpoint.model.ProductCategory pc : productCategories)
             {
                 ProductCategory productCategory = new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentProductCategoryId());
                 proCats.add(productCategory);
@@ -170,10 +171,10 @@ public class CommonIntentService extends IntentService {
                 return;
             }
 
-            List<kolshopbackend.kolshop.com.commonEndpoint.model.ProductVarietyAttributeMeasuringUnit> measuringUnits = result.getItems();
+            List<ProductVarietyAttributeMeasuringUnit> measuringUnits = result.getItems();
             List<MeasuringUnit> mUnits = new ArrayList<>();
 
-            for(kolshopbackend.kolshop.com.commonEndpoint.model.ProductVarietyAttributeMeasuringUnit currentMu : measuringUnits)
+            for(ProductVarietyAttributeMeasuringUnit currentMu : measuringUnits)
             {
                 MeasuringUnit mu = new MeasuringUnit(currentMu.getId(), currentMu.getUnitType(), currentMu.getUnit(), currentMu.getBaseUnit(), currentMu.getConversionRate(), currentMu.getUnitFullName());
                 if(mu.getUnitDimensions().equalsIgnoreCase("price"))

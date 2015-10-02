@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/primary"
     tools:context="com.kolshop.kolshop.initial.GetStartedActivity">
 
     <ImageView
@@ -13,6 +13,13 @@
         android:layout_centerVertical="true"
         android:layout_marginTop="50dp"
         android:src="@drawable/kolshop_logo" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@+id/imageViewShopLogo_Choose"
+        android:text="Congratulations! verification is complete"/>
 
     <Button
         android:id="@+id/buttonGetStarted"

@@ -31,6 +31,7 @@ public class InitialActivity extends ActionBarActivity {
     static Account mAccount;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "InitialActivity";
+    int userType;
 
     /**
      * Create a new dummy account for the sync adapter
@@ -95,11 +96,7 @@ public class InitialActivity extends ActionBarActivity {
         super.onResume();
         if(checkPlayServices())
         {
-            if(CommonUtils.isConnectedToInternet(this)) {
-                loadUserProfileIfLoggedIn();
-            } else {
-
-            }
+            loadUserProfileIfLoggedIn();
         }
     }
 
@@ -128,12 +125,8 @@ public class InitialActivity extends ActionBarActivity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-        //else go to login activity
-        } else {
-            //IF NO ACTIVE SESSION AVAILABLE
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
         }
+        //else let the user choose the session type
     }
 
     private boolean checkPlayServices() {
@@ -149,5 +142,29 @@ public class InitialActivity extends ActionBarActivity {
             return false;
         }
         return true;
+    }
+
+    public void goBuy(View v) {
+        userType = Constants.USER_TYPE_BUYER;
+        PreferenceUtils.setPreferences(this, Constants.KEY_USER_TYPE, String.valueOf(userType));
+        if(checkPlayServices())
+        {
+            goToVerifyPhoneNumberScreen();
+        }
+    }
+
+    public void goSell(View v) {
+        userType = Constants.USER_TYPE_SELLER;
+        PreferenceUtils.setPreferences(this, Constants.KEY_USER_TYPE, String.valueOf(userType));
+        if(checkPlayServices())
+        {
+            goToVerifyPhoneNumberScreen();
+        }
+    }
+
+    public void goToVerifyPhoneNumberScreen() {
+        Intent intent = new Intent(this, VerifyPhoneNumberActivity.class);
+        intent.putExtra(Constants.KEY_USER_TYPE, userType+"");
+        startActivity(intent);
     }
 }

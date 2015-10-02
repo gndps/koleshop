@@ -8,7 +8,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.gndps.matdesgtest.fragments.NavigationDrawerFragment"
+        tools:context="com.kolshop.kolshopmaterial.fragments.NavigationDrawerFragment"
         android:background="#242424">
 
 

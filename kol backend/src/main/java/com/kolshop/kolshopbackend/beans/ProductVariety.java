@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class ProductVariety {
 
-    int id;
+    Long id;
     String name;
     int limitedStock;
     boolean valid;
@@ -31,11 +31,11 @@ public class ProductVariety {
 
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

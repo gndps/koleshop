@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 
-group = 'com.gndps.kolshopserver'
+group = 'com.kolshop.server'
 archivesBaseName = 'sessionApi'
 version = 'v1-1.20.0-SNAPSHOT'
 

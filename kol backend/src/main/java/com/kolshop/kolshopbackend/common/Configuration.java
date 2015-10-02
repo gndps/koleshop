@@ -9,6 +9,6 @@ public class Configuration {
     public static String GOOGLE_CLOUD_SQL_USERNAME = "root";
     public static String GOOGLE_CLOUD_SQL_ALTERNATIVE_USERNAME = "gundeep";
     public static String GOOGLE_CLOUD_SQL_PASSWORD = "newyark";
-    public static String GOOGLE_CLOUD_SQL_URL = "jdbc:mysql://173.194.225.47:3306/Kolshop";
+    public static String GOOGLE_CLOUD_SQL_URL = "jdbc:mysql://173.194.243.193:3306/Kolshop";
 
 }

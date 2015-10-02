@@ -6,14 +6,14 @@ import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.gndps.kolshopserver.sessionApi.SessionApi;
-import com.gndps.kolshopserver.sessionApi.model.RestCallResponse;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
+import com.kolshop.server.sessionApi.SessionApi;
+import com.kolshop.server.sessionApi.model.RestCallResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,13 +55,100 @@ public class SessionIntentService extends IntentService {
                 map.put("username", intent.getStringExtra("username"));
                 map.put("password", intent.getStringExtra("password"));
                 loginTask(map);
+            } else if(Constants.ACTION_REQUEST_OTP.equals(action)) {
+                Long phone = Long.parseLong(intent.getStringExtra("phone"));
+                int sessionType = Integer.parseInt(intent.getStringExtra("userType"));
+                String deviceId = intent.getStringExtra("deviceId");
+                requestOneTimePassword(phone, sessionType, deviceId);
+            } else if(Constants.ACTION_VERIFY_OTP.equals(action)) {
+                Long phone = Long.parseLong(intent.getStringExtra("phone"));
+                int code = Integer.parseInt(intent.getStringExtra("code"));
+                verifyOneTimePassword(phone, code);
             }
+        }
+    }
+
+    private void requestOneTimePassword(Long phone, int sessionType, String deviceId) {
+        SessionApi sessionApi = null;
+        if (sessionApi == null) {
+            SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null)
+                    // use 10.0.2.2 for localhost testing
+                    .setRootUrl(Constants.SERVER_URL)
+                    .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                        @Override
+                        public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                            abstractGoogleClientRequest.setDisableGZipContent(true);
+                        }
+                    });
+
+            sessionApi = builder.build();
+        }
+
+
+        try {
+            RestCallResponse restCallResponse = sessionApi.requestCode(phone, deviceId, Constants.DEVICE_TYPE, sessionType).execute();
+            if(restCallResponse !=null && restCallResponse.getStatus().equalsIgnoreCase("success")) {
+                Log.d("SessionIntentService", "OTP request success");
+                Intent intent = new Intent(Constants.ACTION_REQUEST_OTP_SUCCESS);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            } else if(restCallResponse !=null && restCallResponse.getStatus().equalsIgnoreCase("failure")) {
+                Log.d("SessionIntentService", "OTP request failed");
+                Intent intent = new Intent(Constants.ACTION_REQUEST_OTP_FAILED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            } else {
+                Log.d("SessionIntentService", "OTP network request failed or some other problem");
+                Intent intent = new Intent(Constants.ACTION_REQUEST_OTP_FAILED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+    }
+
+    private void verifyOneTimePassword(Long phone, int otp) {
+        SessionApi sessionApi = null;
+        if (sessionApi == null) {
+            SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null)
+                    // use 10.0.2.2 for localhost testing
+                    .setRootUrl(Constants.SERVER_URL)
+                    .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                        @Override
+                        public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                            abstractGoogleClientRequest.setDisableGZipContent(true);
+                        }
+                    });
+
+            sessionApi = builder.build();
+        }
+
+
+        try {
+            RestCallResponse restCallResponse = sessionApi.verifyCode(phone, otp).execute();
+            if(restCallResponse !=null && restCallResponse.getStatus().equalsIgnoreCase("success")) {
+                Log.d("SessionIntentService", "Phone verified success");
+                Intent intent = new Intent(Constants.ACTION_VERIFY_OTP_SUCCESS);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            } else if(restCallResponse !=null && restCallResponse.getStatus().equalsIgnoreCase("failure")) {
+                Log.d("SessionIntentService", "Phone number verification failed");
+                Intent intent = new Intent(Constants.ACTION_VERIFY_OTP_FAILED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            } else {
+                Log.d("SessionIntentService", "Phone number verify network request failed or some other problem");
+                Intent intent = new Intent(Constants.ACTION_VERIFY_OTP_FAILED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
         }
     }
 
     private void signUpTask(Map<String, String> map) {
 
-        SessionApi sessionApi = null;
+        /*SessionApi sessionApi = null;
         if (sessionApi == null) {
             SessionApi.Builder builder = new SessionApi.Builder(AndroidHttp.newCompatibleTransport(),
                     new AndroidJsonFactory(), null)
@@ -105,7 +192,7 @@ public class SessionIntentService extends IntentService {
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
-        }
+        }*/
     }
 
     private void chooseSessionTypeTaskAsync(Map<String, String> map) {

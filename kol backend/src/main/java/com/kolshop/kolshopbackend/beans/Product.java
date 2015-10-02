@@ -7,13 +7,13 @@ import java.util.List;
  */
 public class Product {
 
-    int id;
+    Long id;
     String name;
     String description;
     String brand;
-    int brandId;
-    int userId;
-    int productCategoryId;
+    Long brandId;
+    Long userId;
+    Long productCategoryId;
 
     List<ProductVariety> productVarieties;
 
@@ -28,11 +28,11 @@ public class Product {
         setProductCategoryId(productInfoPackage.getProductCategoryId());
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -60,27 +60,27 @@ public class Product {
         this.brand = brand;
     }
 
-    public int getBrandId() {
+    public Long getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(int brandId) {
+    public void setBrandId(Long brandId) {
         this.brandId = brandId;
     }
 
-    public int getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public int getProductCategoryId() {
+    public Long getProductCategoryId() {
         return productCategoryId;
     }
 
-    public void setProductCategoryId(int productCategoryId) {
+    public void setProductCategoryId(Long productCategoryId) {
         this.productCategoryId = productCategoryId;
     }
 

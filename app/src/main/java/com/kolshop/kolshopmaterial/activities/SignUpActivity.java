@@ -24,8 +24,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.gndps.kolshopserver.sessionApi.SessionApi;
-import com.gndps.kolshopserver.sessionApi.model.RestCallResponse;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -37,6 +35,8 @@ import com.kolshop.kolshopmaterial.common.constant.Prefs;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.services.SessionIntentService;
+import com.kolshop.server.sessionApi.SessionApi;
+import com.kolshop.server.sessionApi.model.RestCallResponse;
 
 import java.io.IOException;
 

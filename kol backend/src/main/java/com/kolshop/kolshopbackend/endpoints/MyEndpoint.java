@@ -9,6 +9,7 @@ package com.kolshop.kolshopbackend.endpoints;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.kolshop.kolshopbackend.common.Constants;
 import com.kolshop.kolshopbackend.db.models.MyBean;
 
 import javax.inject.Named;
@@ -16,7 +17,7 @@ import javax.inject.Named;
 /**
  * An endpoint class we are exposing
  */
-@Api(name = "myApi", version = "v1", namespace = @ApiNamespace(ownerDomain = "kolshopserver.gndps.com", ownerName = "kolshopserver.gndps.com", packagePath = ""))
+@Api(name = "myApi", version = "v1", namespace = @ApiNamespace(ownerDomain = "server.kolshop.com", ownerName = "kolshopserver", packagePath = ""))
 public class MyEndpoint {
 
     /**

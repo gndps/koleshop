@@ -19,6 +19,8 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -58,6 +60,13 @@
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
                 <category android:name="com.kolshop.kolshopmaterial" />
+            </intent-filter>
+        </receiver>
+
+        <!-- SMS Receiver -->
+        <receiver android:name=".receiver.SmsReceiver" >
+            <intent-filter android:priority="99999" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
 
@@ -161,7 +170,12 @@
 
         <activity
             android:name=".activities.VerifyPhoneNumberActivity"
-            android:label="@string/title_activity_verify_phone_number" >
+            android:label="@string/title_activity_verify_phone_number"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name=".activities.VerifyOTPActivity"
+            android:label="@string/title_activity_verify_otp" >
         </activity>
     </application>
 

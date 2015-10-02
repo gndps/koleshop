@@ -9,7 +9,7 @@ public class Constants {
     public static String BASE_URL = "http://192.168.1.4:8080/";
 
     //device type = 0 for Android Devices
-    public static String DEVICE_TYPE = "0";
+    public static int DEVICE_TYPE = 0;
 
     //google project id
     public static String GOOGLE_PROJECT_ID = "210363682882";
@@ -21,6 +21,9 @@ public class Constants {
     public static int SHOPKEEPER_SESSION = 1;
 
     public static int BUYER_SESSION = 2;
+
+    public static int USER_TYPE_SELLER = 1;
+    public static int USER_TYPE_BUYER = 2;
 
     public static String SERVER_URL = "https://kol-server.appspot.com/_ah/api/";
 
@@ -55,12 +58,21 @@ public class Constants {
     public static final String ACTION_ADD_VARIETY = "action_add_variety";
     public static final String ACTION_DELETE_VARIETY = "action_delete_variety";
     public static final String ACTION_PROPERTY_MODIFIED = "action_property_modified";
+    public static final String ACTION_REQUEST_OTP = "action_request_otp";
+    public static final String ACTION_REQUEST_OTP_SUCCESS = "action_request_otp_success";
+    public static final String ACTION_REQUEST_OTP_FAILED = "action_request_otp_fail";
+    public static final String ACTION_VERIFY_OTP = "action_verify_otp";
+    public static final String ACTION_VERIFY_OTP_SUCCESS = "action_verify_otp_success";
+    public static final String ACTION_VERIFY_OTP_FAILED = "action_verify_otp_fail";
+    public static final String ACTION_OTP_RECEIVED = "action_otp_received";
 
     //Shared preferences keys
     public static final String KEY_SIGN_UP_STATUS = "key_sign_up_status";
     public static final String KEY_REG_ID = "registration_id";
     public static final String KEY_APP_VERSION = "appVersion";
     public static final String KEY_SESSION = "session";
+    public static final String KEY_USER_TYPE = "pref_user_type";
+    public static final String KEY_USER_PHONE = "pref_user_phone";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";

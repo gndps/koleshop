@@ -11,5 +11,8 @@ public class Constants {
 	String web_secret_key = "nIBgWk7djMkenJ8lVh0N6LnK";
 
 	public static int COUNTRY_CODE = 91;
+
+	public static String SERVER_DOMAIN_NAME = "kolshop.com";
+	public static String SERVER_OWNER_NAME = "kolshopserver";
 	
 }

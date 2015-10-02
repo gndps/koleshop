@@ -23,11 +23,11 @@ import com.kolshop.kolshopbackend.utils.ProductUtil;
 public class ProductService {
 
     public List<Product> getProduct(int shopId, int startIndex, int count) {
-        int[] productIdList = getProductIds(shopId, startIndex, count);
+        Long[] productIdList = getProductIds(shopId, startIndex, count);
         return getProductForIds(productIdList);
     }
 
-    public int[] getProductIds(int shopId, int startIndex, int count) {
+    public Long[] getProductIds(int shopId, int startIndex, int count) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
@@ -42,10 +42,10 @@ public class ProductService {
             System.out.println(query);
 
             ResultSet rs = preparedStatement.executeQuery();
-            int[] productIdsList = new int[count + 1];
+            Long[] productIdsList = new Long[count + 1];
             int index = 0;
             while (rs.next()) {
-                productIdsList[index++] = rs.getInt(1);
+                productIdsList[index++] = rs.getLong(1);
             }
 
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
@@ -63,7 +63,7 @@ public class ProductService {
         }
     }
 
-    public List<Product> getProductForIds(int[] productIds) {
+    public List<Product> getProductForIds(Long[] productIds) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
@@ -98,27 +98,27 @@ public class ProductService {
 
                 try {
                     ProductInfoPackage productInfoPackage = new ProductInfoPackage();
-                    productInfoPackage.setProductId(rs.getInt(1));
+                    productInfoPackage.setProductId(rs.getLong(1));
                     productInfoPackage.setProductName(rs.getString(2));
                     productInfoPackage.setProductDescription(rs.getString(3));
                     productInfoPackage.setBrand(rs.getString(4));
-                    productInfoPackage.setUserId(rs.getInt(5));
-                    productInfoPackage.setProductCategoryId(rs.getInt(6));
+                    productInfoPackage.setUserId(rs.getLong(5));
+                    productInfoPackage.setProductCategoryId(rs.getLong(6));
 
-                    productInfoPackage.setProductVarietyId(rs.getInt(7));
+                    productInfoPackage.setProductVarietyId(rs.getLong(7));
                     productInfoPackage.setProductVarietyName(rs.getString(8));
                     productInfoPackage.setLimitedStock(rs.getInt(9));
-                    productInfoPackage.setValid(rs.getBoolean(10));
+                    productInfoPackage.setIsValid(rs.getBoolean(10));
                     productInfoPackage.setImageUrl(rs.getString(11));
                     productInfoPackage.setDateAdded(rs.getDate(12));
                     productInfoPackage.setDateModified(rs.getDate(13));
 
-                    productInfoPackage.setAttributeId(rs.getInt(14));
+                    productInfoPackage.setAttributeId(rs.getLong(14));
                     productInfoPackage.setAttributeName(rs.getString(15));
                     productInfoPackage.setMeasuringUnitId(rs.getInt(16));
-                    productInfoPackage.setAttributeValueId(rs.getInt(17));
+                    productInfoPackage.setAttributeValueId(rs.getLong(17));
                     productInfoPackage.setAttributeValueDetail(rs.getString(18));
-                    productInfoPackage.setBrandId(rs.getInt(19));
+                    productInfoPackage.setBrandId(rs.getLong(19));
                     productInfoPackages.add(productInfoPackage);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -141,7 +141,7 @@ public class ProductService {
         }
     }
 
-    public int addNewProduct(Product product) {
+    public Long addNewProduct(Product product) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -149,7 +149,7 @@ public class ProductService {
 
         if(!adjustBrandId(product))
         {
-            return 0;
+            return 0L;
         }
 
         String query = "insert into Product (name, description, brand_id, user_id, product_category_id) values(?,?,?,?,?)";
@@ -160,16 +160,16 @@ public class ProductService {
             preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, product.getName());
             preparedStatement.setString(2, product.getDescription());
-            preparedStatement.setInt(3, product.getBrandId());
-            preparedStatement.setInt(4, product.getUserId());
-            preparedStatement.setInt(5, product.getProductCategoryId());
+            preparedStatement.setLong(3, product.getBrandId());
+            preparedStatement.setLong(4, product.getUserId());
+            preparedStatement.setLong(5, product.getProductCategoryId());
 
             // execute insert product SQL statement
             preparedStatement.executeUpdate();
             ResultSet keyResultSet = preparedStatement.getGeneratedKeys();
-            int newProductId = 0;
+            Long newProductId = 0L;
             if (keyResultSet.next()) {
-                newProductId = keyResultSet.getInt(1);
+                newProductId = keyResultSet.getLong(1);
                 product.setId(newProductId);
             }
 
@@ -181,15 +181,15 @@ public class ProductService {
                     query = "insert into ProductVariety (product_id, name, limited_stock, valid, image_url)" +
                             "values (?,?,?, '1', ?)";
                     preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                    preparedStatement.setInt(1, newProductId);
+                    preparedStatement.setLong(1, newProductId);
                     preparedStatement.setString(2, productVariety.getName());
                     preparedStatement.setInt(3, productVariety.getLimitedStock());
                     preparedStatement.setString(4, productVariety.getImageUrl());
                     preparedStatement.executeUpdate();
                     ResultSet rs = preparedStatement.getGeneratedKeys();
-                    int generatedProductVarietyId = 0;
+                    Long generatedProductVarietyId = 0L;
                     if (rs.next()) {
-                        generatedProductVarietyId = rs.getInt(1);
+                        generatedProductVarietyId = rs.getLong(1);
                     }
                     if (generatedProductVarietyId > 0) {
                         List<ProductVarietyAttribute> productVarietyAttributes = productVariety.getProductVarietyAttributes();
@@ -200,13 +200,13 @@ public class ProductService {
                             preparedStatement.setInt(2, pva.getMeasuringUnitId());
                             preparedStatement.setString(4, productVariety.getImageUrl());
                             int i = preparedStatement.executeUpdate();
-                            int productVarietyAttributeId = 0;
+                            Long productVarietyAttributeId = 0L;
                             if (i > 0) {
                                 //new ProductVarietyAttribute generated
                                 ResultSet rs2 = preparedStatement.getGeneratedKeys();
-                                int generatedProductVarietyAttributeId = 0;
+                                Long generatedProductVarietyAttributeId = 0L;
                                 if (rs2.next()) {
-                                    generatedProductVarietyAttributeId = rs2.getInt(1);
+                                    generatedProductVarietyAttributeId = rs2.getLong(1);
                                 }
                                 if (generatedProductVarietyAttributeId > 0) {
                                     productVarietyAttributeId = generatedProductVarietyAttributeId;
@@ -225,7 +225,7 @@ public class ProductService {
 
                                 ResultSet rs4 = preparedStatement.executeQuery();
                                 if (rs4.first()) {
-                                    productVarietyAttributeId = rs4.getInt("id");
+                                    productVarietyAttributeId = rs4.getLong("id");
                                 }
                             }
 
@@ -234,14 +234,14 @@ public class ProductService {
                                 query = "insert into ProductVarietyAttributeValue (product_variety_id, product_variety_attribute_id, detail)" +
                                         "values (?,?,?)";
                                 preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                                preparedStatement.setInt(1, productVariety.getId());
-                                preparedStatement.setInt(2, productVarietyAttributeId);
+                                preparedStatement.setLong(1, productVariety.getId());
+                                preparedStatement.setLong(2, productVarietyAttributeId);
                                 preparedStatement.setString(3, pva.getValue());
                                 preparedStatement.executeUpdate();
                                 ResultSet rs3 = preparedStatement.getGeneratedKeys();
-                                int generatedProductVarietyAttributeValueId = 0;
+                                Long generatedProductVarietyAttributeValueId = 0L;
                                 if (rs3.next()) {
-                                    generatedProductVarietyAttributeValueId = rs3.getInt(1);
+                                    generatedProductVarietyAttributeValueId = rs3.getLong(1);
                                 }
                                 if (generatedProductVarietyAttributeValueId <= 0) {
                                     //some problem in generating pvav
@@ -268,7 +268,7 @@ public class ProductService {
             if (rollbackTransaction) {
                 dbConnection.rollback();
                 System.out.print("\n========\nproduct updating failed\n========\n" + product + "\n========\n");
-                product.setId(0);
+                product.setId(0L);
             } else {
                 dbConnection.commit();
             }
@@ -280,7 +280,7 @@ public class ProductService {
 
             System.out.println(e.getMessage());
             System.out.print("\n========\nproduct updating failed\n========\n" + product + "\n========\n");
-            return 0;
+            return 0L;
 
         } finally {
 
@@ -289,7 +289,7 @@ public class ProductService {
         }
     }
 
-    public int updateProduct(Product product) {
+    public Long updateProduct(Product product) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -297,10 +297,10 @@ public class ProductService {
 
         if(!adjustBrandId(product))
         {
-            return 0;
+            return 0L;
         }
         if (product.getBrandId() == 0 && !product.getBrand().trim().isEmpty()) {
-            int newBrandId = insertBrandIfNotAlready(product.getBrand());
+            Long newBrandId = insertBrandIfNotAlready(product.getBrand());
             product.setBrandId(newBrandId);
         }
 
@@ -312,9 +312,9 @@ public class ProductService {
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setString(1, product.getName());
             preparedStatement.setString(2, product.getDescription());
-            preparedStatement.setInt(3, product.getBrandId());
-            preparedStatement.setInt(4, product.getProductCategoryId());
-            preparedStatement.setInt(5, product.getId());
+            preparedStatement.setLong(3, product.getBrandId());
+            preparedStatement.setLong(4, product.getProductCategoryId());
+            preparedStatement.setLong(5, product.getId());
 
             int updated = preparedStatement.executeUpdate();
             if(updated<=0)
@@ -326,7 +326,7 @@ public class ProductService {
                 outerloop:
                 for (ProductVariety productVariety : productVarieties) {
 
-                    int productVarietyId = 0;
+                    Long productVarietyId = 0L;
 
                     if(productVariety.getId()>0)
                     {
@@ -337,7 +337,7 @@ public class ProductService {
                         preparedStatement.setInt(2, productVariety.getLimitedStock());
                         preparedStatement.setBoolean(3, productVariety.isValid());
                         preparedStatement.setString(4, productVariety.getImageUrl());
-                        preparedStatement.setInt(5, productVarietyId);
+                        preparedStatement.setLong(5, productVarietyId);
                         int update = preparedStatement.executeUpdate();
                         if(update<=0)
                         {
@@ -351,7 +351,7 @@ public class ProductService {
                         query = "insert into ProductVariety (product_id, name, limited_stock, valid, image_url)" +
                                 "values (?,?,?, '1', ?)";
                         preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                        preparedStatement.setInt(1, product.getId());
+                        preparedStatement.setLong(1, product.getId());
                         preparedStatement.setString(2, productVariety.getName());
                         preparedStatement.setInt(3, productVariety.getLimitedStock());
                         preparedStatement.setString(4, productVariety.getImageUrl());
@@ -359,7 +359,7 @@ public class ProductService {
                         ResultSet rs = preparedStatement.getGeneratedKeys();
 
                         if (rs.next()) {
-                            productVarietyId = rs.getInt(1);
+                            productVarietyId = rs.getLong(1);
                         }
                     }
                     if (productVarietyId > 0) {
@@ -371,13 +371,13 @@ public class ProductService {
                             preparedStatement.setInt(2, pva.getMeasuringUnitId());
                             preparedStatement.setString(4, productVariety.getImageUrl());
                             int i = preparedStatement.executeUpdate();
-                            int productVarietyAttributeId = 0;
+                            Long productVarietyAttributeId = 0L;
                             if (i > 0) {
                                 //new ProductVarietyAttribute generated
                                 ResultSet rs2 = preparedStatement.getGeneratedKeys();
-                                int generatedProductVarietyAttributeId = 0;
+                                Long generatedProductVarietyAttributeId = 0L;
                                 if (rs2.next()) {
-                                    generatedProductVarietyAttributeId = rs2.getInt(1);
+                                    generatedProductVarietyAttributeId = rs2.getLong(1);
                                 }
                                 if (generatedProductVarietyAttributeId > 0) {
                                     productVarietyAttributeId = generatedProductVarietyAttributeId;
@@ -397,7 +397,7 @@ public class ProductService {
 
                                 ResultSet rs4 = preparedStatement.executeQuery();
                                 if (rs4.first()) {
-                                    productVarietyAttributeId = rs4.getInt("id");
+                                    productVarietyAttributeId = rs4.getLong("id");
                                 }
                             }
 
@@ -414,10 +414,10 @@ public class ProductService {
                                             "values (?,?,?)";
                                 }
                                 preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                                preparedStatement.setInt(1, productVariety.getId());
-                                preparedStatement.setInt(2, productVarietyAttributeId);
+                                preparedStatement.setLong(1, productVariety.getId());
+                                preparedStatement.setLong(2, productVarietyAttributeId);
                                 preparedStatement.setString(3, pva.getValue());
-                                preparedStatement.setInt(4, pva.getAttributeValueId());
+                                preparedStatement.setLong(4, pva.getAttributeValueId());
                                 int updatedInserted = preparedStatement.executeUpdate();
                                 if(updatedInserted<=0)
                                 {
@@ -426,9 +426,9 @@ public class ProductService {
                                 }
                                 else if(!pvaAlreadyExists) {
                                     ResultSet rs3 = preparedStatement.getGeneratedKeys();
-                                    int generatedProductVarietyAttributeValueId = 0;
+                                    Long generatedProductVarietyAttributeValueId = 0L;
                                     if (rs3.next()) {
-                                        generatedProductVarietyAttributeValueId = rs3.getInt(1);
+                                        generatedProductVarietyAttributeValueId = rs3.getLong(1);
                                     }
                                     if (generatedProductVarietyAttributeValueId <= 0) {
                                         //some problem in generating pvav
@@ -453,7 +453,7 @@ public class ProductService {
             if (rollbackTransaction) {
                 dbConnection.rollback();
                 System.out.print("\n========\nproduct updating failed\n========\n" + product + "\n========\n");
-                product.setId(0);
+                product.setId(0L);
             } else {
                 dbConnection.commit();
             }
@@ -465,7 +465,7 @@ public class ProductService {
 
             System.out.println(e.getMessage());
             System.out.print("\n========\nproduct updating failed\n========\n" + product + "\n========\n");
-            return 0;
+            return 0L;
 
         } finally {
 
@@ -486,14 +486,14 @@ public class ProductService {
 
     private boolean adjustBrandId(Product product) {
         if (product.getBrandId() == 0) {
-            int newBrandId = insertBrandIfNotAlready(product.getBrand());
+            Long newBrandId = insertBrandIfNotAlready(product.getBrand());
             product.setBrandId(newBrandId);
             return newBrandId > 0;
         } else
             return true;
     }
 
-    private int insertBrandIfNotAlready(String brand) {
+    private Long insertBrandIfNotAlready(String brand) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
@@ -506,7 +506,7 @@ public class ProductService {
 
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.first()) {
-                int brandId = rs.getInt(1);
+                Long brandId = rs.getLong(1);
                 DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
                 return brandId;
             } else {
@@ -518,21 +518,21 @@ public class ProductService {
                 if (preparedStatement.executeUpdate() > 0) {
                     //brand inserted
                     ResultSet keyResultSet = preparedStatement.getGeneratedKeys();
-                    int newBrandId = 0;
+                    Long newBrandId = 0L;
                     if (keyResultSet.next()) {
-                        newBrandId = keyResultSet.getInt(1);
+                        newBrandId = keyResultSet.getLong(1);
                     }
                     DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
                     return newBrandId;
                 } else {
-                    return 0;
+                    return 0L;
                 }
             }
 
         } catch (SQLException e) {
 
             e.printStackTrace();
-            return 0;
+            return 0L;
 
         } finally {
 

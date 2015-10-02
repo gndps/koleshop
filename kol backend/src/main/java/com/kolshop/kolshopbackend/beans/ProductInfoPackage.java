@@ -7,15 +7,15 @@ import java.util.Date;
  */
 public class ProductInfoPackage {
 
-    int productId;
+    Long productId;
     String productName;
     String productDescription;
     String brand;
-    int brandId;
-    int userId;
-    int productCategoryId;
+    Long brandId;
+    Long userId;
+    Long productCategoryId;
 
-    int productVarietyId;
+    Long productVarietyId;
     String productVarietyName;
     int limitedStock;
     boolean isValid;
@@ -23,17 +23,17 @@ public class ProductInfoPackage {
 
     Date dateAdded;
     Date dateModified;
-    int attributeId;
+    Long attributeId;
     String attributeName;
     int measuringUnitId;
     String attributeValueDetail;
-    int attributeValueId;
+    Long attributeValueId;
 
-    public int getProductId() {
+    public Long getProductId() {
         return productId;
     }
 
-    public void setProductId(int productId) {
+    public void setProductId(Long productId) {
         this.productId = productId;
     }
 
@@ -61,28 +61,44 @@ public class ProductInfoPackage {
         this.brand = brand;
     }
 
-    public int getBrandId() {
+    public Long getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(int brandId) {
+    public void setBrandId(Long brandId) {
         this.brandId = brandId;
     }
 
-    public int getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public boolean isValid() {
-        return isValid;
+    public Long getProductCategoryId() {
+        return productCategoryId;
     }
 
-    public void setValid(boolean isValid) {
-        this.isValid = isValid;
+    public void setProductCategoryId(Long productCategoryId) {
+        this.productCategoryId = productCategoryId;
+    }
+
+    public Long getProductVarietyId() {
+        return productVarietyId;
+    }
+
+    public void setProductVarietyId(Long productVarietyId) {
+        this.productVarietyId = productVarietyId;
+    }
+
+    public String getProductVarietyName() {
+        return productVarietyName;
+    }
+
+    public void setProductVarietyName(String productVarietyName) {
+        this.productVarietyName = productVarietyName;
     }
 
     public int getLimitedStock() {
@@ -93,12 +109,20 @@ public class ProductInfoPackage {
         this.limitedStock = limitedStock;
     }
 
-    public int getProductCategoryId() {
-        return productCategoryId;
+    public boolean isValid() {
+        return isValid;
     }
 
-    public void setProductCategoryId(int productCategoryId) {
-        this.productCategoryId = productCategoryId;
+    public void setIsValid(boolean isValid) {
+        this.isValid = isValid;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Date getDateAdded() {
@@ -117,11 +141,11 @@ public class ProductInfoPackage {
         this.dateModified = dateModified;
     }
 
-    public int getAttributeId() {
+    public Long getAttributeId() {
         return attributeId;
     }
 
-    public void setAttributeId(int attributeId) {
+    public void setAttributeId(Long attributeId) {
         this.attributeId = attributeId;
     }
 
@@ -149,36 +173,11 @@ public class ProductInfoPackage {
         this.attributeValueDetail = attributeValueDetail;
     }
 
-    public int getAttributeValueId() {
+    public Long getAttributeValueId() {
         return attributeValueId;
     }
 
-    public void setAttributeValueId(int attributeValueId) {
+    public void setAttributeValueId(Long attributeValueId) {
         this.attributeValueId = attributeValueId;
     }
-
-    public int getProductVarietyId() {
-        return productVarietyId;
-    }
-
-    public void setProductVarietyId(int productVarietyId) {
-        this.productVarietyId = productVarietyId;
-    }
-
-    public String getProductVarietyName() {
-        return productVarietyName;
-    }
-
-    public void setProductVarietyName(String productVarietyName) {
-        this.productVarietyName = productVarietyName;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
 }

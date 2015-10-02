@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Gundeep on 12/05/15.
  */
-@Api(name = "productEndpoint", version = "v1", namespace = @ApiNamespace(ownerDomain = "kolshopserver.gndps.com", ownerName = "kolshopserver.gndps.com", packagePath = ""))
+@Api(name = "productEndpoint", version = "v1", namespace = @ApiNamespace(ownerDomain = "server.kolshop.com", ownerName = "kolshopserver", packagePath = ""))
 public class ProductEndpoint {
 
     @ApiMethod(name = "getProductsList")

@@ -14,15 +14,21 @@ import com.kolshop.kolshopbackend.services.SessionService;
  */
 @Api(name = "sessionApi",
     version = "v1",
-    namespace = @ApiNamespace(ownerDomain = "kolshopserver.gndps.com",
-    ownerName = "kolshopserver.gndps.com",
+    namespace = @ApiNamespace(ownerDomain = "server.kolshop.com",
+    ownerName = "kolshopserver",
     packagePath = ""))
 public class SessionEndPoint {
 
-    @ApiMethod(name = "login")
-    public RestCallResponse verifyPhone(@Named("phone") int phone, @Named("registrationId") String registrationId, @Named("deviceType") int deviceType, @Named("sessionType") int sessionType) {
+    @ApiMethod(name = "requestCode")
+    public RestCallResponse requestCode(@Named("phone") Long phone, @Named("registrationId") String registrationId, @Named("deviceType") int deviceType, @Named("sessionType") int sessionType) {
         SessionService sessionService = new SessionService();
         return sessionService.requestOneTimePassword(phone, registrationId, deviceType, sessionType);
+    }
+
+    @ApiMethod(name = "verifyCode")
+    public RestCallResponse verifyCode(@Named("phone") Long phone, @Named("code") int code) {
+        SessionService sessionService = new SessionService();
+        return sessionService.verifyOneTimePassword(phone, code);
     }
 
     @ApiMethod(name = "checkUsername")

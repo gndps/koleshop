@@ -1,8 +1,9 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/primary"
+    android:orientation="vertical"
     tools:context=".InitialActivity">
 
 
@@ -10,28 +11,50 @@
         android:id="@+id/imageViewShopLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="50dp"
         android:src="@drawable/kolshop_logo" />
-
-    <ImageView
-        android:id="@+id/imageViewDummy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="48dp" />
 
     <TextView
         android:id="@+id/textViewShopDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/imageViewShopLogo"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginTop="-55dp"
-        android:gravity="center"
-        android:text="Buy and Sell Products in local market"
+        android:layout_marginTop="-40dp"
+        android:layout_gravity="center_horizontal"
+        android:text="buy or sell in local market"
         android:textSize="25sp" />
-</RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:padding="16dp"
+            android:elevation="8dp"
+            android:scaleType="fitCenter"
+            android:background="@null"
+            android:onClick="goBuy"
+            android:src="@drawable/icon_buy"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:padding="16dp"
+            android:elevation="8dp"
+            android:scaleType="fitCenter"
+            android:background="@null"
+            android:onClick="goSell"
+            android:src="@drawable/icon_sell"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -110,4 +110,8 @@ public class CommonUtils {
         }
     }
 
+    public static String getGoogleRegistrationId(Context context) {
+        return "";
+    }
+
 }

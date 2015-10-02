@@ -5,10 +5,10 @@ package com.kolshop.kolshopbackend.beans;
  */
 public class ProductVarietyAttribute {
 
-    int id;
+    Long id;
     String name;
     int measuringUnitId;
-    int attributeValueId;
+    Long attributeValueId;
     String value;
 
     public ProductVarietyAttribute(ProductInfoPackage productInfoPackage) {
@@ -22,19 +22,19 @@ public class ProductVarietyAttribute {
 
     }
 
-    public int getAttributeValueId() {
+    public Long getAttributeValueId() {
         return attributeValueId;
     }
 
-    public void setAttributeValueId(int attributeValueId) {
+    public void setAttributeValueId(Long attributeValueId) {
         this.attributeValueId = attributeValueId;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
