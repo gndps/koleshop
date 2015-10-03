@@ -2,14 +2,9 @@ package com.kolshop.kolshopmaterial.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
-import com.kolshop.kolshopmaterial.common.GlobalData;
-import com.kolshop.kolshopmaterial.common.constant.Prefs;
 import com.kolshop.kolshopmaterial.model.RestCallResponse;
-import com.kolshop.kolshopmaterial.model.Session;
 import com.kolshop.kolshopmaterial.network.RestCall;
 import com.kolshop.kolshopmaterial.network.RestCallListener;
 import com.google.gson.Gson;

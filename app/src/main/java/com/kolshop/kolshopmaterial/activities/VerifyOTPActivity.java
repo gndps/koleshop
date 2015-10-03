@@ -1,12 +1,12 @@
 package com.kolshop.kolshopmaterial.activities;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -21,25 +21,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.kolshop.kolshopmaterial.R;
-import com.kolshop.kolshopmaterial.common.GlobalData;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
-import com.kolshop.kolshopmaterial.model.Session;
 import com.kolshop.kolshopmaterial.services.SessionIntentService;
-
-import static com.kolshop.kolshopmaterial.R.id.textViewTitleVerifyPhone;
 
 public class VerifyOTPActivity extends AppCompatActivity {
 
     EditText editTextCode;
     Button buttonResend;
-    String phone;
-    String userType;
-    String deviceId;
-    ProgressDialog dialog;
+    String phone, sessionType, deviceId;
     private BroadcastReceiver verifyOtpBroadcastReceiver;
     Context mContext;
     ProgressBar progressBar;
+    TextInputLayout textInputLayout;
     String titleBackup;
     FrameLayout frameLayoutBottomButtons;
     TextView textViewTitle, textViewSubtitle;
@@ -52,16 +46,15 @@ public class VerifyOTPActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_otp);
         mContext = this;
-        Bundle bundle = getIntent().getExtras();
-        phone = bundle.getLong("phone") + "";
-        userType = bundle.getString("userType");
-        deviceId = bundle.getString("deviceId");
+
         editTextCode = (EditText) findViewById(R.id.editTextCodeVerify);
         buttonResend = (Button) findViewById(R.id.buttonResend);
         textViewTitle = (TextView) findViewById(R.id.textViewTitleOtp);
         textViewSubtitle = (TextView) findViewById(R.id.textViewSubtitleOtp);
         frameLayoutBottomButtons = (FrameLayout) findViewById(R.id.frame_layout_bottom_buttons_verify_otp);
         progressBar = (ProgressBar) findViewById(R.id.progressBarOtp);
+        textInputLayout = (TextInputLayout) findViewById(R.id.input_layout_verification_code);
+
         initializeBroadcastReceivers();
         addTextListener();
     }
@@ -73,15 +66,12 @@ public class VerifyOTPActivity extends AppCompatActivity {
         lbm.registerReceiver(verifyOtpBroadcastReceiver, new IntentFilter(Constants.ACTION_OTP_RECEIVED));
         lbm.registerReceiver(verifyOtpBroadcastReceiver, new IntentFilter(Constants.ACTION_REQUEST_OTP_SUCCESS));
         lbm.registerReceiver(verifyOtpBroadcastReceiver, new IntentFilter(Constants.ACTION_REQUEST_OTP_FAILED));
-        if(userType==null || userType.isEmpty()) {
-            userType = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_TYPE);
-        }
-        if(deviceId == null || deviceId.isEmpty()) {
-            deviceId = PreferenceUtils.getRegistrationId(mContext);
-        }
-        if(phone ==null || phone.isEmpty()) {
-            phone = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_PHONE);
-        }
+        lbm.registerReceiver(verifyOtpBroadcastReceiver, new IntentFilter(Constants.ACTION_VERIFY_OTP_SUCCESS));
+        lbm.registerReceiver(verifyOtpBroadcastReceiver, new IntentFilter(Constants.ACTION_VERIFY_OTP_FAILED));
+
+        phone = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_PHONE_NUMBER);
+        sessionType = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_SESSION_TYPE);
+        deviceId = PreferenceUtils.getRegistrationId(mContext);
     }
 
     private void initializeBroadcastReceivers() {
@@ -94,12 +84,6 @@ public class VerifyOTPActivity extends AppCompatActivity {
                     verifyOtp(null);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REQUEST_OTP_SUCCESS)) {
                     stopProcessing();
-                    Intent intent2 = new Intent(mContext, VerifyOTPActivity.class);
-                    intent2.putExtra("phone", phone);
-                    String regId = PreferenceUtils.getRegistrationId(mContext);
-                    intent2.putExtra("deviceId", regId);
-                    intent2.putExtra("userType", userType);
-                    startActivity(intent2);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REQUEST_OTP_FAILED)) {
                     stopProcessing();
                     new AlertDialog.Builder(mContext)
@@ -111,9 +95,14 @@ public class VerifyOTPActivity extends AppCompatActivity {
                     stopProcessing();
                     Intent intent1 = new Intent(mContext, GetStartedActivity.class);
                     intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startService(intent1);
+                    startActivity(intent1);
                 } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_VERIFY_OTP_FAILED)) {
                     stopProcessing();
+                    new AlertDialog.Builder(mContext)
+                            .setTitle("Code not matched")
+                            .setMessage("Please try again")
+                            .setPositiveButton("Ok", null)
+                            .show();
                 }
             }
         };
@@ -134,10 +123,14 @@ public class VerifyOTPActivity extends AppCompatActivity {
     private void requestOneTimePasswordFromServer() {
         Intent intent = new Intent(this, SessionIntentService.class);
         intent.putExtra("phone", phone);
-        intent.putExtra("userType", userType);
+        intent.putExtra("sessionType", sessionType);
         intent.putExtra("deviceId", deviceId);
         intent.setAction(Constants.ACTION_REQUEST_OTP);
         startService(intent);
+    }
+
+    public void goBack(View v) {
+        finish();
     }
 
     public void verifyOtp(View v) {
@@ -175,6 +168,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
         frameLayoutBottomButtons.setVisibility(View.GONE);
         textViewSubtitle.setVisibility(View.GONE);
         buttonResend.setVisibility(View.GONE);
+        textInputLayout.setVisibility(View.GONE);
         titleBackup = textViewTitle.getText().toString();
         textViewTitle.setText(processingMessage);
         progressBar.setVisibility(View.VISIBLE);
@@ -184,6 +178,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
         frameLayoutBottomButtons.setVisibility(View.VISIBLE);
         textViewSubtitle.setVisibility(View.VISIBLE);
         buttonResend.setVisibility(View.VISIBLE);
+        textInputLayout.setVisibility(View.VISIBLE);
         textViewTitle.setText(titleBackup);
         progressBar.setVisibility(View.GONE);
     }

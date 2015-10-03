@@ -121,7 +121,7 @@ public class ShopSettingsActivity extends PreferenceActivity {
                 }
 
                 if (savedShopSettings == null || !savedShopSettings.getSettingValue().equals(stringValue)) {
-                    shopSettings.setUsername(PreferenceUtils.getLoggedInUsername(preference.getContext()));
+                    //shopSettings.setUsername(PreferenceUtils.getLoggedInUsername(preference.getContext()));
                     shopSettings.setSettingName(preference.getKey());
                     shopSettings.setSettingValue(stringValue);
                     Date date = getAppropriateDate(savedShopSettings == null);

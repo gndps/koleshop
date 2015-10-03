@@ -29,10 +29,19 @@ public class SessionService {
                 int otp = CommonUtils.generateOtp(4);
                 boolean otpSaved = saveOtpInDatabase(otp, sessionId);
                 if(otpSaved) {
+                    int gatewayNumber = Constants.USE_GATEWAY_NUMBER;
+                    String gatewayUrl = Constants.SMS_GATEWAY_URL;
                     HashMap<String, String> hashmap = new HashMap<>();
-                    hashmap.put("to", String.valueOf(phone));
-                    hashmap.put("message", "Code : " + otp + " . Enter this code to confirm your KolShop account. Please ignore if not requested");
-                    RestCallResponse otpRequestResponse = RestClient.sendGet(Constants.SMS_GATEWAY_URL, hashmap);
+                    if(gatewayNumber == 1) {
+                        hashmap.put("to", String.valueOf(phone));
+                        hashmap.put("message", "Use Code : " + otp + " to confirm your KolShop account. Please ignore if not requested");
+                        gatewayUrl = Constants.SMS_GATEWAY_URL;
+                    } else if(gatewayNumber == 2) {
+                        hashmap.put("mobiles", String.valueOf(phone));
+                        hashmap.put("message", "Use Code : " + otp + " to confirm your Kolshop account. Please ignore if not requested");
+                        gatewayUrl = Constants.SMS_GATEWAY_URL_2;
+                    }
+                    RestCallResponse otpRequestResponse = RestClient.sendGet(gatewayUrl, hashmap);
                     if(otpRequestResponse.getStatus().equalsIgnoreCase("success")) {
                         RestCallResponse restCallResponse = new RestCallResponse();
                         restCallResponse.setStatus("success");
@@ -73,7 +82,7 @@ public class SessionService {
             Connection dbConnection = null;
             PreparedStatement preparedStatement = null;
 
-            String query = "select session_id from OneTimePassword where user_id=? and one_time_password =? and generation_time > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL(-15) MINUTES)";
+            String query = "select otp.session_id from OneTimePassword otp join Session s on otp.session_id=s.id where s.user_id=? and one_time_password=? and generation_time > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL(-15) MINUTE)";
 
             try {
                 dbConnection = DatabaseConnection.getConnection();
@@ -86,7 +95,7 @@ public class SessionService {
                     //otp verified
                     Long sessionId = rs.getLong(1);
                     restCallResponse.setStatus("success");
-                    restCallResponse.setData("{userId:" + userId + "}");
+                    restCallResponse.setData("{userId:\"" + userId + "\"}");
                     restCallResponse.setReason(null);
                     validateSession(sessionId);
                 } else {

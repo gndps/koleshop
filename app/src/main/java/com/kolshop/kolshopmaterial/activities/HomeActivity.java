@@ -30,11 +30,13 @@ public class HomeActivity extends ActionBarActivity {
     private BroadcastReceiver homeActivityBroadcastReceiver;
     private ProgressDialog dialog;
     private boolean loadedProductCategories,loadedMeasuringUnits;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        mContext = this;
         if (getIntent().getBooleanExtra("CLOSE_APPLICATION", false))
         {
             finish();
@@ -145,10 +147,24 @@ public class HomeActivity extends ActionBarActivity {
                         .replace(R.id.fragment_container, productListFragment).commit();
                 break;
             case 1:
-                //Log out
-                PreferenceUtils.saveSession(this, "");
-                Intent intent = new Intent(this, InitialActivity.class);
-                startActivity(intent);
+                //Log In  or Log out
+                boolean loggedIn = false;
+                if(!PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID).isEmpty()) {
+                    loggedIn = true;
+                }
+
+                if(loggedIn) {
+                    //clear user_id
+                    PreferenceUtils.setPreferences(this, Constants.KEY_USER_ID, "");
+                    LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+                    Intent broadcastIntent = new Intent(Constants.ACTION_LOG_OUT);
+                    broadcastManager.sendBroadcast(broadcastIntent);
+                } else {
+                    Intent intent = new Intent(mContext, VerifyPhoneNumberActivity.class);
+                    startActivity(intent);
+                }
+
+
                 break;
             case 2:
                 //Add/Edit Products

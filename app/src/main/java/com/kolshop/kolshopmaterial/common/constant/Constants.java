@@ -18,12 +18,8 @@ public class Constants {
 
     public static String BUYER_SETTINGS_PREFIX = "buyer_settings_";
 
-    public static int SHOPKEEPER_SESSION = 1;
-
-    public static int BUYER_SESSION = 2;
-
-    public static int USER_TYPE_SELLER = 1;
-    public static int USER_TYPE_BUYER = 2;
+    public static String SESSION_TYPE_SELLER = "1";
+    public static String SESSION_TYPE_BUYER = "2";
 
     public static String SERVER_URL = "https://kol-server.appspot.com/_ah/api/"; //production url
     //public static String SERVER_URL = "10.0.3.2"; //local url
@@ -42,15 +38,6 @@ public class Constants {
 
 
     //Broadcast Actions
-    public static final String ACTION_SIGN_UP = "action_sign_up";
-    public static final String ACTION_SIGN_UP_COMPLETE = "action_sign_up_complete";
-    public static final String ACTION_CHOOSE_SESSION_TYPE = "action_choose_session_type";
-    public static final String ACTION_CHOOSE_SESSION_TYPE_COMPLETE = "action_choose_session_type_complete";
-    public static final String ACTION_CHOOSE_SESSION_TYPE_FAILED = "action_choose_session_type_failed";
-    public static final String ACTION_LOGIN = "action_login";
-    public static final String ACTION_LOGIN_SUCCESS = "action_login_success";
-    public static final String ACTION_LOGIN_INVALID_CREDENTIALS = "action_login_invalid_credentials";
-    public static final String ACTION_LOGIN_FAILED = "action_login_failed";
     public static final String ACTION_NAVIGATION_ITEM_SELECTED = "action_navigation_item_selected";
     public static final String ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS = "action_product_categories_load_success";
     public static final String ACTION_PRODUCT_CATEGORIES_LOAD_FAILED = "action_product_categories_load_failed";
@@ -66,14 +53,15 @@ public class Constants {
     public static final String ACTION_VERIFY_OTP_SUCCESS = "action_verify_otp_success";
     public static final String ACTION_VERIFY_OTP_FAILED = "action_verify_otp_fail";
     public static final String ACTION_OTP_RECEIVED = "action_otp_received";
+    public static final String ACTION_LOG_OUT = "action_login_logout";
 
     //Shared preferences keys
-    public static final String KEY_SIGN_UP_STATUS = "key_sign_up_status";
     public static final String KEY_REG_ID = "registration_id";
     public static final String KEY_APP_VERSION = "appVersion";
-    public static final String KEY_SESSION = "session";
-    public static final String KEY_USER_TYPE = "pref_user_type";
-    public static final String KEY_USER_PHONE = "pref_user_phone";
+    public static final String KEY_USER_SESSION_TYPE = "pref_user_type";
+    public static final String KEY_USER_PHONE_NUMBER = "pref_user_phone";
+    public static final String KEY_SKIP_ALLOWED = "pref_skip_allowed";
+    public static final String KEY_USER_ID = "pref_user_id";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";

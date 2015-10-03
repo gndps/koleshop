@@ -5,10 +5,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.kolshop.kolshopmaterial.common.GlobalData;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.constant.Prefs;
-import com.kolshop.kolshopmaterial.model.Session;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,13 +68,6 @@ public class PreferenceUtils {
         return prefs.getBoolean(flagKey, false);
     }
 
-    public static String getLoggedInUsername(Context context) {
-        Session session = GlobalData.getInstance().getSession();
-        if (session != null && !session.getUsername().trim().isEmpty()) {
-            return session.getUsername();
-        } else return "";
-    }
-
     public static void clearUserSettings(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(Prefs.FLAGS, Context.MODE_PRIVATE);
         prefs.edit().clear().commit();
@@ -116,40 +107,6 @@ public class PreferenceUtils {
             return "";
         }
         return registrationId;
-    }
-
-    public static void saveSession(Context context, String sessionGsonString)
-    {
-        //todo later remove gson string method
-        SharedPreferences prefs = context.getSharedPreferences(Prefs.USER_INFO, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(Constants.KEY_SESSION, sessionGsonString);
-        editor.commit();
-        try {
-            GlobalData.getInstance().setSession(new Gson().fromJson(sessionGsonString, Session.class));
-        } catch (Exception e) {
-            if(sessionGsonString.isEmpty())
-            {
-                GlobalData.getInstance().setSession(null);
-            }
-            else {
-                Log.e(TAG, "session not set in global data\nreason:" + e.getMessage());
-            }
-        }
-    }
-
-    public static Session getSession(Context context)
-    {
-        SharedPreferences prefs = context.getSharedPreferences(Prefs.USER_INFO, Context.MODE_PRIVATE);
-        String sessionGsonString = prefs.getString(Constants.KEY_SESSION, "");
-        if(sessionGsonString.isEmpty())
-        {
-            return null;
-        }
-        else {
-            Session session = new Gson().fromJson(sessionGsonString, Session.class);
-            return session;
-        }
     }
 
 }

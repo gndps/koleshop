@@ -1,7 +1,6 @@
 package com.kolshop.kolshopmaterial.activities;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -33,32 +33,35 @@ import java.io.IOException;
 public class VerifyPhoneNumberActivity extends AppCompatActivity {
 
     EditText editTextPhone;
-    ProgressDialog dialog;
     GoogleCloudMessaging gcm;
     String regId;
-    Long phone;
+    String phone;
     Context mContext;
-    String userType;
+    String sessionType;
     TextView textViewTitle,textViewSubtitle;
     FrameLayout frameLayoutBottomButtons;
     String titleBackup;
     ProgressBar progressBar;
     TextInputLayout textInputLayout;
+    Button buttonBack, buttonNextSkip;
+    boolean skipAllowed;
     private BroadcastReceiver verifyActivityBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle bundle = getIntent().getExtras();
-        userType = bundle.getString(Constants.KEY_USER_TYPE);
         mContext = this;
         setContentView(R.layout.activity_verify_phone_number);
+
         editTextPhone = (EditText) findViewById(R.id.editTextPhoneVerify);
         textViewTitle = (TextView) findViewById(R.id.textViewTitleVerifyPhone);
         textViewSubtitle = (TextView) findViewById(R.id.textViewSubtitleVerifyPhone);
         frameLayoutBottomButtons = (FrameLayout) findViewById(R.id.frame_layout_bottom_buttons_verify_phone);
         progressBar = (ProgressBar) findViewById(R.id.progressBarVerifyPhone);
         textInputLayout = (TextInputLayout) findViewById(R.id.input_layout_phone);
+        buttonBack = (Button) findViewById(R.id.buttonBack);
+        buttonNextSkip = (Button) findViewById(R.id.buttonNextSkip);
+
         initializeBroadcastReceivers();
         addTextListener();
     }
@@ -69,6 +72,15 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_REQUEST_OTP_SUCCESS));
         lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_REQUEST_OTP_FAILED));
+
+        Bundle bundle = getIntent().getExtras();
+        if(bundle!=null) {
+            skipAllowed = bundle.getBoolean(Constants.KEY_SKIP_ALLOWED);
+        }
+        sessionType = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_SESSION_TYPE);
+        if(skipAllowed) {
+            buttonNextSkip.setText("SKIP");
+        }
     }
 
     private void initializeBroadcastReceivers() {
@@ -78,9 +90,6 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REQUEST_OTP_SUCCESS)) {
                     stopProcessing();
                     Intent intent2 = new Intent(mContext, VerifyOTPActivity.class);
-                    intent2.putExtra("phone", phone);
-                    intent2.putExtra("deviceId", regId);
-                    intent2.putExtra("userType", userType);
                     startActivity(intent2);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REQUEST_OTP_FAILED)) {
                     stopProcessing();
@@ -123,10 +132,18 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void goBack(View v) {
+        finish();
+    }
+
     public void requestOtp(View v) {
+        if(skipAllowed && editTextPhone.getText().toString().isEmpty()) {
+            skipLogin();
+            return;
+        }
         try {
-            String phoneNumber = textInputLayout.getEditText().getText().toString();
-            phone = Long.parseLong(phoneNumber);
+            phone = textInputLayout.getEditText().getText().toString();
+            Long.parseLong(phone);
         } catch (Exception e) {
             editTextPhone.setError("Please enter a valid phone number");
             return;
@@ -143,11 +160,17 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
         }
     }
 
+    private void skipLogin() {
+        Intent intent = new Intent(mContext, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
     private void requestOneTimePasswordFromServer() {
         Intent intent = new Intent(this, SessionIntentService.class);
-        intent.putExtra("phone", editTextPhone.getText().toString());
-        PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_PHONE, editTextPhone.getText().toString());
-        intent.putExtra("userType", userType);
+        PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_PHONE_NUMBER, phone);
+        intent.putExtra("phone", phone);
+        intent.putExtra("sessionType", sessionType);
         if(regId==null || regId.isEmpty()) {
             regId = PreferenceUtils.getRegistrationId(mContext);
         }
@@ -175,7 +198,6 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
 
                     // Persist the regID - no need to register again.
                     PreferenceUtils.storeRegistrationId(mContext, regId);
-                    requestOneTimePasswordFromServer();
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
                 }
@@ -228,6 +250,12 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                if(s.toString().length()==0 && skipAllowed) {
+                    buttonNextSkip.setText("SKIP");
+                }
+                if(skipAllowed && s.toString().length()>0 && buttonNextSkip.getText().toString().equalsIgnoreCase("SKIP"))  {
+                    buttonNextSkip.setText("NEXT");
+                }
                 if(s.toString().length()==10) {
                     //hide keyboard
                     View view = getCurrentFocus();

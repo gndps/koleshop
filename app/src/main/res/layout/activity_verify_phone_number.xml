@@ -11,11 +11,11 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:minHeight="72dp"
             android:layout_height="match_parent"
             android:layout_weight="3"
             android:background="@color/primary"
             android:gravity="bottom"
+            android:minHeight="72dp"
             android:paddingLeft="72dp"
             android:shadowColor="@color/accent_material_dark"
             android:text="KolShop Login"
@@ -23,21 +23,21 @@
 
         <ProgressBar
             android:id="@+id/progressBarVerifyPhone"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_marginTop="-5dp"
             android:indeterminate="true"
-            android:layout_marginTop="-2dp"
+            android:maxHeight="10dp"
             android:minHeight="10dp"
-            android:visibility="gone"
             android:progressDrawable="@drawable/progress_drawable"
-            android:maxHeight="10dp"/>
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textViewTitleVerifyPhone"
@@ -57,11 +57,13 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="10dp"
                 android:text="We will never send you promotional SMS"
-                android:textSize="8dp"/>
+                android:textSize="8dp" />
 
             <LinearLayout
-                android:focusable="true" android:focusableInTouchMode="true"
-                android:layout_width="0px" android:layout_height="0px"/>
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:focusable="true"
+                android:focusableInTouchMode="true" />
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/input_layout_phone"
@@ -72,12 +74,12 @@
                 android:layout_marginTop="36dp">
 
                 <EditText
+                    android:id="@+id/editTextPhoneVerify"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/editTextPhoneVerify"
                     android:hint="Enter phone number"
-                    android:textSize="20dp"
-                    android:inputType="phone" />
+                    android:inputType="phone"
+                    android:textSize="20dp" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -105,14 +107,31 @@
                 android:layout_marginTop="36dp"
                 android:background="#55000000"></TextView>
 
-            <Button
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginRight="16dp"
-                android:onClick="requestOtp"
-                android:text="NEXT" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/buttonBack"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:drawableLeft="@drawable/ic_action_back"
+                    android:onClick="goBack"
+                    android:text="" />
+
+                <Button
+                    android:id="@+id/buttonNextSkip"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:drawableRight="@drawable/ic_action_next"
+                    android:onClick="requestOtp"
+                    android:text="NEXT" />
+
+            </FrameLayout>
         </LinearLayout>
 
     </FrameLayout>

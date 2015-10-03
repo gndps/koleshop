@@ -69,4 +69,8 @@ public class GndpAdapter extends RecyclerView.Adapter<GndpAdapter.MyViewHolder> 
         data.remove(position);
         notifyItemRemoved(position);
     }
+
+    public void setData(List<MenuInfo> data) {
+        this.data = data;
+    }
 }

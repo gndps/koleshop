@@ -3,26 +3,18 @@ package com.kolshop.kolshopmaterial.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.kolshop.kolshopmaterial.R;
-import com.kolshop.kolshopmaterial.common.GlobalData;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
-import com.kolshop.kolshopmaterial.common.constant.Prefs;
-import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
-import com.kolshop.kolshopmaterial.model.Session;
-import com.google.gson.Gson;
 
 public class InitialActivity extends ActionBarActivity {
 
@@ -31,7 +23,7 @@ public class InitialActivity extends ActionBarActivity {
     static Account mAccount;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "InitialActivity";
-    int userType;
+    String sessionType;
 
     /**
      * Create a new dummy account for the sync adapter
@@ -108,25 +100,19 @@ public class InitialActivity extends ActionBarActivity {
 
     private void loadUserProfileIfLoggedIn() {
 
-        GlobalData globalData = GlobalData.getInstance();
-        Session session = PreferenceUtils.getSession(this);
-        //if session active, then go to home activity
-        if (session != null && !session.getSessionId().isEmpty()) {
-            globalData.setSession(session);
-            if (session.getSessionType() == Constants.SHOPKEEPER_SESSION) {
-                //IF SHOPKEEPER SESSION ACTIVE
-                Intent intent = new Intent(this, HomeActivity.class);
-                startActivity(intent);//start db sync
-            } else if (session.getSessionType() == Constants.BUYER_SESSION) {
-                //IF BUYER SESSION ACTIVE
-            } else {
-                //IF SESSION TYPE NOT AVAILABLE
-                Intent intent = new Intent(this, ChooseActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
+        String sessionType = PreferenceUtils.getPreferences(this, Constants.KEY_USER_SESSION_TYPE);
+        if(!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
+            //seller session
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+        } else if(!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_BUYER)) {
+            //buyer session
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+        } else {
+            //let the user choose the session type
         }
-        //else let the user choose the session type
+
     }
 
     private boolean checkPlayServices() {
@@ -145,17 +131,17 @@ public class InitialActivity extends ActionBarActivity {
     }
 
     public void goBuy(View v) {
-        userType = Constants.USER_TYPE_BUYER;
-        PreferenceUtils.setPreferences(this, Constants.KEY_USER_TYPE, String.valueOf(userType));
-        if(checkPlayServices())
-        {
-            goToVerifyPhoneNumberScreen();
-        }
+        sessionType = Constants.SESSION_TYPE_BUYER;
+        next();
     }
 
     public void goSell(View v) {
-        userType = Constants.USER_TYPE_SELLER;
-        PreferenceUtils.setPreferences(this, Constants.KEY_USER_TYPE, String.valueOf(userType));
+        sessionType = Constants.SESSION_TYPE_SELLER;
+        next();
+    }
+
+    private void next() {
+        PreferenceUtils.setPreferences(this, Constants.KEY_USER_SESSION_TYPE, sessionType);
         if(checkPlayServices())
         {
             goToVerifyPhoneNumberScreen();
@@ -164,7 +150,7 @@ public class InitialActivity extends ActionBarActivity {
 
     public void goToVerifyPhoneNumberScreen() {
         Intent intent = new Intent(this, VerifyPhoneNumberActivity.class);
-        intent.putExtra(Constants.KEY_USER_TYPE, userType+"");
+        intent.putExtra(Constants.KEY_SKIP_ALLOWED, true);
         startActivity(intent);
     }
 }

@@ -3,17 +3,11 @@ package com.kolshop.kolshopmaterial.common.util;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.kolshop.kolshopmaterial.common.constant.Prefs;
-import com.kolshop.kolshopmaterial.model.Session;
-import com.google.gson.Gson;
 
 import java.util.List;
 import java.util.Random;

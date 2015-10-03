@@ -53,7 +53,6 @@
     <orderEntry type="library" exported="" name="commons-logging-1.2" level="project" />
     <orderEntry type="library" exported="" name="commons-codec-1.9" level="project" />
     <orderEntry type="library" exported="" name="commons-io-2.2" level="project" />
-    <orderEntry type="library" exported="" name="kol backend.kol backend" level="project" />
     <orderEntry type="library" exported="" name="kol backend.kol backend-android-endpoints" level="project" />
   </component>
 </module>

@@ -1,8 +1,10 @@
 package com.kolshop.kolshopmaterial.fragments;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.adapters.GndpAdapter;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.model.MenuInfo;
 
 import java.util.ArrayList;
@@ -44,6 +47,7 @@ public class NavigationDrawerFragment extends Fragment {
     private View containerView;
     private RecyclerView recyclerView;
     private GndpAdapter gndpAdapter;
+    private BroadcastReceiver broadcastReceiverNavigationDrawer;
 
     public NavigationDrawerFragment() {
         // Required empty public constructor
@@ -56,6 +60,32 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             fromSaveState = true;
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(getActivity());
+        lbm.registerReceiver(broadcastReceiverNavigationDrawer, new IntentFilter(Constants.ACTION_LOG_OUT));
+    }
+
+    private void initializeBroadcastReceivers() {
+        broadcastReceiverNavigationDrawer = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equalsIgnoreCase(Constants.ACTION_LOG_OUT)) {
+                    gndpAdapter.setData(getData());
+                    gndpAdapter.notifyDataSetChanged();
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(getActivity());
+        lbm.unregisterReceiver(broadcastReceiverNavigationDrawer);
     }
 
     @Override
@@ -78,7 +108,7 @@ public class NavigationDrawerFragment extends Fragment {
                 String navItem = getActivity().getResources().getStringArray(R.array.navigation_drawer_array)[position];
                 intent.putExtra("NavigationItem", navItem);
                 LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
-                Toast.makeText(getActivity(), "item clicked "+ position, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -90,16 +120,20 @@ public class NavigationDrawerFragment extends Fragment {
         return layout;
     }
 
-    public List<MenuInfo> getData()
-    {
+    public List<MenuInfo> getData() {
         List<MenuInfo> data = new ArrayList<MenuInfo>();
         String[] titles = getResources().getStringArray(R.array.navigation_drawer_array);
-        for(int i = 0; i<titles.length; i++ )
-        {
+        for (int i = 0; i < titles.length; i++) {
             MenuInfo info = new MenuInfo();
             info.iconId = R.drawable.check;
             info.title = titles[i];
-            data.add(info);
+            if (info.title.equalsIgnoreCase("Log In") && PreferenceUtils.getPreferences(getActivity(), Constants.KEY_USER_ID).isEmpty()) {
+                data.add(info);
+            } else if (info.title.equalsIgnoreCase("Log Out") && !PreferenceUtils.getPreferences(getActivity(), Constants.KEY_USER_ID).isEmpty()) {
+                data.add(info);
+            } else if (!info.title.startsWith("Log")) {
+                data.add(info);
+            }
         }
         return data;
     }
@@ -128,7 +162,7 @@ public class NavigationDrawerFragment extends Fragment {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
                 super.onDrawerSlide(drawerView, slideOffset);
-                if(slideOffset<0.6) {
+                if (slideOffset < 0.6) {
                     toolbar.setAlpha(1 - slideOffset);
                 }
             }
@@ -158,15 +192,14 @@ public class NavigationDrawerFragment extends Fragment {
         return preferences.getString(name, defaultValue);
     }
 
-    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener
-    {
+    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
         ClickListener clickListener;
         GestureDetector gestureDetector;
-        public RecyclerTouchListener(Context context, final RecyclerView rv, final ClickListener clickListener)
-        {
+
+        public RecyclerTouchListener(Context context, final RecyclerView rv, final ClickListener clickListener) {
             Log.d("gndp", "Recycler Touch Listener constructor");
             this.clickListener = clickListener;
-            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
                     Log.d("gndp", "Gesture Detector single tap up");
@@ -177,8 +210,7 @@ public class NavigationDrawerFragment extends Fragment {
                 public void onLongPress(MotionEvent e) {
                     Log.d("gndp", "Gesture Detector long press");
                     View child = rv.findChildViewUnder(e.getX(), e.getY());
-                    if(child!=null && clickListener!=null)
-                    {
+                    if (child != null && clickListener != null) {
                         clickListener.onItemLongClick(child, rv.getChildPosition(child));
                     }
                     super.onLongPress(e);
@@ -192,8 +224,7 @@ public class NavigationDrawerFragment extends Fragment {
             Log.d("gndp", "on intercept touch event");
             View child = rv.findChildViewUnder(e.getX(), e.getY());
             boolean gestureDetected = gestureDetector.onTouchEvent(e);
-            if(child!=null && rv!=null && gestureDetected)
-            {
+            if (child != null && rv != null && gestureDetected) {
                 clickListener.onItemClick(child, rv.getChildPosition(child));
             }
             return false;
@@ -205,8 +236,9 @@ public class NavigationDrawerFragment extends Fragment {
         }
     }
 
-    public static interface ClickListener{
+    public static interface ClickListener {
         public void onItemClick(View v, int position);
+
         public void onItemLongClick(View v, int position);
     }
 

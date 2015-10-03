@@ -42,14 +42,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.SignUpActivity"
-            android:label="@string/title_activity_sign_up"
-            android:parentActivityName=".activities.InitialActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kolshop.kolshopmaterial.activities.InitialActivity" />
-        </activity>
 
         <receiver
             android:name=".network.GcmBroadcastReceiver"
@@ -74,17 +66,10 @@
             android:name=".services.PushMessageProcessorService"
             android:exported="false" />
 
-        <activity
-            android:name=".activities.ChooseActivity"
-            android:label="@string/title_activity_choose" />
-
         <service
             android:name=".services.RestCallService"
             android:exported="false" />
 
-        <activity
-            android:name=".activities.LoginActivity"
-            android:label="@string/title_activity_login" />
         <activity
             android:name=".activities.GetStartedActivity"
             android:label="@string/title_activity_get_started" />

@@ -23,12 +23,15 @@
 
         <ProgressBar
             android:id="@+id/progressBarOtp"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_marginTop="-5dp"
             android:indeterminate="true"
-            android:visibility="gone"
-            android:progressDrawable="@drawable/progress_drawable" />
+            android:maxHeight="10dp"
+            android:minHeight="10dp"
+            android:progressDrawable="@drawable/progress_drawable"
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -67,8 +70,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="72dp"
                     android:layout_marginRight="16dp"
-                    android:layout_weight="1"
-                    android:layout_marginTop="36dp">
+                    android:layout_marginTop="36dp"
+                    android:layout_weight="1">
 
                     <EditText
                         android:id="@+id/editTextCodeVerify"
@@ -84,10 +87,11 @@
                     android:id="@+id/buttonResend"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="RESEND CODE"
                     android:layout_marginRight="16dp"
                     android:layout_marginTop="36dp"
-                    android:onClick="resendCode"/>
+                    android:drawableLeft="@drawable/ic_action_refresh"
+                    android:onClick="resendCode"
+                    android:text="RESEND" />
 
             </LinearLayout>
 
@@ -115,14 +119,29 @@
                 android:layout_marginTop="36dp"
                 android:background="#55000000"></TextView>
 
-            <Button
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginRight="16dp"
-                android:onClick="verifyOtp"
-                android:text="NEXT" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:drawableLeft="@drawable/ic_action_back"
+                    android:onClick="goBack"
+                    android:text="" />
+
+                <Button
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:drawableRight="@drawable/ic_action_next"
+                    android:onClick="verifyOtp"
+                    android:text="NEXT" />
+
+            </FrameLayout>
         </LinearLayout>
 
     </FrameLayout>

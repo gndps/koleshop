@@ -41,6 +41,7 @@ public class GetStartedActivity extends Activity {
     public void getStarted(View view) {
         //TODO use different home screens for buyer and shopkeeper
         Intent intent = new Intent(this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
 

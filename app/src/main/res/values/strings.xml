@@ -38,6 +38,7 @@
     <string-array name="navigation_drawer_array">
         <item>Products</item>
         <item>Log Out</item>
+        <item>Log In</item>
         <item>Add/Edit Product</item>
         <item>Settings</item>
     </string-array>

@@ -17,10 +17,8 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.Volley;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.constant.Prefs;
-import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.model.RestCallResponse;
-import com.kolshop.kolshopmaterial.model.Session;
 import com.kolshop.kolshopmaterial.model.ShopSettings;
 import com.kolshop.kolshopmaterial.network.volley.GsonRequest;
 import com.google.gson.Gson;
@@ -57,25 +55,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         //get products with updated_time > synced_time
         //get products with synced_time = null
         //connect to server, send data 20 products at a time
-        Session userSession = PreferenceUtils.getSession(getContext());
-        if (userSession != null) {
-            if (userSession.getSessionType() == Constants.SHOPKEEPER_SESSION) {
-                syncSettings(Constants.SHOPKEEPER_SESSION);
-            } else {
-                syncSettings(Constants.BUYER_SESSION);
-            }
+        String sessionType = PreferenceUtils.getPreferences(getContext(), Constants.KEY_USER_SESSION_TYPE);
+        String userId = PreferenceUtils.getPreferences(getContext(), Constants.KEY_USER_ID);
+        if (!sessionType.isEmpty() && !userId.isEmpty()) {
+            syncSettings(sessionType);
         }
 
     }
 
-    private void syncSettings(int sessionType) {
+    private void syncSettings(String sessionType) {
         final String TAG;
         String prefsName;
         String shopOrBuyer;
         final SharedPreferences prefs;
         final HashMap<String, String> settingsHashMap = new HashMap<String, String>();
 
-        if (sessionType == Constants.SHOPKEEPER_SESSION) {
+        if (sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
             TAG = "Shop_Settings_Sync";
             shopOrBuyer = "shop";
             prefs = getContext().getSharedPreferences(Prefs.SHOP_SETTINGS, getContext().MODE_PRIVATE);
