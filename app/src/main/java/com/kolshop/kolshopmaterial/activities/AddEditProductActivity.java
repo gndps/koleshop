@@ -7,8 +7,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -19,18 +20,23 @@ import android.widget.Toast;
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
+import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.fragments.product.ProductBasicInfoShopkeeper;
 import com.kolshop.kolshopmaterial.fragments.product.ProductVarietyDetailsFragment;
 import com.kolshop.kolshopmaterial.model.android.Product;
 import com.kolshop.kolshopmaterial.model.android.ProductVariety;
+import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
+import com.kolshop.kolshopmaterial.services.CloudEndpointService;
+import com.kolshop.kolshopmaterial.services.CommonIntentService;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.RealmList;
 
-public class AddEditProductActivity extends ActionBarActivity {
+public class AddEditProductActivity extends AppCompatActivity {
 
     private static String TAG = "Kolshop_AddEditActivity";
 
@@ -41,6 +47,8 @@ public class AddEditProductActivity extends ActionBarActivity {
     private String deleteTag;
     private LinearLayout varietyLinearLayoutContainer;
     private Product product;
+    private Context mContext;
+    private List<String> fragmentTagList;
 
     //POJO Fields
     private String id;
@@ -56,9 +64,17 @@ public class AddEditProductActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_product);
         setupViews();
+        mContext = this;
         numberOfVarieties = 0;
+        String userIdString = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID);
+        if(userIdString.isEmpty()) {
+            userId = 0;
+        } else {
+            userId = Integer.parseInt(userIdString);
+        }
+        fragmentTagList = new ArrayList<>();
         initializeBroadcastReceivers();
-        initializeUI();
+        loadDataToUI();
     }
 
     private void initializeBroadcastReceivers() {
@@ -91,8 +107,8 @@ public class AddEditProductActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter(Constants.ACTION_ADD_VARIETY));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(Constants.ACTION_ADD_VARIETY));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(Constants.ACTION_DELETE_VARIETY));
     }
 
 
@@ -109,9 +125,45 @@ public class AddEditProductActivity extends ActionBarActivity {
 
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_save_product) {
+            if(refreshProduct()) {
+                Intent intent = new Intent(mContext, CloudEndpointService.class);
+                intent.setAction(Constants.ACTION_SAVE_PRODUCT);
+                intent.putExtra("product", Parcels.wrap(Product.class, product));
+                startService(intent);
+                finish();
+            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean refreshProduct() {
+        BasicInfo basicInfo = productBasicInfoShopkeeper.getBasicInfo(true);
+        if (basicInfo != null) {
+            product = new Product();
+            product.setName(basicInfo.getName());
+            product.setDescription(basicInfo.getDescription());
+            product.setBrand(basicInfo.getBrand());
+            product.setBrandId(basicInfo.getBrandId());
+            product.setProductCategoryId(basicInfo.getProductCategoryId());
+            product.setId(id);
+            product.setUserId(userId);
+            product.setListProductVariety(getProductVarietyList());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private RealmList<ProductVariety> getProductVarietyList() {
+        RealmList<ProductVariety> productVarietyRealmList = new RealmList<>();
+        for(String tag : fragmentTagList) {
+            ProductVarietyDetailsFragment frag = (ProductVarietyDetailsFragment) getSupportFragmentManager().findFragmentByTag(tag);
+            ProductVariety productVariety = frag.getProductVariety();
+            productVarietyRealmList.add(productVariety);
+        }
+        return productVarietyRealmList;
     }
 
     public void setupViews() {
@@ -121,17 +173,23 @@ public class AddEditProductActivity extends ActionBarActivity {
         //productBasicInfoShopkeeper.setProduct(selected product or null);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        ///getSupportActionBar().setHomeActionContentDescription("Save Product");
+        //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_save);
     }
 
-    public void initializeUI() {
+    public void loadDataToUI() {
 
         //extract data from bundle
         Intent i = getIntent();
         Bundle bundle = i.getExtras();
-        Parcelable productParcel = bundle.getParcelable("product");
-        Product product = Parcels.unwrap(productParcel);
+        Parcelable productParcel;
+        Product product = null;
+        if(bundle != null) {
+            productParcel = bundle.getParcelable("product");
+            product = Parcels.unwrap(productParcel);
+        }
         if (product != null) {
-
             //prepare data
             this.product = product;
             id = product.getId();
@@ -159,12 +217,13 @@ public class AddEditProductActivity extends ActionBarActivity {
 
             //prepare empty data
             this.product = new Product();
-            product.setId("random" + CommonUtils.randomString(8));
-            product.setName("");
-            product.setBrand("");
-            product.setBrandId(0);
-            product.setDescription("");
-            product.setProductCategoryId(0);
+            id = "random" + CommonUtils.randomString(8);
+            this.product.setId(id);
+            this.product.setName("");
+            this.product.setBrand("");
+            this.product.setBrandId(0);
+            this.product.setDescription("");
+            this.product.setProductCategoryId(0);
             //todo product.setUserId();
 
             //initialize User Interface
@@ -189,6 +248,7 @@ public class AddEditProductActivity extends ActionBarActivity {
         productVarietyDetailsFragment.setArguments(args);
         String fragmentTag = CommonUtils.randomString(8);
         getSupportFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, fragmentTag).commit();
+        fragmentTagList.add(fragmentTag);
     }
 
     private void addNewVariety() {
@@ -196,11 +256,13 @@ public class AddEditProductActivity extends ActionBarActivity {
         String fragmentTag = CommonUtils.randomString(8);
         ProductVarietyDetailsFragment productVarietyDetailsFragment = new ProductVarietyDetailsFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, fragmentTag).commit();
+        fragmentTagList.add(fragmentTag);
         Log.d(TAG, "added a new variety with tag = " + fragmentTag);
     }
 
     private void deleteVariety(String framentTag) {
         Fragment frag = getSupportFragmentManager().findFragmentByTag(framentTag);
+        fragmentTagList.remove(frag.getTag());
         getSupportFragmentManager().beginTransaction().remove(frag).commit();
         Log.d(TAG, "deleted variety with tag = " + framentTag);
     }

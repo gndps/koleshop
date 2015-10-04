@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
@@ -35,13 +37,15 @@ import io.realm.RealmResults;
 public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClickListener {
 
     private EditText editTextProductName, editTextDescription, editTextBrand;
-    Spinner spinnerCategory,spinnerSubcategory;
-    private List<ProductCategory> parentCategories,subCategories;
+    Spinner spinnerCategory, spinnerSubcategory;
+    private List<ProductCategory> parentCategories, subCategories;
     private TextView textViewSubcategory;
     private TextView textViewNumberOfVarieties;
     private ImageButton buttonAddVariety;
     private int numberOfVarieties;
     private int brandId, productCategoryId;
+    Context mContext;
+
     public ProductBasicInfoShopkeeper() {
     }
 
@@ -49,6 +53,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_product_info, container, false);
+        mContext = getActivity();
         findViewsByIds(v);
         loadCategories();
         loadAndBindSpinners();
@@ -56,27 +61,27 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         return v;
     }
 
-    private void extractDataFromBundle()
-    {
+    private void extractDataFromBundle() {
         Bundle basicInfoBundle = getArguments();
-        String name = basicInfoBundle.getString("name", "");
-        String brand = basicInfoBundle.getString("brand", "");
-        int brandId = basicInfoBundle.getInt("brandId", 0);
-        String description = basicInfoBundle.getString("description", "");
-        productCategoryId = basicInfoBundle.getInt("categoryId", 0);
-        numberOfVarieties = basicInfoBundle.getInt("numberOfVarieties", 1);
+        if (basicInfoBundle != null) {
+            String name = basicInfoBundle.getString("name", "");
+            String brand = basicInfoBundle.getString("brand", "");
+            int brandId = basicInfoBundle.getInt("brandId", 0);
+            String description = basicInfoBundle.getString("description", "");
+            productCategoryId = basicInfoBundle.getInt("categoryId", 0);
+            numberOfVarieties = basicInfoBundle.getInt("numberOfVarieties", 1);
 
-        //initialize User Interface
-        editTextProductName.setText(name);
-        editTextBrand.setText(brand);
-        editTextDescription.setText(description);
-        textViewNumberOfVarieties.setText(numberOfVarieties + "");
-        selectCategory(productCategoryId);
+            //initialize User Interface
+            editTextProductName.setText(name);
+            editTextBrand.setText(brand);
+            editTextDescription.setText(description);
+            textViewNumberOfVarieties.setText(numberOfVarieties + "");
+            selectCategory(productCategoryId);
+        }
 
     }
 
-    private void findViewsByIds(View productBasicFragment)
-    {
+    private void findViewsByIds(View productBasicFragment) {
         editTextProductName = (EditText) productBasicFragment.findViewById(R.id.edittext_product_name);
         editTextDescription = (EditText) productBasicFragment.findViewById(R.id.edittext_product_description);
         editTextBrand = (EditText) productBasicFragment.findViewById(R.id.edittext_product_brand);
@@ -99,8 +104,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         super.onDetach();
     }
 
-    public void loadCategories()
-    {
+    public void loadCategories() {
         Realm realm = Realm.getInstance(getActivity());
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
 
@@ -111,7 +115,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         parentCategories = new ArrayList<>();
         List<String> categoriesList = new ArrayList<>();
 
-        for(ProductCategory pc:productCategories) {
+        for (ProductCategory pc : productCategories) {
             parentCategories.add(new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentCategoryId()));
             categoriesList.add(pc.getName());
         }
@@ -166,8 +170,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
     }
 
-    private void loadAndBindSpinners()
-    {
+    private void loadAndBindSpinners() {
         spinnerSubcategory.setVisibility(View.GONE);
         textViewSubcategory.setVisibility(View.GONE);
 
@@ -199,8 +202,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         });
     }
 
-    private void loadSubcategoriesForId(int parentCategoryId)
-    {
+    private void loadSubcategoriesForId(int parentCategoryId) {
         Realm realm = Realm.getInstance(getActivity());
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
 
@@ -208,42 +210,37 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
         final RealmResults<ProductCategory> productCategories = query.findAll();
 
-        subCategories= new ArrayList<>();
+        subCategories = new ArrayList<>();
         List<String> subcategoriesList = new ArrayList<>();
 
-        for(ProductCategory pc:productCategories) {
+        for (ProductCategory pc : productCategories) {
             subCategories.add(new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentCategoryId()));
             subcategoriesList.add(pc.getName());
         }
 
         final Context context = getActivity();
 
-        ArrayAdapter<String> subcategoryArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, subcategoriesList);
-        productCategoryId = subCategories.get(0).getId();
-        spinnerSubcategory.setAdapter(subcategoryArrayAdapter);
-        spinnerSubcategory.setSelection(0);
-
-        if(subcategoriesList.size() > 0) {
+        if (subcategoriesList.size() > 0) {
+            ArrayAdapter<String> subcategoryArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, subcategoriesList);
+            productCategoryId = subCategories.get(0).getId();
+            spinnerSubcategory.setAdapter(subcategoryArrayAdapter);
+            spinnerSubcategory.setSelection(0);
             spinnerSubcategory.setVisibility(View.VISIBLE);
             textViewSubcategory.setVisibility(View.VISIBLE);
-        }
-        else
-        {
+        } else {
             spinnerSubcategory.setVisibility(View.GONE);
             textViewSubcategory.setVisibility(View.GONE);
         }
     }
 
-    private void selectCategory(int categoryId)
-    {
+    private void selectCategory(int categoryId) {
         Realm realm = Realm.getInstance(getActivity());
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
 
         query.equalTo("id", categoryId);
 
         final ProductCategory productCategory = query.findFirst();
-        if(productCategory.getParentCategoryId()>0)
-        {
+        if (productCategory.getParentCategoryId() > 0) {
             query = realm.where(ProductCategory.class);
             query.equalTo("id", productCategory.getParentCategoryId());
             final ProductCategory parentProductCategory = query.findFirst();
@@ -264,8 +261,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         }
     }
 
-    public void addVariety()
-    {
+    public void addVariety() {
         numberOfVarieties++;
         Log.d("ProductInfoActivity", "Broadcasting empty variety added");
         Intent intent = new Intent(Constants.ACTION_ADD_VARIETY);
@@ -274,8 +270,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         textViewNumberOfVarieties.setText(numberOfVarieties + "");
     }
 
-    private void addEditTextHandlers()
-    {
+    private void addEditTextHandlers() {
         //to clear focus from brand when done is pressed
         editTextBrand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -316,7 +311,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     }
 
     public void hideKeyboard(View view) {
-        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
@@ -340,23 +335,43 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         return productCategoryId;
     }
 
-    public int getNumberOfVarieties()
-    {
+    public int getNumberOfVarieties() {
         return numberOfVarieties;
     }
 
-    public BasicInfo getBasicInfo(boolean verifyForm)
-    {
-        if(verifyForm) {
-            if(getName().isEmpty()) {
-                putErrorOnEditText(editTextProductName, "Can't be empty");
+    @Nullable
+    public BasicInfo getBasicInfo(boolean verifyForm) {
+        if (verifyForm) {
+            if (isFormCorrect()) {
+                return createBasicInfo();
             }
-            if(getDescription().isEmpty()) {
-                //todo do work here
-                //put
-            }
+        } else {
+            return createBasicInfo();
         }
         return null;
+    }
+
+    private BasicInfo createBasicInfo() {
+        BasicInfo basicInfo = new BasicInfo();
+        basicInfo.setName(getName());
+        basicInfo.setBrand(getBrand());
+        basicInfo.setBrandId(getBrandId());
+        basicInfo.setDescription(getDescription());
+        basicInfo.setProductCategoryId(getProductCategoryId());
+        return basicInfo;
+    }
+
+
+    public boolean isFormCorrect() {
+        if (getName().isEmpty()) {
+            putErrorOnEditText(editTextProductName, "Can't be empty");
+            return false;
+        }
+        if (getProductCategoryId() == 0) {
+            Toast.makeText(mContext, "Please select the Product Category", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     private void putErrorOnEditText(EditText editText, String errorMessage) {

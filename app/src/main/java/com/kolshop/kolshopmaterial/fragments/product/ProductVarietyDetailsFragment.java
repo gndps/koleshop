@@ -517,7 +517,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                if(!editTextStock.isFocused() && !editTextPrice.isFocused() && !editTextProductName.isFocused() && !isAnyPropertyFocused()) {
+                if(!editTextStock.isFocused() && !editTextPrice.isFocused() && !editTextProductName.isFocused() && !isAnyPropertyFocused() && getActivity()!=null) {
                     InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
                     inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }

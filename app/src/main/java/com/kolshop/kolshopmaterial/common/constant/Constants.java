@@ -54,6 +54,7 @@ public class Constants {
     public static final String ACTION_VERIFY_OTP_FAILED = "action_verify_otp_fail";
     public static final String ACTION_OTP_RECEIVED = "action_otp_received";
     public static final String ACTION_LOG_OUT = "action_login_logout";
+    public static final String ACTION_SAVE_PRODUCT = "action_save_product";
 
     //Shared preferences keys
     public static final String KEY_REG_ID = "registration_id";
