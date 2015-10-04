@@ -1,7 +1,8 @@
 .gradle
 /local.properties
-/.idea/workspace.xml
-/.idea/libraries
+/.idea
 .DS_Store
 /build
 kol backend/build
+app/build
+app/libs
