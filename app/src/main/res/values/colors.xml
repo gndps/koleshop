@@ -15,5 +15,6 @@
     <color name="divider">#B6B6B6</color>
     <color name="blue">#3030ff</color>
     <color name="grey">#bbb</color>
+    <color name="error">#DF5748</color>
 
 </resources>

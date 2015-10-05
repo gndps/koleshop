@@ -49,6 +49,7 @@ public class AddEditProductActivity extends AppCompatActivity {
     private Product product;
     private Context mContext;
     private List<String> fragmentTagList;
+    private List<ProductVariety> deletedProductVarieties;
 
     //POJO Fields
     private String id;
@@ -67,11 +68,12 @@ public class AddEditProductActivity extends AppCompatActivity {
         mContext = this;
         numberOfVarieties = 0;
         String userIdString = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID);
-        if(userIdString.isEmpty()) {
+        if (userIdString.isEmpty()) {
             userId = 0;
         } else {
             userId = Integer.parseInt(userIdString);
         }
+        deletedProductVarieties = new ArrayList<>();
         fragmentTagList = new ArrayList<>();
         initializeBroadcastReceivers();
         loadDataToUI();
@@ -90,7 +92,7 @@ public class AddEditProductActivity extends AppCompatActivity {
                     }
                 } else if (intent.getAction().equals(Constants.ACTION_DELETE_VARIETY)) {
                     deleteTag = intent.getStringExtra("fragmentTag");
-                    if (deleteTag!=null && !deleteTag.isEmpty()) {
+                    if (deleteTag != null && !deleteTag.isEmpty()) {
                         deleteVariety(deleteTag);
                     }
                 }
@@ -126,7 +128,7 @@ public class AddEditProductActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_save_product) {
-            if(refreshProduct()) {
+            if (refreshProduct()) {
                 Intent intent = new Intent(mContext, CloudEndpointService.class);
                 intent.setAction(Constants.ACTION_SAVE_PRODUCT);
                 intent.putExtra("product", Parcels.wrap(Product.class, product));
@@ -139,29 +141,43 @@ public class AddEditProductActivity extends AppCompatActivity {
     }
 
     private boolean refreshProduct() {
-        BasicInfo basicInfo = productBasicInfoShopkeeper.getBasicInfo(true);
-        if (basicInfo != null) {
-            product = new Product();
-            product.setName(basicInfo.getName());
-            product.setDescription(basicInfo.getDescription());
-            product.setBrand(basicInfo.getBrand());
-            product.setBrandId(basicInfo.getBrandId());
-            product.setProductCategoryId(basicInfo.getProductCategoryId());
-            product.setId(id);
-            product.setUserId(userId);
-            product.setListProductVariety(getProductVarietyList());
-            return true;
-        } else {
-            return false;
+        BasicInfo basicInfo = productBasicInfoShopkeeper.getBasicInfo();
+        if(basicInfo!=null) {
+            if(checkAllPricesNonNull()) {
+                product = new Product();
+                product.setName(basicInfo.getName());
+                product.setDescription(basicInfo.getDescription());
+                product.setBrand(basicInfo.getBrand());
+                product.setBrandId(basicInfo.getBrandId());
+                product.setProductCategoryId(basicInfo.getProductCategoryId());
+                product.setId(id);
+                product.setUserId(userId);
+                product.setListProductVariety(getProductVarietyList());
+                return true;
+            }
         }
+        return false;
+    }
+
+    private boolean checkAllPricesNonNull() {
+        for (String tag : fragmentTagList) {
+            ProductVarietyDetailsFragment frag = (ProductVarietyDetailsFragment) getSupportFragmentManager().findFragmentByTag(tag);
+            if (frag.isPriceEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private RealmList<ProductVariety> getProductVarietyList() {
         RealmList<ProductVariety> productVarietyRealmList = new RealmList<>();
-        for(String tag : fragmentTagList) {
+        for (String tag : fragmentTagList) {
             ProductVarietyDetailsFragment frag = (ProductVarietyDetailsFragment) getSupportFragmentManager().findFragmentByTag(tag);
             ProductVariety productVariety = frag.getProductVariety();
             productVarietyRealmList.add(productVariety);
+        }
+        for (ProductVariety pv : deletedProductVarieties) {
+            productVarietyRealmList.add(pv);
         }
         return productVarietyRealmList;
     }
@@ -185,7 +201,7 @@ public class AddEditProductActivity extends AppCompatActivity {
         Bundle bundle = i.getExtras();
         Parcelable productParcel;
         Product product = null;
-        if(bundle != null) {
+        if (bundle != null) {
             productParcel = bundle.getParcelable("product");
             product = Parcels.unwrap(productParcel);
         }
@@ -263,12 +279,15 @@ public class AddEditProductActivity extends AppCompatActivity {
     private void deleteVariety(String framentTag) {
         Fragment frag = getSupportFragmentManager().findFragmentByTag(framentTag);
         fragmentTagList.remove(frag.getTag());
+        ProductVarietyDetailsFragment deletedFragment = (ProductVarietyDetailsFragment) frag;
+        ProductVariety productVariety = deletedFragment.getProductVariety();
+        productVariety.setValid(false);
+        deletedProductVarieties.add(productVariety);
         getSupportFragmentManager().beginTransaction().remove(frag).commit();
         Log.d(TAG, "deleted variety with tag = " + framentTag);
     }
 
-    private Product getProduct()
-    {
+    private Product getProduct() {
         Product product = new Product();
         //todo handle this shit
         return null;

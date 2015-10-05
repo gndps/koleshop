@@ -35,7 +35,7 @@ import io.realm.RealmResults;
 /**
  * Created by Gundeep on 22/03/15.
  */
-public class ViewProductProperty extends LinearLayout{
+public class ViewProductProperty extends LinearLayout {
 
     EditText editTextProperty, editTextPropertyValue;
     Spinner spinnerPropertyUnit;
@@ -44,7 +44,7 @@ public class ViewProductProperty extends LinearLayout{
     final Context context;
     List<MeasuringUnit> measuringUnitList;
     int currentMeasuringUnitId;
-    String productVarietyAttributeId,productVarietyAttributeValueId,productVarietyId;
+    String productVarietyAttributeId, productVarietyAttributeValueId, productVarietyId;
     int sortOrder;
     static String TAG = "Kolshop - ViewProductProperty";
 
@@ -63,21 +63,20 @@ public class ViewProductProperty extends LinearLayout{
         addEditorActionListener();
     }
 
-    public ViewProductProperty(Context context, VarietyAttribute varietyAttribute, AttributeValue attributeValue, String productVarietyId, int sortOrder)
-    {
+    public ViewProductProperty(Context context, VarietyAttribute varietyAttribute, AttributeValue attributeValue, String productVarietyId, int sortOrder) {
         this(context);
-        if(varietyAttribute!=null && attributeValue!=null) {
+        if (varietyAttribute != null && attributeValue != null) {
             String info = varietyAttribute.getName();
             String value = attributeValue.getValue();
-            editTextProperty.setText(info!=null?info:"");
-            editTextPropertyValue.setText(value!=null?value:"");
+            editTextProperty.setText(info != null ? info : "");
+            editTextPropertyValue.setText(value != null ? value : "");
             productVarietyAttributeId = varietyAttribute.getId();
             //just to double check
-            if(productVarietyAttributeId==null || productVarietyAttributeId.isEmpty()) {
+            if (productVarietyAttributeId == null || productVarietyAttributeId.isEmpty()) {
                 productVarietyAttributeId = getRandomId();
             }
             productVarietyAttributeValueId = attributeValue.getId();
-            if(productVarietyAttributeValueId==null || productVarietyAttributeValueId.isEmpty()) {
+            if (productVarietyAttributeValueId == null || productVarietyAttributeValueId.isEmpty()) {
                 productVarietyAttributeValueId = getRandomId();
             }
             this.productVarietyId = attributeValue.getProductVarietyId();
@@ -98,19 +97,16 @@ public class ViewProductProperty extends LinearLayout{
         }
     }
 
-    private String getRandomId()
-    {
+    private String getRandomId() {
         return "random" + CommonUtils.randomString(8);
     }
 
-    private int getSpinnerSelectionFromUnitId(int unitId)
-    {
-        if(measuringUnitList!=null) {
-            for(int i=0;i<measuringUnitList.size();i++)
-            {
+    private int getSpinnerSelectionFromUnitId(int unitId) {
+        if (measuringUnitList != null) {
+            for (int i = 0; i < measuringUnitList.size(); i++) {
                 MeasuringUnit measuringUnit = measuringUnitList.get(i);
-                if(measuringUnit!=null && measuringUnit.getId() == unitId) {
-                     return i;
+                if (measuringUnit != null && measuringUnit.getId() == unitId) {
+                    return i;
                 }
             }
         }
@@ -121,8 +117,7 @@ public class ViewProductProperty extends LinearLayout{
         imageButtonProductPropertyOptions.setOnClickListener(onOptionsClickListener);
     }
 
-    private void loadMeasuringUnits()
-    {
+    private void loadMeasuringUnits() {
         Realm realm = Realm.getInstance(context);
         RealmQuery<MeasuringUnit> query = realm.where(MeasuringUnit.class);
         query.equalTo("unitDimensions", "default");
@@ -146,18 +141,18 @@ public class ViewProductProperty extends LinearLayout{
         List<String> spinnerList = new ArrayList<>();
 
 
-        for(MeasuringUnit mu:measuringUnits) {
+        for (MeasuringUnit mu : measuringUnits) {
             measuringUnitList.add(new MeasuringUnit(mu.getId(), mu.getUnitDimensions(), mu.getUnit(), mu.isBaseUnit(), mu.getConversionRate(), mu.getUnitFullName()));
             spinnerList.add(mu.getUnit());
         }
 
         ArrayAdapter<String> measuringUnitsArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, spinnerList);
+        measuringUnitsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPropertyUnit.setAdapter(measuringUnitsArrayAdapter);
         spinnerPropertyUnit.setSelection(0);
     }
 
-    private void bindSpinner()
-    {
+    private void bindSpinner() {
         spinnerPropertyUnit.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -177,17 +172,28 @@ public class ViewProductProperty extends LinearLayout{
         });
     }
 
-    public VarietyAttribute getVarietyAttribute()
-    {
+    public VarietyAttribute getVarietyAttribute() {
+        String attributeName = editTextProperty.getText().toString();
         VarietyAttribute varietyAttribute = new VarietyAttribute();
         varietyAttribute.setId(productVarietyAttributeId);
-        varietyAttribute.setName(editTextProperty.getText().toString());
+        varietyAttribute.setName(attributeName);
         varietyAttribute.setMeasuringUnitId(currentMeasuringUnitId);
+        if (productVarietyAttributeId.startsWith("random")) {
+            Realm realm = CommonUtils.getRealmInstance(context);
+            RealmQuery<VarietyAttribute> realmQuery = realm.where(VarietyAttribute.class)
+                    .equalTo("name", attributeName)
+                    .equalTo("measuringUnitId", currentMeasuringUnitId);
+            VarietyAttribute varAtt = realmQuery.findFirst();
+            if (varAtt != null) {
+                varietyAttribute.setId(varAtt.getId());
+            } else {
+
+            }
+        }
         return varietyAttribute;
     }
 
-    public AttributeValue getAttributeValue()
-    {
+    public AttributeValue getAttributeValue() {
         AttributeValue attributeValue = new AttributeValue();
         attributeValue.setId(productVarietyAttributeValueId);
         attributeValue.setProductVarietyAttributeId(productVarietyAttributeId);
@@ -197,62 +203,51 @@ public class ViewProductProperty extends LinearLayout{
         return attributeValue;
     }
 
-    public void setPropertyOnFocusChangeListener(OnFocusChangeListener onFocusChangeListener)
-    {
+    public void setPropertyOnFocusChangeListener(OnFocusChangeListener onFocusChangeListener) {
         editTextProperty.setOnFocusChangeListener(onFocusChangeListener);
     }
 
-    public void setPropertyValueOnFocusChangeListener(OnFocusChangeListener onFocusChangeListener)
-    {
+    public void setPropertyValueOnFocusChangeListener(OnFocusChangeListener onFocusChangeListener) {
         editTextPropertyValue.setOnFocusChangeListener(onFocusChangeListener);
     }
 
-    public void setTextWatcher(TextWatcher textWatcher)
-    {
+    public void setTextWatcher(TextWatcher textWatcher) {
         editTextProperty.addTextChangedListener(textWatcher);
         editTextPropertyValue.addTextChangedListener(textWatcher);
     }
 
-    public boolean isEmptyProperty()
-    {
-        return editTextProperty.getText().toString().trim().isEmpty()&&editTextPropertyValue.getText().toString().trim().isEmpty();
+    public boolean isEmptyProperty() {
+        return editTextProperty.getText().toString().trim().isEmpty() && editTextPropertyValue.getText().toString().trim().isEmpty();
     }
 
-    public boolean validateForSave()
-    {
-        if(isEmptyProperty())
-        {
+    public boolean validateForSave() {
+        if (isEmptyProperty()) {
             return false;
-        }
-        else
-        {
-            if(editTextProperty.getText().toString().trim().isEmpty())
-            {
+        } else {
+            if (editTextProperty.getText().toString().trim().isEmpty()) {
                 editTextProperty.setError("Can't be empty");
                 return false;
-            }
-            else if(editTextPropertyValue.getText().toString().trim().isEmpty())
-            {
+            } else if (editTextPropertyValue.getText().toString().trim().isEmpty()) {
                 editTextPropertyValue.setError("Can't be empty");
                 return false;
-            }
-            else
-            {
+            } else {
                 return true;
             }
         }
     }
 
-    public boolean isCurrentlyFocused()
-    {
+    public void setProductVarietyAttributeId(String productVarietyAttributeId) {
+        this.productVarietyAttributeId = productVarietyAttributeId;
+    }
+
+    public boolean isCurrentlyFocused() {
         boolean isPropertyFocused = editTextProperty.isFocused();
         boolean isPropertyValueFocused = editTextPropertyValue.isFocused();
         //Log.d(TAG, "isPropertyFocused = " + String.valueOf(isPropertyFocused) + " and isPropertyValueFocused = " + String.valueOf(isPropertyValueFocused));
         return (isPropertyFocused || isPropertyValueFocused);
     }
 
-    private void addEditorActionListener()
-    {
+    private void addEditorActionListener() {
         editTextProperty.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -278,7 +273,7 @@ public class ViewProductProperty extends LinearLayout{
                 }*/
 
 
-                if (event!=null && event.getAction() != KeyEvent.ACTION_DOWN && event.getAction() != EditorInfo.IME_ACTION_NEXT && event.getAction() != KeyEvent.ACTION_UP) {
+                if (event != null && event.getAction() != KeyEvent.ACTION_DOWN && event.getAction() != EditorInfo.IME_ACTION_NEXT && event.getAction() != KeyEvent.ACTION_UP) {
                     Log.d(TAG, "will return false");
                     return false;
                 }
@@ -335,21 +330,6 @@ public class ViewProductProperty extends LinearLayout{
             }
         });
 
-    }
-
-    public void refreshAttributeId()
-    {
-        if(productVarietyAttributeId==null || !productVarietyAttributeId.startsWith("random"))
-        {
-            Realm realm = Realm.getDefaultInstance();
-            RealmQuery<VarietyAttribute> query = realm.where(VarietyAttribute.class);
-            query.equalTo("name", editTextProperty.getText().toString());
-            VarietyAttribute attribute = query.findFirst();
-            if(attribute!=null)
-            {
-                productVarietyAttributeId = attribute.getId();
-            }
-        }
     }
 
 }

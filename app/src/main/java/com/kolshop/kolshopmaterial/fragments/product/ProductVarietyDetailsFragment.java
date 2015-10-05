@@ -35,6 +35,7 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.ProductUtil;
+import com.kolshop.kolshopmaterial.helper.VarietyAttributePool;
 import com.kolshop.kolshopmaterial.model.MeasuringUnit;
 import com.kolshop.kolshopmaterial.model.android.ProductVariety;
 import com.kolshop.kolshopmaterial.model.android.VarietyAttribute;
@@ -108,7 +109,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         context = v.getContext();
 
         loadPriceSpinner();
-        bindSpinner();
+        spinnerPrice.setVisibility(View.GONE);//bindSpinner();
         bindStockSwitch();
         addEditTextHandlers();
         initializeFragment();
@@ -284,17 +285,55 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     private RealmList<VarietyAttribute> getVarietyAttributesList()
     {
         RealmList<VarietyAttribute> realmListVarietyAttributes = new RealmList<>();
+        VarietyAttributePool vaPool = VarietyAttributePool.getInstance();
         for(int i=0; i<linearLayoutProperties.getChildCount(); i++)
         {
             ViewProductProperty viewProductProperty = (ViewProductProperty) linearLayoutProperties.getChildAt(i);
-            VarietyAttribute va = viewProductProperty.getVarietyAttribute();
-            if(!realmListVarietyAttributes.contains(va))
-            {
-                realmListVarietyAttributes.add(va);
+            if(!viewProductProperty.isEmptyProperty()) {
+                VarietyAttribute loopVa = viewProductProperty.getVarietyAttribute();
+                VarietyAttribute poolVa = vaPool.getSimilarVarietyAttribute(loopVa);
+                if(poolVa==null) {
+                    //check in realm
+                    VarietyAttribute realmVa = getRealmVa(loopVa);
+                    if(realmVa == null) {
+                        vaPool.addVarietyAttribute(loopVa);
+                        realmListVarietyAttributes.add(loopVa);
+                    } else {
+                        vaPool.addVarietyAttribute(realmVa);
+                        realmListVarietyAttributes.add(realmVa);
+                        adjustVaIdsInAttributeValues(loopVa, realmVa);
+                    }
+                } else {
+                    //set this existing va id in attribute values
+                    adjustVaIdsInAttributeValues(loopVa, poolVa);
+                }
             }
         }
         realmListVarietyAttributes.add(price.getVarietyAttribute());
         return realmListVarietyAttributes;
+    }
+
+    private void adjustVaIdsInAttributeValues(VarietyAttribute oldVa, VarietyAttribute newVa) {
+        for(int j=0; j<linearLayoutProperties.getChildCount(); j++)
+        {
+            ViewProductProperty vpp = (ViewProductProperty) linearLayoutProperties.getChildAt(j);
+            if(!vpp.isEmptyProperty()) {
+                AttributeValue av = vpp.getAttributeValue();
+                if(av.getProductVarietyAttributeId().equalsIgnoreCase(oldVa.getId()))
+                {
+                    vpp.setProductVarietyAttributeId(newVa.getId());
+                }
+            }
+        }
+    }
+
+    private VarietyAttribute getRealmVa(VarietyAttribute va) {
+        Realm realm = CommonUtils.getRealmInstance(context);
+        RealmQuery<VarietyAttribute> realmQuery = realm.where(VarietyAttribute.class)
+                .equalTo("name", va.getName())
+                .equalTo("measuringUnitId", va.getMeasuringUnitId());
+        VarietyAttribute realmVa = realmQuery.findFirst();
+        return realmVa;
     }
 
     private RealmList<AttributeValue> getAttributeValuesList()
@@ -303,9 +342,11 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         for(int i=0; i<linearLayoutProperties.getChildCount(); i++)
         {
             ViewProductProperty viewProductProperty = (ViewProductProperty) linearLayoutProperties.getChildAt(i);
-            AttributeValue av = viewProductProperty.getAttributeValue();
-            av.setSortOrder(i);
-            realmListAttributeValues.add(av);
+            if(!viewProductProperty.isEmptyProperty()) {
+                AttributeValue av = viewProductProperty.getAttributeValue();
+                av.setSortOrder(i);
+                realmListAttributeValues.add(av);
+            }
         }
         price.getAttributeValue().setValue(editTextPrice.getText().toString());
         realmListAttributeValues.add(price.getAttributeValue());
@@ -329,6 +370,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         }
 
         ArrayAdapter<String> measuringUnitsArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, spinnerList);
+        measuringUnitsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPrice.setAdapter(measuringUnitsArrayAdapter);
         spinnerPrice.setSelection(0);
     }
@@ -387,7 +429,6 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
                             hideKeyboard(v);
                         }
                     }
-                    viewProductProperty.refreshAttributeId();
                 }
             }
         });
@@ -571,6 +612,22 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
             i++;
         }
         return 0;
+    }
+
+    public boolean isPriceEmpty() {
+        boolean isPriceEmpty = editTextPrice.getText().toString().trim().isEmpty();
+        if(isPriceEmpty) {
+            editTextPrice.setError("Price can't be empty");
+            editTextPrice.requestFocus();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    editTextPrice.setError(null);
+                }
+            }, 1500);
+        }
+        return isPriceEmpty;
     }
 
 }

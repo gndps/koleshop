@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -30,6 +31,7 @@ import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.ganfra.materialspinner.MaterialSpinner;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -37,12 +39,12 @@ import io.realm.RealmResults;
 public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClickListener {
 
     private EditText editTextProductName, editTextDescription, editTextBrand;
-    Spinner spinnerCategory, spinnerSubcategory;
+    MaterialSpinner spinnerCategory, spinnerSubcategory;
     private List<ProductCategory> parentCategories, subCategories;
-    private TextView textViewSubcategory;
     private TextView textViewNumberOfVarieties;
     private ImageButton buttonAddVariety;
     private int numberOfVarieties;
+    boolean categorySelected, subcategorySelected;
     private int brandId, productCategoryId;
     Context mContext;
 
@@ -85,9 +87,12 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         editTextProductName = (EditText) productBasicFragment.findViewById(R.id.edittext_product_name);
         editTextDescription = (EditText) productBasicFragment.findViewById(R.id.edittext_product_description);
         editTextBrand = (EditText) productBasicFragment.findViewById(R.id.edittext_product_brand);
-        spinnerCategory = (Spinner) productBasicFragment.findViewById(R.id.spinner_product_category);
-        spinnerSubcategory = (Spinner) productBasicFragment.findViewById(R.id.spinner_product_subcategory);
-        textViewSubcategory = (TextView) productBasicFragment.findViewById(R.id.textview_product_subcategory);
+        spinnerCategory = (MaterialSpinner) productBasicFragment.findViewById(R.id.spinner_product_category);
+        spinnerCategory.setFocusable(true);
+        spinnerCategory.setFocusableInTouchMode(true);
+        spinnerSubcategory = (MaterialSpinner) productBasicFragment.findViewById(R.id.spinner_product_subcategory);
+        spinnerSubcategory.setFocusable(true);
+        spinnerSubcategory.setFocusableInTouchMode(true);
         textViewNumberOfVarieties = (TextView) productBasicFragment.findViewById(R.id.textview_product_number_of_varieties);
         buttonAddVariety = (ImageButton) productBasicFragment.findViewById(R.id.button_add_variety);
         buttonAddVariety.setOnClickListener(this);
@@ -123,6 +128,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         final Context context = getActivity();
 
         ArrayAdapter<String> parentCategoryArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, categoriesList);
+        parentCategoryArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(parentCategoryArrayAdapter);
         spinnerCategory.setSelection(0);
 
@@ -172,14 +178,20 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
     private void loadAndBindSpinners() {
         spinnerSubcategory.setVisibility(View.GONE);
-        textViewSubcategory.setVisibility(View.GONE);
 
         spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                int parentCategoryId = parentCategories.get(position).getId();
-                productCategoryId = parentCategoryId;
-                loadSubcategoriesForId(parentCategoryId);
+                if(position>=0) {
+                    categorySelected = true;
+                    int parentCategoryId = parentCategories.get(position).getId();
+                    productCategoryId = parentCategoryId;
+                    loadSubcategoriesForId(parentCategoryId);
+                } else {
+                    categorySelected = false;
+                    productCategoryId = 0;
+                    spinnerSubcategory.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -192,7 +204,13 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         spinnerSubcategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                productCategoryId = subCategories.get(position).getId();
+                if(position>=0) {
+                    subcategorySelected = true;
+                    productCategoryId = subCategories.get(position).getId();
+                } else {
+                    subcategorySelected = false;
+                    productCategoryId = 0;
+                }
             }
 
             @Override
@@ -221,15 +239,15 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         final Context context = getActivity();
 
         if (subcategoriesList.size() > 0) {
-            ArrayAdapter<String> subcategoryArrayAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, subcategoriesList);
-            productCategoryId = subCategories.get(0).getId();
+            productCategoryId = 0;
+            ArrayAdapter<String> subcategoryArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, subcategoriesList);
+            subcategoryArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            //productCategoryId = subCategories.get(0).getId();
             spinnerSubcategory.setAdapter(subcategoryArrayAdapter);
             spinnerSubcategory.setSelection(0);
             spinnerSubcategory.setVisibility(View.VISIBLE);
-            textViewSubcategory.setVisibility(View.VISIBLE);
         } else {
             spinnerSubcategory.setVisibility(View.GONE);
-            textViewSubcategory.setVisibility(View.GONE);
         }
     }
 
@@ -340,15 +358,12 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     }
 
     @Nullable
-    public BasicInfo getBasicInfo(boolean verifyForm) {
-        if (verifyForm) {
-            if (isFormCorrect()) {
-                return createBasicInfo();
-            }
-        } else {
+    public BasicInfo getBasicInfo() {
+        if (isFormCorrect()) {
             return createBasicInfo();
+        } else {
+            return null;
         }
-        return null;
     }
 
     private BasicInfo createBasicInfo() {
@@ -368,14 +383,44 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
             return false;
         }
         if (getProductCategoryId() == 0) {
-            Toast.makeText(mContext, "Please select the Product Category", Toast.LENGTH_SHORT).show();
+            if(!categorySelected) {
+                spinnerCategory.setError("Please select a product category");
+                spinnerCategory.clearFocus();
+                spinnerCategory.requestFocus();
+            } else if(!subcategorySelected) {
+                spinnerSubcategory.setError("Please select a product subcategory");
+                spinnerSubcategory.clearFocus();
+                spinnerSubcategory.requestFocus();
+            }
             return false;
         }
         return true;
     }
 
-    private void putErrorOnEditText(EditText editText, String errorMessage) {
+    private void putErrorOnEditText(final EditText editText, String errorMessage) {
         editText.setError(errorMessage);
+        editText.requestFocus();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(editText!=null)
+                editText.setError(null);
+            }
+        }, 1500);
+    }
+
+    private void putErrorOnTextView(final TextView textView, Spinner spinner, String errorMessage) {
+        textView.setError(errorMessage);
+        spinner.requestFocus();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(textView!=null)
+                    textView.setError(null);
+            }
+        }, 1500);
     }
 
 }

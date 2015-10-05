@@ -36,7 +36,7 @@ public class CloudEndpointService extends IntentService {
     private void saveProductToRealm(Product product) {
         Realm realm = CommonUtils.getRealmInstance(getApplicationContext());
         realm.beginTransaction();
-        realm.copyToRealm(product);
+        realm.copyToRealmOrUpdate(product);
         realm.commitTransaction();
         Toast.makeText(getApplicationContext(), "Product saved", Toast.LENGTH_SHORT).show();
     }

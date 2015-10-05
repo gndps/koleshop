@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -88,31 +89,42 @@
                         android:paddingBottom="8dp"
                         android:paddingTop="16dp" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Category" />
-
-                    <Spinner
+                    <fr.ganfra.materialspinner.MaterialSpinner
                         android:id="@+id/spinner_product_category"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:paddingTop="4dp"
-                        android:prompt="@string/category_prompt" />
-
-                    <TextView
-                        android:id="@+id/textview_product_subcategory"
-                        android:layout_width="match_parent"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Sub-Category" />
+                        android:paddingTop="4dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginLeft="4dp"
+                        app:ms_errorColor="@color/error"
+                        app:ms_floatingLabelText="Product Category"
+                        app:ms_highlightColor="@color/highlight"
+                        app:ms_hint="Product Category"
+                        app:ms_multiline="false"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        app:ms_arrowSize="16dp"
+                        app:ms_alignLabels="false"
+                        app:ms_floatingLabelColor="@color/secondary_text" />
 
-                    <Spinner
+                    <fr.ganfra.materialspinner.MaterialSpinner
                         android:id="@+id/spinner_product_subcategory"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:paddingTop="4dp" />
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="4dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginLeft="4dp"
+                        app:ms_errorColor="@color/error"
+                        app:ms_floatingLabelText="Product Subcategory"
+                        app:ms_highlightColor="@color/highlight"
+                        app:ms_hint="Product Subcategory"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        app:ms_multiline="false"
+                        app:ms_arrowSize="16dp"
+                        app:ms_alignLabels="false"
+                        app:ms_floatingLabelColor="@color/secondary_text" />
+
 
                     <RelativeLayout
                         android:layout_width="match_parent"
