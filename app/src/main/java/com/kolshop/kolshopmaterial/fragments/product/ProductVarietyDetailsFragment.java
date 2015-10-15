@@ -29,7 +29,6 @@ import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
@@ -37,10 +36,11 @@ import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.ProductUtil;
 import com.kolshop.kolshopmaterial.helper.VarietyAttributePool;
 import com.kolshop.kolshopmaterial.model.MeasuringUnit;
-import com.kolshop.kolshopmaterial.model.android.ProductVariety;
-import com.kolshop.kolshopmaterial.model.android.VarietyAttribute;
-import com.kolshop.kolshopmaterial.model.android.AttributeValue;
-import com.kolshop.kolshopmaterial.model.android.extended.ProductVarietyProperty;
+import com.kolshop.kolshopmaterial.model.realm.ProductVariety;
+import com.kolshop.kolshopmaterial.model.realm.VarietyAttribute;
+import com.kolshop.kolshopmaterial.model.realm.AttributeValue;
+import com.kolshop.kolshopmaterial.model.ProductVarietyProperty;
+import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
 import com.kolshop.kolshopmaterial.views.ViewProductProperty;
 
 import java.util.ArrayList;
@@ -55,8 +55,7 @@ import io.realm.RealmResults;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProductVarietyDetailsFragment extends Fragment implements View.OnClickListener,PopupMenu.OnMenuItemClickListener
-{
+public class ProductVarietyDetailsFragment extends Fragment implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     private static String TAG = "ProductVarietyDetailFragment";
     private int sortOrder;
@@ -71,6 +70,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     Switch switchStock;
     Spinner spinnerPrice;
     LinearLayout linearLayoutProperties;
+    boolean newVariety;
 
     //ProductVariety variables
     private String id;
@@ -117,13 +117,22 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         return v;
     }
 
-    private void initializeBroadcastReceivers()
-    {
+    private void initializeBroadcastReceivers() {
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(intent.getAction().equals(Constants.ACTION_PROPERTY_MODIFIED)) {
+                if (intent.getAction().equals(Constants.ACTION_PROPERTY_MODIFIED)) {
                     dateModified = new Date();
+                } else if(intent.getAction().equals(Constants.ACTION_UPDATE_PRODUCT_VARIETY_UI)) {
+                    if(KolShopSingleton.getSharedInstance().getNumberOfVarieties()==1) {
+                        //2 varieties converted to single variety product
+                        editTextProductName.setVisibility(View.GONE);
+                        textViewHeading.setText("PRODUCT DETAILS");
+                    } else {
+                        //single variety product now converted to 2 varieties
+                        editTextProductName.setVisibility(View.VISIBLE);
+                        textViewHeading.setText("VARIETY DETAILS " + (sortOrder+1));
+                    }
                 }
             }
         };
@@ -138,35 +147,38 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     @Override
     public void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver,
-                new IntentFilter(Constants.ACTION_PROPERTY_MODIFIED));
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver, new IntentFilter(Constants.ACTION_PROPERTY_MODIFIED));
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver, new IntentFilter(Constants.ACTION_UPDATE_PRODUCT_VARIETY_UI));
     }
 
-    private void initializeFragment()
-    {
+    private void initializeFragment() {
         valid = true;
 
-        Bundle bundle=getArguments();
-        if(bundle!=null && bundle.getString("id")!=null && !bundle.getString("id").isEmpty()) {
+        Bundle bundle = getArguments();
+        if (bundle != null && bundle.getString("id") != null && !bundle.getString("id").isEmpty()) {
             id = bundle.getString("id");
             name = bundle.getString("name");
             limitedStock = bundle.getInt("stock");
             sortOrder = bundle.getInt("sortOrder");
-            imageUrl = bundle.getString("imageUrl")!=null?bundle.getString("imageUrl"):"";
-            dateAdded = (bundle.getLong("dateAdded")!=0)?(new Date(bundle.getLong("dateAdded"))):(new Date());
-            dateModified = (bundle.getLong("dateModified")!=0)?(new Date(bundle.getLong("dateModified"))):(new Date());
+            imageUrl = bundle.getString("imageUrl") != null ? bundle.getString("imageUrl") : "";
+            dateAdded = (bundle.getLong("dateAdded") != 0) ? (new Date(bundle.getLong("dateAdded"))) : (new Date());
+            dateModified = (bundle.getLong("dateModified") != 0) ? (new Date(bundle.getLong("dateModified"))) : (new Date());
             listAttributeValue = (ArrayList<AttributeValue>) bundle.getSerializable("listAttributeValue");
             listVarietyAttribute = (ArrayList<VarietyAttribute>) bundle.getSerializable("listVarietyAttribute");
-            if(listVarietyAttribute!=null && listAttributeValue!=null) {
+            if (listVarietyAttribute != null && listAttributeValue != null) {
                 price = ProductUtil.getProductVarietyPropertyFromList(listVarietyAttribute, listAttributeValue, Constants.PRICE_PROPERTY_NAME);
             } else {
-                price  = ProductUtil.getDefaultPriceProductVarietyProperty(id);
+                price = ProductUtil.getDefaultPriceProductVarietyProperty(id);
             }
-        }
-        else {
-            id = "random" + CommonUtils.randomString(8);
+        } else {
+            newVariety = true;
+            id = CommonUtils.generateRandomIdForDatabaseObject();
             name = "";
             limitedStock = -1; //-1 = unlimited
+            if(bundle!=null && bundle.containsKey("sortOrder"))
+            {
+                sortOrder = bundle.getInt("sortOrder");
+            }
             imageUrl = "";
             dateAdded = new Date();
             dateModified = new Date();
@@ -175,26 +187,26 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
             price = ProductUtil.getDefaultPriceProductVarietyProperty(id);
         }
 
-        if(sortOrder==0) {
+        //fill up the UI details of this fragment
+        if(sortOrder==0 && KolShopSingleton.getSharedInstance().getNumberOfVarieties() == 1) {
+            editTextProductName.setVisibility(View.GONE);
             textViewHeading.setText("PRODUCT DETAILS");
         } else {
+            editTextProductName.setVisibility(View.VISIBLE);
             textViewHeading.setText("VARIETY DETAILS " + (sortOrder+1));
         }
-
-        //fill up the UI details of this fragment
-
         editTextProductName.setText(name);
         editTextPrice.setText(price.getAttributeValue().getValue());
-        if(limitedStock<=-1) {
+        if (limitedStock <= -1) {
             switchStock.setChecked(true);
-        } else if(limitedStock >= 0) {
+        } else if (limitedStock >= 0) {
             switchStock.setChecked(false);
         }
         spinnerPrice.setSelection(getPriceSpinnerSelectionIndexFromPriceMeasuringUnitId());
-        if(listAttributeValue.size()>0) {
-            for(AttributeValue attributeValue : listAttributeValue) {
+        if (listAttributeValue.size() > 0) {
+            for (AttributeValue attributeValue : listAttributeValue) {
                 VarietyAttribute varietyAttribute = ProductUtil.getVarietyAttributeFromList(listVarietyAttribute, attributeValue.getProductVarietyAttributeId());
-                if(!varietyAttribute.getName().equalsIgnoreCase(Constants.PRICE_PROPERTY_NAME)) {
+                if (!varietyAttribute.getName().equalsIgnoreCase(Constants.PRICE_PROPERTY_NAME)) {
                     addNonEmptyProductProperty(varietyAttribute, attributeValue);
                 }
             }
@@ -227,16 +239,19 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         }
     }
 
-    private void deleteProductVariety()
-    {
+    private void deleteProductVariety() {
         Log.d("ProductInfoActivity", "Broadcasting variety deleted");
         Intent intent = new Intent(Constants.ACTION_DELETE_VARIETY);
         intent.putExtra("fragmentTag", getTag());
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
     }
 
-    public ProductVariety getProductVariety()
-    {
+    public void decrementSortOrder() {
+        sortOrder--;
+        textViewHeading.setText("VARIETY DETAILS " + (sortOrder + 1));
+    }
+
+    public ProductVariety getProductVariety() {
         ProductVariety productVariety = new ProductVariety();
         productVariety.setId(id);
         productVariety.setName(getVarietyName());
@@ -250,30 +265,21 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         return productVariety;
     }
 
-    private String getVarietyName()
-    {
+    private String getVarietyName() {
         name = editTextProductName.getText().toString();
         return name;
     }
 
-    private int getStockValue()
-    {
-        if(!switchStock.isEnabled())
-        {
+    private int getStockValue() {
+        if (!switchStock.isEnabled()) {
             limitedStock = 0;
-        }
-        else
-        {
+        } else {
             limitedStock = -1; //-1 if stock is unlimited
             String stockString = editTextStock.getText().toString();
-            if(stockString!=null && !stockString.isEmpty())
-            {
-                if(android.text.TextUtils.isDigitsOnly(stockString))
-                {
+            if (stockString != null && !stockString.isEmpty()) {
+                if (android.text.TextUtils.isDigitsOnly(stockString)) {
                     limitedStock = Integer.parseInt(stockString);
-                }
-                else
-                {
+                } else {
                     editTextStock.setError("This should be a number");
                 }
             }
@@ -282,45 +288,55 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         return limitedStock;
     }
 
-    private RealmList<VarietyAttribute> getVarietyAttributesList()
-    {
+    private RealmList<VarietyAttribute> getVarietyAttributesList() {
         RealmList<VarietyAttribute> realmListVarietyAttributes = new RealmList<>();
         VarietyAttributePool vaPool = VarietyAttributePool.getInstance();
-        for(int i=0; i<linearLayoutProperties.getChildCount(); i++)
-        {
+        for (int i = 0; i < linearLayoutProperties.getChildCount(); i++) {
             ViewProductProperty viewProductProperty = (ViewProductProperty) linearLayoutProperties.getChildAt(i);
-            if(!viewProductProperty.isEmptyProperty()) {
+            if (!viewProductProperty.isEmptyProperty()) {
                 VarietyAttribute loopVa = viewProductProperty.getVarietyAttribute();
-                VarietyAttribute poolVa = vaPool.getSimilarVarietyAttribute(loopVa);
-                if(poolVa==null) {
-                    //check in realm
-                    VarietyAttribute realmVa = getRealmVa(loopVa);
-                    if(realmVa == null) {
-                        vaPool.addVarietyAttribute(loopVa);
-                        realmListVarietyAttributes.add(loopVa);
-                    } else {
-                        vaPool.addVarietyAttribute(realmVa);
-                        realmListVarietyAttributes.add(realmVa);
-                        adjustVaIdsInAttributeValues(loopVa, realmVa);
-                    }
-                } else {
-                    //set this existing va id in attribute values
-                    adjustVaIdsInAttributeValues(loopVa, poolVa);
-                }
+                adjustIdInVarietyAttributeAndAddToRealmList(loopVa, vaPool, realmListVarietyAttributes);
             }
         }
-        realmListVarietyAttributes.add(price.getVarietyAttribute());
+        adjustIdInVarietyAttributeAndAddToRealmList(price.getVarietyAttribute(), vaPool, realmListVarietyAttributes);
         return realmListVarietyAttributes;
     }
 
+    private void adjustIdInVarietyAttributeAndAddToRealmList(VarietyAttribute originalVa, VarietyAttributePool vaPool, RealmList<VarietyAttribute> realmListVarietyAttributes) {
+
+
+        VarietyAttribute poolVa = vaPool.getSimilarVarietyAttribute(originalVa);
+        if (poolVa == null) {
+            //check in realm
+            VarietyAttribute realmVa = getRealmVa(originalVa);
+            if (realmVa == null) {
+                vaPool.addVarietyAttribute(originalVa);
+                realmListVarietyAttributes.add(originalVa);
+            } else {
+                vaPool.addVarietyAttribute(realmVa);
+                realmListVarietyAttributes.add(realmVa);
+                adjustVaIdsInAttributeValues(originalVa, realmVa);
+            }
+        } else {
+            //set this existing va id in attribute values
+            adjustVaIdsInAttributeValues(originalVa, poolVa);
+        }
+    }
+
     private void adjustVaIdsInAttributeValues(VarietyAttribute oldVa, VarietyAttribute newVa) {
-        for(int j=0; j<linearLayoutProperties.getChildCount(); j++)
-        {
+
+        //different handling for price(a special variety attribute)
+        if (oldVa.getName().equalsIgnoreCase(Constants.PRICE_PROPERTY_NAME)) {
+            price.getAttributeValue().setProductVarietyAttributeId(newVa.getId());
+            return;
+        }
+
+        //process all ViewProductProperties for cases other than price
+        for (int j = 0; j < linearLayoutProperties.getChildCount(); j++) {
             ViewProductProperty vpp = (ViewProductProperty) linearLayoutProperties.getChildAt(j);
-            if(!vpp.isEmptyProperty()) {
+            if (!vpp.isEmptyProperty()) {
                 AttributeValue av = vpp.getAttributeValue();
-                if(av.getProductVarietyAttributeId().equalsIgnoreCase(oldVa.getId()))
-                {
+                if (av.getProductVarietyAttributeId().equalsIgnoreCase(oldVa.getId())) {
                     vpp.setProductVarietyAttributeId(newVa.getId());
                 }
             }
@@ -336,13 +352,11 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         return realmVa;
     }
 
-    private RealmList<AttributeValue> getAttributeValuesList()
-    {
+    private RealmList<AttributeValue> getAttributeValuesList() {
         RealmList<AttributeValue> realmListAttributeValues = new RealmList<>();
-        for(int i=0; i<linearLayoutProperties.getChildCount(); i++)
-        {
+        for (int i = 0; i < linearLayoutProperties.getChildCount(); i++) {
             ViewProductProperty viewProductProperty = (ViewProductProperty) linearLayoutProperties.getChildAt(i);
-            if(!viewProductProperty.isEmptyProperty()) {
+            if (!viewProductProperty.isEmptyProperty()) {
                 AttributeValue av = viewProductProperty.getAttributeValue();
                 av.setSortOrder(i);
                 realmListAttributeValues.add(av);
@@ -353,8 +367,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         return realmListAttributeValues;
     }
 
-    private void loadPriceSpinner()
-    {
+    private void loadPriceSpinner() {
         Realm realm = Realm.getInstance(context);
         RealmQuery<MeasuringUnit> query = realm.where(MeasuringUnit.class);
         query.beginsWith("unitDimensions", "price");
@@ -364,7 +377,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         List<String> spinnerList = new ArrayList<>();
 
 
-        for(MeasuringUnit mu:priceUnits) {
+        for (MeasuringUnit mu : priceUnits) {
             priceUnitList.add(new MeasuringUnit(mu.getId(), mu.getUnitDimensions(), mu.getUnit(), mu.isBaseUnit(), mu.getConversionRate(), mu.getUnitFullName()));
             spinnerList.add(mu.getUnit());
         }
@@ -375,8 +388,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         spinnerPrice.setSelection(0);
     }
 
-    private void bindSpinner()
-    {
+    private void bindSpinner() {
         spinnerPrice.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -393,8 +405,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         });
     }
 
-    private void bindStockSwitch()
-    {
+    private void bindStockSwitch() {
         switchStock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -409,23 +420,20 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         });
     }
 
-    private void setFocusAndTextChangeListenersToProperty(final ViewProductProperty viewProductProperty)
-    {
+    private void setFocusAndTextChangeListenersToProperty(final ViewProductProperty viewProductProperty) {
         viewProductProperty.setPropertyOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
 
-                if(!hasFocus) {
+                if (!hasFocus) {
                     int indexOfThisProperty = linearLayoutProperties.indexOfChild(viewProductProperty);
                     int lastPropertyIndex = linearLayoutProperties.getChildCount() - 1;
                     boolean thisIsTheLastProperty = indexOfThisProperty == lastPropertyIndex;
                     if (viewProductProperty.isEmptyProperty() && !thisIsTheLastProperty) {
                         deleteThisPropertyIn1Second(viewProductProperty);
                         hideKeyboard(v);
-                    }
-                    else
-                    {
-                        if(!viewProductProperty.isCurrentlyFocused()) {
+                    } else {
+                        if (!viewProductProperty.isCurrentlyFocused()) {
                             hideKeyboard(v);
                         }
                     }
@@ -480,16 +488,14 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
 
     }
 
-    private void addEmptyProductProperty()
-    {
+    private void addEmptyProductProperty() {
         ViewProductProperty v = new ViewProductProperty(getActivity(), null, null, id, linearLayoutProperties.getChildCount());
         linearLayoutProperties.addView(v);
         setFocusAndTextChangeListenersToProperty(v);
     }
 
-    private boolean addNonEmptyProductProperty(VarietyAttribute varietyAttribute, AttributeValue attributeValue)
-    {
-        if(varietyAttribute!=null && attributeValue!=null) {
+    private boolean addNonEmptyProductProperty(VarietyAttribute varietyAttribute, AttributeValue attributeValue) {
+        if (varietyAttribute != null && attributeValue != null) {
             ViewProductProperty v = new ViewProductProperty(getActivity(), varietyAttribute, attributeValue, "", 0);
             linearLayoutProperties.addView(v);
             setFocusAndTextChangeListenersToProperty(v);
@@ -498,8 +504,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         return false; // property not added
     }
 
-    private void addEditTextHandlers()
-    {
+    private void addEditTextHandlers() {
         TextWatcher dateModifiedTextWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -549,16 +554,15 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     }
 
     public void hideKeyboard(View view) {
-        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    public void hideKeyboardIfNothingFocused(final View view)
-    {
+    public void hideKeyboardIfNothingFocused(final View view) {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                if(!editTextStock.isFocused() && !editTextPrice.isFocused() && !editTextProductName.isFocused() && !isAnyPropertyFocused() && getActivity()!=null) {
+                if (!editTextStock.isFocused() && !editTextPrice.isFocused() && !editTextProductName.isFocused() && !isAnyPropertyFocused() && getActivity() != null) {
                     InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
                     inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
@@ -569,24 +573,20 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
 
     }
 
-    private boolean isAnyPropertyFocused()
-    {
-        for(int i=0; i<linearLayoutProperties.getChildCount();i++)
-        {
-            if(((ViewProductProperty)linearLayoutProperties.getChildAt(i)).isCurrentlyFocused())
-            {
+    private boolean isAnyPropertyFocused() {
+        for (int i = 0; i < linearLayoutProperties.getChildCount(); i++) {
+            if (((ViewProductProperty) linearLayoutProperties.getChildAt(i)).isCurrentlyFocused()) {
                 return true;
             }
         }
         return false;
     }
 
-    public void deleteThisPropertyIn1Second(final ViewProductProperty v)
-    {
+    public void deleteThisPropertyIn1Second(final ViewProductProperty v) {
         Runnable r = new Runnable() {
             @Override
-            public void run(){
-                if(v.isEmptyProperty() && !v.isCurrentlyFocused()) {
+            public void run() {
+                if (v.isEmptyProperty() && !v.isCurrentlyFocused()) {
                     linearLayoutProperties.removeView(v);
                 }
             }
@@ -596,17 +596,13 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         h.postDelayed(r, 1000);
     }
 
-    private int getPriceSpinnerSelectionIndexFromPriceMeasuringUnitId()
-    {
+    private int getPriceSpinnerSelectionIndexFromPriceMeasuringUnitId() {
         int i = 0;
-        if(price == null || priceUnitList ==null)
-        {
+        if (price == null || priceUnitList == null) {
             return i;
         }
-        for(MeasuringUnit mu : priceUnitList)
-        {
-            if(String.valueOf(mu.getId()).equalsIgnoreCase(price.getVarietyAttribute().getId()))
-            {
+        for (MeasuringUnit mu : priceUnitList) {
+            if (String.valueOf(mu.getId()).equalsIgnoreCase(price.getVarietyAttribute().getId())) {
                 return i;
             }
             i++;
@@ -614,10 +610,25 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         return 0;
     }
 
-    public boolean isPriceEmpty() {
+    public boolean isFormValid() {
+        if(editTextProductName.getVisibility()==View.VISIBLE) {
+            boolean isVarietyNameEmpty = editTextProductName.getText().toString().trim().isEmpty();
+            if(isVarietyNameEmpty) {
+                editTextProductName.setError("Please enter a variety name");
+                editTextProductName.requestFocus();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        editTextProductName.setError(null);
+                    }
+                }, 1500);
+                return false;
+            }
+        }
         boolean isPriceEmpty = editTextPrice.getText().toString().trim().isEmpty();
-        if(isPriceEmpty) {
-            editTextPrice.setError("Price can't be empty");
+        if (isPriceEmpty) {
+            editTextPrice.setError("Please enter a price");
             editTextPrice.requestFocus();
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -626,8 +637,13 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
                     editTextPrice.setError(null);
                 }
             }, 1500);
+            return false;
         }
-        return isPriceEmpty;
+        return true;
+    }
+
+    public boolean isBrandNewVariety() {
+        return newVariety;
     }
 
 }

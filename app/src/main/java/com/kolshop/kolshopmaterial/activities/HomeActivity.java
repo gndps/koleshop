@@ -7,9 +7,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,6 +19,7 @@ import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.common.util.RealmUtils;
 import com.kolshop.kolshopmaterial.fragments.product.ProductListFragment;
+import com.kolshop.kolshopmaterial.fragments.product.ProductMasterListFragment;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
 
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class HomeActivity extends ActionBarActivity {
 
     private BroadcastReceiver homeActivityBroadcastReceiver;
     private ProgressDialog dialog;
-    private boolean loadedProductCategories,loadedMeasuringUnits;
+    private boolean loadedProductCategories, loadedMeasuringUnits, loadedBrands;
     private Context mContext;
 
     @Override
@@ -176,6 +177,11 @@ public class HomeActivity extends ActionBarActivity {
                 Intent intent3 = new Intent(this, ShopSettingsActivity.class);
                 startActivity(intent3);
                 break;
+            case 4:
+                ProductMasterListFragment productMasterListFragment = new ProductMasterListFragment();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, productMasterListFragment).commit();
+                break;
         }
     }
 
@@ -192,8 +198,9 @@ public class HomeActivity extends ActionBarActivity {
 
         loadedProductCategories = Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_PRODUCT_CATEGORIES_LOADED));
         loadedMeasuringUnits = Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_MEASURING_UNITS_LOADED));
+        loadedBrands = Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_BRANDS_LOADED));
 
-        if(!loadedProductCategories || !loadedMeasuringUnits) {
+        if(!loadedProductCategories || !loadedMeasuringUnits || !loadedBrands) {
             dialog = ProgressDialog.show(this, "Loading first time data", "Please wait...", true);
         }
 
@@ -203,6 +210,10 @@ public class HomeActivity extends ActionBarActivity {
 
         if(!loadedMeasuringUnits) {
             loadMeasuringUnits();
+        }
+
+        if(!loadedBrands) {
+            loadBrands();
         }
     }
 
@@ -218,6 +229,12 @@ public class HomeActivity extends ActionBarActivity {
             Intent commonIntentService = new Intent(this, CommonIntentService.class);
             commonIntentService.setAction(CommonIntentService.ACTION_LOAD_MEASURING_UNITS);
             startService(commonIntentService);
+    }
+
+    private void loadBrands() {
+        Intent commonIntentService = new Intent(this, CommonIntentService.class);
+        commonIntentService.setAction(CommonIntentService.ACTION_LOAD_BRANDS);
+        startService(commonIntentService);
     }
 
     private void initialDataLoadingComplete()

@@ -81,6 +81,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.github.traex.rippleeffect/library/1.2.3/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.5.87/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.yqritc/recyclerview-flexibledivider/1.1.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/de.hdodenhof/circleimageview/2.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/me.grantland/autofittextview/0.2.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/org.lucasr.dspec/dspec/0.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
@@ -102,6 +103,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="google-oauth-client-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="design-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="circleimageview-2.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-6.5.87" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.1.3" level="project" />
     <orderEntry type="library" exported="" name="google-api-client-android-1.19.0" level="project" />

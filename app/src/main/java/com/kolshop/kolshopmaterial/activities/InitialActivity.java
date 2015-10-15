@@ -19,6 +19,8 @@ import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 public class InitialActivity extends ActionBarActivity {
 
     // Constants
+    static private boolean TEST_MODE = false;
+    static private Class TEST_CLASS = SelectSellerCategoryActivity.class;
 
     static Account mAccount;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -88,7 +90,12 @@ public class InitialActivity extends ActionBarActivity {
         super.onResume();
         if(checkPlayServices())
         {
-            loadUserProfileIfLoggedIn();
+            if(!TEST_MODE) {
+                loadUserProfileIfLoggedIn();
+            } else {
+                Intent intent = new Intent(getApplicationContext(), TEST_CLASS);
+                startActivity(intent);
+            }
         }
     }
 

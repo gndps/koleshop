@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
-import com.kolshop.kolshopmaterial.model.android.Product;
+import com.kolshop.kolshopmaterial.model.realm.Product;
 
 import org.parceler.Parcels;
 

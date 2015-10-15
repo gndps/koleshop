@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,11 +22,12 @@ import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.fragments.product.ProductBasicInfoShopkeeper;
 import com.kolshop.kolshopmaterial.fragments.product.ProductVarietyDetailsFragment;
-import com.kolshop.kolshopmaterial.model.android.Product;
-import com.kolshop.kolshopmaterial.model.android.ProductVariety;
+import com.kolshop.kolshopmaterial.helper.VarietyAttributePool;
+import com.kolshop.kolshopmaterial.model.realm.Product;
+import com.kolshop.kolshopmaterial.model.realm.ProductVariety;
 import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
 import com.kolshop.kolshopmaterial.services.CloudEndpointService;
-import com.kolshop.kolshopmaterial.services.CommonIntentService;
+import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
 
 import org.parceler.Parcels;
 
@@ -70,6 +70,8 @@ public class AddEditProductActivity extends AppCompatActivity {
         String userIdString = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID);
         if (userIdString.isEmpty()) {
             userId = 0;
+            Toast.makeText(AddEditProductActivity.this, "Please login to add product", Toast.LENGTH_SHORT).show();
+            finish();
         } else {
             userId = Integer.parseInt(userIdString);
         }
@@ -83,17 +85,27 @@ public class AddEditProductActivity extends AppCompatActivity {
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                int numberOfVar = KolShopSingleton.getSharedInstance().getNumberOfVarieties();
                 if (intent.getAction().equals(Constants.ACTION_ADD_VARIETY)) {
-                    numberOfVarieties = intent.getIntExtra("numberOfVarieties", 1);
-                    if (numberOfVarieties < 99) {
+                    if (numberOfVar < 32) {
                         addNewVariety();
+                        if(numberOfVar == 1) {
+                            LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+                            Intent broadcastIntent = new Intent(Constants.ACTION_UPDATE_PRODUCT_VARIETY_UI);
+                            broadcastManager.sendBroadcast(broadcastIntent);
+                        }
                     } else {
-                        Toast.makeText(context, "Maximum number of varieties created already", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Maximum number of varieties created", Toast.LENGTH_SHORT).show();
                     }
                 } else if (intent.getAction().equals(Constants.ACTION_DELETE_VARIETY)) {
                     deleteTag = intent.getStringExtra("fragmentTag");
-                    if (deleteTag != null && !deleteTag.isEmpty()) {
+                    if (numberOfVar>1 && deleteTag != null && !deleteTag.isEmpty()) {
                         deleteVariety(deleteTag);
+                        if(numberOfVar == 2) {
+                            LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+                            Intent broadcastIntent = new Intent(Constants.ACTION_UPDATE_PRODUCT_VARIETY_UI);
+                            broadcastManager.sendBroadcast(broadcastIntent);
+                        }
                     }
                 }
             }
@@ -143,13 +155,20 @@ public class AddEditProductActivity extends AppCompatActivity {
     private boolean refreshProduct() {
         BasicInfo basicInfo = productBasicInfoShopkeeper.getBasicInfo();
         if(basicInfo!=null) {
-            if(checkAllPricesNonNull()) {
+            if(areProductVarietiesValid()) {
+                //reset the va pool
+                VarietyAttributePool.getInstance().reset();
+
+                //build product
                 product = new Product();
                 product.setName(basicInfo.getName());
                 product.setDescription(basicInfo.getDescription());
                 product.setBrand(basicInfo.getBrand());
                 product.setBrandId(basicInfo.getBrandId());
                 product.setProductCategoryId(basicInfo.getProductCategoryId());
+                if(id.isEmpty()) {
+                    id = CommonUtils.generateRandomIdForDatabaseObject();
+                }
                 product.setId(id);
                 product.setUserId(userId);
                 product.setListProductVariety(getProductVarietyList());
@@ -159,10 +178,10 @@ public class AddEditProductActivity extends AppCompatActivity {
         return false;
     }
 
-    private boolean checkAllPricesNonNull() {
+    private boolean areProductVarietiesValid() {
         for (String tag : fragmentTagList) {
             ProductVarietyDetailsFragment frag = (ProductVarietyDetailsFragment) getSupportFragmentManager().findFragmentByTag(tag);
-            if (frag.isPriceEmpty()) {
+            if (!frag.isFormValid()) {
                 return false;
             }
         }
@@ -174,6 +193,7 @@ public class AddEditProductActivity extends AppCompatActivity {
         for (String tag : fragmentTagList) {
             ProductVarietyDetailsFragment frag = (ProductVarietyDetailsFragment) getSupportFragmentManager().findFragmentByTag(tag);
             ProductVariety productVariety = frag.getProductVariety();
+            productVariety.setProductId(id);
             productVarietyRealmList.add(productVariety);
         }
         for (ProductVariety pv : deletedProductVarieties) {
@@ -214,15 +234,14 @@ public class AddEditProductActivity extends AppCompatActivity {
             brandId = product.getBrandId();
             description = product.getDescription();
             categoryId = product.getProductCategoryId();
-            //todo userId will be used for saving product
             RealmList<ProductVariety> productVarieties = product.getListProductVariety();
+            KolShopSingleton.getSharedInstance().setNumberOfVarieties(getNumberOfValidVarieties(productVarieties));
             Bundle basicInfoBundle = new Bundle();
             basicInfoBundle.putString("name", name);
             basicInfoBundle.putString("brand", brand);
             basicInfoBundle.putInt("brandId", brandId);
             basicInfoBundle.putString("description", description);
             basicInfoBundle.putInt("categoryId", categoryId);
-            basicInfoBundle.putInt("numberOfVarieties", productVarieties.size());
             productBasicInfoShopkeeper.setArguments(basicInfoBundle);
 
             //initialize User Interface
@@ -231,60 +250,97 @@ public class AddEditProductActivity extends AppCompatActivity {
             }
         } else {
 
+            KolShopSingleton.getSharedInstance().setNumberOfVarieties(0);
             //prepare empty data
             this.product = new Product();
-            id = "random" + CommonUtils.randomString(8);
+            id = "";
             this.product.setId(id);
             this.product.setName("");
             this.product.setBrand("");
             this.product.setBrandId(0);
             this.product.setDescription("");
             this.product.setProductCategoryId(0);
-            //todo product.setUserId();
-
             //initialize User Interface
             addNewVariety();
         }
     }
 
+    private int getNumberOfValidVarieties(RealmList<ProductVariety> realmListProductVariety) {
+        return realmListProductVariety.size(); //because we should initialize the product with the valid varieties only
+        /*int i = 0;
+        if(realmListProductVariety!=null) {
+            for (ProductVariety pv : realmListProductVariety) {
+                if (pv.isValid()) i++;
+            }
+            return i;
+        } else {
+            return 1;
+        }*/
+    }
+
     private void addProductVarietyToUserInterface(ProductVariety productVariety, int index) {
-        ProductVarietyDetailsFragment productVarietyDetailsFragment = new ProductVarietyDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString("id", productVariety.getId());
-        args.putString("name", productVariety.getName());
-        args.putInt("stock", productVariety.getLimitedStock());
-        args.putInt("sortOrder", index);
-        args.putString("imageUrl", productVariety.getImageUrl());
-        args.putLong("dateAdded", productVariety.getDateAdded().getTime());
-        args.putLong("dateModified", productVariety.getDateModified().getTime());
-        Parcelable parcelableListVarietyAttributes = Parcels.wrap(productVariety.getListVarietyAttributes());
-        Parcelable parcelableListAttributeValues = Parcels.wrap(productVariety.getListAttributeValues());
-        args.putParcelable("listAttributeValue", parcelableListAttributeValues);
-        args.putParcelable("listVarietyAttribute", parcelableListVarietyAttributes);
-        productVarietyDetailsFragment.setArguments(args);
-        String fragmentTag = CommonUtils.randomString(8);
-        getSupportFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, fragmentTag).commit();
-        fragmentTagList.add(fragmentTag);
+        if(productVariety.isValid()) {
+            ProductVarietyDetailsFragment productVarietyDetailsFragment = new ProductVarietyDetailsFragment();
+            Bundle args = new Bundle();
+            args.putString("id", productVariety.getId());
+            args.putString("name", productVariety.getName());
+            args.putInt("stock", productVariety.getLimitedStock());
+            args.putInt("sortOrder", index);
+            args.putString("imageUrl", productVariety.getImageUrl());
+            args.putLong("dateAdded", productVariety.getDateAdded().getTime());
+            args.putLong("dateModified", productVariety.getDateModified().getTime());
+            Parcelable parcelableListVarietyAttributes = Parcels.wrap(productVariety.getListVarietyAttributes());
+            Parcelable parcelableListAttributeValues = Parcels.wrap(productVariety.getListAttributeValues());
+            args.putParcelable("listAttributeValue", parcelableListAttributeValues);
+            args.putParcelable("listVarietyAttribute", parcelableListVarietyAttributes);
+            productVarietyDetailsFragment.setArguments(args);
+            String fragmentTag = CommonUtils.randomString(8);
+            getSupportFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, fragmentTag).commit();
+            fragmentTagList.add(fragmentTag);
+        }
     }
 
     private void addNewVariety() {
-        //add a new variety fragment at the end....properties will be initialized from within ProductVariety
+        //add a new variety fragment at the end....properties will be initialized from within ProductVarietyDetailsFragment
         String fragmentTag = CommonUtils.randomString(8);
         ProductVarietyDetailsFragment productVarietyDetailsFragment = new ProductVarietyDetailsFragment();
+        Bundle args = new Bundle();
+        args.putInt("sortOrder", KolShopSingleton.getSharedInstance().getNumberOfVarieties());
+        productVarietyDetailsFragment.setArguments(args);
         getSupportFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, fragmentTag).commit();
         fragmentTagList.add(fragmentTag);
+        KolShopSingleton.getSharedInstance().increaseNumberOfVarieties();
+        productBasicInfoShopkeeper.updateNumberOfVarieties();
         Log.d(TAG, "added a new variety with tag = " + fragmentTag);
     }
 
     private void deleteVariety(String framentTag) {
         Fragment frag = getSupportFragmentManager().findFragmentByTag(framentTag);
+        notifyChangeSortOrder(framentTag);
         fragmentTagList.remove(frag.getTag());
         ProductVarietyDetailsFragment deletedFragment = (ProductVarietyDetailsFragment) frag;
-        ProductVariety productVariety = deletedFragment.getProductVariety();
-        productVariety.setValid(false);
-        deletedProductVarieties.add(productVariety);
+        if(!deletedFragment.isBrandNewVariety()) {
+            ProductVariety productVariety = deletedFragment.getProductVariety();
+            productVariety.setValid(false);
+            deletedProductVarieties.add(productVariety);
+        }
         getSupportFragmentManager().beginTransaction().remove(frag).commit();
+        KolShopSingleton.getSharedInstance().decreaseNumberOfVarieties();
+        productBasicInfoShopkeeper.updateNumberOfVarieties();
         Log.d(TAG, "deleted variety with tag = " + framentTag);
+    }
+
+    private void notifyChangeSortOrder(String afterTag) {
+        boolean notify = false;
+        for(String fragTag : fragmentTagList) {
+            if(fragTag.equalsIgnoreCase(afterTag))
+            {
+                notify = true;
+            }
+            if(notify) {
+                ((ProductVarietyDetailsFragment) getSupportFragmentManager().findFragmentByTag(fragTag)).decrementSortOrder();
+            }
+        }
     }
 
     private Product getProduct() {

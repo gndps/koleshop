@@ -3,7 +3,7 @@ package com.kolshop.kolshopmaterial.common.util;
 import android.content.Context;
 
 import com.kolshop.kolshopmaterial.model.RealmPrefs;
-import com.kolshop.kolshopmaterial.model.android.Product;
+import com.kolshop.kolshopmaterial.model.realm.Product;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;

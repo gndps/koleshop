@@ -33,6 +33,7 @@ public class CommonIntentService extends IntentService {
 
     public static final String ACTION_LOAD_PRODUCT_CATEGORIES = "action_load_product_categories";
     public static final String ACTION_LOAD_MEASURING_UNITS = "action_load_measuring_units";
+    public static final String ACTION_LOAD_BRANDS = "action_load_brands";
     public static final String TAG = "CommonIntentService";
 
     public CommonIntentService() {
@@ -45,16 +46,42 @@ public class CommonIntentService extends IntentService {
             final String action = intent.getAction();
             if (ACTION_LOAD_PRODUCT_CATEGORIES.equals(action) && !Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_PRODUCT_CATEGORIES_LOADED))) {
                 loadProductCategories();
-            }
-            else if (ACTION_LOAD_MEASURING_UNITS.equals(action) && !Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_MEASURING_UNITS_LOADED))) {
+            } else if (ACTION_LOAD_MEASURING_UNITS.equals(action) && !Boolean.valueOf(RealmUtils.getRealmPrefs(getApplicationContext(), Constants.FLAG_MEASURING_UNITS_LOADED))) {
                 loadMeasuringUnits();
+            } else if (ACTION_LOAD_BRANDS.equals(action)) {
+                loadBrands();
             }
         }
+    }
+
+    private void loadBrands() {
+        CommonEndpoint commonEndpoint = null;
+        CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        commonEndpoint = builder.build();
+
+        /*try {
+            ProductCategoryCollection productCategoryCollection = commonEndpoint.getAllProductCategories().execute();
+            return productCategoryCollection;
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+            return null;
+        }*/
     }
 
     private void loadProductCategories() {
         new LoadProductCategoriesTaskAsync().execute(new HashMap<String, String>());
     }
+
     private void loadMeasuringUnits() {
         new LoadMeasuringUnitsTaskAsync().execute(new HashMap<String, String>());
     }
@@ -93,8 +120,7 @@ public class CommonIntentService extends IntentService {
         @Override
         protected void onPostExecute(ProductCategoryCollection result) {
 
-            if(result==null)
-            {
+            if (result == null) {
                 Log.d(TAG, "product categories loading failed");
                 Intent intent = new Intent(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_FAILED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -104,23 +130,22 @@ public class CommonIntentService extends IntentService {
             List<com.kolshop.server.commonEndpoint.model.ProductCategory> productCategories = result.getItems();
             List<ProductCategory> proCats = new ArrayList<>();
 
-            for(com.kolshop.server.commonEndpoint.model.ProductCategory pc : productCategories)
-            {
+            for (com.kolshop.server.commonEndpoint.model.ProductCategory pc : productCategories) {
                 ProductCategory productCategory = new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentProductCategoryId());
                 proCats.add(productCategory);
             }
 
-            if(productCategories!=null && productCategories.size()>0) {
+            if (productCategories != null && productCategories.size() > 0) {
                 Realm realm = CommonUtils.getRealmInstance(getApplicationContext());
                 realm.beginTransaction();
                 realm.copyToRealm(proCats);
                 realm.commitTransaction();
+                realm.close();
                 Log.d("SessionIntentService", "product categories fetched");
                 Intent intent = new Intent(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 RealmUtils.saveRealmPrefs(getApplicationContext(), Constants.FLAG_PRODUCT_CATEGORIES_LOADED, "true");
-            }
-            else {
+            } else {
                 Log.d(TAG, "product categories loading failed 2");
                 Intent intent = new Intent(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_FAILED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -163,8 +188,7 @@ public class CommonIntentService extends IntentService {
         @Override
         protected void onPostExecute(ProductVarietyAttributeMeasuringUnitCollection result) {
 
-            if(result==null)
-            {
+            if (result == null) {
                 Log.d(TAG, "measuring units loading failed");
                 Intent intent = new Intent(Constants.ACTION_MEASURING_UNITS_LOAD_FAILED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -174,27 +198,25 @@ public class CommonIntentService extends IntentService {
             List<ProductVarietyAttributeMeasuringUnit> measuringUnits = result.getItems();
             List<MeasuringUnit> mUnits = new ArrayList<>();
 
-            for(ProductVarietyAttributeMeasuringUnit currentMu : measuringUnits)
-            {
+            for (ProductVarietyAttributeMeasuringUnit currentMu : measuringUnits) {
                 MeasuringUnit mu = new MeasuringUnit(currentMu.getId(), currentMu.getUnitType(), currentMu.getUnit(), currentMu.getBaseUnit(), currentMu.getConversionRate(), currentMu.getUnitFullName());
-                if(mu.getUnitDimensions().equalsIgnoreCase("price"))
-                {
+                if (mu.getUnitDimensions().equalsIgnoreCase("price")) {
                     KolShopSingleton.getSharedInstance().setDefaultPriceMeasuringUnitId(mu.getId());
                 }
                 mUnits.add(mu);
             }
 
-            if(mUnits!=null && mUnits.size()>0) {
+            if (mUnits != null && mUnits.size() > 0) {
                 Realm realm = CommonUtils.getRealmInstance(getApplicationContext());
                 realm.beginTransaction();
                 realm.copyToRealm(mUnits);
                 realm.commitTransaction();
+                realm.close();
                 Log.d("SessionIntentService", "measuring units fetched");
                 Intent intent = new Intent(Constants.ACTION_MEASURING_UNITS_LOAD_SUCCESS);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 RealmUtils.saveRealmPrefs(getApplicationContext(), Constants.FLAG_MEASURING_UNITS_LOADED, "true");
-            }
-            else {
+            } else {
                 Log.d(TAG, "measuring units failed 2");
                 Intent intent = new Intent(Constants.ACTION_MEASURING_UNITS_LOAD_FAILED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);

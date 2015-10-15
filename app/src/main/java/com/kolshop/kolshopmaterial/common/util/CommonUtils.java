@@ -9,6 +9,8 @@ import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.kolshop.kolshopmaterial.common.constant.Constants;
+
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -106,6 +108,20 @@ public class CommonUtils {
 
     public static String getGoogleRegistrationId(Context context) {
         return "";
+    }
+
+    public static String generateRandomIdForDatabaseObject() {
+        String generatedId = "RNDM-" + randomString(8);
+        return generatedId;
+    }
+
+    public static boolean isUserLoggedIn(Context context) {
+        String userId = PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID);
+        if(userId.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }

@@ -8,6 +8,7 @@ public class KolShopSingleton {
     public static KolShopSingleton sharedInstance = null;
     public int defaultPriceMeasuringUnitId;
     public String googleAccessToken;
+    public int numberOfVarieties;
 
     protected KolShopSingleton() {
 
@@ -29,4 +30,19 @@ public class KolShopSingleton {
         this.defaultPriceMeasuringUnitId = defaultPriceMeasuringUnitId;
     }
 
+    public int getNumberOfVarieties() {
+        return numberOfVarieties;
+    }
+
+    public void setNumberOfVarieties(int numberOfVarieties) {
+        this.numberOfVarieties = numberOfVarieties;
+    }
+
+    public void increaseNumberOfVarieties() {
+        this.numberOfVarieties++;
+    }
+
+    public void decreaseNumberOfVarieties() {
+        this.numberOfVarieties--;
+    }
 }

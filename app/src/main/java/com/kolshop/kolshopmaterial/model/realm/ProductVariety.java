@@ -1,4 +1,4 @@
-package com.kolshop.kolshopmaterial.model.android;
+package com.kolshop.kolshopmaterial.model.realm;
 
 import com.kolshop.kolshopmaterial.helper.AttributeValueParcelConverter;
 import com.kolshop.kolshopmaterial.helper.VarietyAttributeParcelConverter;
@@ -20,6 +20,7 @@ public class ProductVariety extends RealmObject {
 
     @PrimaryKey
     private String id;
+    private String productId;
     private String name;
     private int limitedStock;
     private boolean valid;
@@ -33,8 +34,9 @@ public class ProductVariety extends RealmObject {
     public ProductVariety() {
     }
 
-    public ProductVariety(String id, String name, int limitedStock, boolean valid, String imageUrl, Date dateAdded, Date dateModified) {
+    public ProductVariety(String id, String productId, String name, int limitedStock, boolean valid, String imageUrl, Date dateAdded, Date dateModified) {
         this.id = id;
+        this.productId = productId;
         this.name = name;
         this.limitedStock = limitedStock;
         this.valid = valid;
@@ -49,6 +51,14 @@ public class ProductVariety extends RealmObject {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public String getName() {

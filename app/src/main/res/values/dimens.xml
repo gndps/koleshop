@@ -9,4 +9,6 @@
     <dimen name="material_right_margin">16dp</dimen>
     <dimen name="material_right_margin_small_icon">32dp</dimen>
     <dimen name="nav_drawer_width">280dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="backdrop_detail_height">192dp</dimen>
 </resources>

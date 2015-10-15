@@ -21,8 +21,8 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.model.MeasuringUnit;
-import com.kolshop.kolshopmaterial.model.android.AttributeValue;
-import com.kolshop.kolshopmaterial.model.android.VarietyAttribute;
+import com.kolshop.kolshopmaterial.model.realm.AttributeValue;
+import com.kolshop.kolshopmaterial.model.realm.VarietyAttribute;
 
 import java.util.ArrayList;
 import java.util.List;

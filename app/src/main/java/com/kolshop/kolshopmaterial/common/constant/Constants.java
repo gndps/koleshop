@@ -34,7 +34,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = false;
+    public static boolean RESET_REALM = true;
 
 
     //Broadcast Actions
@@ -55,6 +55,7 @@ public class Constants {
     public static final String ACTION_OTP_RECEIVED = "action_otp_received";
     public static final String ACTION_LOG_OUT = "action_login_logout";
     public static final String ACTION_SAVE_PRODUCT = "action_save_product";
+    public static final String ACTION_UPDATE_PRODUCT_VARIETY_UI = "action_update_product_variety_ui" ;
 
     //Shared preferences keys
     public static final String KEY_REG_ID = "registration_id";
@@ -67,6 +68,7 @@ public class Constants {
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";
     public static final String FLAG_MEASURING_UNITS_LOADED = "measuring_units_loaded";
+    public static final String FLAG_BRANDS_LOADED = "brands_loaded";
 
     public static final String PRICE_PROPERTY_NAME = "price";
 

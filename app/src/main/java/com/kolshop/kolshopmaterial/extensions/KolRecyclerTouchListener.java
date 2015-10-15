@@ -40,16 +40,16 @@ public class KolRecyclerTouchListener implements RecyclerView.OnItemTouchListene
     }
 
     @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        Log.d("gndp", "on intercept touch event");
-        View child = rv.findChildViewUnder(e.getX(), e.getY());
-        boolean gestureDetected = gestureDetector.onTouchEvent(e);
-        if(child!=null && rv!=null && gestureDetected)
-        {
-            clickListener.onItemClick(child, rv.getChildPosition(child));
-        }
-        return false;
+     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+    Log.d("gndp", "on intercept touch event");
+    View child = rv.findChildViewUnder(e.getX(), e.getY());
+    boolean gestureDetected = gestureDetector.onTouchEvent(e);
+    if(child!=null && rv!=null && gestureDetected)
+    {
+        clickListener.onItemClick(child, rv.getChildPosition(child));
     }
+    return false;
+}
 
     @Override
     public void onTouchEvent(RecyclerView rv, MotionEvent e) {

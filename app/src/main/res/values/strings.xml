@@ -41,9 +41,11 @@
         <item>Log In</item>
         <item>Add/Edit Product</item>
         <item>Settings</item>
+        <item>Inventory</item>
     </string-array>
     <string name="title_activity_verify_phone_number">VerifyPhoneNumberActivity</string>
     <string name="title_activity_verify_otp">VerifyOTPActivity</string>
     <string name="title_activity_progress">ProgressActivity</string>
+    <string name="title_activity_select_seller_category">SelectSellerCategoryActivity</string>
 
 </resources>

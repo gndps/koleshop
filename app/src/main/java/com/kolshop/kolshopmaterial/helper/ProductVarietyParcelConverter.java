@@ -2,7 +2,7 @@ package com.kolshop.kolshopmaterial.helper;
 
 import android.os.Parcel;
 
-import com.kolshop.kolshopmaterial.model.android.ProductVariety;
+import com.kolshop.kolshopmaterial.model.realm.ProductVariety;
 
 import org.parceler.ParcelConverter;
 import org.parceler.Parcels;

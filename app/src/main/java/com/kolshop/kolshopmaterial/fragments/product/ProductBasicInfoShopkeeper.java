@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,12 +20,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
 import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
+import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,6 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     private List<ProductCategory> parentCategories, subCategories;
     private TextView textViewNumberOfVarieties;
     private ImageButton buttonAddVariety;
-    private int numberOfVarieties;
     boolean categorySelected, subcategorySelected;
     private int brandId, productCategoryId;
     Context mContext;
@@ -71,13 +69,12 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
             int brandId = basicInfoBundle.getInt("brandId", 0);
             String description = basicInfoBundle.getString("description", "");
             productCategoryId = basicInfoBundle.getInt("categoryId", 0);
-            numberOfVarieties = basicInfoBundle.getInt("numberOfVarieties", 1);
 
             //initialize User Interface
             editTextProductName.setText(name);
             editTextBrand.setText(brand);
             editTextDescription.setText(description);
-            textViewNumberOfVarieties.setText(numberOfVarieties + "");
+            updateNumberOfVarieties();
             selectCategory(productCategoryId);
         }
 
@@ -107,6 +104,11 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    public void updateNumberOfVarieties()
+    {
+        textViewNumberOfVarieties.setText(KolShopSingleton.getSharedInstance().getNumberOfVarieties() + "");
     }
 
     public void loadCategories() {
@@ -280,12 +282,8 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     }
 
     public void addVariety() {
-        numberOfVarieties++;
-        Log.d("ProductInfoActivity", "Broadcasting empty variety added");
         Intent intent = new Intent(Constants.ACTION_ADD_VARIETY);
-        intent.putExtra("numberOfVarieties", numberOfVarieties);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
-        textViewNumberOfVarieties.setText(numberOfVarieties + "");
     }
 
     private void addEditTextHandlers() {
@@ -351,10 +349,6 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
     private int getProductCategoryId() {
         return productCategoryId;
-    }
-
-    public int getNumberOfVarieties() {
-        return numberOfVarieties;
     }
 
     @Nullable

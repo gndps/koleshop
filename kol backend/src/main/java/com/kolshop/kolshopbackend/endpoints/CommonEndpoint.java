@@ -7,6 +7,7 @@ import com.kolshop.kolshopbackend.beans.ParentProductCategory;
 import com.kolshop.kolshopbackend.beans.ProductCategory;
 import com.kolshop.kolshopbackend.beans.ProductVarietyAttributeMeasuringUnit;
 import com.kolshop.kolshopbackend.db.models.MyBean;
+import com.kolshop.kolshopbackend.db.models.RestCallResponse;
 import com.kolshop.kolshopbackend.services.ProductService;
 
 import java.util.List;
@@ -23,6 +24,11 @@ public class CommonEndpoint {
     @ApiMethod(name = "getProductCategories")
     public List<ParentProductCategory> getProductCategories() {
         return new ProductService().getProductCategories();
+    }
+
+    @ApiMethod(name = "storeImage")
+    public RestCallResponse storeImage() {
+        return null;
     }
 
     @ApiMethod(name = "getAllProductCategories")

@@ -23,7 +23,6 @@ public class ProductItemViewHolder extends RecyclerView.ViewHolder
         flavors = (TextView) itemView.findViewById((com.kolshop.kolshopmaterial.R.id.product_list_item_txt_product_flavors));
         sizes = (TextView) itemView.findViewById((com.kolshop.kolshopmaterial.R.id.product_list_item_txt_product_sizes));
         imageView = (ImageView) itemView.findViewById((com.kolshop.kolshopmaterial.R.id.product_list_item_img_product_image));
-
     }
 
 }

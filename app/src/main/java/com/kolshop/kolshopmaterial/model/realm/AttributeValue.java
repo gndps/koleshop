@@ -1,4 +1,4 @@
-package com.kolshop.kolshopmaterial.model.android;
+package com.kolshop.kolshopmaterial.model.realm;
 
 import org.parceler.Parcel;
 

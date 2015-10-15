@@ -1,9 +1,7 @@
-package com.kolshop.kolshopmaterial.model.android.extended;
+package com.kolshop.kolshopmaterial.model;
 
-import com.kolshop.kolshopmaterial.model.android.AttributeValue;
-import com.kolshop.kolshopmaterial.model.android.VarietyAttribute;
-
-import java.io.Serializable;
+import com.kolshop.kolshopmaterial.model.realm.AttributeValue;
+import com.kolshop.kolshopmaterial.model.realm.VarietyAttribute;
 
 /**
  * Created by Gundeep on 27/09/15.

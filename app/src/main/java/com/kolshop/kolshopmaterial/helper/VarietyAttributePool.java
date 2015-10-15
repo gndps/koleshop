@@ -2,7 +2,7 @@ package com.kolshop.kolshopmaterial.helper;
 
 import android.support.annotation.Nullable;
 
-import com.kolshop.kolshopmaterial.model.android.VarietyAttribute;
+import com.kolshop.kolshopmaterial.model.realm.VarietyAttribute;
 
 import java.util.ArrayList;
 import java.util.List;

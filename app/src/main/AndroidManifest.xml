@@ -65,7 +65,6 @@
         <service
             android:name=".services.PushMessageProcessorService"
             android:exported="false" />
-
         <service
             android:name=".services.RestCallService"
             android:exported="false" />
@@ -161,6 +160,11 @@
         <activity
             android:name=".activities.VerifyOTPActivity"
             android:label="@string/title_activity_verify_otp" >
+        </activity>
+        <activity
+            android:name=".activities.SelectSellerCategoryActivity"
+            android:label="@string/title_activity_select_seller_category"
+            android:theme="@style/AppTheme.Base" >
         </activity>
     </application>
 
