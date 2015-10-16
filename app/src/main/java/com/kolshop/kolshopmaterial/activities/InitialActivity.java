@@ -6,7 +6,7 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
@@ -16,7 +16,7 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 
-public class InitialActivity extends ActionBarActivity {
+public class InitialActivity extends AppCompatActivity {
 
     // Constants
     static private boolean TEST_MODE = false;

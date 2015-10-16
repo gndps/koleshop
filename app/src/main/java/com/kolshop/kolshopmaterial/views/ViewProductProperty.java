@@ -122,6 +122,7 @@ public class ViewProductProperty extends LinearLayout {
         RealmQuery<MeasuringUnit> query = realm.where(MeasuringUnit.class);
         query.equalTo("unitDimensions", "default");
         RealmResults<MeasuringUnit> result = query.findAll();
+        realm.close();
         RealmList<MeasuringUnit> measuringUnits = new RealmList<>();
         measuringUnits.addAll(result);
 
@@ -179,11 +180,12 @@ public class ViewProductProperty extends LinearLayout {
         varietyAttribute.setName(attributeName);
         varietyAttribute.setMeasuringUnitId(currentMeasuringUnitId);
         if (productVarietyAttributeId.startsWith("random")) {
-            Realm realm = CommonUtils.getRealmInstance(context);
+            Realm realm = Realm.getInstance(context);
             RealmQuery<VarietyAttribute> realmQuery = realm.where(VarietyAttribute.class)
                     .equalTo("name", attributeName)
                     .equalTo("measuringUnitId", currentMeasuringUnitId);
             VarietyAttribute varAtt = realmQuery.findFirst();
+            realm.close();
             if (varAtt != null) {
                 varietyAttribute.setId(varAtt.getId());
             } else {

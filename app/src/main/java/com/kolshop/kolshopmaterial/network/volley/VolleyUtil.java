@@ -8,6 +8,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 /**
  * Created by gundeepsingh on 31/08/14.
  */
@@ -27,6 +30,8 @@ public class VolleyUtil extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        RealmConfiguration config = new RealmConfiguration.Builder(mInstance).build();
+        Realm.setDefaultConfiguration(config);
     }
 
     public RequestQueue getRequestQueue() {

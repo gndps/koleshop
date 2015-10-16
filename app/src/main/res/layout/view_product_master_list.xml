@@ -49,6 +49,7 @@
             android:id="@+id/checkboxProductMasterListItem"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
+            android:buttonTint="@color/primary"
             android:layout_marginRight="16dp"
             android:checked="true"/>
 

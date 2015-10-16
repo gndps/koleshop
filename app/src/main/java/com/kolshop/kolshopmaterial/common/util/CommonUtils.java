@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
 
 import java.util.List;
 import java.util.Random;
@@ -17,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.exceptions.RealmMigrationNeededException;
 
 /**
@@ -91,19 +93,14 @@ public class CommonUtils {
         }
     }
 
-    public static Realm getRealmInstance(Context context)
-    {
-        Realm realm;
-        try {
-            realm = Realm.getInstance(context);
-            return realm;
-        }
-        catch (RealmMigrationNeededException exception) {
-            //TODO handle migration instead of deleting
-            Realm.deleteRealmFile(context);
-            realm = Realm.getInstance(context);
-            return realm;
-        }
+    public static RealmConfiguration getRealmConfiguration(Context context) {
+        RealmConfiguration config = new RealmConfiguration.Builder(context)
+                .name("kolshop.realm")
+                //.schemaVersion(42)
+                //.setModules(new MySchemaModule())
+                //.migration(new MyMigration())
+                .build();
+        return config;
     }
 
     public static String getGoogleRegistrationId(Context context) {

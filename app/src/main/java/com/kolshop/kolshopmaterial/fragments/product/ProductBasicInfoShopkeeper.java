@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
 import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
 import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
@@ -45,6 +46,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     boolean categorySelected, subcategorySelected;
     private int brandId, productCategoryId;
     Context mContext;
+    Realm realm;
 
     public ProductBasicInfoShopkeeper() {
     }
@@ -54,6 +56,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_product_info, container, false);
         mContext = getActivity();
+        realm = Realm.getDefaultInstance();
         findViewsByIds(v);
         loadCategories();
         loadAndBindSpinners();
@@ -112,13 +115,12 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     }
 
     public void loadCategories() {
-        Realm realm = Realm.getInstance(getActivity());
+
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
 
         query.equalTo("parentCategoryId", 0);
 
         final RealmResults<ProductCategory> productCategories = query.findAll();
-
         parentCategories = new ArrayList<>();
         List<String> categoriesList = new ArrayList<>();
 
@@ -223,7 +225,6 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     }
 
     private void loadSubcategoriesForId(int parentCategoryId) {
-        Realm realm = Realm.getInstance(getActivity());
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
 
         query.equalTo("parentCategoryId", parentCategoryId);
@@ -254,7 +255,6 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
     }
 
     private void selectCategory(int categoryId) {
-        Realm realm = Realm.getInstance(getActivity());
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
 
         query.equalTo("id", categoryId);
@@ -417,4 +417,9 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         }, 1500);
     }
 
+    @Override
+    public void onDestroy() {
+        realm.close();
+        super.onDestroy();
+    }
 }

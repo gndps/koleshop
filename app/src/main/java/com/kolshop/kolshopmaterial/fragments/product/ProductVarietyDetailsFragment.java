@@ -83,6 +83,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     private Date dateAdded;
     private Date dateModified;
     Context context;
+    Realm realm;
     List<MeasuringUnit> priceUnitList;
     private List<VarietyAttribute> listVarietyAttribute;
     private List<AttributeValue> listAttributeValue;
@@ -107,6 +108,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         switchStock = (Switch) v.findViewById(R.id.switch_product_available);
         spinnerPrice = (Spinner) v.findViewById(R.id.spinner_price_unit);
         context = v.getContext();
+        realm = Realm.getDefaultInstance();
 
         loadPriceSpinner();
         spinnerPrice.setVisibility(View.GONE);//bindSpinner();
@@ -344,7 +346,6 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     }
 
     private VarietyAttribute getRealmVa(VarietyAttribute va) {
-        Realm realm = CommonUtils.getRealmInstance(context);
         RealmQuery<VarietyAttribute> realmQuery = realm.where(VarietyAttribute.class)
                 .equalTo("name", va.getName())
                 .equalTo("measuringUnitId", va.getMeasuringUnitId());
@@ -368,11 +369,9 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
     }
 
     private void loadPriceSpinner() {
-        Realm realm = Realm.getInstance(context);
         RealmQuery<MeasuringUnit> query = realm.where(MeasuringUnit.class);
         query.beginsWith("unitDimensions", "price");
         RealmResults<MeasuringUnit> priceUnits = query.findAll();
-
         priceUnitList = new ArrayList<>();
         List<String> spinnerList = new ArrayList<>();
 
@@ -640,6 +639,12 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void onDestroy() {
+        realm.close();
+        super.onDestroy();
     }
 
     public boolean isBrandNewVariety() {

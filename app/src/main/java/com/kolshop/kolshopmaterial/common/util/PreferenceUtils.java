@@ -77,7 +77,7 @@ public class PreferenceUtils {
         prefs.edit().clear().commit();
         prefs = context.getSharedPreferences(Prefs.USER_INFO, Context.MODE_PRIVATE);
         prefs.edit().clear().commit();
-        Realm.deleteRealmFile(context);
+        //Realm.deleteRealmFile(context);
     }
 
     public static void storeRegistrationId(Context context, String regId) {

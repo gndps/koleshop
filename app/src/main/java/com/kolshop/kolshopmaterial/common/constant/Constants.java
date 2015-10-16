@@ -34,7 +34,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = true;
+    public static boolean RESET_REALM = false;
 
 
     //Broadcast Actions

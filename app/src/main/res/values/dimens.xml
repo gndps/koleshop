@@ -11,4 +11,6 @@
     <dimen name="nav_drawer_width">280dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="backdrop_detail_height">192dp</dimen>
+    <dimen name="status_bar_height">24dp</dimen>
+    <dimen name="spacing_large">16dp</dimen>
 </resources>
