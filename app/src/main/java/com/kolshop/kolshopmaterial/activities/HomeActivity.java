@@ -14,7 +14,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -25,12 +24,10 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
-import com.kolshop.kolshopmaterial.common.util.RealmUtils;
+import com.kolshop.kolshopmaterial.fragments.DummyHomeFragment;
 import com.kolshop.kolshopmaterial.fragments.product.ProductListFragment;
-import com.kolshop.kolshopmaterial.fragments.product.ProductMasterListFragment;
+import com.kolshop.kolshopmaterial.fragments.product.InventoryCategoryFragment;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
-
-import java.util.Arrays;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -59,10 +56,6 @@ public class HomeActivity extends AppCompatActivity {
         else {
             initializeBroadcastReceivers();
             loadInitialData();
-            if (savedInstanceState == null) {
-                //set default fragment
-                setFragment(getNavigationDrawerArray()[0]);
-            }
         }
     }
 
@@ -75,18 +68,20 @@ public class HomeActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_grey600_24dp);
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setElevation(8.0f);
         }
     }
 
     private void setupDrawerLayout() {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        NavigationView view = (NavigationView) findViewById(R.id.navigation_view);
+        final NavigationView view = (NavigationView) findViewById(R.id.navigation_view);
         view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.drawer_products:
                         //Products
+                        getSupportActionBar().setTitle("Products");
                         ProductListFragment productListFragment = new ProductListFragment();
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container, productListFragment).commit();
@@ -95,40 +90,42 @@ public class HomeActivity extends AppCompatActivity {
                         return true;
                     case R.id.drawer_inventory:
                         //Drawer inventory
-                        ProductMasterListFragment productMasterListFragment = new ProductMasterListFragment();
+                        getSupportActionBar().setTitle("Inventory categories");
+                        InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, productMasterListFragment).commit();
-                        Snackbar.make(content, menuItem.getTitle() + " pressed", Snackbar.LENGTH_LONG).show();
+                                .replace(R.id.fragment_container, inventoryCategoryFragment).commit();
+                        Snackbar.make(content, menuItem.getTitle() + " opened", Snackbar.LENGTH_LONG).show();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
                         return true;
                     case R.id.drawer_add_edit:
                         //Add/Edit Products
-                        Intent intent2 = new Intent(mContext, AddEditProductActivity.class);
-                        startActivity(intent2);
+                        //getSupportActionBar().setTitle("Inventory categories");
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
+                        Intent intent2 = new Intent(mContext, AddEditProductActivity.class);
+                        startActivity(intent2);
                         return true;
                     case R.id.drawer_settings:
                         //Settings
-                        Intent intent3 = new Intent(mContext, ShopSettingsActivity.class);
-                        startActivity(intent3);
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
+                        Intent intent3 = new Intent(mContext, ShopSettingsActivity.class);
+                        startActivity(intent3);
                         return true;
                     case R.id.drawer_login:
                         //Log In  or Log out
+                        drawerLayout.closeDrawers();
                         Intent intent = new Intent(mContext, VerifyPhoneNumberActivity.class);
                         startActivity(intent);
-                        drawerLayout.closeDrawers();
                         return true;
                     case R.id.drawer_logout:
-                        PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_ID, "");
-                        LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-                        Intent broadcastIntent = new Intent(Constants.ACTION_LOG_OUT);
-                        broadcastManager.sendBroadcast(broadcastIntent);
-                        Snackbar.make(content, menuItem.getTitle() + " Successful", Snackbar.LENGTH_LONG).show();
                         drawerLayout.closeDrawers();
+                        PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_ID, "");
+                        PreferenceUtils.setPreferences(mContext, Constants.KEY_SESSION_ID, "");
+                        Snackbar.make(content, menuItem.getTitle() + " Successful", Snackbar.LENGTH_LONG).show();
+                        view.getMenu().findItem(R.id.drawer_login).setVisible(true);
+                        view.getMenu().findItem(R.id.drawer_logout).setVisible(false);
                         return true;
 
                 }
@@ -149,13 +146,17 @@ public class HomeActivity extends AppCompatActivity {
             view.getMenu().findItem(R.id.drawer_login).setVisible(true);
             view.getMenu().findItem(R.id.drawer_logout).setVisible(false);
         }
+
+        getSupportActionBar().setTitle("Home");
+        DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, dummyHomeFragment).commit();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_NAVIGATION_ITEM_SELECTED));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_FAILED));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_MEASURING_UNITS_LOAD_SUCCESS));
@@ -195,11 +196,7 @@ public class HomeActivity extends AppCompatActivity {
         homeActivityBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equalsIgnoreCase(Constants.ACTION_NAVIGATION_ITEM_SELECTED)) {
-                    String fragmentName = intent.getStringExtra("NavigationItem");
-                    setFragment(fragmentName);
-                }
-                else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS)) {
+                if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS)) {
                     loadedProductCategories = true;
                     if(loadedMeasuringUnits)
                     {
@@ -241,7 +238,7 @@ public class HomeActivity extends AppCompatActivity {
         };
     }
 
-    private void setFragment(String fragmentName)
+    /*private void setFragment(String fragmentName)
     {
         String[] navigationDrawerItems = getResources().getStringArray(R.array.navigation_drawer_array);
         int navigationDrawerItemIndex = Arrays.asList(navigationDrawerItems).indexOf(fragmentName);
@@ -288,7 +285,7 @@ public class HomeActivity extends AppCompatActivity {
                         .replace(R.id.fragment_container, productMasterListFragment).commit();
                 break;
         }
-    }
+    }*/
 
     private String[] getNavigationDrawerArray()
     {

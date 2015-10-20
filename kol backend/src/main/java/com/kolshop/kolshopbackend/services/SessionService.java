@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.kolshop.kolshopbackend.common.Constants;
@@ -19,30 +21,33 @@ import com.kolshop.kolshopbackend.utils.RestClient;
 
 public class SessionService {
 
+    private static final Logger logger = Logger.getLogger(SessionService.class.getName());
+
     public RestCallResponse requestOneTimePassword(Long phone, String deviceId, int deviceType, int sessionType) {
-        Long userId, sessionId;
+        Long userId;
+        String sessionId;
         userId = getUserId(phone);
         String reasonText;
-        if(userId > 0) {
+        if (userId > 0) {
             sessionId = createSession(userId, deviceId, deviceType, sessionType);
-            if(sessionId > 0) {
+            if (sessionId != null && !sessionId.isEmpty()) {
                 int otp = CommonUtils.generateOtp(4);
                 boolean otpSaved = saveOtpInDatabase(otp, sessionId);
-                if(otpSaved) {
+                if (otpSaved) {
                     int gatewayNumber = Constants.USE_GATEWAY_NUMBER;
-                    String gatewayUrl = Constants.SMS_GATEWAY_URL;
+                    String gatewayUrl = null;// = Constants.SMS_GATEWAY_URL;
                     HashMap<String, String> hashmap = new HashMap<>();
-                    if(gatewayNumber == 1) {
+                    if (gatewayNumber == 1) {
                         hashmap.put("to", String.valueOf(phone));
-                        hashmap.put("message", "Use Code : " + otp + " to confirm your KolShop account. Please ignore if not requested");
+                        hashmap.put("message", otp + " is your one time code for KolShop");
                         gatewayUrl = Constants.SMS_GATEWAY_URL;
-                    } else if(gatewayNumber == 2) {
+                    } else if (gatewayNumber == 2) {
                         hashmap.put("mobiles", String.valueOf(phone));
-                        hashmap.put("message", "Use Code : " + otp + " to confirm your Kolshop account. Please ignore if not requested");
+                        hashmap.put("message", otp + " is your one time code for KolShop");
                         gatewayUrl = Constants.SMS_GATEWAY_URL_2;
                     }
                     RestCallResponse otpRequestResponse = RestClient.sendGet(gatewayUrl, hashmap);
-                    if(otpRequestResponse.getStatus().equalsIgnoreCase("success")) {
+                    if (otpRequestResponse.getStatus().equalsIgnoreCase("success")) {
                         RestCallResponse restCallResponse = new RestCallResponse();
                         restCallResponse.setStatus("success");
                         restCallResponse.setData("otp will shorty be received");
@@ -65,7 +70,7 @@ public class SessionService {
             reasonText = "-- user not created for phone = " + phone + " and user id = " + userId + " --";
         }
 
-        System.err.print(reasonText);
+        logger.log(Level.SEVERE, reasonText);
         RestCallResponse restCallResponse = new RestCallResponse();
         restCallResponse.setStatus("failure");
         restCallResponse.setData(null);
@@ -78,7 +83,7 @@ public class SessionService {
         Long userId;
         userId = getUserId(phone);
         RestCallResponse restCallResponse = new RestCallResponse();
-        if(userId>0) {
+        if (userId > 0) {
             Connection dbConnection = null;
             PreparedStatement preparedStatement = null;
 
@@ -91,11 +96,11 @@ public class SessionService {
                 preparedStatement.setInt(2, otp);
                 System.out.println(query);
                 ResultSet rs = preparedStatement.executeQuery();
-                if (rs!=null && rs.first()) {
+                if (rs != null && rs.first()) {
                     //otp verified
-                    Long sessionId = rs.getLong(1);
+                    String sessionId = rs.getString(1);
                     restCallResponse.setStatus("success");
-                    restCallResponse.setData("{userId:\"" + userId + "\"}");
+                    restCallResponse.setData("{userId:\"" + userId + "\",sessionId:\"" + sessionId + "\"}");
                     restCallResponse.setReason(null);
                     validateSession(sessionId);
                 } else {
@@ -105,7 +110,7 @@ public class SessionService {
                     restCallResponse.setData(null);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
                 restCallResponse.setStatus("failure");
                 restCallResponse.setReason("otp verification failed");
                 restCallResponse.setData(null);
@@ -118,32 +123,32 @@ public class SessionService {
         return restCallResponse;
     }
 
-    private void validateSession(Long sessionId) {
+    private void validateSession(String sessionId) {
         Connection dbConnection;
         PreparedStatement preparedStatement;
         String query = "update Session set valid='1' where id=?";
         try {
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
-            preparedStatement.setLong(1, sessionId);
+            preparedStatement.setString(1, sessionId);
             System.out.println(query);
             int executed = preparedStatement.executeUpdate();
-            if (executed>0) {
+            if (executed > 0) {
                 System.out.print("Session validated with id = " + sessionId);
             } else {
                 System.out.print("Session NOT validated with id = " + sessionId);
             }
         } catch (Exception e) {
             System.out.print("Session NOT validated with id = " + sessionId);
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-    private static Long createSession(Long userId, String deviceId, int deviceType, int sessionType) {
+    private static String createSession(Long userId, String deviceId, int deviceType, int sessionType) {
         //device id is registration id for android devices
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
-        Long sessionId = 0L;
+        String sessionId = "";
         try {
             dbConnection = DatabaseConnection.getConnection();
             String query = "insert into DeviceUser(device_id, user_id, device_type) values (?,?,?) on duplicate key update user_id=?, device_type=?";
@@ -154,16 +159,18 @@ public class SessionService {
             preparedStatement.setLong(4, userId);
             preparedStatement.setInt(5, deviceType);
             if (preparedStatement.executeUpdate() > 0) {
+
                 //device user added or already existed...now create a invalid session that should be validated only after phone number verification
-                query = "insert into Session(session_type,user_id) values (?,?)";
-                preparedStatement = dbConnection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-                preparedStatement.setInt(1, sessionType);
-                preparedStatement.setLong(2, userId);
+                query = "insert into Session(id,session_type,user_id) values (?,?,?)";
+                String insertSessionId = UUID.randomUUID().toString();
+                preparedStatement = dbConnection.prepareStatement(query);
+                preparedStatement.setString(1, insertSessionId);
+                preparedStatement.setInt(2, sessionType);
+                preparedStatement.setLong(3, userId);
                 int executed = preparedStatement.executeUpdate();
 
-                ResultSet rsSession = preparedStatement.getGeneratedKeys();
-                if (executed > 0 && rsSession != null && rsSession.next()) {
-                    sessionId = rsSession.getLong(1);
+                if (executed > 0) {
+                    sessionId = insertSessionId;
                 } else {
                     //problem while creating session
                 }
@@ -172,7 +179,7 @@ public class SessionService {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             try {
                 if (preparedStatement != null) {
@@ -182,7 +189,7 @@ public class SessionService {
                     dbConnection.close();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             } finally {
                 return sessionId;
             }
@@ -219,7 +226,7 @@ public class SessionService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             try {
                 if (preparedStatement != null) {
@@ -230,14 +237,14 @@ public class SessionService {
                 }
 
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             } finally {
                 return userId;
             }
         }
     }
 
-    private static boolean saveOtpInDatabase(int otp, Long sessionId) {
+    private static boolean saveOtpInDatabase(int otp, String sessionId) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -247,15 +254,15 @@ public class SessionService {
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setInt(1, otp);
-            preparedStatement.setLong(2, sessionId);
+            preparedStatement.setString(2, sessionId);
             System.out.println(query);
             int executed = preparedStatement.executeUpdate();
-            if (executed>0) {
+            if (executed > 0) {
                 //one time password saved in db
                 success = true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             try {
                 if (preparedStatement != null) {
@@ -265,12 +272,36 @@ public class SessionService {
                     dbConnection.close();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             } finally {
                 return success;
             }
         }
 
+    }
+
+    public static boolean verifyUserAuthenticity(Long userId, String sessionId) {
+        boolean userValid = false;
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        String query = "select valid from Session where user_id=? and id=?";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setString(2, sessionId);
+            System.out.println(query);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs != null && rs.first() && rs.getBoolean(1)) {
+                //valid session of user
+                userValid = true;
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return userValid;
     }
 
     @Deprecated
@@ -355,7 +386,7 @@ public class SessionService {
                 }
 
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
 
         }
@@ -395,7 +426,7 @@ public class SessionService {
             restCallResponse.setStatus("failure");
             restCallResponse.setReason(e.getMessage());
             restCallResponse.setData("~" + uniqueId);
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
             return restCallResponse;
 
         } finally {
@@ -409,7 +440,7 @@ public class SessionService {
                     dbConnection.close();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
 
         }
@@ -514,7 +545,7 @@ public class SessionService {
                     dbConnection.close();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
 
         }
@@ -565,7 +596,7 @@ public class SessionService {
             restCallResponse.setStatus("failure");
             restCallResponse.setReason(e.getMessage());
             restCallResponse.setData(null);
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
             return restCallResponse;
 
         } finally {
@@ -579,7 +610,7 @@ public class SessionService {
                     dbConnection.close();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
 
         }

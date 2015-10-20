@@ -38,7 +38,6 @@ public class Constants {
 
 
     //Broadcast Actions
-    public static final String ACTION_NAVIGATION_ITEM_SELECTED = "action_navigation_item_selected";
     public static final String ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS = "action_product_categories_load_success";
     public static final String ACTION_PRODUCT_CATEGORIES_LOAD_FAILED = "action_product_categories_load_failed";
     public static final String ACTION_MEASURING_UNITS_LOAD_SUCCESS = "action_measuring_units_load_success";
@@ -53,9 +52,11 @@ public class Constants {
     public static final String ACTION_VERIFY_OTP_SUCCESS = "action_verify_otp_success";
     public static final String ACTION_VERIFY_OTP_FAILED = "action_verify_otp_fail";
     public static final String ACTION_OTP_RECEIVED = "action_otp_received";
-    public static final String ACTION_LOG_OUT = "action_login_logout";
     public static final String ACTION_SAVE_PRODUCT = "action_save_product";
     public static final String ACTION_UPDATE_PRODUCT_VARIETY_UI = "action_update_product_variety_ui" ;
+    public static final String ACTION_FETCH_INVENTORY_CATEGORIES = "action_fetch_inventory_categories" ;
+    public static final String ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS = "action_fetch_inventory_categories_success" ;
+    public static final String ACTION_FETCH_INVENTORY_CATEGORIES_FAILED = "action_fetch_inventory_categories_failed" ;
 
     //Shared preferences keys
     public static final String KEY_REG_ID = "registration_id";
@@ -64,6 +65,7 @@ public class Constants {
     public static final String KEY_USER_PHONE_NUMBER = "pref_user_phone";
     public static final String KEY_SKIP_ALLOWED = "pref_skip_allowed";
     public static final String KEY_USER_ID = "pref_user_id";
+    public static final String KEY_SESSION_ID = "pref_session_id";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";

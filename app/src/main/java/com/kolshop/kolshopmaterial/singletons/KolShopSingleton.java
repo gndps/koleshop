@@ -1,5 +1,9 @@
 package com.kolshop.kolshopmaterial.singletons;
 
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
+
+import java.util.List;
+
 /**
  * Created by Gundeep on 22/03/15.
  */
@@ -9,6 +13,7 @@ public class KolShopSingleton {
     public int defaultPriceMeasuringUnitId;
     public String googleAccessToken;
     public int numberOfVarieties;
+    public List<InventoryCategory> inventoryCategories;
 
     protected KolShopSingleton() {
 
@@ -44,5 +49,13 @@ public class KolShopSingleton {
 
     public void decreaseNumberOfVarieties() {
         this.numberOfVarieties--;
+    }
+
+    public List<InventoryCategory> getInventoryCategories() {
+        return inventoryCategories;
+    }
+
+    public void setInventoryCategories(List<InventoryCategory> inventoryCategories) {
+        this.inventoryCategories = inventoryCategories;
     }
 }

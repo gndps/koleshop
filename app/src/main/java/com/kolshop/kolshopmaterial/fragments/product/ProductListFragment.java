@@ -13,7 +13,15 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.adapters.ProductListAdapter;
 import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.extensions.KolRecyclerTouchListener;
+import com.kolshop.kolshopmaterial.model.realm.Product;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+
+import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 
 
 public class ProductListFragment extends Fragment {
@@ -35,7 +43,10 @@ public class ProductListFragment extends Fragment {
                 .margin(getResources().getDimensionPixelSize(R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
                 .build());
-        productListAdapter = new ProductListAdapter(getActivity(), null);
+        Realm realm = Realm.getDefaultInstance();
+        RealmQuery<Product> query = realm.where(Product.class);
+        List<Product> productList =  query.findAll();
+        productListAdapter = new ProductListAdapter(getActivity(), productList);
         recyclerView.setAdapter(productListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {

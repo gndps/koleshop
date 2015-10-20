@@ -15,8 +15,11 @@
     <color name="divider">#B6B6B6</color>
     <color name="blue">#3030ff</color>
     <color name="grey">#bbb</color>
+    <color name="black3">#333</color>
     <color name="error">#DF5748</color>
     <color name="dividercolor">#B6B6B6</color>
     <color name="white">#ffffff</color>
+    <color name="default_background">#eeeeee</color>
+    <color name="default_background_font">#B7B6B7</color>
 
 </resources>

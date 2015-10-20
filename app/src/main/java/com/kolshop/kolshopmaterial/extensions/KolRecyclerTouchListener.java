@@ -12,22 +12,23 @@ import android.view.View;
  */
 public class KolRecyclerTouchListener implements RecyclerView.OnItemTouchListener
 {
+    String TAG = "RecyclerViewTouch";
     KolClickListener clickListener;
     GestureDetector gestureDetector;
     public KolRecyclerTouchListener(Context context, final RecyclerView rv, final KolClickListener clickListener)
     {
-        Log.d("gndp", "Recycler Touch Listener constructor");
+        //Log.d(TAG, "Recycler Touch Listener constructor");
         this.clickListener = clickListener;
         gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                Log.d("gndp", "Gesture Detector single tap up");
+                Log.d(TAG, "Gesture Detector single tap up");
                 return true;
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
-                Log.d("gndp", "Gesture Detector long press");
+                Log.d(TAG, "Gesture Detector long press");
                 View child = rv.findChildViewUnder(e.getX(), e.getY());
                 if(child!=null && clickListener!=null)
                 {
@@ -41,7 +42,7 @@ public class KolRecyclerTouchListener implements RecyclerView.OnItemTouchListene
 
     @Override
      public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-    Log.d("gndp", "on intercept touch event");
+    //Log.d(TAG, "on intercept touch event");
     View child = rv.findChildViewUnder(e.getX(), e.getY());
     boolean gestureDetected = gestureDetector.onTouchEvent(e);
     if(child!=null && rv!=null && gestureDetected)

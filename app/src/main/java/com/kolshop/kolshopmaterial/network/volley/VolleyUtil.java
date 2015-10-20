@@ -42,6 +42,12 @@ public class VolleyUtil extends Application {
         return mRequestQueue;
     }
 
+    public void cancelRequestsWithTag(String tag) {
+        if(mRequestQueue!=null) {
+            mRequestQueue.cancelAll(tag);
+        }
+    }
+
     public ImageLoader getImageLoader() {
         getRequestQueue();
         if (mImageLoader == null) {

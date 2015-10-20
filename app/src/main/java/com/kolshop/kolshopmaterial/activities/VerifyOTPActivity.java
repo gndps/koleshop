@@ -79,7 +79,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_OTP_RECEIVED)) {
-                    String code = intent.getExtras().getString("code");
+                    String code = intent.getStringExtra("code");
                     editTextCode.setText(code);
                     verifyOtp(null);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REQUEST_OTP_SUCCESS)) {

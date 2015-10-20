@@ -8,7 +8,8 @@
             <param-value>com.kolshop.kolshopbackend.endpoints.MyEndpoint,
                 com.kolshop.kolshopbackend.endpoints.SessionEndPoint,
                 com.kolshop.kolshopbackend.endpoints.ProductEndpoint,
-                com.kolshop.kolshopbackend.endpoints.CommonEndpoint
+                com.kolshop.kolshopbackend.endpoints.CommonEndpoint,
+                com.kolshop.kolshopbackend.endpoints.InventoryEndpoint
             </param-value>
         </init-param>
     </servlet>

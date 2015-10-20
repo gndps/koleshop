@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.kolshop.kolshopmaterial.model.Product;
+import com.kolshop.kolshopmaterial.model.realm.Product;
 import com.kolshop.kolshopmaterial.viewholders.ProductItemViewHolder;
 
 import java.util.Collections;
@@ -36,15 +36,15 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductItemViewHold
     @Override
     public void onBindViewHolder(ProductItemViewHolder viewHolder, int i) {
         //set details for each product here
-        //Product product = data.get(i);
-        //viewHolder.name.setText(product.getName());
-        //viewHolder.description.setText(product.getDesc());
+        Product product = data.get(i);
+        viewHolder.name.setText(product.getName());
+        viewHolder.description.setText(product.getDescription());
+        viewHolder.flavors.setText("");
     }
 
     @Override
     public int getItemCount() {
-        return 100;
-        //return data.size();
+        return data.size();
     }
 
 

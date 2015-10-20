@@ -32,6 +32,7 @@ public class RestClient {
     // HTTP GET request
     public static RestCallResponse sendGet(String url, HashMap<String, String> params) {
 
+        if(url==null) return null;
         RestCallResponse restCallResponse = new RestCallResponse();
         url = prepareUrl(url, params);
         String resultString = "";

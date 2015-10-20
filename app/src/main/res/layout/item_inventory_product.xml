@@ -5,8 +5,8 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/circleImageViewProductMasterListItem"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/ice_cream" />
@@ -39,6 +39,7 @@
                 android:id="@+id/textViewSubtitleProductMasterListItem"
                 android:text="this is the description of the ice cream. hits should be 2 lines long"
                 android:textColor="@color/secondary_text"
+                android:maxLines="2"
                 android:textSize="12sp" />
 
         </LinearLayout>

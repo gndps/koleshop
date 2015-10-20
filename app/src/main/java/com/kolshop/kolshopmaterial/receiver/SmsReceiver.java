@@ -28,13 +28,13 @@ public class SmsReceiver extends BroadcastReceiver {
                     String senderAddress = currentMessage.getDisplayOriginatingAddress();
                     String message = currentMessage.getDisplayMessageBody();
                     Log.e(TAG, "Received SMS: " + message + ", Sender: " + senderAddress);
-                    if(message.startsWith("Code : ")) {
+                    if(message.contains("is your one time code for KolShop")) {
                         String verificationCode = getVerificationCode(message);
                         if(verificationCode!=null) {
                             Log.e(TAG, "OTP received: " + verificationCode);
                             LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
                             Intent intentBroadcast = new Intent(Constants.ACTION_OTP_RECEIVED);
-                            intent.putExtra("code", verificationCode);
+                            intentBroadcast.putExtra("code", verificationCode);
                             localBroadcastManager.sendBroadcast(intentBroadcast);
                         }
                     } else {
@@ -56,15 +56,7 @@ public class SmsReceiver extends BroadcastReceiver {
      */
     private String getVerificationCode(String message) {
         String code = null;
-        int index = message.indexOf(":");
-
-        if (index != -1) {
-            int start = index + 2;
-            int length = 4;
-            code = message.substring(start, start + length);
-            return code;
-        }
-
+        code = message.split("is your one")[0].trim();
         return code;
     }
 }

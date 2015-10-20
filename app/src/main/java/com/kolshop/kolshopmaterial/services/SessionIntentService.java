@@ -107,8 +107,9 @@ public class SessionIntentService extends IntentService {
             RestCallResponse restCallResponse = sessionApi.verifyCode(phone, otp).execute();
             if (restCallResponse != null && restCallResponse.getStatus().equalsIgnoreCase("success")) {
                 JSONObject result = new JSONObject(restCallResponse.getData());
-                if (result != null && result.has("userId")) {
+                if (result != null && result.has("userId") && result.has("sessionId")) {
                     PreferenceUtils.setPreferences(getApplicationContext(), Constants.KEY_USER_ID, result.getString("userId"));
+                    PreferenceUtils.setPreferences(getApplicationContext(), Constants.KEY_SESSION_ID, result.getString("sessionId"));
                     Log.d("SessionIntentService", "Phone verified success");
                     Intent intent = new Intent(Constants.ACTION_VERIFY_OTP_SUCCESS);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
