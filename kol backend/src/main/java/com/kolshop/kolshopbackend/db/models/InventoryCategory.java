@@ -8,16 +8,24 @@ import com.google.api.server.spi.config.ApiClass;
 
 public class InventoryCategory {
 
+    Long id;
     String name;
     String desc;
     String imageUrl;
-    String countString;
 
-    public InventoryCategory(String name, String desc, String imageUrl, String countString) {
+    public InventoryCategory(Long id, String name, String desc, String imageUrl) {
+        this.id = id;
         this.name = name;
         this.desc = desc;
         this.imageUrl = imageUrl;
-        this.countString = countString;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -42,13 +50,5 @@ public class InventoryCategory {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public String getCountString() {
-        return countString;
-    }
-
-    public void setCountString(String countString) {
-        this.countString = countString;
     }
 }

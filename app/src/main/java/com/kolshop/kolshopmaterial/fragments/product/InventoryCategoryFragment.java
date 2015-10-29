@@ -28,7 +28,10 @@ import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.extensions.KolRecyclerTouchListener;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
 import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+
+import java.util.List;
 
 public class InventoryCategoryFragment extends Fragment {
 
@@ -83,9 +86,18 @@ public class InventoryCategoryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
-        lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS));
-        lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED));
+        if(!KolShopSingleton.getSharedInstance().isInventoryCategoriesRequestComplete()) {
+            LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
+            lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS));
+            lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED));
+        } else {
+            List<InventoryCategory> list = KolShopSingleton.getSharedInstance().getInventoryCategories();
+            if(list!=null && list.size()>0) {
+                inventoryLoadSuccess();
+            } else {
+                inventoryLoadFailed();
+            }
+        }
     }
 
     private void initializeBroadcastReceivers() {
@@ -93,21 +105,9 @@ public class InventoryCategoryFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS)) {
-                    inventoryCategoryAdapter.setNewDataOnAdapter(KolShopSingleton.getSharedInstance().getInventoryCategories());
-                    viewFlipper.setDisplayedChild(1);
+                    inventoryLoadSuccess();
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED)) {
-                    viewFlipper.setDisplayedChild(2);
-                    new AlertDialog.Builder(mContext)
-                            .setTitle("Problem in loading inventory")
-                            .setMessage("Please try again")
-                            .setPositiveButton("TRY AGAIN", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    loadInventoryCategories();
-                                }
-                            })
-                            .setNegativeButton("CANCEL", null)
-                            .show();
+                    inventoryLoadFailed();
                 }
             }
         };
@@ -132,14 +132,38 @@ public class InventoryCategoryFragment extends Fragment {
 
     private void loadInventoryCategories() {
         if(KolShopSingleton.getSharedInstance().getInventoryCategories()!=null) {
-            inventoryCategoryAdapter.setNewDataOnAdapter(KolShopSingleton.getSharedInstance().getInventoryCategories());
-            viewFlipper.setDisplayedChild(1);
+            inventoryLoadSuccess();
         } else {
-            viewFlipper.setDisplayedChild(0);
-            Intent commonIntent = new Intent(getActivity(), CommonIntentService.class);
-            commonIntent.setAction(Constants.ACTION_FETCH_INVENTORY_CATEGORIES);
-            getActivity().startService(commonIntent);
+            inventoryLoadRequest();
         }
+    }
+
+    private void inventoryLoadRequest() {
+        KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(false);
+        viewFlipper.setDisplayedChild(0);
+        Intent commonIntent = new Intent(getActivity(), CommonIntentService.class);
+        commonIntent.setAction(Constants.ACTION_FETCH_INVENTORY_CATEGORIES);
+        getActivity().startService(commonIntent);
+    }
+
+    private void inventoryLoadSuccess() {
+        inventoryCategoryAdapter.setNewDataOnAdapter(KolShopSingleton.getSharedInstance().getInventoryCategories());
+        viewFlipper.setDisplayedChild(1);
+    }
+
+    private void inventoryLoadFailed() {
+        viewFlipper.setDisplayedChild(2);
+        new AlertDialog.Builder(mContext)
+                .setTitle("Problem in loading inventory")
+                .setMessage("Please try again")
+                .setPositiveButton("TRY AGAIN", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        loadInventoryCategories();
+                    }
+                })
+                .setNegativeButton("CANCEL", null)
+                .show();
     }
 
 }

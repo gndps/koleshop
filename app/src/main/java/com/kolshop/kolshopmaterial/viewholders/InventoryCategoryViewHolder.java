@@ -1,5 +1,6 @@
 package com.kolshop.kolshopmaterial.viewholders;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -13,6 +14,7 @@ import com.android.volley.toolbox.ImageRequest;
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.network.volley.VolleyUtil;
+import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -48,8 +50,11 @@ public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
         this.imageUrl = imageUrl;
     }
 
-    public void sendImageFetchRequest() {
-        ImageRequest request = new ImageRequest(imageUrl,
+    public void sendImageFetchRequest(Context context) {
+        Picasso.with(context)
+                .load(imageUrl)
+                .into(circleImageViewInventoryCategory);
+        /*ImageRequest request = new ImageRequest(imageUrl,
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {
@@ -62,7 +67,7 @@ public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
                     }
                 });
         uniqueTag = CommonUtils.randomString(10);
-        VolleyUtil.getInstance().addToRequestQueue(request, uniqueTag);
+        VolleyUtil.getInstance().addToRequestQueue(request, uniqueTag);*/
     }
 
     public void cancelImageFetchRequest() {

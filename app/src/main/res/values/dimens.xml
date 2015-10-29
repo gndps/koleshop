@@ -13,4 +13,5 @@
     <dimen name="backdrop_detail_height">192dp</dimen>
     <dimen name="status_bar_height">24dp</dimen>
     <dimen name="spacing_large">16dp</dimen>
+    <dimen name="three_line_tile_height">88dp</dimen>
 </resources>

@@ -19,5 +19,7 @@ public class Constants {
 	public static String SERVER_OWNER_NAME = "kolshopserver";
 
 	public static boolean USE_LOCAL_DATABASE = true;
+
+	public static String EXCLUDED_INVENTORY_CATEGORIES_IDS = "'9','8','138'";
 	
 }

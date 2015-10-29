@@ -26,10 +26,12 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
 
     private LayoutInflater inflator;
     List<InventoryCategory> categories;
+    Context context;
 
 
     public InventoryCategoryAdapter(Context context, List<InventoryCategory> categories)
     {
+        this.context = context;
         inflator = LayoutInflater.from(context);
         this.categories = categories; //null
     }
@@ -48,7 +50,7 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
             holder.setTitle(inventoryCategory.getName());
             holder.setSubtitle(inventoryCategory.getDesc());
             holder.setImageUrl(inventoryCategory.getImageUrl());
-            holder.sendImageFetchRequest();
+            holder.sendImageFetchRequest(context);
         }
         //data.remove(position);
         //notifyItemRemoved(position);
@@ -66,9 +68,9 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
         notifyDataSetChanged();
     }
 
-    @Override
+    /*@Override
     public void onViewRecycled(InventoryCategoryViewHolder holder) {
         super.onViewRecycled(holder);
         holder.cancelImageFetchRequest();
-    }
+    }*/
 }

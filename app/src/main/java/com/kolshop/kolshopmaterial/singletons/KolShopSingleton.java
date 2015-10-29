@@ -14,6 +14,7 @@ public class KolShopSingleton {
     public String googleAccessToken;
     public int numberOfVarieties;
     public List<InventoryCategory> inventoryCategories;
+    public boolean inventoryCategoriesRequestComplete;
 
     protected KolShopSingleton() {
 
@@ -57,5 +58,13 @@ public class KolShopSingleton {
 
     public void setInventoryCategories(List<InventoryCategory> inventoryCategories) {
         this.inventoryCategories = inventoryCategories;
+    }
+
+    public boolean isInventoryCategoriesRequestComplete() {
+        return inventoryCategoriesRequestComplete;
+    }
+
+    public void setInventoryCategoriesRequestComplete(boolean inventoryCategoriesRequestComplete) {
+        this.inventoryCategoriesRequestComplete = inventoryCategoriesRequestComplete;
     }
 }

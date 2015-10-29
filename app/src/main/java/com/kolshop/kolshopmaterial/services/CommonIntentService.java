@@ -224,7 +224,12 @@ public class CommonIntentService extends IntentService {
         }
         if (result == null || !result.getSuccess()) {
             Log.e(TAG, "inventory category loading failed");
-            if(result!=null)Log.e(TAG, (String) result.getData());
+
+            if(result!=null && result.getData()!=null)Log.e(TAG, (String) result.getData());
+
+            KolShopSingleton.getSharedInstance().setInventoryCategories(null);
+            KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
+
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             return;
@@ -235,21 +240,24 @@ public class CommonIntentService extends IntentService {
         for(ArrayMap<String, String> map : list) {
             if(map!=null) {
                 InventoryCategory cat = new InventoryCategory();
+                cat.setId(Long.valueOf(map.get("id")));
                 cat.setName(map.get("name"));
                 cat.setDesc(map.get("desc"));
                 cat.setImageUrl(map.get("imageUrl"));
-                cat.setCountString(map.get("countString"));
                 cats.add(cat);
             }
         }
 
         if(cats != null && cats.size()>0) {
-            KolShopSingleton.getSharedInstance().setInventoryCategories(cats);
             Log.d(TAG, "inventory cateogires fetched");
+            KolShopSingleton.getSharedInstance().setInventoryCategories(cats);
+            KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         } else {
             Log.d(TAG, "inventory cateogires fetch failed");
+            KolShopSingleton.getSharedInstance().setInventoryCategories(null);
+            KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }

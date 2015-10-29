@@ -15,3 +15,13 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-dontwarn android.support.**
+-dontwarn com.squareup.okhttp.**
+-keep class android.support.v7.** { *; }
+-keep interface android.support.v7.** { *; }
+-keep class io.realm.annotations.RealmModule
+-keep @io.realm.annotations.RealmModule class *
+-dontwarn javax.**
+-dontwarn io.realm.**
+-keep class com.google.**
+-dontwarn com.google.**

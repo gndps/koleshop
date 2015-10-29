@@ -22,6 +22,7 @@ public class InventoryEndpoint {
 
     @ApiMethod(name = "getCategories")
     public KolResponse getCategories(@Named("userId") Long userId, @Named("sessionId") String sessionId) {
+
         KolResponse response = new KolResponse();
         List<InventoryCategory> list = null;
         try {
@@ -44,7 +45,7 @@ public class InventoryEndpoint {
     @ApiMethod(name = "exposeInventoryCategory")
     public List<InventoryCategory> justatest() {
         List<InventoryCategory> list = new ArrayList<>();
-        InventoryCategory cat = new InventoryCategory("myinventory", "cool things", "someurl", "99/99");
+        InventoryCategory cat = new InventoryCategory(1L, "myinventory", "cool things", "someurl");
         list.add(cat);
         return list;
     }
