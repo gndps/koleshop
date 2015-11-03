@@ -57,6 +57,12 @@ public class Constants {
     public static final String ACTION_FETCH_INVENTORY_CATEGORIES = "action_fetch_inventory_categories" ;
     public static final String ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS = "action_fetch_inventory_categories_success" ;
     public static final String ACTION_FETCH_INVENTORY_CATEGORIES_FAILED = "action_fetch_inventory_categories_failed" ;
+    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES = "action_fetch_inventory_subcategories" ;
+    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS = "action_fetch_inventory_subcategories_success" ;
+    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED = "action_fetch_inventory_subcategories_failed" ;
+    public static final String ACTION_FETCH_INVENTORY_PRODUCTS = "action_fetch_inventory_products" ;
+    public static final String ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS = "action_fetch_inventory_products_success" ;
+    public static final String ACTION_FETCH_INVENTORY_PRODUCTS_FAILED = "action_fetch_inventory_products_failed" ;
 
     //Shared preferences keys
     public static final String KEY_REG_ID = "registration_id";
@@ -73,5 +79,9 @@ public class Constants {
     public static final String FLAG_BRANDS_LOADED = "brands_loaded";
 
     public static final String PRICE_PROPERTY_NAME = "price";
+
+    public static final int APP_CACHE_VERSION = 1;
+    public static final String CACHE_ID_INVENTORY = "cache_id_inventory";
+
 
 }

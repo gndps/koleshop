@@ -22,12 +22,13 @@ import com.kolshop.server.commonEndpoint.model.ProductVarietyAttributeMeasuringU
 import com.kolshop.server.commonEndpoint.model.ProductVarietyAttributeMeasuringUnitCollection;
 import com.kolshop.server.yolo.inventoryEndpoint.InventoryEndpoint;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
-import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategoryCollection;
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
 import com.kolshop.server.yolo.inventoryEndpoint.model.KolResponse;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
@@ -57,6 +58,24 @@ public class CommonIntentService extends IntentService {
                 loadBrands();
             } else if (Constants.ACTION_FETCH_INVENTORY_CATEGORIES.equals(action)) {
                 fetchInventoryCategories();
+            } else if (Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES.equals(action)) {
+                Long categoryId = intent.getLongExtra("categoryId", 0L);
+                if(categoryId>0L) {
+                    fetchInventorySubcategories(categoryId);
+                } else {
+                    //broadcast failure
+                    Intent intent2 = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent2);
+                }
+            } else if (Constants.ACTION_FETCH_INVENTORY_PRODUCTS.equals(action)) {
+                Long categoryId = intent.getLongExtra("categoryId", 0L);
+                if(categoryId>0L) {
+                    fetchInventoryProductsForCategoryAndUser(categoryId);
+                } else {
+                    //broadcast failure
+                    Intent intent2 = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent2);
+                }
             }
         }
         realm.close();
@@ -224,13 +243,78 @@ public class CommonIntentService extends IntentService {
         }
         if (result == null || !result.getSuccess()) {
             Log.e(TAG, "inventory category loading failed");
-
             if(result!=null && result.getData()!=null)Log.e(TAG, (String) result.getData());
 
             KolShopSingleton.getSharedInstance().setInventoryCategories(null);
             KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
 
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+
+        } else {
+            ArrayList<ArrayMap<String, String>> list = (ArrayList<ArrayMap<String, String>>) result.getData();
+            List<InventoryCategory> cats = new ArrayList<>();
+            for (ArrayMap<String, String> map : list) {
+                if (map != null) {
+                    InventoryCategory cat = new InventoryCategory();
+                    cat.setId(Long.valueOf(map.get("id")));
+                    cat.setName(map.get("name"));
+                    cat.setDesc(map.get("desc"));
+                    cat.setImageUrl(map.get("imageUrl"));
+                    cats.add(cat);
+                }
+            }
+
+            if (cats != null && cats.size() > 0) {
+                Log.d(TAG, "inventory cateogires fetched");
+                KolShopSingleton.getSharedInstance().setInventoryCategories(cats);
+                KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
+                Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            } else {
+                Log.d(TAG, "inventory cateogires fetch failed");
+                KolShopSingleton.getSharedInstance().setInventoryCategories(null);
+                KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
+                Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            }
+        }
+    }
+
+    public void fetchInventorySubcategories(Long categoryId) {
+        InventoryEndpoint inventoryEndpoint = null;
+        InventoryEndpoint.Builder builder = new InventoryEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        inventoryEndpoint = builder.build();
+
+        KolResponse result = null;
+
+        try {
+            Context context = getApplicationContext();
+            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
+            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
+            result = inventoryEndpoint.getSubcategories(userId, sessionId, categoryId).execute();
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+        if (result == null || !result.getSuccess()) {
+            Log.e(TAG, "inventory subcategories loading failed");
+
+            if(result!=null && result.getData()!=null)Log.e(TAG, (String) result.getData());
+
+            KolShopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(null, categoryId);
+            KolShopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
+
+            Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             return;
         }
@@ -242,25 +326,110 @@ public class CommonIntentService extends IntentService {
                 InventoryCategory cat = new InventoryCategory();
                 cat.setId(Long.valueOf(map.get("id")));
                 cat.setName(map.get("name"));
-                cat.setDesc(map.get("desc"));
-                cat.setImageUrl(map.get("imageUrl"));
                 cats.add(cat);
             }
         }
 
         if(cats != null && cats.size()>0) {
-            Log.d(TAG, "inventory cateogires fetched");
-            KolShopSingleton.getSharedInstance().setInventoryCategories(cats);
-            KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
-            Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS);
+            Log.d(TAG, "inventory subcateogires fetched");
+            KolShopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(cats, categoryId);
+            KolShopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
+            Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         } else {
-            Log.d(TAG, "inventory cateogires fetch failed");
-            KolShopSingleton.getSharedInstance().setInventoryCategories(null);
-            KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
+            Log.d(TAG, "inventory subcateogires fetch failed");
+            KolShopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(null, categoryId);
+            KolShopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
 
     }
+
+    public void fetchInventoryProductsForCategoryAndUser(Long categoryId) {
+        InventoryEndpoint inventoryEndpoint = null;
+        InventoryEndpoint.Builder builder = new InventoryEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        inventoryEndpoint = builder.build();
+
+        KolResponse result = null;
+
+        try {
+            Context context = getApplicationContext();
+            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
+            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
+            result = inventoryEndpoint.getProductsForCategoryAndUser(categoryId, sessionId, userId).execute();
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+        if (result == null || !result.getSuccess()) {
+            Log.e(TAG, "products for category id " + categoryId + "loading failed");
+
+            if(result!=null && result.getData()!=null)Log.e(TAG, (String) result.getData());
+
+            KolShopSingleton.getSharedInstance().setInventoryProductsForCategoryId(null, categoryId);
+            KolShopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
+
+            Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            return;
+        }
+
+        ArrayList<ArrayMap<String, Object>> list = (ArrayList<ArrayMap<String, Object>>) result.getData();
+        List<InventoryProduct> products = new ArrayList<>();
+        if(list!=null) {
+            for (ArrayMap<String, Object> map : list) {
+                if (map != null) {
+                    InventoryProduct prod = new InventoryProduct();
+                    prod.setId(Long.valueOf((String) map.get("id")));
+                    prod.setName((String) map.get("name"));
+                    prod.setDescription((String) map.get("description"));
+                    prod.setBrand((String) map.get("brand"));
+                    prod.setAdditionalInfo((String) map.get("additionalInfo"));
+                    prod.setAdditionalInfo((String) map.get("specialDescription"));
+                    prod.setPrivateToUser(Boolean.valueOf((Boolean) map.get("privateToUser")));
+                    prod.setSelectedByUser(Boolean.valueOf((Boolean) map.get("selectedByUser")));
+                    ArrayList<ArrayMap<String, Object>> varieties = (ArrayList<ArrayMap<String, Object>>) map.get("varieties");
+                    List<InventoryProductVariety> inventoryProductVarieties = new ArrayList<>();
+                    for (ArrayMap<String, Object> variety : varieties) {
+                        InventoryProductVariety invProVar = new InventoryProductVariety();
+                        invProVar.setId(Long.valueOf((String) variety.get("id")));
+                        invProVar.setQuantity((String) variety.get("quantity"));
+                        invProVar.setPrice(((BigDecimal) variety.get("price")).floatValue());
+                        invProVar.setImageUrl((String) variety.get("imageUrl"));
+                        invProVar.setVegNonVeg((String) variety.get("vegNonVeg"));
+                        invProVar.setSelected((Boolean) variety.get("selected"));
+                        inventoryProductVarieties.add(invProVar);
+                    }
+                    prod.setVarieties(inventoryProductVarieties);
+                    products.add(prod);
+                }
+            }
+        }
+
+        if(products != null && products.size()>0) {
+            Log.d(TAG, "products fetch SUCCESS for category id " + categoryId + "." );
+            KolShopSingleton.getSharedInstance().setInventoryProductsForCategoryId(products, categoryId);
+            KolShopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
+            Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        } else {
+            Log.d(TAG, "no products exist for category id " + categoryId + "." );
+            KolShopSingleton.getSharedInstance().setInventoryProductsForCategoryId(null, categoryId);
+            KolShopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
+            Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+
+    }
+
 }

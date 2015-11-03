@@ -7,6 +7,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheContextUtils;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -32,6 +33,7 @@ public class VolleyUtil extends Application {
         mInstance = this;
         RealmConfiguration config = new RealmConfiguration.Builder(mInstance).build();
         Realm.setDefaultConfiguration(config);
+        DualCacheContextUtils.setContext(getApplicationContext());
     }
 
     public RequestQueue getRequestQueue() {

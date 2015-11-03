@@ -56,4 +56,9 @@ public class KolRecyclerTouchListener implements RecyclerView.OnItemTouchListene
     public void onTouchEvent(RecyclerView rv, MotionEvent e) {
 
     }
+
+    @Override
+    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+    }
 }

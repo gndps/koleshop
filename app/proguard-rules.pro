@@ -25,3 +25,17 @@
 -dontwarn io.realm.**
 -keep class com.google.**
 -dontwarn com.google.**
+-keep class android.support.design.widget.** { *; }
+-keep interface android.support.design.widget.** { *; }
+
+#proguard for dual cache lib
+-keep class com.vincentbrison.** { ; }
+-dontwarn com.vincentbrison.*
+-keep class com.fasterxml.jackson.databind.ObjectMapper {
+    public <methods>;
+    protected <methods>;
+}
+-keep class com.fasterxml.jackson.databind.ObjectWriter {
+    public ** writeValueAsString(**);
+}
+-keepnames class com.fasterxml.jackson.** { *; }

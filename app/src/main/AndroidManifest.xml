@@ -166,6 +166,12 @@
             android:label="@string/title_activity_select_seller_category"
             android:theme="@style/AppTheme.Base" >
         </activity>
+        <activity android:name=".activities.InventoryProductActivity" >
+        </activity>
+        <activity
+            android:name=".activities.TabAnimationActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Tabs Animation" />
     </application>
 
 </manifest>

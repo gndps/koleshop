@@ -11,6 +11,9 @@ import android.net.NetworkInfo;
 
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
+import com.vincentbrison.openlibraries.android.dualcache.lib.DualCache;
+import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheBuilder;
 
 import java.util.List;
 import java.util.Random;
@@ -119,6 +122,14 @@ public class CommonUtils {
         } else {
             return true;
         }
+    }
+
+    public static void putToDualCache(String key, Object object) {
+        @SuppressWarnings("unchecked")
+        Class<List<InventoryCategory>> cls = (Class<List<InventoryCategory>>)(Object)List.class;
+        /*DualCache<List<InventoryCategory>> cache = new DualCacheBuilder<List<InventoryCategory>>(Constants.CACHE_ID_INVENTORY, Constants.APP_CACHE_VERSION, cls)
+                .useReferenceInRam(5120, new SizeOfVehiculeForTesting())
+                .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);*/
     }
 
 }

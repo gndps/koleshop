@@ -7,7 +7,7 @@
     tools:context="com.kolshop.kolshopmaterial.fragments.product.InventoryProductFragment">
 
     <ViewFlipper
-        android:id="@+id/viewflipper_inventory_product"
+        android:id="@+id/view_flipper_inventory_product_fragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center">
@@ -17,13 +17,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center" />
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_inventory_product"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        </android.support.v7.widget.RecyclerView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -43,6 +36,40 @@
                 android:layout_gravity="center"
                 android:text="Can't load products"
                 android:textColor="@color/default_background_font" />
+
+            <Button
+                android:id="@+id/button_retry_fragment_inventory_product"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:text="RETRY"/>
+
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_inventory_product"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.RecyclerView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="No products in this category"
+                android:textColor="@color/default_background_font" />
+
+            <Button
+                android:id="@+id/button_reload_fragment_inventory_product"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:text="RELOAD"/>
 
         </LinearLayout>
 

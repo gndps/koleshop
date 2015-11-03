@@ -37,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="2"
-            android:text="this is the description of the category. lets make it long"
+            android:text="this is the description of the category. lets make the paper long"
             android:textColor="@color/secondary_text"
             android:textSize="14sp" />
 

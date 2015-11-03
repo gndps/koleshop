@@ -20,6 +20,10 @@ public class InventoryCategory {
         this.imageUrl = imageUrl;
     }
 
+    public InventoryCategory() {
+
+    }
+
     public Long getId() {
         return id;
     }

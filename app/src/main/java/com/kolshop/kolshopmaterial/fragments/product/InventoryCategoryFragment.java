@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,10 +19,9 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.kolshop.kolshopmaterial.R;
-import com.kolshop.kolshopmaterial.activities.VerifyOTPActivity;
+import com.kolshop.kolshopmaterial.activities.InventoryProductActivity;
 import com.kolshop.kolshopmaterial.adapters.InventoryCategoryAdapter;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
-import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.extensions.KolRecyclerTouchListener;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
@@ -65,11 +63,25 @@ public class InventoryCategoryFragment extends Fragment {
         recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                Intent intent = new Intent(mContext, InventoryProductActivity.class);
+                intent.putExtra("categoryId", inventoryCategoryAdapter.getInventoryCategoryId(position));
+                String categoryName = inventoryCategoryAdapter.getInventoryCategoryName(position);
+                if(categoryName!=null && !categoryName.isEmpty())
+                {
+                    intent.putExtra("categoryTitle", categoryName);
+                    startActivity(intent);
+                } else {
+                    new AlertDialog.Builder(mContext)
+                            .setTitle("Some problem occurred")
+                            .setMessage("Please try again")
+                            .setPositiveButton("OK", null)
+                            .show();
+                }
+                /*final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.exit_to_right, R.anim.enter_from_left);
                 ft.replace(R.id.fragment_container, new InventoryProductFragment(), "InventoryProductFragment");
                 ft.addToBackStack(null);
-                ft.commit();
+                ft.commit();*/
                 //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_SHORT).show();
             }
 
@@ -147,7 +159,7 @@ public class InventoryCategoryFragment extends Fragment {
     }
 
     private void inventoryLoadSuccess() {
-        inventoryCategoryAdapter.setNewDataOnAdapter(KolShopSingleton.getSharedInstance().getInventoryCategories());
+        inventoryCategoryAdapter.setData(KolShopSingleton.getSharedInstance().getInventoryCategories());
         viewFlipper.setDisplayedChild(1);
     }
 

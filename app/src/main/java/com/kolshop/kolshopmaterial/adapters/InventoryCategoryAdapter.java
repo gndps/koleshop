@@ -2,6 +2,7 @@ package com.kolshop.kolshopmaterial.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.view.PagerTabStrip;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,9 +64,35 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
         } else return 0;
     }
     
-    public void setNewDataOnAdapter(List<InventoryCategory> categories) {
+    public void setData(List<InventoryCategory> categories) {
         this.categories = categories;
         notifyDataSetChanged();
+    }
+
+    public Long getInventoryCategoryId(int position) {
+        if(categories!=null) {
+            InventoryCategory cat = categories.get(position);
+            if(cat!=null) {
+                return cat.getId();
+            } else {
+                return 0L;
+            }
+        } else {
+            return 0L;
+        }
+    }
+
+    public String getInventoryCategoryName(int position) {
+        if(categories!=null) {
+            InventoryCategory cat = categories.get(position);
+            if(cat!=null) {
+                return cat.getName();
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
     /*@Override
