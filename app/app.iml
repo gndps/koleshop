@@ -109,16 +109,16 @@
     <orderEntry type="library" exported="" name="google-oauth-client-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-8.1.0" level="project" />
     <orderEntry type="library" exported="" name="circleimageview-2.0.0" level="project" />
-    <orderEntry type="library" exported="" name="jackson-core-2.4.2" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.4.2" level="project" />
+    <orderEntry type="library" exported="" name="jackson-core-2.4.2" level="project" />
     <orderEntry type="library" exported="" name="design-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="multidex-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="google-api-client-android-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="library-1.0.15" level="project" />
     <orderEntry type="library" exported="" name="jackson-annotations-2.4.0" level="project" />
-    <orderEntry type="library" exported="" name="google-http-client-android-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="dualcache-2.2.2" level="project" />
+    <orderEntry type="library" exported="" name="google-http-client-android-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="guava-jdk5-13.0" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-jackson2-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.1.0" level="project" />
@@ -136,7 +136,6 @@
     <orderEntry type="library" exported="" name="dspec-0.1.1" level="project" />
     <orderEntry type="library" exported="" name="disklrucache-2.0.2" level="project" />
     <orderEntry type="library" exported="" name="kol backend-android-endpoints" level="project" />
-    <orderEntry type="library" exported="" name="gson-2.3.1" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="realm-android-0.83.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-23.1.0" level="project" />
@@ -144,6 +143,7 @@
     <orderEntry type="library" exported="" name="parceler-api-1.0.3" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-23.1.0" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.4" level="project" />
     <orderEntry type="library" exported="" name="org.apache.http.legacy-android-23" level="project" />
   </component>
 </module>

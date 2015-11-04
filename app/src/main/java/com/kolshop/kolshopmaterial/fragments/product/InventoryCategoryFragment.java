@@ -12,23 +12,29 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.activities.InventoryProductActivity;
 import com.kolshop.kolshopmaterial.adapters.InventoryCategoryAdapter;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.SerializationUtil;
 import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.extensions.KolRecyclerTouchListener;
+import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryCategory;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class InventoryCategoryFragment extends Fragment {
@@ -38,6 +44,7 @@ public class InventoryCategoryFragment extends Fragment {
     ViewFlipper viewFlipper;
     Context mContext;
     BroadcastReceiver mBroadcastReceiverInventoryCategoryFragment;
+    private static final String TAG = "InventoryCategoryFrag";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,8 +73,7 @@ public class InventoryCategoryFragment extends Fragment {
                 Intent intent = new Intent(mContext, InventoryProductActivity.class);
                 intent.putExtra("categoryId", inventoryCategoryAdapter.getInventoryCategoryId(position));
                 String categoryName = inventoryCategoryAdapter.getInventoryCategoryName(position);
-                if(categoryName!=null && !categoryName.isEmpty())
-                {
+                if (categoryName != null && !categoryName.isEmpty()) {
                     intent.putExtra("categoryTitle", categoryName);
                     startActivity(intent);
                 } else {
@@ -98,18 +104,9 @@ public class InventoryCategoryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(!KolShopSingleton.getSharedInstance().isInventoryCategoriesRequestComplete()) {
-            LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
-            lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS));
-            lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED));
-        } else {
-            List<InventoryCategory> list = KolShopSingleton.getSharedInstance().getInventoryCategories();
-            if(list!=null && list.size()>0) {
-                inventoryLoadSuccess();
-            } else {
-                inventoryLoadFailed();
-            }
-        }
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
+        lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS));
+        lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED));
     }
 
     private void initializeBroadcastReceivers() {
@@ -117,7 +114,7 @@ public class InventoryCategoryFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS)) {
-                    inventoryLoadSuccess();
+                    inventoryLoadSuccess(null);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED)) {
                     inventoryLoadFailed();
                 }
@@ -143,24 +140,49 @@ public class InventoryCategoryFragment extends Fragment {
     }
 
     private void loadInventoryCategories() {
-        if(KolShopSingleton.getSharedInstance().getInventoryCategories()!=null) {
-            inventoryLoadSuccess();
+        List<InventoryCategory> cachedCategories = getCachedInventoryCategories();
+        if (cachedCategories != null) {
+            inventoryLoadSuccess(cachedCategories);
         } else {
             inventoryLoadRequest();
         }
     }
 
     private void inventoryLoadRequest() {
-        KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(false);
         viewFlipper.setDisplayedChild(0);
         Intent commonIntent = new Intent(getActivity(), CommonIntentService.class);
         commonIntent.setAction(Constants.ACTION_FETCH_INVENTORY_CATEGORIES);
         getActivity().startService(commonIntent);
     }
 
-    private void inventoryLoadSuccess() {
-        inventoryCategoryAdapter.setData(KolShopSingleton.getSharedInstance().getInventoryCategories());
-        viewFlipper.setDisplayedChild(1);
+    private void inventoryLoadSuccess(List<InventoryCategory> categories) {
+        List<InventoryCategory> listOfInventoryCategories;
+        if (categories == null) {
+            listOfInventoryCategories = getCachedInventoryCategories();
+        } else {
+            listOfInventoryCategories = categories;
+        }
+        if (listOfInventoryCategories != null) {
+            inventoryCategoryAdapter.setData(listOfInventoryCategories);
+            viewFlipper.setDisplayedChild(1);
+        } else {
+            Toast.makeText(mContext, "some problem while parsing gson cached response", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private List<InventoryCategory> getCachedInventoryCategories() {
+        List<InventoryCategory> listOfInventoryCategories = null;
+        byte[] cachedGenericJsonByteArray = KoleshopSingleton.getSharedInstance().getCachedGenericJsonByteArray(Constants.CACHE_INVENTORY_CATEGORIES, Constants.TIME_TO_LIVE_INV_CAT);
+        try {
+            GenericJsonListInventoryCategory listCategory = SerializationUtil.getGenericJsonFromSerializable(cachedGenericJsonByteArray, GenericJsonListInventoryCategory.class);
+            if(listCategory!=null) {
+                listOfInventoryCategories = listCategory.getList();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "some problem while deserlzng", e);
+            return null;
+        }
+        return listOfInventoryCategories;
     }
 
     private void inventoryLoadFailed() {

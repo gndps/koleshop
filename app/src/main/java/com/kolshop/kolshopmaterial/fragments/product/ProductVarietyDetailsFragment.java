@@ -40,7 +40,7 @@ import com.kolshop.kolshopmaterial.model.realm.ProductVariety;
 import com.kolshop.kolshopmaterial.model.realm.VarietyAttribute;
 import com.kolshop.kolshopmaterial.model.realm.AttributeValue;
 import com.kolshop.kolshopmaterial.model.ProductVarietyProperty;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.kolshopmaterial.views.ViewProductProperty;
 
 import java.util.ArrayList;
@@ -126,7 +126,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
                 if (intent.getAction().equals(Constants.ACTION_PROPERTY_MODIFIED)) {
                     dateModified = new Date();
                 } else if(intent.getAction().equals(Constants.ACTION_UPDATE_PRODUCT_VARIETY_UI)) {
-                    if(KolShopSingleton.getSharedInstance().getNumberOfVarieties()==1) {
+                    if(KoleshopSingleton.getSharedInstance().getNumberOfVarieties()==1) {
                         //2 varieties converted to single variety product
                         editTextProductName.setVisibility(View.GONE);
                         textViewHeading.setText("PRODUCT DETAILS");
@@ -190,7 +190,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         }
 
         //fill up the UI details of this fragment
-        if(sortOrder==0 && KolShopSingleton.getSharedInstance().getNumberOfVarieties() == 1) {
+        if(sortOrder==0 && KoleshopSingleton.getSharedInstance().getNumberOfVarieties() == 1) {
             editTextProductName.setVisibility(View.GONE);
             textViewHeading.setText("PRODUCT DETAILS");
         } else {

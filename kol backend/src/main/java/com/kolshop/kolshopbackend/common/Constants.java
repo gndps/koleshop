@@ -20,6 +20,7 @@ public class Constants {
 
 	public static boolean USE_LOCAL_DATABASE = true;
 
-	public static String EXCLUDED_INVENTORY_CATEGORIES_IDS = "'9','8','138'";
-	
+	//Excluded Categories : Home & Kitchen Ware, Appliances, Frozen Foods, Fruits & Veg, Popular
+	public static String EXCLUDED_INVENTORY_CATEGORIES_IDS = "'9','8','13','17','138'";
+
 }

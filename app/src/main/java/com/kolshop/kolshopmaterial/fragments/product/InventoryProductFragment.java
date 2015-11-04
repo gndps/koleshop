@@ -22,7 +22,7 @@ import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.extensions.KolRecyclerTouchListener;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
@@ -130,7 +130,7 @@ public class InventoryProductFragment extends Fragment {
                 Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
             }
         }));
-        List<InventoryProduct> products = KolShopSingleton.getSharedInstance().getInventoryProductsForCategoryId(categoryId);
+        List<InventoryProduct> products = KoleshopSingleton.getSharedInstance().getInventoryProductsForCategoryId(categoryId);
         if(products!=null) {
             inventoryProductAdapter.setProductsList(products);
             viewFlipper.setDisplayedChild(2);

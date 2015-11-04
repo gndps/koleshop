@@ -10,19 +10,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.kolshop.kolshopmaterial.common.constant.Constants;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
-import com.vincentbrison.openlibraries.android.dualcache.lib.DualCache;
-import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheBuilder;
 
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.exceptions.RealmMigrationNeededException;
 
 /**
  * Created by gundeepsingh on 17/08/14.
@@ -127,7 +122,7 @@ public class CommonUtils {
     public static void putToDualCache(String key, Object object) {
         @SuppressWarnings("unchecked")
         Class<List<InventoryCategory>> cls = (Class<List<InventoryCategory>>)(Object)List.class;
-        /*DualCache<List<InventoryCategory>> cache = new DualCacheBuilder<List<InventoryCategory>>(Constants.CACHE_ID_INVENTORY, Constants.APP_CACHE_VERSION, cls)
+        /*DualCache<List<InventoryCategory>> cache = new DualCacheBuilder<List<InventoryCategory>>(Constants.CACHE_ID_STRING, Constants.APP_CACHE_VERSION, cls)
                 .useReferenceInRam(5120, new SizeOfVehiculeForTesting())
                 .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);*/
     }

@@ -3,7 +3,7 @@ package com.kolshop.kolshopmaterial.common.util;
 import com.kolshop.kolshopmaterial.model.realm.AttributeValue;
 import com.kolshop.kolshopmaterial.model.realm.VarietyAttribute;
 import com.kolshop.kolshopmaterial.model.ProductVarietyProperty;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 
 import java.util.List;
 
@@ -54,7 +54,7 @@ public class ProductUtil {
         ProductVarietyProperty priceProperty = new ProductVarietyProperty();
         VarietyAttribute va = new VarietyAttribute();
         va.setId("random" + CommonUtils.randomString(6));
-        va.setMeasuringUnitId(KolShopSingleton.getSharedInstance().getDefaultPriceMeasuringUnitId());
+        va.setMeasuringUnitId(KoleshopSingleton.getSharedInstance().getDefaultPriceMeasuringUnitId());
         va.setName("price");
         AttributeValue av = new AttributeValue();
         av.setSortOrder(0);

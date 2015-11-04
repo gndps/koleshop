@@ -27,7 +27,7 @@ import com.kolshop.kolshopmaterial.model.realm.Product;
 import com.kolshop.kolshopmaterial.model.realm.ProductVariety;
 import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
 import com.kolshop.kolshopmaterial.services.CloudEndpointService;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 
 import org.parceler.Parcels;
 
@@ -85,7 +85,7 @@ public class AddEditProductActivity extends AppCompatActivity {
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int numberOfVar = KolShopSingleton.getSharedInstance().getNumberOfVarieties();
+                int numberOfVar = KoleshopSingleton.getSharedInstance().getNumberOfVarieties();
                 if (intent.getAction().equals(Constants.ACTION_ADD_VARIETY)) {
                     if (numberOfVar < 32) {
                         addNewVariety();
@@ -235,7 +235,7 @@ public class AddEditProductActivity extends AppCompatActivity {
             description = product.getDescription();
             categoryId = product.getProductCategoryId();
             RealmList<ProductVariety> productVarieties = product.getListProductVariety();
-            KolShopSingleton.getSharedInstance().setNumberOfVarieties(getNumberOfValidVarieties(productVarieties));
+            KoleshopSingleton.getSharedInstance().setNumberOfVarieties(getNumberOfValidVarieties(productVarieties));
             Bundle basicInfoBundle = new Bundle();
             basicInfoBundle.putString("name", name);
             basicInfoBundle.putString("brand", brand);
@@ -250,7 +250,7 @@ public class AddEditProductActivity extends AppCompatActivity {
             }
         } else {
 
-            KolShopSingleton.getSharedInstance().setNumberOfVarieties(0);
+            KoleshopSingleton.getSharedInstance().setNumberOfVarieties(0);
             //prepare empty data
             this.product = new Product();
             id = "";
@@ -305,11 +305,11 @@ public class AddEditProductActivity extends AppCompatActivity {
         String fragmentTag = CommonUtils.randomString(8);
         ProductVarietyDetailsFragment productVarietyDetailsFragment = new ProductVarietyDetailsFragment();
         Bundle args = new Bundle();
-        args.putInt("sortOrder", KolShopSingleton.getSharedInstance().getNumberOfVarieties());
+        args.putInt("sortOrder", KoleshopSingleton.getSharedInstance().getNumberOfVarieties());
         productVarietyDetailsFragment.setArguments(args);
         getSupportFragmentManager().beginTransaction().add(R.id.linear_layout_product_varieties_details_container, productVarietyDetailsFragment, fragmentTag).commit();
         fragmentTagList.add(fragmentTag);
-        KolShopSingleton.getSharedInstance().increaseNumberOfVarieties();
+        KoleshopSingleton.getSharedInstance().increaseNumberOfVarieties();
         productBasicInfoShopkeeper.updateNumberOfVarieties();
         Log.d(TAG, "added a new variety with tag = " + fragmentTag);
     }
@@ -325,7 +325,7 @@ public class AddEditProductActivity extends AppCompatActivity {
             deletedProductVarieties.add(productVariety);
         }
         getSupportFragmentManager().beginTransaction().remove(frag).commit();
-        KolShopSingleton.getSharedInstance().decreaseNumberOfVarieties();
+        KoleshopSingleton.getSharedInstance().decreaseNumberOfVarieties();
         productBasicInfoShopkeeper.updateNumberOfVarieties();
         Log.d(TAG, "deleted variety with tag = " + framentTag);
     }

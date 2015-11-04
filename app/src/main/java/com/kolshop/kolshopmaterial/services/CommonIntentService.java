@@ -13,9 +13,11 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.util.ArrayMap;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
+import com.kolshop.kolshopmaterial.common.util.SerializationUtil;
 import com.kolshop.kolshopmaterial.model.MeasuringUnit;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryCategory;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.server.commonEndpoint.CommonEndpoint;
 import com.kolshop.server.commonEndpoint.model.ProductCategoryCollection;
 import com.kolshop.server.commonEndpoint.model.ProductVarietyAttributeMeasuringUnit;
@@ -29,6 +31,7 @@ import com.kolshop.server.yolo.inventoryEndpoint.model.KolResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
@@ -196,7 +199,7 @@ public class CommonIntentService extends IntentService {
         for (ProductVarietyAttributeMeasuringUnit currentMu : measuringUnits) {
             MeasuringUnit mu = new MeasuringUnit(currentMu.getId(), currentMu.getUnitType(), currentMu.getUnit(), currentMu.getBaseUnit(), currentMu.getConversionRate(), currentMu.getUnitFullName());
             if (mu.getUnitDimensions().equalsIgnoreCase("price")) {
-                KolShopSingleton.getSharedInstance().setDefaultPriceMeasuringUnitId(mu.getId());
+                KoleshopSingleton.getSharedInstance().setDefaultPriceMeasuringUnitId(mu.getId());
             }
             mUnits.add(mu);
         }
@@ -245,9 +248,6 @@ public class CommonIntentService extends IntentService {
             Log.e(TAG, "inventory category loading failed");
             if(result!=null && result.getData()!=null)Log.e(TAG, (String) result.getData());
 
-            KolShopSingleton.getSharedInstance().setInventoryCategories(null);
-            KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
-
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
@@ -267,14 +267,23 @@ public class CommonIntentService extends IntentService {
 
             if (cats != null && cats.size() > 0) {
                 Log.d(TAG, "inventory cateogires fetched");
-                KolShopSingleton.getSharedInstance().setInventoryCategories(cats);
-                KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
-                Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                GenericJsonListInventoryCategory genericCategories = new GenericJsonListInventoryCategory();
+                genericCategories.setList(cats);
+                try {
+                    //cache response and send success broadcast
+                    byte[] serializedCategories = SerializationUtil.getSerializableFromGenericJson(genericCategories);
+                    KoleshopSingleton.getSharedInstance().getDualCacheByteArray().put(Constants.CACHE_INVENTORY_CATEGORIES, serializedCategories);
+                    KoleshopSingleton.getSharedInstance().getDualCacheDate().put(Constants.CACHE_INVENTORY_CATEGORIES, new Date());
+                    Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                } catch (Exception e) {
+                    //broadcast failure
+                    Log.e(TAG, "some problem while serializing category", e);
+                    Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                }
             } else {
                 Log.d(TAG, "inventory cateogires fetch failed");
-                KolShopSingleton.getSharedInstance().setInventoryCategories(null);
-                KolShopSingleton.getSharedInstance().setInventoryCategoriesRequestComplete(true);
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             }
@@ -311,8 +320,8 @@ public class CommonIntentService extends IntentService {
 
             if(result!=null && result.getData()!=null)Log.e(TAG, (String) result.getData());
 
-            KolShopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(null, categoryId);
-            KolShopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(null, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
 
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -332,14 +341,14 @@ public class CommonIntentService extends IntentService {
 
         if(cats != null && cats.size()>0) {
             Log.d(TAG, "inventory subcateogires fetched");
-            KolShopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(cats, categoryId);
-            KolShopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(cats, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         } else {
             Log.d(TAG, "inventory subcateogires fetch failed");
-            KolShopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(null, categoryId);
-            KolShopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventorySubcategoriesForCategoryId(null, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventorySubcatRequestComplete(true, categoryId);
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
@@ -376,8 +385,8 @@ public class CommonIntentService extends IntentService {
 
             if(result!=null && result.getData()!=null)Log.e(TAG, (String) result.getData());
 
-            KolShopSingleton.getSharedInstance().setInventoryProductsForCategoryId(null, categoryId);
-            KolShopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventoryProductsForCategoryId(null, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
 
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -418,14 +427,14 @@ public class CommonIntentService extends IntentService {
 
         if(products != null && products.size()>0) {
             Log.d(TAG, "products fetch SUCCESS for category id " + categoryId + "." );
-            KolShopSingleton.getSharedInstance().setInventoryProductsForCategoryId(products, categoryId);
-            KolShopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventoryProductsForCategoryId(products, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         } else {
             Log.d(TAG, "no products exist for category id " + categoryId + "." );
-            KolShopSingleton.getSharedInstance().setInventoryProductsForCategoryId(null, categoryId);
-            KolShopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventoryProductsForCategoryId(null, categoryId);
+            KoleshopSingleton.getSharedInstance().setInventoryProductRequestComplete(true, categoryId);
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }

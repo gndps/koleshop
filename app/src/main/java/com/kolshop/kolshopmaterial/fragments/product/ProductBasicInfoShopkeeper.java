@@ -23,10 +23,9 @@ import android.widget.TextView;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
-import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
 import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +110,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
     public void updateNumberOfVarieties()
     {
-        textViewNumberOfVarieties.setText(KolShopSingleton.getSharedInstance().getNumberOfVarieties() + "");
+        textViewNumberOfVarieties.setText(KoleshopSingleton.getSharedInstance().getNumberOfVarieties() + "");
     }
 
     public void loadCategories() {

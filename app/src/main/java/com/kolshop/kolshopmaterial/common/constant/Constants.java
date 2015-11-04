@@ -81,7 +81,17 @@ public class Constants {
     public static final String PRICE_PROPERTY_NAME = "price";
 
     public static final int APP_CACHE_VERSION = 1;
-    public static final String CACHE_ID_INVENTORY = "cache_id_inventory";
+    public static final String CACHE_ID_STRING = "cache_id_string";
+    public static final String CACHE_ID_DATE = "cache_id_date";
+    public static final int RAM_CACHE_SIZE_STRING = 5 * 1024 * 1024; // 5 mb
+    public static final int DISK_CACHE_SIZE_STRING = 15 * 1024 * 1024; //15 mb
+    public static final int RAM_CACHE_SIZE_DATE = 1 * 1024 * 1024; // 5 mb
+    public static final int DISK_CACHE_SIZE_DATE = 3 * 1024 * 1024; //15 mb
+
+
+    //DualCache keys and expiration time
+    public static final String CACHE_INVENTORY_CATEGORIES = "cache_inventory_categories";
+    public static final int TIME_TO_LIVE_INV_CAT = 5; //cache_inventory_categories will expire in 5 minutes
 
 
 }

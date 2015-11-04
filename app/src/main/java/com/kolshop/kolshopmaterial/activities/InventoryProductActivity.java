@@ -17,7 +17,7 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.adapters.InventoryCategoryViewPagerAdapter;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
-import com.kolshop.kolshopmaterial.singletons.KolShopSingleton;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
 
 import java.util.List;
@@ -117,7 +117,7 @@ public class InventoryProductActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         InventoryCategoryViewPagerAdapter adapter = new InventoryCategoryViewPagerAdapter(getSupportFragmentManager());
-        List<InventoryCategory> categories = KolShopSingleton.getSharedInstance().getInventorySubcategoriesForCategoryId(parentCategoryId);
+        List<InventoryCategory> categories = KoleshopSingleton.getSharedInstance().getInventorySubcategoriesForCategoryId(parentCategoryId);
         adapter.setInventoryCategories(categories);
         viewPager.setAdapter(adapter);
     }
