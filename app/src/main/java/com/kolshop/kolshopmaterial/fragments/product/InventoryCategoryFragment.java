@@ -173,6 +173,9 @@ public class InventoryCategoryFragment extends Fragment {
     private List<InventoryCategory> getCachedInventoryCategories() {
         List<InventoryCategory> listOfInventoryCategories = null;
         byte[] cachedGenericJsonByteArray = KoleshopSingleton.getSharedInstance().getCachedGenericJsonByteArray(Constants.CACHE_INVENTORY_CATEGORIES, Constants.TIME_TO_LIVE_INV_CAT);
+        if(cachedGenericJsonByteArray==null) {
+            return null;
+        }
         try {
             GenericJsonListInventoryCategory listCategory = SerializationUtil.getGenericJsonFromSerializable(cachedGenericJsonByteArray, GenericJsonListInventoryCategory.class);
             if(listCategory!=null) {

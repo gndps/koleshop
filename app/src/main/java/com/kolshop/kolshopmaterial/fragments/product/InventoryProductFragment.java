@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +20,10 @@ import android.widget.ViewFlipper;
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.adapters.InventoryProductAdapter;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.SerializationUtil;
 import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.extensions.KolRecyclerTouchListener;
+import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryProduct;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
 import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
@@ -38,6 +41,7 @@ public class InventoryProductFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiverInventoryProductFragment;
     private Long categoryId;
     Button buttonRetry, buttonReload;
+    private final static String TAG = "InventProductFragment";
 
     public InventoryProductFragment() {
         // Required empty public constructor
@@ -87,7 +91,7 @@ public class InventoryProductFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                 if(isAdded()) {
                     if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS)) {
-                        loadProducts();
+                        loadProducts(null);
                     } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED)) {
                         couldNotLoadProducts();
                     }
@@ -104,13 +108,43 @@ public class InventoryProductFragment extends Fragment {
     }
 
     private void fetchProducts() {
+        List<InventoryProduct> listOfProducts = getCachedProducts();
+        if(listOfProducts!=null && listOfProducts.size()>0) {
+            loadProducts(listOfProducts);
+        } else {
+            fetchProductsFromInternet();
+        }
+    }
+
+    private void fetchProductsFromInternet() {
+        Log.d(TAG, "will fetch products from internet for category id = " + categoryId);
         Intent intent = new Intent(mContext, CommonIntentService.class);
         intent.setAction(Constants.ACTION_FETCH_INVENTORY_PRODUCTS);
         intent.putExtra("categoryId", categoryId);
         mContext.startService(intent);
     }
 
-    private void loadProducts() {
+    private List<InventoryProduct> getCachedProducts() {
+        String cacheKey = Constants.CACHE_INVENTORY_PRODUCTS + categoryId;
+        byte[] productByteArray = KoleshopSingleton.getSharedInstance().getCachedGenericJsonByteArray(cacheKey, Constants.TIME_TO_LIVE_INV_PRODUCT);
+        if(productByteArray!=null && productByteArray.length>0) {
+            try {
+                GenericJsonListInventoryProduct genericProducts = SerializationUtil.getGenericJsonFromSerializable(productByteArray, GenericJsonListInventoryProduct.class);
+                if(genericProducts!=null) {
+                    List<InventoryProduct> products = genericProducts.getList();
+                    return products;
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private void loadProducts(List<InventoryProduct> listOfProducts) {
         recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .margin(getResources().getDimensionPixelSize(R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
@@ -130,7 +164,13 @@ public class InventoryProductFragment extends Fragment {
                 Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
             }
         }));
-        List<InventoryProduct> products = KoleshopSingleton.getSharedInstance().getInventoryProductsForCategoryId(categoryId);
+        recyclerView.setVerticalScrollBarEnabled(true);
+        List<InventoryProduct> products;
+        if(listOfProducts!=null && listOfProducts.size()>0) {
+            products = listOfProducts;
+        } else {
+            products = getCachedProducts();
+        }
         if(products!=null) {
             inventoryProductAdapter.setProductsList(products);
             viewFlipper.setDisplayedChild(2);

@@ -1,4 +1,4 @@
-package com.kolshop.kolshopmaterial.viewholders;
+package com.kolshop.kolshopmaterial.viewholders.inventory;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,31 +19,43 @@ import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by Gundeep on 19/10/15.
+ * Created by Gundeep on 14/10/15.
  */
-public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
+public class InventoryProductViewHolder extends RecyclerView.ViewHolder {
 
     private int IMAGE_SIZE_XXXDPI = 160;//px
+    private static final int VIEW_TYPE_HEADER = 0x01;
+    private static final int VIEW_TYPE_CONTENT = 0x00;
 
-    public TextView textViewTitleInventoryCategory;
-    public TextView textViewSubtitleInventoryCategory;
-    public CircleImageView circleImageViewInventoryCategory;
+    public TextView textViewTitleProductMasterList; // will also be used as header text
+    public TextView textViewSubtitleProductMasterList;
+    public CheckBox checkBoxProductMasterList;
+    public CircleImageView circleImageViewProductMasterList;
     private String imageUrl;
     private String uniqueTag;
 
-    public InventoryCategoryViewHolder(View view) {
+    public InventoryProductViewHolder(View view, int viewType) {
         super(view);
-        this.textViewTitleInventoryCategory = (TextView) view.findViewById(R.id.textview_title_inventory_category);
-        this.textViewSubtitleInventoryCategory = (TextView) view.findViewById(R.id.textview_subtitle_inventory_category);
-        this.circleImageViewInventoryCategory = (CircleImageView) view.findViewById(R.id.circleiv_inventory_category);
+        if(viewType == VIEW_TYPE_HEADER) {
+            this.textViewTitleProductMasterList = (TextView) view.findViewById(R.id.tv_inventory_product_header);
+        } else {
+            this.textViewTitleProductMasterList = (TextView) view.findViewById(R.id.textViewTitleProductMasterListItem);
+            this.textViewSubtitleProductMasterList = (TextView) view.findViewById(R.id.textViewSubtitleProductMasterListItem);
+            this.checkBoxProductMasterList = (CheckBox) view.findViewById(R.id.checkboxProductMasterListItem);
+            this.circleImageViewProductMasterList = (CircleImageView) view.findViewById(R.id.circleImageViewProductMasterListItem);
+        }
     }
 
     public void setTitle(String title) {
-        textViewTitleInventoryCategory.setText(title);
+        textViewTitleProductMasterList.setText(title);
     }
 
     public void setSubtitle(String subtitle) {
-        textViewSubtitleInventoryCategory.setText(subtitle);
+        textViewSubtitleProductMasterList.setText(subtitle);
+    }
+
+    public void setChecked(boolean checked) {
+        checkBoxProductMasterList.setChecked(checked);
     }
 
     public void setImageUrl(String imageUrl) {
@@ -53,17 +65,17 @@ public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
     public void sendImageFetchRequest(Context context) {
         Picasso.with(context)
                 .load(imageUrl)
-                .into(circleImageViewInventoryCategory);
+                .into(circleImageViewProductMasterList);
         /*ImageRequest request = new ImageRequest(imageUrl,
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {
-                        circleImageViewInventoryCategory.setImageBitmap(bitmap);
+                        circleImageViewProductMasterList.setImageBitmap(bitmap);
                     }
                 }, IMAGE_SIZE_XXXDPI, IMAGE_SIZE_XXXDPI, ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
-                        circleImageViewInventoryCategory.setImageResource(R.drawable.image_just_gray);
+                        circleImageViewProductMasterList.setImageResource(R.drawable.image_just_gray);
                     }
                 });
         uniqueTag = CommonUtils.randomString(10);
@@ -73,5 +85,4 @@ public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
     public void cancelImageFetchRequest() {
         VolleyUtil.getInstance().cancelRequestsWithTag(uniqueTag);
     }
-
 }

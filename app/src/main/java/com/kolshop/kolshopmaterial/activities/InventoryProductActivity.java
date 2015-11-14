@@ -10,12 +10,15 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ViewFlipper;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.adapters.InventoryCategoryViewPagerAdapter;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.SerializationUtil;
+import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryCategory;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
 import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
@@ -31,6 +34,7 @@ public class InventoryProductActivity extends AppCompatActivity {
     private BroadcastReceiver inventoryProductBroadcastReceiver;
     TabLayout tabLayout;
     ViewPager viewPager;
+    private static final String TAG = "InventoryPrductActity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +53,6 @@ public class InventoryProductActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //todo subscribe only if categories don't exist in cache
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(inventoryProductBroadcastReceiver, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS));
         lbm.registerReceiver(inventoryProductBroadcastReceiver, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED));
@@ -60,7 +63,7 @@ public class InventoryProductActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS)) {
-                    loadCategories();
+                    loadCategories(null);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED)) {
                     failedLoadingCategories();
                 }
@@ -93,10 +96,39 @@ public class InventoryProductActivity extends AppCompatActivity {
     }
 
     private void fetchCategories() {
-        //todo check for cache here
+        List<InventoryCategory> list = getCachedSubcategories();
+        if(list!=null && list.size()>0) {
+            loadCategories(list);
+        } else {
+            requestCategoriesFromInternet();
+        }
+    }
+
+    private List<InventoryCategory> getCachedSubcategories() {
+        String cacheKey = Constants.CACHE_INVENTORY_SUBCATEGORIES + parentCategoryId;
+        byte[] cachedSubcategoriesByteArray = KoleshopSingleton.getSharedInstance().getCachedGenericJsonByteArray(cacheKey, Constants.TIME_TO_LIVE_INV_SUBCAT);
+        if(cachedSubcategoriesByteArray!=null && cachedSubcategoriesByteArray.length>0) {
+            try {
+                GenericJsonListInventoryCategory genericJsonListInventoryCategory = SerializationUtil.getGenericJsonFromSerializable(cachedSubcategoriesByteArray, GenericJsonListInventoryCategory.class);
+                List<InventoryCategory> subcategories = genericJsonListInventoryCategory.getList();
+                if(subcategories!=null && subcategories.size()>0) {
+                    return subcategories;
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "some problem occurred in deserializing subcategories", e);
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private void requestCategoriesFromInternet() {
         viewFlipper.setVisibility(View.VISIBLE);
         viewFlipper.setDisplayedChild(0);
-        if(viewPager!=null) {
+        if (viewPager != null) {
             viewPager.setVisibility(View.GONE);
         }
         tabLayout.setVisibility(View.GONE);
@@ -106,18 +138,23 @@ public class InventoryProductActivity extends AppCompatActivity {
         startService(serviceIntent);
     }
 
-    private void loadCategories() {
+    private void loadCategories(List<InventoryCategory> list) {
         viewFlipper.setVisibility(View.GONE);
         viewPager = (ViewPager) findViewById(R.id.view_pager_inventory_product);
         viewPager.setVisibility(View.VISIBLE);
-        setupViewPager(viewPager);
+        setupViewPager(viewPager, list);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    private void setupViewPager(ViewPager viewPager) {
+    private void setupViewPager(ViewPager viewPager, List<InventoryCategory> subcategories) {
         InventoryCategoryViewPagerAdapter adapter = new InventoryCategoryViewPagerAdapter(getSupportFragmentManager());
-        List<InventoryCategory> categories = KoleshopSingleton.getSharedInstance().getInventorySubcategoriesForCategoryId(parentCategoryId);
+        List<InventoryCategory> categories;
+        if(subcategories!=null && subcategories.size()>0){
+            categories = subcategories;
+        } else {
+            categories = getCachedSubcategories();
+        }
         adapter.setInventoryCategories(categories);
         viewPager.setAdapter(adapter);
     }

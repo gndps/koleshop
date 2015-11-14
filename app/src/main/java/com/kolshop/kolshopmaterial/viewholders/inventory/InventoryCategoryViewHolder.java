@@ -1,4 +1,4 @@
-package com.kolshop.kolshopmaterial.viewholders;
+package com.kolshop.kolshopmaterial.viewholders.inventory;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,37 +19,31 @@ import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by Gundeep on 14/10/15.
+ * Created by Gundeep on 19/10/15.
  */
-public class InventoryProductViewHolder extends RecyclerView.ViewHolder {
+public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
 
     private int IMAGE_SIZE_XXXDPI = 160;//px
 
-    public TextView textViewTitleProductMasterList;
-    public TextView textViewSubtitleProductMasterList;
-    public CheckBox checkBoxProductMasterList;
-    public CircleImageView circleImageViewProductMasterList;
+    public TextView textViewTitleInventoryCategory;
+    public TextView textViewSubtitleInventoryCategory;
+    public CircleImageView circleImageViewInventoryCategory;
     private String imageUrl;
     private String uniqueTag;
 
-    public InventoryProductViewHolder(View view) {
+    public InventoryCategoryViewHolder(View view) {
         super(view);
-        this.textViewTitleProductMasterList = (TextView) view.findViewById(R.id.textViewTitleProductMasterListItem);
-        this.textViewSubtitleProductMasterList = (TextView) view.findViewById(R.id.textViewSubtitleProductMasterListItem);
-        this.checkBoxProductMasterList = (CheckBox) view.findViewById(R.id.checkboxProductMasterListItem);
-        this.circleImageViewProductMasterList = (CircleImageView) view.findViewById(R.id.circleImageViewProductMasterListItem);
+        this.textViewTitleInventoryCategory = (TextView) view.findViewById(R.id.textview_title_inventory_category);
+        this.textViewSubtitleInventoryCategory = (TextView) view.findViewById(R.id.textview_subtitle_inventory_category);
+        this.circleImageViewInventoryCategory = (CircleImageView) view.findViewById(R.id.circleiv_inventory_category);
     }
 
     public void setTitle(String title) {
-        textViewTitleProductMasterList.setText(title);
+        textViewTitleInventoryCategory.setText(title);
     }
 
     public void setSubtitle(String subtitle) {
-        textViewSubtitleProductMasterList.setText(subtitle);
-    }
-
-    public void setChecked(boolean checked) {
-        checkBoxProductMasterList.setChecked(checked);
+        textViewSubtitleInventoryCategory.setText(subtitle);
     }
 
     public void setImageUrl(String imageUrl) {
@@ -59,17 +53,17 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder {
     public void sendImageFetchRequest(Context context) {
         Picasso.with(context)
                 .load(imageUrl)
-                .into(circleImageViewProductMasterList);
+                .into(circleImageViewInventoryCategory);
         /*ImageRequest request = new ImageRequest(imageUrl,
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {
-                        circleImageViewProductMasterList.setImageBitmap(bitmap);
+                        circleImageViewInventoryCategory.setImageBitmap(bitmap);
                     }
                 }, IMAGE_SIZE_XXXDPI, IMAGE_SIZE_XXXDPI, ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
-                        circleImageViewProductMasterList.setImageResource(R.drawable.image_just_gray);
+                        circleImageViewInventoryCategory.setImageResource(R.drawable.image_just_gray);
                     }
                 });
         uniqueTag = CommonUtils.randomString(10);
@@ -79,4 +73,5 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder {
     public void cancelImageFetchRequest() {
         VolleyUtil.getInstance().cancelRequestsWithTag(uniqueTag);
     }
+
 }

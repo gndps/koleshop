@@ -1,23 +1,15 @@
 package com.kolshop.kolshopmaterial.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.view.PagerTabStrip;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.volley.toolbox.ImageRequest;
 import com.kolshop.kolshopmaterial.R;
-import com.kolshop.kolshopmaterial.common.constant.Constants;
-import com.kolshop.kolshopmaterial.model.Product;
-import com.kolshop.kolshopmaterial.services.CommonIntentService;
-import com.kolshop.kolshopmaterial.viewholders.InventoryCategoryViewHolder;
-import com.kolshop.kolshopmaterial.viewholders.InventoryProductViewHolder;
+import com.kolshop.kolshopmaterial.viewholders.inventory.InventoryCategoryViewHolder;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
 
-import java.util.Collections;
 import java.util.List;
 
 /**

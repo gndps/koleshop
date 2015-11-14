@@ -92,6 +92,9 @@ public class Constants {
     //DualCache keys and expiration time
     public static final String CACHE_INVENTORY_CATEGORIES = "cache_inventory_categories";
     public static final int TIME_TO_LIVE_INV_CAT = 5; //cache_inventory_categories will expire in 5 minutes
-
+    public static final String CACHE_INVENTORY_SUBCATEGORIES = "cache_inventory_subcategories_"; //this key will be extended by the parent category id
+    public static final int TIME_TO_LIVE_INV_SUBCAT = 5; //cache_inventory_subcategories_x will expire in 5 minutes
+    public static final String CACHE_INVENTORY_PRODUCTS = "cache_inventory_products_"; //this key will be extended by the category id
+    public static final int TIME_TO_LIVE_INV_PRODUCT = 7; //cache_inventory_subcategories_x will expire in 5 minutes
 
 }
