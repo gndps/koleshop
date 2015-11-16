@@ -2,7 +2,7 @@
 <resources>
 
 
-    <string-array name="home_activities">
+    <!--string-array name="home_activities">
         <item>FAB &amp; Toolbar Animation</item>
         <item>Transparent Toolbar Test</item>
         <item>Navigation Drawer</item>
@@ -27,7 +27,7 @@
         <item>Circular Reveal for pre Lollipop</item>
         <item>Colored list icons</item>
 
-    </string-array>
+    </string-array-->
 
 
 </resources>

@@ -59,7 +59,10 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
             }
             mItems.add(new LineItem("", false, sectionFirstPosition, products.get(i)));
         }
-        notifyDataSetChanged();
+
+        Log.d(TAG, "setting new product list with size " + productsList.size());
+
+        //notifyDataSetChanged();
     }
 
     //Item viewholder methods
@@ -77,50 +80,39 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         }
 
         InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType);
+        Log.d(TAG, "on create view holder");
         return holder;
     }
 
     @Override
     public void onBindViewHolder(InventoryProductViewHolder holder, int position) {
-        //bind view holder
-        LineItem item = mItems.get(position);
-        if(item.isHeader) {
-            holder.setTitle(item.text);
-        } else {
-            InventoryProduct product = item.product;
-            holder.setTitle(product.getName());
-            holder.setSubtitle(product.getDescription());
-            holder.setChecked(product.getSelectedByUser());
-            List<InventoryProductVariety> varieties = product.getVarieties();
-            String imageUrl = varieties.get(0).getImageUrl();
-            String smallSizeImageUrl = imageUrl.replaceFirst("small", "prod-image/286X224");
-            holder.setImageUrl(smallSizeImageUrl);
-            //todo launch this request when kolserver image server is working
-            //holder.sendImageFetchRequest(context);
-        }
 
+        LineItem item = mItems.get(position);
         final View itemView = holder.itemView;
+
+        holder.bindData(item.isHeader?VIEW_TYPE_HEADER:VIEW_TYPE_CONTENT, item.text, item.product);
 
         //sticky header shit
         final GridSLM.LayoutParams lp = GridSLM.LayoutParams.from(itemView.getLayoutParams());
         // Overrides xml attrs, could use different layouts too.
         if (item.isHeader) {
             lp.headerDisplay = LayoutManager.LayoutParams.HEADER_STICKY | LayoutManager.LayoutParams.HEADER_INLINE;
-            Log.d("omgshit" , "" + (LayoutManager.LayoutParams.HEADER_STICKY | LayoutManager.LayoutParams.HEADER_INLINE));
+            //Log.d("omgshit" , "" + (LayoutManager.LayoutParams.HEADER_STICKY | LayoutManager.LayoutParams.HEADER_INLINE));
             lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
             lp.headerEndMarginIsAuto = true;
             lp.headerStartMarginIsAuto = true;
         }
         lp.setSlm(LinearSLM.ID);
-        //lp.setColumnWidth(mContext.getResources().getDimensionPixelSize(R.dimen.grid_column_width));
+        //lp.setColumnWidth(96);
         lp.setFirstPosition(item.sectionFirstPosition);
         itemView.setLayoutParams(lp);
+        Log.d(TAG, "on bind view holder position " + position);
     }
 
     @Override
     public int getItemCount() {
         if(mItems!=null) {
-            Log.d(TAG, "mItems.size()=" + mItems.size());
+            //Log.d(TAG, "mItems.size()=" + mItems.size());
             return mItems.size();
         } else {
             return 0;

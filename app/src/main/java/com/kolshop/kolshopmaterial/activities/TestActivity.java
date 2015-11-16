@@ -1,7 +1,8 @@
 package com.kolshop.kolshopmaterial.activities;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,16 +10,31 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
+import com.kolshop.kolshopmaterial.fragments.product.InventoryProductFragment;
 
-public class TestActivity extends ActionBarActivity {
+public class TestActivity extends AppCompatActivity {
 
     private Button button;
+    private final static String TAG_COUNTRIES_FRAGMENT = "tag_jse";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        button = (Button) findViewById(R.id.buttonTest);
+        if (savedInstanceState == null) {
+            InventoryProductFragment fragment = new InventoryProductFragment();
+            Bundle bundl = new Bundle();
+            bundl.putLong("categoryId", 120l);
+            fragment.setArguments(bundl);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, fragment, TAG_COUNTRIES_FRAGMENT)
+                            .commit();
+        }
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
     }
 
 

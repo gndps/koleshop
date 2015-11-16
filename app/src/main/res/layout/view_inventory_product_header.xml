@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="32dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center_vertical"
     android:paddingLeft="16dp"
     android:singleLine="true"
-    android:textAllCaps="true"
     android:textColor="@color/secondary_text"
-    android:background="@android:color/white"
-    android:textSize="16sp"
+    android:background="@color/offwhite"
+    android:textSize="13sp"
     android:id="@+id/tv_inventory_product_header"
-    android:textStyle="bold" />
+    android:textStyle="bold"
+    app:slm_headerDisplay="inline|start|sticky"
+    app:slm_isHeader="true"
+    android:elevation="1dp"
+    app:slm_section_headerMarginStart="56dip"
+    app:slm_section_sectionManager="linear"/>

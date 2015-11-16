@@ -27,7 +27,7 @@ import java.util.List;
 
 public class InventoryProductActivity extends AppCompatActivity {
 
-    Long parentCategoryId;
+    long parentCategoryId;
     String categoryTitle;
     Context mContext;
     ViewFlipper viewFlipper;
@@ -63,9 +63,15 @@ public class InventoryProductActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS)) {
-                    loadCategories(null);
+                    long receivedCategoryId = intent.getLongExtra("catId", 0l);
+                    if(receivedCategoryId == parentCategoryId) {
+                        loadCategories(null);
+                    }
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED)) {
-                    failedLoadingCategories();
+                    Long receivedCategoryId = intent.getLongExtra("catId", 0l);
+                    if(receivedCategoryId == parentCategoryId) {
+                        failedLoadingCategories();
+                    }
                 }
             }
         };
@@ -142,6 +148,7 @@ public class InventoryProductActivity extends AppCompatActivity {
         viewFlipper.setVisibility(View.GONE);
         viewPager = (ViewPager) findViewById(R.id.view_pager_inventory_product);
         viewPager.setVisibility(View.VISIBLE);
+        //viewPager.setOffscreenPageLimit(1); 1 is default
         setupViewPager(viewPager, list);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(viewPager);

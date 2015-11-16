@@ -21,5 +21,6 @@
     <color name="white">#ffffff</color>
     <color name="default_background">#eeeeee</color>
     <color name="default_background_font">#B7B6B7</color>
+    <color name="offwhite">#FAFAFA</color>
 
 </resources>

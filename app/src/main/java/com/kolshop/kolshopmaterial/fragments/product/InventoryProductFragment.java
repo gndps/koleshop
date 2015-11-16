@@ -27,6 +27,7 @@ import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryPro
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
 import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
+import com.tonicartos.superslim.LayoutManager;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class InventoryProductFragment extends Fragment {
     private Context mContext;
     private ViewFlipper viewFlipper;
     BroadcastReceiver mBroadcastReceiverInventoryProductFragment;
-    private Long categoryId;
+    private long categoryId;
     Button buttonRetry, buttonReload;
     private final static String TAG = "InventProductFragment";
 
@@ -73,6 +74,8 @@ public class InventoryProductFragment extends Fragment {
         buttonRetry.setOnClickListener(retryClickListener);
         buttonReload.setOnClickListener(retryClickListener);
         initializeBroadcastReceivers();
+        LayoutManager lm = new LayoutManager(getActivity());
+        recyclerView.setLayoutManager(lm);
         fetchProducts();
         return layout;
     }
@@ -91,9 +94,20 @@ public class InventoryProductFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                 if(isAdded()) {
                     if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS)) {
-                        loadProducts(null);
+                        long receivedCategoryId = intent.getLongExtra("catId", 0l);
+                        //Log.d(TAG, "receivedCategoryId = " + receivedCategoryId + " and categoryId = " + categoryId);
+                        if(receivedCategoryId == categoryId) {
+                            //Log.d(TAG, "yippie...will load products now for categoryId = " + categoryId);
+                            loadProducts(null);
+                        } else {
+                            //Log.d(TAG, "wtf is happening");
+                        }
                     } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED)) {
-                        couldNotLoadProducts();
+                        long receivedCategoryId = intent.getLongExtra("catId", 0l);
+                        //Log.d(TAG, "FAIL...receivedCategoryId = " + receivedCategoryId + " and categoryId = " + categoryId);
+                        if(receivedCategoryId == categoryId) {
+                            couldNotLoadProducts();
+                        }
                     }
                 }
             }
@@ -145,13 +159,12 @@ public class InventoryProductFragment extends Fragment {
     }
 
     private void loadProducts(List<InventoryProduct> listOfProducts) {
-        recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
+        /*recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .margin(getResources().getDimensionPixelSize(R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
-                .build());
+                .build());*/
         inventoryProductAdapter = new InventoryProductAdapter(getActivity());
         recyclerView.setAdapter(inventoryProductAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setHasFixedSize(true);
         recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
             @Override
@@ -164,7 +177,7 @@ public class InventoryProductFragment extends Fragment {
                 Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
             }
         }));
-        recyclerView.setVerticalScrollBarEnabled(true);
+        //recyclerView.setVerticalScrollBarEnabled(true); //no need of scroll bar...google play doesn't have it
         List<InventoryProduct> products;
         if(listOfProducts!=null && listOfProducts.size()>0) {
             products = listOfProducts;
@@ -173,8 +186,10 @@ public class InventoryProductFragment extends Fragment {
         }
         if(products!=null) {
             inventoryProductAdapter.setProductsList(products);
+            //Log.d(TAG, "will set view flipper 2 for category id =" + categoryId);
             viewFlipper.setDisplayedChild(2);
         } else {
+            //Log.d(TAG, "will set view flipper 3 for category id =" + categoryId );
             viewFlipper.setDisplayedChild(3);
         }
     }

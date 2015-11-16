@@ -14,7 +14,11 @@ import com.android.volley.toolbox.ImageRequest;
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.network.volley.VolleyUtil;
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -84,5 +88,24 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder {
 
     public void cancelImageFetchRequest() {
         VolleyUtil.getInstance().cancelRequestsWithTag(uniqueTag);
+    }
+
+    public void bindData(int viewType, String title, InventoryProduct product) {
+        //bind view holder
+        if(viewType == VIEW_TYPE_HEADER) {
+            setTitle(title);
+        } else {
+            setTitle(product.getName());
+            setSubtitle(product.getDescription());
+            setChecked(product.getSelectedByUser());
+            List<InventoryProductVariety> varieties = product.getVarieties();
+            if(varieties!=null) {
+                String imageUrl = varieties.get(0).getImageUrl();
+                String smallSizeImageUrl = imageUrl.replaceFirst("small", "prod-image/286X224");
+                setImageUrl(smallSizeImageUrl);
+                //todo launch this request when kolserver image server is working
+                //holder.sendImageFetchRequest(context);
+            }
+        }
     }
 }

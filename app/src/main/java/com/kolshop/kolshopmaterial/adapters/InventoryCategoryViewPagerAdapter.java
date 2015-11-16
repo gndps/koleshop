@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerTabStrip;
+import android.util.Log;
 
 import com.kolshop.kolshopmaterial.fragments.product.InventoryProductFragment;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
@@ -19,6 +20,7 @@ import java.util.List;
 public class InventoryCategoryViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<InventoryCategory> inventoryCategories = new ArrayList<>();
+    private static final String TAG = "InventoryCatViewPager";
 
     public InventoryCategoryViewPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -28,8 +30,10 @@ public class InventoryCategoryViewPagerAdapter extends FragmentStatePagerAdapter
     public Fragment getItem(int position) {
         InventoryProductFragment fragment = new InventoryProductFragment();
         Bundle bundl = new Bundle();
-        bundl.putLong("categoryId", inventoryCategories.get(position).getId());
+        long categoryId = inventoryCategories.get(position).getId();
+        bundl.putLong("categoryId", categoryId);
         fragment.setArguments(bundl);
+        Log.d(TAG, "view pager load page with categoryId = " + categoryId);
         return fragment;
     }
 

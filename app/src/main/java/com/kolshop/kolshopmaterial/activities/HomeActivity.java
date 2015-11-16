@@ -25,6 +25,7 @@ import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.fragments.DummyHomeFragment;
+import com.kolshop.kolshopmaterial.fragments.product.InventoryProductFragment;
 import com.kolshop.kolshopmaterial.fragments.product.ProductListFragment;
 import com.kolshop.kolshopmaterial.fragments.product.InventoryCategoryFragment;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
@@ -94,7 +95,7 @@ public class HomeActivity extends AppCompatActivity {
                         InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container, inventoryCategoryFragment).commit();
-                        Snackbar.make(content, menuItem.getTitle() + " opened", Snackbar.LENGTH_LONG).show();
+                        //Snackbar.make(content, menuItem.getTitle() + " opened", Snackbar.LENGTH_LONG).show();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
                         return true;
@@ -116,8 +117,8 @@ public class HomeActivity extends AppCompatActivity {
                     case R.id.drawer_login:
                         //Log In  or Log out
                         drawerLayout.closeDrawers();
-                        Intent intent = new Intent(mContext, VerifyPhoneNumberActivity.class);
-                        startActivity(intent);
+                        Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
+                        startActivity(intentLogin);
                         return true;
                     case R.id.drawer_logout:
                         drawerLayout.closeDrawers();
@@ -127,7 +128,15 @@ public class HomeActivity extends AppCompatActivity {
                         view.getMenu().findItem(R.id.drawer_login).setVisible(true);
                         view.getMenu().findItem(R.id.drawer_logout).setVisible(false);
                         return true;
-
+                    /*case R.id.drawer_test:
+                        getSupportActionBar().setTitle("Testing sticky header shit");
+                        InventoryProductFragment fragment = new InventoryProductFragment();
+                        Bundle bundl = new Bundle();
+                        bundl.putLong("categoryId", 120l);
+                        fragment.setArguments(bundl);
+                        menuItem.setChecked(true);
+                        drawerLayout.closeDrawers();
+                        return true;*/
                 }
 
                 return true;

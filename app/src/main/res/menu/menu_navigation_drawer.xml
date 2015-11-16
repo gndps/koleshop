@@ -20,6 +20,11 @@
             android:icon="@drawable/ic_inventory"
             android:title="@string/navigation_drawer_inventory"/>
 
+        <!--item
+            android:id="@+id/drawer_test"
+            android:icon="@drawable/ic_login"
+            android:title="@string/navigation_drawer_test"/-->
+
         <item
             android:id="@+id/drawer_section"
             android:title="@string/navigation_drawer_settings">
