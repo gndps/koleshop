@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:background="@color/offwhite"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/white">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/circleImageViewProductMasterListItem"
+        android:id="@+id/civ_inventory_product_variety"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginLeft="16dp"
@@ -14,54 +14,55 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="88dp"
+        android:layout_height="72dp"
+        android:layout_marginLeft="72dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="8dp"
             android:layout_weight="1"
-            android:paddingLeft="72dp"
-            android:layout_marginTop="16dp">
+            android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_inventory_product_variety_quantity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textViewTitleProductMasterListItem"
-                android:text="Vanilla - Ice cream"
+                android:maxLines="1"
+                android:text="Vanilla - Ice cream cone"
                 android:textColor="@color/primary_text"
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/tv_inventory_product_variety_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textViewSubtitleProductMasterListItem"
-                android:text="this is the description of the ice cream. hits should be 2 lines long"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:text="Rs. 20"
                 android:textColor="@color/secondary_text"
-                android:maxLines="2"
-                android:textSize="12sp" />
+                android:textSize="14sp" />
 
         </LinearLayout>
 
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:src="@drawable/ic_checkbox_false_focused"
-            android:id="@+id/iv_inventory_product"
+            android:id="@+id/iv_inventory_product_variety"
             android:visibility="visible"/>
 
         <ProgressBar
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:id="@+id/pb_inventory_product"
+            android:id="@+id/pb_inventory_product_variety"
             android:indeterminateTintMode="src_in"
             android:indeterminateTint="@color/otherGreen"
             style="@style/Widget.AppCompat.ProgressBar"
@@ -69,14 +70,13 @@
             android:visibility="gone"/>
 
         <!--CheckBox
+            android:id="@+id/cb_inventory_product_variety"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/checkboxProductMasterListItem"
-            android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
-            android:buttonTint="@color/primary"
             android:layout_marginRight="16dp"
-            android:checked="true"/-->
+            android:buttonTint="@color/primary"
+            android:checked="true" /-->
 
     </LinearLayout>
 

@@ -206,7 +206,7 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(String msg) {
-                if (!regId.isEmpty()) {
+                if (regId!=null && !regId.isEmpty()) {
                     requestOneTimePasswordFromServer();
                 } else {
                     stopProcessing();

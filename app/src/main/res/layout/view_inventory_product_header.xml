@@ -9,10 +9,11 @@
     android:textColor="@color/secondary_text"
     android:background="@color/offwhite"
     android:textSize="13sp"
+    android:text="Brand name here"
     android:id="@+id/tv_inventory_product_header"
     android:textStyle="bold"
     app:slm_headerDisplay="inline|start|sticky"
     app:slm_isHeader="true"
-    android:elevation="1dp"
+    android:elevation="0dp"
     app:slm_section_headerMarginStart="56dip"
     app:slm_section_sectionManager="linear"/>

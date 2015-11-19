@@ -43,6 +43,8 @@ public class InventoryProductFragment extends Fragment {
     private long categoryId;
     Button buttonRetry, buttonReload;
     private final static String TAG = "InventProductFragment";
+    private static final int VIEW_TYPE_HEADER = 0x01;
+    private static final int VIEW_TYPE_CONTENT = 0x00;
 
     public InventoryProductFragment() {
         // Required empty public constructor
@@ -158,7 +160,7 @@ public class InventoryProductFragment extends Fragment {
         }
     }
 
-    private void loadProducts(List<InventoryProduct> listOfProducts) {
+    private void loadProducts(final List<InventoryProduct> listOfProducts) {
         /*recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .margin(getResources().getDimensionPixelSize(R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
@@ -166,24 +168,30 @@ public class InventoryProductFragment extends Fragment {
         inventoryProductAdapter = new InventoryProductAdapter(getActivity());
         recyclerView.setAdapter(inventoryProductAdapter);
         recyclerView.setHasFixedSize(true);
-        recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Toast.makeText(getActivity(), "product selected", Toast.LENGTH_SHORT).show();
-            }
 
-            @Override
-            public void onItemLongClick(View v, int position) {
-                Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
-            }
-        }));
-        //recyclerView.setVerticalScrollBarEnabled(true); //no need of scroll bar...google play doesn't have it
-        List<InventoryProduct> products;
+        //get products to load
+        final List<InventoryProduct> products;
         if(listOfProducts!=null && listOfProducts.size()>0) {
             products = listOfProducts;
         } else {
             products = getCachedProducts();
         }
+
+        /*set recycler view click listener
+        recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                //Toast.makeText(getActivity(), "product selected", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onItemLongClick(View v, int position) {
+                //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
+            }
+        }));*/
+        //recyclerView.setVerticalScrollBarEnabled(true); //no need of scroll bar...google play doesn't have it
+
+
         if(products!=null) {
             inventoryProductAdapter.setProductsList(products);
             //Log.d(TAG, "will set view flipper 2 for category id =" + categoryId);

@@ -1,14 +1,18 @@
 package com.kolshop.kolshopmaterial.adapters;
 
 import android.content.Context;
+import android.os.Handler;
+import android.support.v4.view.PagerTabStrip;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
+import com.kolshop.kolshopmaterial.extensions.InventoryProductClickListener;
 import com.kolshop.kolshopmaterial.viewholders.inventory.InventoryProductViewHolder;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
@@ -30,10 +34,13 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
 
     private static final int VIEW_TYPE_CONTENT = 0x00;
 
+    private static final int VIEW_TYPE_CONTENT_EXPANDED = 0x02;
+
     private LayoutInflater inflator;
     List<InventoryProduct> products;
     Context context;
     List<LineItem> mItems;
+    int expandedItemPosition, expandedItemPositionOld;
 
     public InventoryProductAdapter(Context context) {
         this.context = context;
@@ -74,23 +81,53 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         if (viewType == VIEW_TYPE_HEADER) {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.view_inventory_product_header, parent, false);
-        } else {
+        } else if(viewType == VIEW_TYPE_CONTENT) {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_inventory_product, parent, false);
+        } else {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_inventory_product_expanded, parent, false);
         }
 
-        InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType);
-        Log.d(TAG, "on create view holder");
+        InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType, context);
+        Log.d(TAG, "on create view holder of type=" + viewType);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(InventoryProductViewHolder holder, int position) {
+    public void onBindViewHolder(InventoryProductViewHolder holder, final int position) {
 
         LineItem item = mItems.get(position);
         final View itemView = holder.itemView;
 
-        holder.bindData(item.isHeader?VIEW_TYPE_HEADER:VIEW_TYPE_CONTENT, item.text, item.product);
+        if(position == expandedItemPosition && position!=0) {
+            holder.bindData(VIEW_TYPE_CONTENT_EXPANDED, null, item.product, item.checkBoxProgress);
+        } else if(item.isHeader) {
+            holder.bindData(VIEW_TYPE_HEADER, item.text, item.product, item.checkBoxProgress);
+        } else {
+            holder.bindData(VIEW_TYPE_CONTENT, item.text, item.product, item.checkBoxProgress);
+        }
+        holder.setClickListener(new InventoryProductClickListener() {
+            @Override
+            public void onItemClick(View v) {
+                if(expandedItemPosition!=0 && expandedItemPosition == position) {
+                    expandItemAtPosition(position);
+                }
+            }
+
+            @Override
+            public boolean onItemLongClick(View v) {
+                //do nothing
+                return false;
+            }
+        });
+
+        holder.setCheckBoxOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startRotatingShit(position);
+            }
+        });
 
         //sticky header shit
         final GridSLM.LayoutParams lp = GridSLM.LayoutParams.from(itemView.getLayoutParams());
@@ -119,9 +156,41 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         }
     }
 
+    private void startRotatingShit(final int position) {
+        mItems.get(position).checkBoxProgress = true;
+        notifyItemChanged(position);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mItems.get(position).checkBoxProgress = false;
+                mItems.get(position).product.setSelectedByUser(true);
+                notifyItemChanged(position);
+            }
+        }, 2000);
+    }
+
+    private void expandItemAtPosition(int position) {
+        if(!mItems.get(position).isHeader) {
+            if(position == expandedItemPosition) {
+                expandedItemPositionOld = expandedItemPosition;
+                expandedItemPosition = 0;
+            } else {
+                expandedItemPositionOld = expandedItemPosition;
+                expandedItemPosition = position;
+            }
+        }
+            notifyItemChanged(expandedItemPosition);
+            notifyItemChanged(expandedItemPositionOld);
+    }
+
     @Override
     public int getItemViewType(int position) {
-        return mItems.get(position).isHeader ? VIEW_TYPE_HEADER : VIEW_TYPE_CONTENT;
+        if(position == expandedItemPosition && position!=0) {
+            return VIEW_TYPE_CONTENT_EXPANDED;
+        } else {
+            return mItems.get(position).isHeader ? VIEW_TYPE_HEADER : VIEW_TYPE_CONTENT;
+        }
     }
 
     private static class LineItem {
@@ -134,12 +203,15 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
 
         public InventoryProduct product;
 
+        public boolean checkBoxProgress;
+
         public LineItem(String text, boolean isHeader,
                         int sectionFirstPosition, InventoryProduct product) {
             this.isHeader = isHeader;
             this.text = text;
             this.sectionFirstPosition = sectionFirstPosition;
             this.product = product;
+            checkBoxProgress = false;
         }
     }
 }

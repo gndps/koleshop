@@ -22,7 +22,7 @@
             android:layout_gravity="center"
             android:paddingTop="16dp"
             android:textColor="@color/default_background_font"
-            android:text="Kol Shop"
+            android:text="koleshop"
             android:textSize="25sp" />
 
     </LinearLayout>
