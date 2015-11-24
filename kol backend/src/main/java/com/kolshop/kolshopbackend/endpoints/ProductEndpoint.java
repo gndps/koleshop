@@ -4,7 +4,7 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
-import com.kolshop.kolshopbackend.beans.Product;
+import com.kolshop.kolshopbackend.db.models.deprecated.Product;
 import com.kolshop.kolshopbackend.db.models.RestCallResponse;
 import com.kolshop.kolshopbackend.services.ProductService;
 
@@ -47,5 +47,10 @@ public class ProductEndpoint {
         }
         return restCallResponse;
     }
+
+    /*@ApiMethod(name = "saveUserProduct")
+    public KolResponse saveUserProduct(UserProduct product) {
+
+    }*/
 
 }

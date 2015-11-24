@@ -4,6 +4,8 @@ import com.kolshop.kolshopmaterial.model.realm.AttributeValue;
 import com.kolshop.kolshopmaterial.model.realm.VarietyAttribute;
 import com.kolshop.kolshopmaterial.model.ProductVarietyProperty;
 import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
+import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
 
 import java.util.List;
 
@@ -65,5 +67,18 @@ public class ProductUtil {
         priceProperty.setVarietyAttribute(va);
         priceProperty.setAttributeValue(av);
         return priceProperty;
+    }
+
+    public static int getProductSelectionCount(InventoryProduct product) {
+        if(product==null) {
+            return 0;
+        }
+        int count = 0;
+        for(InventoryProductVariety ipv : product.getVarieties()) {
+            if(ipv.getSelected()) {
+                count++;
+            }
+        }
+        return count;
     }
 }

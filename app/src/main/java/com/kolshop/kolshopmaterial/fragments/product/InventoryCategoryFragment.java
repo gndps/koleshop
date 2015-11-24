@@ -107,6 +107,7 @@ public class InventoryCategoryFragment extends Fragment {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED));
+        lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED));
     }
 
     private void initializeBroadcastReceivers() {
@@ -116,7 +117,15 @@ public class InventoryCategoryFragment extends Fragment {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS)) {
                     inventoryLoadSuccess(null);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED)) {
-                    inventoryLoadFailed();
+                    if(intent.getExtras()!=null && intent.getStringExtra("status")!=null) {
+                        intent.getStringExtra("status").equalsIgnoreCase(Constants.STATUS_KOLE_RESPONSE_CREATING_INVENTORY);
+                        //wait for push broadcast of inventory created
+                        //do nothing -- because processing is already showing...
+                    } else {
+                        inventoryLoadFailed();
+                    }
+                } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED)) {
+                    loadInventoryCategories();
                 }
             }
         };
@@ -127,11 +136,6 @@ public class InventoryCategoryFragment extends Fragment {
         super.onPause();
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.unregisterReceiver(mBroadcastReceiverInventoryCategoryFragment);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.kolshop.kolshopmaterial.adapters;
 
 import android.content.Context;
-import android.os.Handler;
-import android.support.v4.view.PagerTabStrip;
+import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,7 +12,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
+import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.CommonUtils;
+import com.kolshop.kolshopmaterial.common.util.ProductUtil;
 import com.kolshop.kolshopmaterial.extensions.InventoryProductClickListener;
+import com.kolshop.kolshopmaterial.model.ProductSelectionRequest;
+import com.kolshop.kolshopmaterial.services.CommonIntentService;
 import com.kolshop.kolshopmaterial.viewholders.inventory.InventoryProductViewHolder;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
@@ -20,8 +25,12 @@ import com.tonicartos.superslim.GridSLM;
 import com.tonicartos.superslim.LayoutManager;
 import com.tonicartos.superslim.LinearSLM;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Gundeep on 19/10/15.
@@ -41,10 +50,15 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     Context context;
     List<LineItem> mItems;
     int expandedItemPosition, expandedItemPositionOld;
+    List<String> pendingRequestsRandomIds;
+    Long categoryId;
 
-    public InventoryProductAdapter(Context context) {
+
+    public InventoryProductAdapter(Context context, Long categoryId) {
         this.context = context;
+        this.categoryId = categoryId;
         inflator = LayoutInflater.from(context);
+        pendingRequestsRandomIds = new ArrayList<>();
     }
 
     public void setProductsList(List<InventoryProduct> productsList) {
@@ -81,7 +95,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         if (viewType == VIEW_TYPE_HEADER) {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.view_inventory_product_header, parent, false);
-        } else if(viewType == VIEW_TYPE_CONTENT) {
+        } else if (viewType == VIEW_TYPE_CONTENT) {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_inventory_product, parent, false);
         } else {
@@ -100,18 +114,22 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         LineItem item = mItems.get(position);
         final View itemView = holder.itemView;
 
-        if(position == expandedItemPosition && position!=0) {
-            holder.bindData(VIEW_TYPE_CONTENT_EXPANDED, null, item.product, item.checkBoxProgress);
-        } else if(item.isHeader) {
-            holder.bindData(VIEW_TYPE_HEADER, item.text, item.product, item.checkBoxProgress);
+        if (position == expandedItemPosition && position != 0) {
+            holder.bindData(VIEW_TYPE_CONTENT_EXPANDED, null, item.product, item.varietyProgress, position, categoryId);
+        } else if (item.isHeader) {
+            holder.bindData(VIEW_TYPE_HEADER, item.text, item.product, item.varietyProgress, position, categoryId);
         } else {
-            holder.bindData(VIEW_TYPE_CONTENT, item.text, item.product, item.checkBoxProgress);
+            holder.bindData(VIEW_TYPE_CONTENT, item.text, item.product, item.varietyProgress, position, categoryId);
         }
         holder.setClickListener(new InventoryProductClickListener() {
             @Override
             public void onItemClick(View v) {
-                if(expandedItemPosition!=0 && expandedItemPosition == position) {
-                    expandItemAtPosition(position);
+                if (!mItems.get(position).isHeader) {
+                    if (expandedItemPosition != position) {
+                        expandItemAtPosition(position);
+                    } else if (expandedItemPosition == position) {
+                        collapseTheExpandedItem();
+                    }
                 }
             }
 
@@ -122,12 +140,18 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
             }
         });
 
-        holder.setCheckBoxOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startRotatingShit(position);
-            }
-        });
+        if (!mItems.get(position).isHeader && expandedItemPosition != position) {
+            holder.setCheckBoxOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    for (InventoryProductVariety ipv : mItems.get(position).product.getVarieties()) {
+                        mItems.get(position).varietyProgress.put(ipv.getId(), true);
+                    }
+                    requestProductSelection(position, 0l, false);
+                    notifyItemChanged(position);
+                }
+            });
+        }
 
         //sticky header shit
         final GridSLM.LayoutParams lp = GridSLM.LayoutParams.from(itemView.getLayoutParams());
@@ -148,7 +172,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
 
     @Override
     public int getItemCount() {
-        if(mItems!=null) {
+        if (mItems != null) {
             //Log.d(TAG, "mItems.size()=" + mItems.size());
             return mItems.size();
         } else {
@@ -156,37 +180,57 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         }
     }
 
-    private void startRotatingShit(final int position) {
-        mItems.get(position).checkBoxProgress = true;
-        notifyItemChanged(position);
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mItems.get(position).checkBoxProgress = false;
-                mItems.get(position).product.setSelectedByUser(true);
-                notifyItemChanged(position);
+    public void requestProductSelection(int position, Long varietyId, boolean varietySelected) {
+        Intent intent = new Intent(context, CommonIntentService.class);
+        intent.setAction(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION);
+        InventoryProduct currentProduct = mItems.get(position).product;
+        int productsSelected = ProductUtil.getProductSelectionCount(currentProduct);
+        ArrayList<Long> productSelection = new ArrayList<>();
+        ProductSelectionRequest request = new ProductSelectionRequest();
+        if(varietyId==0) {
+            //add all varieties
+            for (InventoryProductVariety ipv : currentProduct.getVarieties()) {
+                productSelection.add(ipv.getId());
             }
-        }, 2000);
+
+            //product selection after success
+            if (productsSelected == 0) {
+                request.setWillSelectOnSuccess(true); //selection result - will select all the product varieties if the request is success
+            } else {
+                request.setWillSelectOnSuccess(false); // selection result - will deselect the products on request success
+            }
+        } else {
+            mItems.get(position).varietyProgress.put(varietyId, true);
+            productSelection.add(varietyId);
+            request.setWillSelectOnSuccess(!varietySelected);
+        }
+        request.setProductVarietyIds(productSelection); // pv ids
+        request.setPositionOfUpdate(position); //position of update
+        String randomRequestId = CommonUtils.randomString(10);
+        request.setRandomId(randomRequestId); //random id for request
+        pendingRequestsRandomIds.add(randomRequestId);
+        Parcelable wrappedRequest = Parcels.wrap(request);
+        intent.putExtra("request", wrappedRequest);
+        context.startService(intent);
     }
 
     private void expandItemAtPosition(int position) {
-        if(!mItems.get(position).isHeader) {
-            if(position == expandedItemPosition) {
-                expandedItemPositionOld = expandedItemPosition;
-                expandedItemPosition = 0;
-            } else {
-                expandedItemPositionOld = expandedItemPosition;
-                expandedItemPosition = position;
-            }
-        }
-            notifyItemChanged(expandedItemPosition);
-            notifyItemChanged(expandedItemPositionOld);
+        expandedItemPositionOld = expandedItemPosition;
+        expandedItemPosition = position;
+        notifyItemChanged(expandedItemPosition);
+        notifyItemChanged(expandedItemPositionOld);
+    }
+
+    private void collapseTheExpandedItem() {
+        expandedItemPositionOld = expandedItemPosition;
+        expandedItemPosition = 0;
+        notifyItemChanged(expandedItemPosition);
+        notifyItemChanged(expandedItemPositionOld);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if(position == expandedItemPosition && position!=0) {
+        if (position == expandedItemPosition && position != 0) {
             return VIEW_TYPE_CONTENT_EXPANDED;
         } else {
             return mItems.get(position).isHeader ? VIEW_TYPE_HEADER : VIEW_TYPE_CONTENT;
@@ -203,7 +247,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
 
         public InventoryProduct product;
 
-        public boolean checkBoxProgress;
+        public Map<Long, Boolean> varietyProgress;
 
         public LineItem(String text, boolean isHeader,
                         int sectionFirstPosition, InventoryProduct product) {
@@ -211,7 +255,48 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
             this.text = text;
             this.sectionFirstPosition = sectionFirstPosition;
             this.product = product;
-            checkBoxProgress = false;
+            varietyProgress = new HashMap<>();
+            if(product!=null) {
+                List<InventoryProductVariety> listipv = product.getVarieties();
+                for (InventoryProductVariety ipv : listipv) {
+                    varietyProgress.put(ipv.getId(), false);
+                }
+            }
         }
+    }
+
+    public List<String> getPendingRequestsRandomIds() {
+        return pendingRequestsRandomIds;
+    }
+
+    public void updateProductSelection(ProductSelectionRequest request, boolean success) {
+        int updatePosition = request.getPositionOfUpdate();
+
+        LineItem lineItem = mItems.get(updatePosition);
+        if(lineItem==null) {
+            Toast.makeText(context, "line item is null at position " + updatePosition, Toast.LENGTH_SHORT).show();
+        } else if(lineItem.product==null) {
+            Toast.makeText(context, "product is null at position " + updatePosition, Toast.LENGTH_SHORT).show();
+        } else if(lineItem.product.getVarieties() == null) {
+            Toast.makeText(context, "varieties are null at position " + updatePosition, Toast.LENGTH_SHORT).show();
+        } else {
+            for (InventoryProductVariety ipv : lineItem.product.getVarieties()) {
+                if (request.getProductVarietyIds().contains(ipv.getId())) {
+                    if (success) {
+                        ipv.setSelected(request.isWillSelectOnSuccess());
+                    }
+                    lineItem.varietyProgress.put(ipv.getId(), false);
+                }
+            }
+        }
+        notifyItemChanged(updatePosition);
+
+        if(!success) {
+            //todo make a snack bar with product and variety name
+        }
+
+        //remove this request from pending requests
+        int randomIdLocation = pendingRequestsRandomIds.indexOf(request.getRandomId());
+        pendingRequestsRandomIds.remove(randomIdLocation);
     }
 }

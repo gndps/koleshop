@@ -1,22 +1,17 @@
 package com.kolshop.kolshopmaterial.viewholders.inventory;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
 import com.kolshop.kolshopmaterial.R;
-import com.kolshop.kolshopmaterial.common.util.CommonUtils;
+import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.ProductUtil;
 import com.kolshop.kolshopmaterial.extensions.InventoryProductClickListener;
-import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.network.volley.VolleyUtil;
 import com.kolshop.kolshopmaterial.views.ViewInventoryProductExpanded;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
@@ -24,6 +19,7 @@ import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -47,19 +43,29 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     private InventoryProductClickListener clickListener;
     private int viewType;
     private InventoryProduct product;
+    private Map<Long, Boolean> productVarietyCheckBoxProgress;
     private String title;
     private ViewInventoryProductExpanded viewInventoryProductExpanded;
+    private LinearLayout clickArea1, clickArea2;
+    private Context mContext;
+    private View.OnClickListener checkBoxOnClickListener;
+    private TextView textViewHowManySelected;
 
     public InventoryProductViewHolder(View view, int viewType, Context context) {
         super(view);
-        view.setOnClickListener(this);
+        mContext = context;
         if(viewType == VIEW_TYPE_HEADER) {
             textViewTitleProductMasterList = (TextView) view.findViewById(R.id.tv_inventory_product_header);
         } else if(viewType == VIEW_TYPE_CONTENT) {
+            clickArea1 = (LinearLayout) view.findViewById(R.id.ll_inventory_product_click_area_1);
+            clickArea1.setOnClickListener(this);
+            clickArea2 = (LinearLayout) view.findViewById(R.id.ll_inventory_product_click_area_2);
             textViewTitleProductMasterList = (TextView) view.findViewById(R.id.textViewTitleProductMasterListItem);
             textViewSubtitleProductMasterList = (TextView) view.findViewById(R.id.textViewSubtitleProductMasterListItem);
+            textViewHowManySelected = (TextView) view.findViewById(R.id.tv_how_many_selected);
             //this.checkBoxProductMasterList = (CheckBox) view.findViewById(R.id.checkboxProductMasterListItem);
             circleImageViewProductMasterList = (CircleImageView) view.findViewById(R.id.circleImageViewProductMasterListItem);
+            circleImageViewProductMasterList.setOnClickListener(this);
             imageViewCheckBox = (ImageView) view.findViewById(R.id.iv_inventory_product);
             progressBarCheckBox = (ProgressBar) view.findViewById(R.id.pb_inventory_product);
         } else {
@@ -87,6 +93,10 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
         this.imageUrl = imageUrl;
     }
 
+    public void setHowManySelected(int selectedCount, int totalCount) {
+        textViewHowManySelected.setText(selectedCount + "/" + totalCount);
+    }
+
     public void sendImageFetchRequest(Context context) {
         Picasso.with(context)
                 .load(imageUrl)
@@ -111,7 +121,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
         VolleyUtil.getInstance().cancelRequestsWithTag(uniqueTag);
     }
 
-    public void bindData(int viewType, String title, InventoryProduct product, boolean checkBoxProgress) {
+    public void bindData(int viewType, String title, InventoryProduct product, Map<Long, Boolean> productVarietyCheckBoxProgress, int positionInParentView, Long categoryId) {
         //bind view holder
         this.viewType = viewType;
         this.product = product;
@@ -121,9 +131,19 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
             setTitle(title);
         } else if(viewType == VIEW_TYPE_CONTENT) {
             setTitle(product.getName());
-            setSubtitle(product.getDescription());
-            setChecked(product.getSelectedByUser());
-            if(checkBoxProgress) {
+            setSubtitle(makeDescription());
+            int howManySelected = ProductUtil.getProductSelectionCount(product);
+            setChecked(howManySelected>0);
+            setHowManySelected(howManySelected, product.getVarieties().size());
+            boolean productSelectionInProgress = false;
+            for (Map.Entry<Long,Boolean> entry : productVarietyCheckBoxProgress.entrySet())
+            {
+                if(entry.getValue()) {
+                    productSelectionInProgress = true;
+                    break;
+                }
+            }
+            if(productSelectionInProgress) {
                 startCheckBoxProgress();
             } else {
                 stopCheckBoxProgress();
@@ -131,13 +151,15 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
             List<InventoryProductVariety> varieties = product.getVarieties();
             if(varieties!=null) {
                 String imageUrl = varieties.get(0).getImageUrl();
-                String smallSizeImageUrl = imageUrl.replaceFirst("small", "prod-image/286X224");
+                String smallSizeImageUrl="";
+                if(imageUrl!=null)
+                    smallSizeImageUrl = imageUrl.replaceFirst("small", "prod-image/286X224");
                 setImageUrl(smallSizeImageUrl);
                 //todo launch this request when kolserver image server is working
                 //holder.sendImageFetchRequest(context);
             }
         } else {
-            viewInventoryProductExpanded.setProduct(product, checkBoxProgress);
+            viewInventoryProductExpanded.setProduct(product, productVarietyCheckBoxProgress, positionInParentView, categoryId);
         }
     }
 
@@ -151,19 +173,46 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     }
 
     public void setCheckBoxOnClickListener(View.OnClickListener checkBoxClickListener) {
-        if(imageViewCheckBox!=null) {
-            imageViewCheckBox.setOnClickListener(checkBoxClickListener);
-        }
+        this.checkBoxOnClickListener = checkBoxClickListener;
+        clickArea2.setOnClickListener(checkBoxOnClickListener);
     }
 
     public void startCheckBoxProgress() {
-        imageViewCheckBox.setVisibility(View.GONE);
+        //imageViewCheckBox.setVisibility(View.GONE);
+        clickArea2.setVisibility(View.GONE);
+        clickArea2.setOnClickListener(null);
         progressBarCheckBox.setVisibility(View.VISIBLE);
     }
 
     private void stopCheckBoxProgress() {
-        imageViewCheckBox.setVisibility(View.VISIBLE);
+        //imageViewCheckBox.setVisibility(View.VISIBLE);
+        clickArea2.setVisibility(View.VISIBLE);
+        clickArea2.setOnClickListener(checkBoxOnClickListener);
         progressBarCheckBox.setVisibility(View.GONE);
+    }
+
+    private String makeDescription() {
+        if(product==null) {
+            return "";
+        } else{
+            String description = "";
+            boolean first = true;
+            for(InventoryProductVariety ipv : product.getVarieties()) {
+                String desc = ipv.getQuantity() + "(" + Constants.INDIAN_RUPEE_SYMBOL + " " + ipv.getPrice() + ")";
+                if(ipv.getSelected()) {
+                    desc += " ✓";
+                } else {
+                    desc += " ✗";
+                }
+                if(first) {
+                    description += desc;
+                    first = false;
+                } else {
+                    description += " | " + desc;
+                }
+            }
+            return description;
+        }
     }
 
     @Override

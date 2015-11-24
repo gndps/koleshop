@@ -9,8 +9,9 @@ public class InventoryProductVariety {
     String quantity;
     float price;
     String imageUrl;
-    String vegNonVeg;
+    //String vegNonVeg;
     boolean selected;
+    int limitedStock;
 
     public Long getId() {
         return id;
@@ -44,13 +45,13 @@ public class InventoryProductVariety {
         this.imageUrl = imageUrl;
     }
 
-    public String getVegNonVeg() {
+    /*public String getVegNonVeg() {
         return vegNonVeg;
     }
 
     public void setVegNonVeg(String vegNonVeg) {
         this.vegNonVeg = vegNonVeg;
-    }
+    }*/
 
     public boolean isSelected() {
         return selected;
@@ -58,5 +59,13 @@ public class InventoryProductVariety {
 
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public void setLimitedStock(int limitedStock) {
+        this.limitedStock = limitedStock;
+    }
+
+    public int getLimitedStock() {
+        return limitedStock;
     }
 }

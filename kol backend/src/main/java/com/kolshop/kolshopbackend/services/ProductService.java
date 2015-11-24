@@ -8,13 +8,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kolshop.kolshopbackend.beans.ParentProductCategory;
-import com.kolshop.kolshopbackend.beans.ProductCategory;
-import com.kolshop.kolshopbackend.beans.Product;
-import com.kolshop.kolshopbackend.beans.ProductInfoPackage;
-import com.kolshop.kolshopbackend.beans.ProductVariety;
-import com.kolshop.kolshopbackend.beans.ProductVarietyAttribute;
-import com.kolshop.kolshopbackend.beans.ProductVarietyAttributeMeasuringUnit;
+import com.kolshop.kolshopbackend.db.models.ParentProductCategory;
+import com.kolshop.kolshopbackend.db.models.ProductCategory;
+import com.kolshop.kolshopbackend.db.models.deprecated.Product;
+import com.kolshop.kolshopbackend.db.models.deprecated.ProductInfoPackage;
+import com.kolshop.kolshopbackend.db.models.deprecated.ProductVariety;
+import com.kolshop.kolshopbackend.db.models.deprecated.ProductVarietyAttribute;
+import com.kolshop.kolshopbackend.db.models.deprecated.ProductVarietyAttributeMeasuringUnit;
 import com.kolshop.kolshopbackend.db.connection.DatabaseConnection;
 import com.kolshop.kolshopbackend.utils.DatabaseConnectionUtils;
 import com.kolshop.kolshopbackend.utils.ProductUtil;
@@ -22,11 +22,13 @@ import com.kolshop.kolshopbackend.utils.ProductUtil;
 
 public class ProductService {
 
+    @Deprecated
     public List<Product> getProduct(int shopId, int startIndex, int count) {
         Long[] productIdList = getProductIds(shopId, startIndex, count);
         return getProductForIds(productIdList);
     }
 
+    @Deprecated
     public Long[] getProductIds(int shopId, int startIndex, int count) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -63,6 +65,7 @@ public class ProductService {
         }
     }
 
+    @Deprecated
     public List<Product> getProductForIds(Long[] productIds) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -141,6 +144,7 @@ public class ProductService {
         }
     }
 
+    @Deprecated
     public Long addNewProduct(Product product) {
 
         Connection dbConnection = null;
@@ -289,6 +293,7 @@ public class ProductService {
         }
     }
 
+    @Deprecated
     public Long updateProduct(Product product) {
 
         Connection dbConnection = null;
@@ -475,6 +480,7 @@ public class ProductService {
 
     }
 
+    @Deprecated
     public boolean saveProduct(Product product) {
         if (product.getId() == 0) {
             addNewProduct(product);
@@ -625,6 +631,7 @@ public class ProductService {
         }
     }
 
+    @Deprecated
     public List<ProductVarietyAttributeMeasuringUnit> getMeasuringUnits()
     {
         Connection dbConnection = null;

@@ -12,20 +12,39 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center">
 
-        <ProgressBar
-            style="@style/Widget.AppCompat.ProgressBar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center" />
+        <!-- progress bar | view flipper child 0 -->
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ProgressBar
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"
+                android:text="Loading..."
+                android:textColor="@color/default_background_font" />
+
+        </LinearLayout>
+
+
+        <!-- categories list | view flipper child 1 -->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_inventory_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical">
+            android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
 
-        </android.support.v7.widget.RecyclerView>
-
+        <!-- no internet connection | view flipper child 2 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -44,7 +63,6 @@
                 android:layout_gravity="center"
                 android:text="Can't load inventory"
                 android:textColor="@color/default_background_font" />
-
         </LinearLayout>
 
     </ViewFlipper>

@@ -9,12 +9,12 @@ public class InventoryProduct {
 
     Long id;
     String name;
-    String description;
+    //String description;
     String brand;
-    String additionalInfo;
-    String specialDescription;
-    boolean privateToUser;
-    boolean selectedByUser;
+    //String additionalInfo;
+    //String specialDescription;
+    //boolean privateToUser;
+    //boolean selectedByUser;
     List<InventoryProductVariety> varieties;
 
     public Long getId() {
@@ -33,13 +33,13 @@ public class InventoryProduct {
         this.name = name;
     }
 
-    public String getDescription() {
+    /*public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
-    }
+    }*/
 
     public String getBrand() {
         return brand;
@@ -49,7 +49,7 @@ public class InventoryProduct {
         this.brand = brand;
     }
 
-    public String getAdditionalInfo() {
+    /*public String getAdditionalInfo() {
         return additionalInfo;
     }
 
@@ -79,7 +79,7 @@ public class InventoryProduct {
 
     public void setSelectedByUser(boolean selectedByUser) {
         this.selectedByUser = selectedByUser;
-    }
+    }*/
 
     public List<InventoryProductVariety> getVarieties() {
         return varieties;

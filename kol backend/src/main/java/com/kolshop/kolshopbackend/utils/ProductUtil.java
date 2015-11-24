@@ -1,9 +1,9 @@
 package com.kolshop.kolshopbackend.utils;
 
-import com.kolshop.kolshopbackend.beans.Product;
-import com.kolshop.kolshopbackend.beans.ProductInfoPackage;
-import com.kolshop.kolshopbackend.beans.ProductVariety;
-import com.kolshop.kolshopbackend.beans.ProductVarietyAttribute;
+import com.kolshop.kolshopbackend.db.models.deprecated.Product;
+import com.kolshop.kolshopbackend.db.models.deprecated.ProductInfoPackage;
+import com.kolshop.kolshopbackend.db.models.deprecated.ProductVariety;
+import com.kolshop.kolshopbackend.db.models.deprecated.ProductVarietyAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class ProductUtil {
 
+    @Deprecated
     public static List<Product> getProductList(List<ProductInfoPackage> packages)
     {
         List<Product> listOfProducts = new ArrayList<>();
@@ -31,6 +32,7 @@ public class ProductUtil {
         return listOfProducts;
     }
 
+    @Deprecated
     private static List<ProductVariety> makeProductVariety(Product product, List<ProductInfoPackage> packages) {
 
         List<ProductVariety> productVarieties = new ArrayList<>();
@@ -50,6 +52,7 @@ public class ProductUtil {
 
     }
 
+    @Deprecated
     private static List<ProductVarietyAttribute> makeProductVarietyAttributes(ProductVariety proVar, List<ProductInfoPackage> packages) {
         List<ProductVarietyAttribute> productVarietyAttributes = new ArrayList<>();
 
@@ -66,6 +69,7 @@ public class ProductUtil {
 
     }
 
+    @Deprecated
     private static boolean productAlreadyExistsInList(List<Product> listOfProducts, ProductInfoPackage packazze) {
 
         for(Product pro : listOfProducts)
@@ -78,6 +82,7 @@ public class ProductUtil {
         return false;
     }
 
+    @Deprecated
     private static boolean productVarietyAlreadyExists(List<ProductVariety> productVarieties, ProductInfoPackage packaze) {
 
         for(ProductVariety proVar : productVarieties)
@@ -92,6 +97,7 @@ public class ProductUtil {
 
     }
 
+    @Deprecated
     private static boolean productVarietyAttributeAlreadyExists(List<ProductVarietyAttribute> productVarietyAttributes, ProductInfoPackage packaze) {
 
         for(ProductVarietyAttribute proVarAttr : productVarietyAttributes)

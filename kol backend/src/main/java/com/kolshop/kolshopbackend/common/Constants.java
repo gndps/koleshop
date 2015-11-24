@@ -2,7 +2,7 @@ package com.kolshop.kolshopbackend.common;
 
 public class Constants {
 
-	public static String GCM_API_KEY = "AIzaSyAJy17h-ZC0qEc5FIu8521iMRe22GfopPs";
+	public static String GCM_API_KEY = "AIzaSyC-8kfTUQ47_KlN6MRvoC4Sigdc0kSY3D0";
 
 	public static int USE_GATEWAY_NUMBER = 2;
 
@@ -22,5 +22,16 @@ public class Constants {
 
 	//Excluded Categories : Home & Kitchen Ware, Appliances, Frozen Foods, Fruits & Veg, Popular
 	public static String EXCLUDED_INVENTORY_CATEGORIES_IDS = "'9','8','13','17','138'";
+
+	public static String OTP_TIME_TO_LIVE = "5"; // 5 minutes
+
+    public static int USER_SESSION_TYPE_SELLER = 1;
+    public static int USER_SESSION_TYPE_BUYER = 2;
+
+	public static String GCM_NOTI_USER_INVENTORY_CREATED = "gcm_noti_user_inventory_created";
+    public static String GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED = "gcm_coll_inventory_created";
+
+    //server client response statuses other than success and failure
+    public static String STATUS_KOL_RESPONSE_CREATING_INVENTORY = "status_kol_response_creating_inventory";
 
 }

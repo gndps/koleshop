@@ -16,9 +16,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
@@ -41,6 +43,7 @@ public class HomeActivity extends AppCompatActivity {
     private Context mContext;
     private DrawerLayout drawerLayout;
     View content;
+    private String TAG = "HomeActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,8 @@ public class HomeActivity extends AppCompatActivity {
             initializeBroadcastReceivers();
             loadInitialData();
         }
+        String registrationId = PreferenceUtils.getRegistrationId(mContext);
+        Log.d(TAG, "registrationId = " + registrationId);
     }
 
     private void setupToolbar()

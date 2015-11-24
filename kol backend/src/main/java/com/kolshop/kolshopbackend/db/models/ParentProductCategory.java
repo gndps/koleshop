@@ -1,10 +1,11 @@
-package com.kolshop.kolshopbackend.beans;
+package com.kolshop.kolshopbackend.db.models;
 
 import java.util.List;
 
 /**
  * Created by Gundeep on 30/05/15.
  */
+
 public class ParentProductCategory {
 
 

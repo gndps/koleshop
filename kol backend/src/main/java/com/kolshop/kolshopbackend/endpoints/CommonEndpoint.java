@@ -3,16 +3,13 @@ package com.kolshop.kolshopbackend.endpoints;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
-import com.kolshop.kolshopbackend.beans.ParentProductCategory;
-import com.kolshop.kolshopbackend.beans.ProductCategory;
-import com.kolshop.kolshopbackend.beans.ProductVarietyAttributeMeasuringUnit;
-import com.kolshop.kolshopbackend.db.models.MyBean;
+import com.kolshop.kolshopbackend.db.models.ParentProductCategory;
+import com.kolshop.kolshopbackend.db.models.ProductCategory;
+import com.kolshop.kolshopbackend.db.models.deprecated.ProductVarietyAttributeMeasuringUnit;
 import com.kolshop.kolshopbackend.db.models.RestCallResponse;
 import com.kolshop.kolshopbackend.services.ProductService;
 
 import java.util.List;
-
-import javax.inject.Named;
 
 /**
  * Created by Gundeep on 30/05/15.

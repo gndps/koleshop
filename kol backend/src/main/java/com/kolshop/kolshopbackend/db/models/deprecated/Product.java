@@ -1,10 +1,12 @@
-package com.kolshop.kolshopbackend.beans;
+package com.kolshop.kolshopbackend.db.models.deprecated;
 
 import java.util.List;
 
 /**
  * Created by Gundeep on 12/05/15.
  */
+
+@Deprecated
 public class Product {
 
     Long id;

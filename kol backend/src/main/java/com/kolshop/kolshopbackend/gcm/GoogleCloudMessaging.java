@@ -52,9 +52,8 @@ public class GoogleCloudMessaging {
 
 	public static void main(String[] args) {
 		JsonObject jsonobj = new JsonObject();
-		JsonArray jsonArray = new JsonArray();
 		List<String> regIds = new ArrayList<String>();
-		regIds.add("APA91bE4TUU0GbyerIpbcLB7jyJ7V74at5GcyOLVUK55J9N-vAAf2lIGCpnU04-ufjDzxchWPo66OFerKJbgeUTF7fzi4Y8vHPH6wAQFWx_sRvexQQPl9HMuRQ3_6LvXWYor9Kka7r2UcW1ppoXzEGjGnWdoMuQ0Ig");
+		regIds.add("APA91bFMy0Ck3HrIOv8ZQz7DjtWyAhfJPYkGWPI7BuklPQ1GFiP6K9Plxt2nSqJlaPF40UuuyHE6HJcW2RWp7pjKZG7VpZ4PY39yO06LWOs_lBuqHo3QGtixqOPPOQgfDqYMCjCNqoGH");
 		jsonobj.addProperty("test", "fuck");
 		jsonobj.addProperty("data", "gndp");
 		GcmContent gcm = new GcmContent().data(jsonobj)

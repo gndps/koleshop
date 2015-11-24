@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:background="@color/offwhite"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/offwhite">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/circleImageViewProductMasterListItem"
@@ -18,55 +18,82 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            android:id="@+id/ll_inventory_product_click_area_1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingTop="16dp"
             android:orientation="vertical"
             android:paddingBottom="8dp"
-            android:layout_weight="1"
-            android:paddingLeft="72dp"
-            android:layout_marginTop="16dp">
+            android:paddingLeft="72dp">
 
             <TextView
+                android:id="@+id/textViewTitleProductMasterListItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textViewTitleProductMasterListItem"
                 android:text="Vanilla - Ice cream"
                 android:textColor="@color/primary_text"
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/textViewSubtitleProductMasterListItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textViewSubtitleProductMasterListItem"
+                android:maxLines="2"
                 android:text="this is the description of the ice cream. hits should be 2 lines long"
                 android:textColor="@color/secondary_text"
-                android:maxLines="2"
                 android:textSize="12sp" />
 
         </LinearLayout>
 
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:src="@drawable/ic_checkbox_false_focused"
-            android:id="@+id/iv_inventory_product"
-            android:visibility="visible"/>
+        <View
+            style="@style/VerticalDivider"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="16dp" />
+
+        <LinearLayout
+            android:id="@+id/ll_inventory_product_click_area_2"
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/iv_inventory_product"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_checkbox_false_focused"
+                android:clickable="false"
+                android:focusable="false"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tv_how_many_selected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:clickable="false"
+                android:focusable="false"
+                android:text=""/>
+
+        </LinearLayout>
 
         <ProgressBar
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             android:id="@+id/pb_inventory_product"
-            android:indeterminateTintMode="src_in"
-            android:indeterminateTint="@color/otherGreen"
             style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:padding="16dp"
             android:indeterminate="true"
-            android:visibility="gone"/>
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:indeterminateTint="@color/otherGreen"
+            android:indeterminateTintMode="src_in"
+            android:visibility="gone" />
 
         <!--CheckBox
             android:layout_width="wrap_content"

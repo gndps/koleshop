@@ -11,10 +11,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.kolshop.kolshopbackend.common.Constants;
 import com.kolshop.kolshopbackend.db.connection.DatabaseConnection;
 import com.kolshop.kolshopbackend.db.models.RestCallResponse;
 import com.kolshop.kolshopbackend.db.models.Session;
+import com.kolshop.kolshopbackend.gcm.GcmHelper;
 import com.kolshop.kolshopbackend.utils.CommonUtils;
 import com.kolshop.kolshopbackend.utils.Md5Hash;
 import com.kolshop.kolshopbackend.utils.RestClient;
@@ -87,7 +89,7 @@ public class SessionService {
             Connection dbConnection = null;
             PreparedStatement preparedStatement = null;
 
-            String query = "select otp.session_id from OneTimePassword otp join Session s on otp.session_id=s.id where s.user_id=? and one_time_password=? and generation_time > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL(-15) MINUTE)";
+            String query = "select otp.session_id,s.session_type from OneTimePassword otp join Session s on otp.session_id=s.id where s.user_id=? and one_time_password=? and generation_time > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL(-"+ Constants.OTP_TIME_TO_LIVE +") MINUTE)";
 
             try {
                 dbConnection = DatabaseConnection.getConnection();
@@ -99,10 +101,14 @@ public class SessionService {
                 if (rs != null && rs.first()) {
                     //otp verified
                     String sessionId = rs.getString(1);
+                    int sessionType = rs.getInt(2);
                     restCallResponse.setStatus("success");
                     restCallResponse.setData("{userId:\"" + userId + "\",sessionId:\"" + sessionId + "\"}");
                     restCallResponse.setReason(null);
                     validateSession(sessionId);
+                    if(sessionType == Constants.USER_SESSION_TYPE_SELLER) {
+                        createUserInventoryFromGlobalInventory(userId);
+                    }
                 } else {
                     //otp verification failed
                     restCallResponse.setStatus("failure");
@@ -123,9 +129,65 @@ public class SessionService {
         return restCallResponse;
     }
 
+    private void createUserInventoryFromGlobalInventory(final Long userId) {
+        //run this process in background
+        Runnable r = new Runnable() {
+            public void run() {
+                Connection dbConnection = null;
+                PreparedStatement preparedStatement = null;
+                String query = "select count(*) as cnt from Product where user_id=?";
+                try {
+                    dbConnection = DatabaseConnection.getConnection();
+                    preparedStatement = dbConnection.prepareStatement(query);
+                    preparedStatement.setLong(1, userId);
+                    System.out.println(query);
+                    ResultSet rs = preparedStatement.executeQuery();
+                    if(rs!=null && rs.next()) {
+                            int count = rs.getInt(1);
+                            if(count>0) {
+                                //products are already there - this is an old customer
+                            } else {
+                                //todo add products to user inventory - start stored procedure
+                                query = "call make_user_inventory(?);";
+                                preparedStatement = dbConnection.prepareStatement(query);
+                                preparedStatement.setLong(1, userId);
+                                int update = preparedStatement.executeUpdate();
+                                if(update>0) {
+                                    JsonObject notificationJsonObject = new JsonObject();
+                                    notificationJsonObject.addProperty("type", Constants.GCM_NOTI_USER_INVENTORY_CREATED);
+                                    notificationJsonObject.addProperty("deviceAdded", true);
+                                    GcmHelper.notifyUser(userId, notificationJsonObject, Constants.GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED);
+                                } else {
+                                    //some problem occurred
+                                }
+                            }
+                    } else {
+                        //FATAL - some problem occurred
+                        logger.log(Level.SEVERE, "problem while making UserInventory for userId = " + userId);
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "problem while making UserInventory for userId = " + userId);
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                } finally {
+                    try {
+                        if (preparedStatement != null) {
+                            preparedStatement.close();
+                        }
+                        if (dbConnection != null) {
+                            dbConnection.close();
+                        }
+                    } catch (SQLException e) {
+                        logger.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+            }
+        };
+        new Thread(r).start();
+    }
+
     private void validateSession(String sessionId) {
-        Connection dbConnection;
-        PreparedStatement preparedStatement;
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
         String query = "update Session set valid='1' where id=?";
         try {
             dbConnection = DatabaseConnection.getConnection();
@@ -141,11 +203,22 @@ public class SessionService {
         } catch (Exception e) {
             System.out.print("Session NOT validated with id = " + sessionId);
             logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (dbConnection != null) {
+                    dbConnection.close();
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+            }
         }
     }
 
     private static String createSession(Long userId, String deviceId, int deviceType, int sessionType) {
-        //device id is registration id for android devices
+        //device id is google_registration_id for android devices
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
         String sessionId = "";

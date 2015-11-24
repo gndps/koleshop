@@ -31,11 +31,13 @@ public class SessionEndPoint {
         return sessionService.verifyOneTimePassword(phone, code);
     }
 
+    @Deprecated
     @ApiMethod(name = "checkUsername")
     public RestCallResponse checkUsername(@Named("username") String username, @Named("uniqueRequestId") String uniqueRequestId) {
         return new SessionService().isUsernameAvailable(username, uniqueRequestId);
     }
 
+    @Deprecated
     @ApiMethod(name = "register")
     public RestCallResponse register(@Named("username") String username,
                                      @Named("password") String password,

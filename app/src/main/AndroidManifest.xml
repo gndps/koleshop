@@ -44,7 +44,7 @@
         </activity>
 
         <receiver
-            android:name=".network.GcmBroadcastReceiver"
+            android:name=".receiver.GcmBroadcastReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>

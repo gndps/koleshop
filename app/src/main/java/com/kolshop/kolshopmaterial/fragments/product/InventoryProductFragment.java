@@ -5,10 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +27,7 @@ import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.SerializationUtil;
 import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.extensions.KolRecyclerTouchListener;
+import com.kolshop.kolshopmaterial.model.ProductSelectionRequest;
 import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryProduct;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
 import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
@@ -30,8 +35,9 @@ import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.tonicartos.superslim.LayoutManager;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
-import java.util.List;
+import org.parceler.Parcels;
 
+import java.util.List;
 
 public class InventoryProductFragment extends Fragment {
 
@@ -88,6 +94,9 @@ public class InventoryProductFragment extends Fragment {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED));
+        lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS));
+        lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE));
+        lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT));
     }
 
     private void initializeBroadcastReceivers() {
@@ -95,6 +104,7 @@ public class InventoryProductFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if(isAdded()) {
+                    //fetch product success
                     if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS)) {
                         long receivedCategoryId = intent.getLongExtra("catId", 0l);
                         //Log.d(TAG, "receivedCategoryId = " + receivedCategoryId + " and categoryId = " + categoryId);
@@ -104,11 +114,42 @@ public class InventoryProductFragment extends Fragment {
                         } else {
                             //Log.d(TAG, "wtf is happening");
                         }
+
+                    //fetch products failed
                     } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED)) {
                         long receivedCategoryId = intent.getLongExtra("catId", 0l);
                         //Log.d(TAG, "FAIL...receivedCategoryId = " + receivedCategoryId + " and categoryId = " + categoryId);
                         if(receivedCategoryId == categoryId) {
                             couldNotLoadProducts();
+                        }
+
+                    //update product selection
+                    } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS)) {
+                        Parcelable parcelableRequest = intent.getParcelableExtra("request");
+                        ProductSelectionRequest request = Parcels.unwrap(parcelableRequest);
+                        if(inventoryProductAdapter!=null && inventoryProductAdapter.getPendingRequestsRandomIds()!=null &&  inventoryProductAdapter.getPendingRequestsRandomIds().contains(request.getRandomId())) {
+                            inventoryProductAdapter.updateProductSelection(request, true);
+                        }
+
+                    //update product selection failed
+                    } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE)) {
+                        Parcelable parcelableRequest = intent.getParcelableExtra("request");
+                        ProductSelectionRequest request = Parcels.unwrap(parcelableRequest);
+                        if(inventoryProductAdapter!=null && inventoryProductAdapter.getPendingRequestsRandomIds()!=null &&  inventoryProductAdapter.getPendingRequestsRandomIds().contains(request.getRandomId())) {
+                            inventoryProductAdapter.updateProductSelection(request, false);
+                        }
+
+                    //notification from product variety view
+                    } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT)) {
+                        Long requestCategoryId = intent.getLongExtra("requestCategoryId", 0l);
+                        Long varietyId = intent.getLongExtra("varietyId", 0l);
+                        int position = intent.getIntExtra("position", 0);
+                        boolean varietySelected = intent.getBooleanExtra("varietySelected", false);
+                        if(varietyId>0 && requestCategoryId == categoryId) {
+                            inventoryProductAdapter.requestProductSelection(position, varietyId, varietySelected);
+                            inventoryProductAdapter.notifyItemChanged(position);
+                        } else {
+                            return;
                         }
                     }
                 }
@@ -165,7 +206,7 @@ public class InventoryProductFragment extends Fragment {
                 .margin(getResources().getDimensionPixelSize(R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
                 .build());*/
-        inventoryProductAdapter = new InventoryProductAdapter(getActivity());
+        inventoryProductAdapter = new InventoryProductAdapter(getActivity(), categoryId);
         recyclerView.setAdapter(inventoryProductAdapter);
         recyclerView.setHasFixedSize(true);
 
@@ -177,7 +218,7 @@ public class InventoryProductFragment extends Fragment {
             products = getCachedProducts();
         }
 
-        /*set recycler view click listener
+        //set recycler view click listener
         recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
             @Override
             public void onItemClick(View v, int position) {
@@ -188,7 +229,7 @@ public class InventoryProductFragment extends Fragment {
             public void onItemLongClick(View v, int position) {
                 //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
             }
-        }));*/
+        }));
         //recyclerView.setVerticalScrollBarEnabled(true); //no need of scroll bar...google play doesn't have it
 
 

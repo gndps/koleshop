@@ -63,6 +63,12 @@ public class Constants {
     public static final String ACTION_FETCH_INVENTORY_PRODUCTS = "action_fetch_inventory_products" ;
     public static final String ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS = "action_fetch_inventory_products_success" ;
     public static final String ACTION_FETCH_INVENTORY_PRODUCTS_FAILED = "action_fetch_inventory_products_failed" ;
+    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION = "action_update_inventory_product_selection" ;
+    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS = "action_update_inventory_product_selection_success" ;
+    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE = "action_update_inventory_product_selection_failure" ;
+    public static final String ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT = "action_notify_product_selection_variety_to_parent" ;
+    //gcm broadcast actions
+    public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "action_gcm_broadcast_inventory_created";
 
     //Shared preferences keys
     public static final String KEY_REG_ID = "registration_id";
@@ -96,5 +102,11 @@ public class Constants {
     public static final int TIME_TO_LIVE_INV_SUBCAT = 5; //cache_inventory_subcategories_x will expire in 5 minutes
     public static final String CACHE_INVENTORY_PRODUCTS = "cache_inventory_products_"; //this key will be extended by the category id
     public static final int TIME_TO_LIVE_INV_PRODUCT = 7; //cache_inventory_subcategories_x will expire in 5 minutes
+
+    //server client response statuses other than success and failure
+    public static final String STATUS_KOLE_RESPONSE_CREATING_INVENTORY = "status_kole_response_creating_inventory";
+
+    //Symbols
+    public static final String INDIAN_RUPEE_SYMBOL = "\u20B9";
 
 }

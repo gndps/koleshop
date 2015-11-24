@@ -1,4 +1,4 @@
-package com.kolshop.kolshopbackend.beans;
+package com.kolshop.kolshopbackend.db.models;
 
 /**
  * Created by Gundeep on 30/05/15.

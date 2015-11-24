@@ -1,4 +1,4 @@
-package com.kolshop.kolshopmaterial.network;
+package com.kolshop.kolshopmaterial.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,8 +7,10 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.common.constant.Actions;
+import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.constant.KolStringExtras;
 import com.kolshop.kolshopmaterial.common.constant.Prefs;
 import com.kolshop.kolshopmaterial.common.enums.MessageType;
@@ -17,6 +19,9 @@ import com.kolshop.kolshopmaterial.services.PushMessageProcessorService;
 import com.google.gson.Gson;
 
 public class GcmBroadcastReceiver extends BroadcastReceiver {
+
+    //gcm keys
+    public static final String GCM_NOTI_USER_INVENTORY_CREATED = "gcm_noti_user_inventory_created";
 
     private static String TAG = "GCM_BROADCAST_RECEIVER";
 
@@ -44,6 +49,18 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
 
     public void handleReceivedGcmMessage(Context context, Intent intent) {
         String type = intent.getStringExtra("type");
+        switch (type) {
+            case GCM_NOTI_USER_INVENTORY_CREATED:
+                LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
+                Intent localBroadcastIntent = new Intent();
+                localBroadcastIntent.setAction(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED);
+                lbm.sendBroadcast(localBroadcastIntent);
+                break;
+        }
+
+        /*String test = intent.getStringExtra("data");
+        Log.d(TAG, "testdata = " + test);
+        Toast.makeText(context, test, Toast.LENGTH_SHORT).show();
         MessageType messageType = MessageType.getMessageType(type);
         switch (messageType) {
             case SHOP_SETTINGS:
@@ -72,7 +89,7 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
                     lbm.sendBroadcast(localBroadcastIntent);
                 }
                 break;
-        }
+        }*/
     }
 
 }

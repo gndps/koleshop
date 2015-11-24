@@ -1,13 +1,14 @@
 package com.kolshop.kolshopbackend.services;
 
-import com.kolshop.kolshopbackend.beans.ParentProductCategory;
-import com.kolshop.kolshopbackend.beans.ProductCategory;
 import com.kolshop.kolshopbackend.common.Constants;
 import com.kolshop.kolshopbackend.db.connection.DatabaseConnection;
 import com.kolshop.kolshopbackend.db.models.InventoryCategory;
 import com.kolshop.kolshopbackend.db.models.InventoryProduct;
 import com.kolshop.kolshopbackend.db.models.InventoryProductVariety;
+import com.kolshop.kolshopbackend.db.models.ProductVarietySelection;
 import com.kolshop.kolshopbackend.utils.DatabaseConnectionUtils;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -96,7 +97,7 @@ public class InventoryService {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        String query = "select i.id,i.name,b.name as brand,i.description,i.additional_info as info,i.special_desc,i.private,p.valid as p_selected\n" +
+        /*String query = "select i.id,i.name,b.name as brand,i.description,i.additional_info as info,i.special_desc,i.private,p.valid as p_selected\n" +
                 ",iv.id as ivar_id,iv.quantity,iv.price,iv.image,iv.content,pvar.id as pvar_selected\n" +
                 "from Inventory i \n" +
                 "left outer join Brand b on b.id=i.brand_id \n" +
@@ -114,13 +115,20 @@ public class InventoryService {
                 "and iv.valid='1'\n" +
                 "and i.category_id=?\n" +
                 "and (p.user_id=? or p.user_id is null)\n" +
-                "order by brand asc,i.name asc,ivar_id asc;";
+                "order by brand asc,i.name asc,ivar_id asc;";*/
+
+        String newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,pv.valid as selected" +
+                " from Product p join ProductVariety pv" +
+                " on p.id = pv.product_id" +
+                " join Brand b on b.id = p.brand_id" +
+                " where p.valid=1 and p.user_id=? and p.category_id=?" +
+                " order by brand asc, p.name asc, price asc;";
 
         try {
             dbConnection = DatabaseConnection.getConnection();
-            preparedStatement = dbConnection.prepareStatement(query);
-            preparedStatement.setLong(1, categoryId);
-            preparedStatement.setLong(2, userId);
+            preparedStatement = dbConnection.prepareStatement(newQuery);
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setLong(2, categoryId);
 
             logger.log(Level.INFO, "query=" + preparedStatement.toString());
 
@@ -146,21 +154,22 @@ public class InventoryService {
                     currentInventoryProduct.setId(rs.getLong("id"));
                     currentInventoryProduct.setName(rs.getString("name"));
                     currentInventoryProduct.setBrand(rs.getString("brand"));
+                    /*this shit is deprecated for now
                     currentInventoryProduct.setDescription(rs.getString("description"));
                     currentInventoryProduct.setAdditionalInfo(rs.getString("info"));
                     currentInventoryProduct.setSpecialDescription(rs.getString("special_desc"));
                     currentInventoryProduct.setPrivateToUser(rs.getBoolean("private"));
-                    currentInventoryProduct.setSelectedByUser(rs.getBoolean("p_selected"));
+                    currentInventoryProduct.setSelectedByUser(rs.getBoolean("p_selected"));*/
                 }
 
                 //extract inventory product variety data
                 InventoryProductVariety inventoryProductVariety = new InventoryProductVariety();
-                inventoryProductVariety.setId(rs.getLong("ivar_id"));
+                inventoryProductVariety.setId(rs.getLong("pvar_id"));
                 inventoryProductVariety.setQuantity(rs.getString("quantity"));
                 inventoryProductVariety.setPrice(rs.getFloat("price"));
                 inventoryProductVariety.setImageUrl(rs.getString("image"));
-                inventoryProductVariety.setVegNonVeg(rs.getString("content"));
-                inventoryProductVariety.setSelected(rs.getBoolean("pvar_selected"));
+                inventoryProductVariety.setLimitedStock(rs.getInt("limited_stock"));
+                inventoryProductVariety.setSelected(rs.getBoolean("selected"));
                 inventoryProductVarieties.add(inventoryProductVariety);
             }
 
@@ -181,6 +190,52 @@ public class InventoryService {
         }
     }
 
-    public
+    public boolean updateProductSelection(Long userId, ProductVarietySelection productVarietySelection) {
 
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        List<Long> selectionProductsList = productVarietySelection.getSelectProductIds();
+        String selectionProducts = "";
+        if(selectionProductsList!=null && selectionProductsList.size()>0) {
+            selectionProducts = StringUtils.join(productVarietySelection.getSelectProductIds(), ',');
+        }
+
+        List<Long> deselectionProductsList = productVarietySelection.getDeselectProductIds();
+        String deselectionProducts = "";
+        if(deselectionProductsList!=null && deselectionProductsList.size()>0) {
+            deselectionProducts = StringUtils.join(productVarietySelection.getDeselectProductIds(), ',');
+        }
+
+        String selectionQuery = "call select_user_product(?,?);";
+        String deselectionQuery = "call deselect_user_product(?,?);";
+
+        logger.log(Level.INFO, "will run product selection query");
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+
+            if(!selectionProducts.isEmpty()) {
+                preparedStatement = dbConnection.prepareStatement(selectionQuery);
+                preparedStatement.setLong(1, userId);
+                preparedStatement.setString(2, selectionProducts);
+                int update = preparedStatement.executeUpdate();
+            }
+
+            if(!deselectionProducts.isEmpty()) {
+                preparedStatement = dbConnection.prepareStatement(deselectionQuery);
+                preparedStatement.setLong(1, userId);
+                preparedStatement.setString(2, deselectionProducts);
+                int update = preparedStatement.executeUpdate();
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            return false;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+        return true;
+    }
 }

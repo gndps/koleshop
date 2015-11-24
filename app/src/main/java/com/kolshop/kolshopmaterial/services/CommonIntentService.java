@@ -3,6 +3,7 @@ package com.kolshop.kolshopmaterial.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -16,6 +17,7 @@ import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.common.util.SerializationUtil;
 import com.kolshop.kolshopmaterial.model.MeasuringUnit;
 import com.kolshop.kolshopmaterial.model.ProductCategory;
+import com.kolshop.kolshopmaterial.model.ProductSelectionRequest;
 import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryCategory;
 import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryProduct;
 import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
@@ -28,6 +30,10 @@ import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
 import com.kolshop.server.yolo.inventoryEndpoint.model.KolResponse;
+import com.kolshop.server.yolo.inventoryEndpoint.model.KoleResponse;
+import com.kolshop.server.yolo.inventoryEndpoint.model.ProductVarietySelection;
+
+import org.parceler.Parcels;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -54,14 +60,24 @@ public class CommonIntentService extends IntentService {
         realm = Realm.getInstance(getApplicationContext());
         if (intent != null) {
             final String action = intent.getAction();
+
+            //@Deprecated load product categories
             if (ACTION_LOAD_PRODUCT_CATEGORIES.equals(action) && !PreferenceUtils.getPreferencesFlag(getApplicationContext(), Constants.FLAG_PRODUCT_CATEGORIES_LOADED)) {
                 loadProductCategories();
+
+                //@Deprecated measuring units
             } else if (ACTION_LOAD_MEASURING_UNITS.equals(action) && !PreferenceUtils.getPreferencesFlag(getApplicationContext(), Constants.FLAG_MEASURING_UNITS_LOADED)) {
                 loadMeasuringUnits();
+
+                //@Deprecated brands
             } else if (ACTION_LOAD_BRANDS.equals(action) && !PreferenceUtils.getPreferencesFlag(getApplicationContext(), Constants.FLAG_BRANDS_LOADED)) {
                 loadBrands();
+
+                //inventory categories
             } else if (Constants.ACTION_FETCH_INVENTORY_CATEGORIES.equals(action)) {
                 fetchInventoryCategories();
+
+                //inventory subcategories
             } else if (Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES.equals(action)) {
                 Long categoryId = intent.getLongExtra("categoryId", 0L);
                 if (categoryId > 0L) {
@@ -71,6 +87,8 @@ public class CommonIntentService extends IntentService {
                     Intent intent2 = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent2);
                 }
+
+                //get products for inventory
             } else if (Constants.ACTION_FETCH_INVENTORY_PRODUCTS.equals(action)) {
                 Long categoryId = intent.getLongExtra("categoryId", 0L);
                 if (categoryId > 0L) {
@@ -80,6 +98,11 @@ public class CommonIntentService extends IntentService {
                     Intent intent2 = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent2);
                 }
+
+                //inventory product selection
+            } else if (Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION.equals(action)) {
+                ProductSelectionRequest request = Parcels.unwrap(intent.getParcelableExtra("request"));
+                updateInventoryProductSelection(request);
             }
         }
         realm.close();
@@ -235,7 +258,7 @@ public class CommonIntentService extends IntentService {
 
         inventoryEndpoint = builder.build();
 
-        KolResponse result = null;
+        KoleResponse result = null;
 
         try {
             Context context = getApplicationContext();
@@ -250,6 +273,9 @@ public class CommonIntentService extends IntentService {
             if (result != null && result.getData() != null) Log.e(TAG, (String) result.getData());
 
             Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
+            if (result != null && result.getStatus().equalsIgnoreCase(Constants.STATUS_KOLE_RESPONSE_CREATING_INVENTORY)) {
+                intent.putExtra("status", Constants.STATUS_KOLE_RESPONSE_CREATING_INVENTORY);
+            }
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
         } else {
@@ -306,7 +332,7 @@ public class CommonIntentService extends IntentService {
 
         inventoryEndpoint = builder.build();
 
-        KolResponse result = null;
+        KoleResponse result = null;
 
         try {
             Context context = getApplicationContext();
@@ -327,12 +353,14 @@ public class CommonIntentService extends IntentService {
 
         ArrayList<ArrayMap<String, String>> list = (ArrayList<ArrayMap<String, String>>) result.getData();
         List<InventoryCategory> cats = new ArrayList<>();
-        for (ArrayMap<String, String> map : list) {
-            if (map != null) {
-                InventoryCategory cat = new InventoryCategory();
-                cat.setId(Long.valueOf(map.get("id")));
-                cat.setName(map.get("name"));
-                cats.add(cat);
+        if (list != null) {
+            for (ArrayMap<String, String> map : list) {
+                if (map != null) {
+                    InventoryCategory cat = new InventoryCategory();
+                    cat.setId(Long.valueOf(map.get("id")));
+                    cat.setName(map.get("name"));
+                    cats.add(cat);
+                }
             }
         }
 
@@ -380,7 +408,7 @@ public class CommonIntentService extends IntentService {
 
         inventoryEndpoint = builder.build();
 
-        KolResponse result = null;
+        KoleResponse result = null;
 
         try {
             Context context = getApplicationContext();
@@ -409,12 +437,12 @@ public class CommonIntentService extends IntentService {
                     InventoryProduct prod = new InventoryProduct();
                     prod.setId(Long.valueOf((String) map.get("id")));
                     prod.setName((String) map.get("name"));
-                    prod.setDescription((String) map.get("description"));
+                    //prod.setDescription((String) map.get("description"));
                     prod.setBrand((String) map.get("brand"));
-                    prod.setAdditionalInfo((String) map.get("additionalInfo"));
-                    prod.setAdditionalInfo((String) map.get("specialDescription"));
-                    prod.setPrivateToUser(Boolean.valueOf((Boolean) map.get("privateToUser")));
-                    prod.setSelectedByUser(Boolean.valueOf((Boolean) map.get("selectedByUser")));
+                    //prod.setAdditionalInfo((String) map.get("additionalInfo"));
+                    //prod.setAdditionalInfo((String) map.get("specialDescription"));
+                    //prod.setPrivateToUser(Boolean.valueOf((Boolean) map.get("privateToUser")));
+                    //prod.setSelectedByUser(Boolean.valueOf((Boolean) map.get("selectedByUser")));
                     ArrayList<ArrayMap<String, Object>> varieties = (ArrayList<ArrayMap<String, Object>>) map.get("varieties");
                     List<InventoryProductVariety> inventoryProductVarieties = new ArrayList<>();
                     for (ArrayMap<String, Object> variety : varieties) {
@@ -423,8 +451,9 @@ public class CommonIntentService extends IntentService {
                         invProVar.setQuantity((String) variety.get("quantity"));
                         invProVar.setPrice(((BigDecimal) variety.get("price")).floatValue());
                         invProVar.setImageUrl((String) variety.get("imageUrl"));
-                        invProVar.setVegNonVeg((String) variety.get("vegNonVeg"));
+                        //invProVar.setVegNonVeg((String) variety.get("vegNonVeg"));
                         invProVar.setSelected((Boolean) variety.get("selected"));
+                        invProVar.setLimitedStock(((BigDecimal) variety.get("limitedStock")).intValue());
                         inventoryProductVarieties.add(invProVar);
                     }
                     prod.setVarieties(inventoryProductVarieties);
@@ -459,6 +488,54 @@ public class CommonIntentService extends IntentService {
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
 
+    }
+
+    private void updateInventoryProductSelection(ProductSelectionRequest productSelectionRequest) {
+        InventoryEndpoint inventoryEndpoint = null;
+        InventoryEndpoint.Builder builder = new InventoryEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        inventoryEndpoint = builder.build();
+
+        KoleResponse result = null;
+
+        try {
+            Context context = getApplicationContext();
+            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
+            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
+            ProductVarietySelection productVarietySelection = new ProductVarietySelection();
+            if(productSelectionRequest.isWillSelectOnSuccess()) {
+                productVarietySelection.setSelectProductIds(productSelectionRequest.getProductVarietyIds());
+            } else {
+                productVarietySelection.setDeselectProductIds(productSelectionRequest.getProductVarietyIds());
+            }
+            result = inventoryEndpoint.updateProductSelection(sessionId, userId, productVarietySelection).execute();
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+        if (result == null || !result.getSuccess()) {
+            //result is null - request failed
+            Log.e(TAG, "product variety updating failed");
+            if (result != null && result.getData() != null) Log.e(TAG, (String) result.getData());
+            Intent intent = new Intent(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE);
+            Parcelable wrapped = Parcels.wrap(productSelectionRequest);
+            intent.putExtra("request", wrapped);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        } else {
+            //result is cool - request success
+            Intent intent = new Intent(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS);
+            Parcelable wrapped = Parcels.wrap(productSelectionRequest);
+            intent.putExtra("request", wrapped);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
     }
 
 }

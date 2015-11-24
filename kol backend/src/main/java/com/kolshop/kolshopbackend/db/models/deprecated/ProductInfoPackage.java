@@ -1,10 +1,12 @@
-package com.kolshop.kolshopbackend.beans;
+package com.kolshop.kolshopbackend.db.models.deprecated;
 
 import java.util.Date;
 
 /**
  * Created by Gundeep on 14/05/15.
  */
+
+@Deprecated
 public class ProductInfoPackage {
 
     Long productId;

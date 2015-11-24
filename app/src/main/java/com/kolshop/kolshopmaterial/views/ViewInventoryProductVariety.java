@@ -5,11 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.kolshop.kolshopmaterial.R;
+import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -27,6 +29,8 @@ public class ViewInventoryProductVariety extends RelativeLayout {
     private TextView textViewQuantity, textViewPrice;
     private ImageView imageViewCheckbox;
     private ProgressBar progressBarCheckbox;
+    private LinearLayout clickArea1,clickArea2;
+    private OnClickListener clickListenerArea1, clickListenerArea2;
 
     public ViewInventoryProductVariety(Context context) {
         super(context);
@@ -38,6 +42,8 @@ public class ViewInventoryProductVariety extends RelativeLayout {
         textViewPrice = (TextView) v.findViewById(R.id.tv_inventory_product_variety_price);
         imageViewCheckbox = (ImageView) v.findViewById(R.id.iv_inventory_product_variety);
         progressBarCheckbox = (ProgressBar) v.findViewById(R.id.pb_inventory_product_variety);
+        clickArea1 = (LinearLayout) v.findViewById(R.id.ll_variety_click_area_1);
+        clickArea2 = (LinearLayout) v.findViewById(R.id.ll_variety_click_area_2);
     }
 
     public ViewInventoryProductVariety(Context context, InventoryProductVariety variety, boolean productCheckboxProgress,
@@ -51,7 +57,8 @@ public class ViewInventoryProductVariety extends RelativeLayout {
 
     private void loadTheData() {
         textViewQuantity.setText(variety.getQuantity());
-        textViewPrice.setText("Rs. " + variety.getPrice());
+        textViewPrice.setText(Constants.INDIAN_RUPEE_SYMBOL + variety.getPrice());
+        setChecked(variety.getSelected());
         //todo set the image url for this shit
         if(productCheckboxProgress) {
             imageViewCheckbox.setVisibility(GONE);
@@ -60,5 +67,24 @@ public class ViewInventoryProductVariety extends RelativeLayout {
             imageViewCheckbox.setVisibility(VISIBLE);
             progressBarCheckbox.setVisibility(GONE);
         }
+    }
+
+    public void setChecked(boolean checked) {
+        if(checked) {
+            imageViewCheckbox.setImageResource(R.drawable.ic_checkbox_true);
+        } else {
+            imageViewCheckbox.setImageResource(R.drawable.ic_checkbox_false_focused);
+        }
+    }
+
+    public void setClickListenerArea1(OnClickListener clickListenerArea1) {
+        this.clickListenerArea1 = clickListenerArea1;
+        clickArea1.setOnClickListener(this.clickListenerArea1);
+    }
+
+    public void setClickListenerArea2(OnClickListener clickListenerArea2) {
+        this.clickListenerArea2 = clickListenerArea2;
+        clickArea2.setOnClickListener(this.clickListenerArea2);
+        imageViewCheckbox.setOnClickListener(this.clickListenerArea2);
     }
 }

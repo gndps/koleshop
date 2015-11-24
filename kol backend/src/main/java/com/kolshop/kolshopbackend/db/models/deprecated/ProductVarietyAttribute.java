@@ -1,8 +1,10 @@
-package com.kolshop.kolshopbackend.beans;
+package com.kolshop.kolshopbackend.db.models.deprecated;
 
 /**
  * Created by Gundeep on 17/05/15.
  */
+
+@Deprecated
 public class ProductVarietyAttribute {
 
     Long id;

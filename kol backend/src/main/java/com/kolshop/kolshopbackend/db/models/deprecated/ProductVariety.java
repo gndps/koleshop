@@ -1,4 +1,4 @@
-package com.kolshop.kolshopbackend.beans;
+package com.kolshop.kolshopbackend.db.models.deprecated;
 
 import java.util.Date;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.List;
 /**
  * Created by Gundeep on 17/05/15.
  */
+
+@Deprecated
 public class ProductVariety {
 
     Long id;
