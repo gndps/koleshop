@@ -26,20 +26,36 @@ public class InventoryService {
 
     private static final Logger logger = Logger.getLogger(InventoryService.class.getName());
 
-    public List<InventoryCategory> getCategories() {
+    public List<InventoryCategory> getCategories(boolean myInventory, Long userId) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        String query = "select id,name,description,image_url from ProductCategory where parent_category_id is null and id not in ("
-                + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
-                + ") order by sort_order asc";
+        String query;
+
+        if(myInventory) {
+            query = "select pc1.id,pc1.name,pc1.description,pc1.image_url from ProductCategory pc1 join ProductCategory pc2 on pc1.id = pc2.parent_category_id " +
+                    "and pc1.parent_category_id is null " +
+                    "join Product p on p.category_id = pc2.id and p.user_id=? and p.valid='1' " +
+                    "join ProductVariety pv on pv.product_id = p.id and pv.valid='1' " +
+                    "group by pc1.id " +
+                    "order by pc1.sort_order;";
+
+        } else {
+            query = "select id,name,description,image_url from ProductCategory where parent_category_id is null and id not in ("
+                    + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
+                    + ") order by sort_order asc";
+        }
 
         logger.log(Level.INFO, "query="+query);
 
         try {
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
+
+            if(myInventory) {
+                preparedStatement.setLong(1, userId);
+            }
 
             ResultSet rs = preparedStatement.executeQuery();
             List<InventoryCategory> list = new ArrayList<>();
@@ -59,16 +75,30 @@ public class InventoryService {
         }
     }
 
-    public List<InventoryCategory> getSubcategories(Long categoryId) {
+    public List<InventoryCategory> getSubcategories(Long categoryId, Long userId, boolean myInventory) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        String query = "select id,name from ProductCategory where parent_category_id = ? order by sort_order asc;";
+        String query;
+        if(myInventory) {
+            query = "select pc.id,pc.name from ProductCategory pc inner join Product p on p.category_id = pc.id and p.user_id=? and p.valid='1' " +
+                    "join ProductVariety pv on p.id = pv.product_id and pv.valid='1' " +
+                    "where parent_category_id=? " +
+                    "group by pc.id " +
+                    "order by sort_order asc;";
+        } else {
+            query = "select id,name from ProductCategory where parent_category_id = ? order by sort_order asc;";
+        }
 
         try {
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
-            preparedStatement.setLong(1, categoryId);
+            if(myInventory) {
+                preparedStatement.setLong(1, userId);
+                preparedStatement.setLong(2, categoryId);
+            } else {
+                preparedStatement.setLong(1, categoryId);
+            }
 
             logger.log(Level.INFO, "query=" + preparedStatement.toString());
 
@@ -92,7 +122,7 @@ public class InventoryService {
         }
     }
 
-    public List<InventoryProduct> getProductsForCategory(Long categoryId, Long userId) {
+    public List<InventoryProduct> getProductsForCategory(Long categoryId, Long userId, boolean myInventory) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -117,12 +147,22 @@ public class InventoryService {
                 "and (p.user_id=? or p.user_id is null)\n" +
                 "order by brand asc,i.name asc,ivar_id asc;";*/
 
-        String newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,pv.valid as selected" +
-                " from Product p join ProductVariety pv" +
-                " on p.id = pv.product_id" +
-                " join Brand b on b.id = p.brand_id" +
-                " where p.valid=1 and p.user_id=? and p.category_id=?" +
-                " order by brand asc, p.name asc, price asc;";
+        String newQuery;
+        if(myInventory) {
+            newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,'1' as selected" +
+                    " from Product p join ProductVariety pv" +
+                    " on p.id = pv.product_id and pv.valid='1'" +
+                    " join Brand b on b.id = p.brand_id" +
+                    " where p.valid=1 and p.user_id=? and p.category_id=?" +
+                    " order by brand asc, p.name asc, price asc;";
+        } else {
+            newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,pv.valid as selected" +
+                    " from Product p join ProductVariety pv" +
+                    " on p.id = pv.product_id" +
+                    " join Brand b on b.id = p.brand_id" +
+                    " where p.valid=1 and p.user_id=? and p.category_id=?" +
+                    " order by brand asc, p.name asc, price asc;";
+        }
 
         try {
             dbConnection = DatabaseConnection.getConnection();

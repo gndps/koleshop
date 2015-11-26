@@ -17,6 +17,7 @@ import android.widget.ViewFlipper;
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.adapters.InventoryCategoryViewPagerAdapter;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.KoleCacheUtil;
 import com.kolshop.kolshopmaterial.common.util.SerializationUtil;
 import com.kolshop.kolshopmaterial.model.genericjson.GenericJsonListInventoryCategory;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
@@ -35,6 +36,7 @@ public class InventoryProductActivity extends AppCompatActivity {
     TabLayout tabLayout;
     ViewPager viewPager;
     private static final String TAG = "InventoryPrductActity";
+    private boolean myInventory = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class InventoryProductActivity extends AppCompatActivity {
         if (extras != null) {
             parentCategoryId = extras.getLong("categoryId");
             categoryTitle = extras.getString("categoryTitle");
+            myInventory = extras.getBoolean("myInventory");
         }
         initializeBroadcastReceivers();
         setupActivity();
@@ -102,32 +105,11 @@ public class InventoryProductActivity extends AppCompatActivity {
     }
 
     private void fetchCategories() {
-        List<InventoryCategory> list = getCachedSubcategories();
+        List<InventoryCategory> list = KoleCacheUtil.getCachedSubcategories(myInventory, parentCategoryId);
         if(list!=null && list.size()>0) {
             loadCategories(list);
         } else {
             requestCategoriesFromInternet();
-        }
-    }
-
-    private List<InventoryCategory> getCachedSubcategories() {
-        String cacheKey = Constants.CACHE_INVENTORY_SUBCATEGORIES + parentCategoryId;
-        byte[] cachedSubcategoriesByteArray = KoleshopSingleton.getSharedInstance().getCachedGenericJsonByteArray(cacheKey, Constants.TIME_TO_LIVE_INV_SUBCAT);
-        if(cachedSubcategoriesByteArray!=null && cachedSubcategoriesByteArray.length>0) {
-            try {
-                GenericJsonListInventoryCategory genericJsonListInventoryCategory = SerializationUtil.getGenericJsonFromSerializable(cachedSubcategoriesByteArray, GenericJsonListInventoryCategory.class);
-                List<InventoryCategory> subcategories = genericJsonListInventoryCategory.getList();
-                if(subcategories!=null && subcategories.size()>0) {
-                    return subcategories;
-                } else {
-                    return null;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "some problem occurred in deserializing subcategories", e);
-                return null;
-            }
-        } else {
-            return null;
         }
     }
 
@@ -141,6 +123,7 @@ public class InventoryProductActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(mContext, CommonIntentService.class);
         serviceIntent.setAction(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES);
         serviceIntent.putExtra("categoryId", parentCategoryId);
+        serviceIntent.putExtra("myInventory", myInventory);
         startService(serviceIntent);
     }
 
@@ -155,12 +138,12 @@ public class InventoryProductActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager, List<InventoryCategory> subcategories) {
-        InventoryCategoryViewPagerAdapter adapter = new InventoryCategoryViewPagerAdapter(getSupportFragmentManager());
+        InventoryCategoryViewPagerAdapter adapter = new InventoryCategoryViewPagerAdapter(getSupportFragmentManager(), myInventory);
         List<InventoryCategory> categories;
         if(subcategories!=null && subcategories.size()>0){
             categories = subcategories;
         } else {
-            categories = getCachedSubcategories();
+            categories = KoleCacheUtil.getCachedSubcategories(myInventory, parentCategoryId);
         }
         adapter.setInventoryCategories(categories);
         viewPager.setAdapter(adapter);

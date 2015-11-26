@@ -25,6 +25,7 @@ import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.activities.InventoryProductActivity;
 import com.kolshop.kolshopmaterial.adapters.InventoryCategoryAdapter;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
+import com.kolshop.kolshopmaterial.common.util.KoleCacheUtil;
 import com.kolshop.kolshopmaterial.common.util.SerializationUtil;
 import com.kolshop.kolshopmaterial.extensions.KolClickListener;
 import com.kolshop.kolshopmaterial.extensions.KolRecyclerTouchListener;
@@ -45,11 +46,16 @@ public class InventoryCategoryFragment extends Fragment {
     Context mContext;
     BroadcastReceiver mBroadcastReceiverInventoryCategoryFragment;
     private static final String TAG = "InventoryCategoryFrag";
+    private boolean myInventory = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getActivity();
+        Bundle args = getArguments();
+        if(args!=null) {
+            myInventory = args.getBoolean("myInventory", false);
+        }
         initializeBroadcastReceivers();
     }
 
@@ -72,6 +78,7 @@ public class InventoryCategoryFragment extends Fragment {
             public void onItemClick(View v, int position) {
                 Intent intent = new Intent(mContext, InventoryProductActivity.class);
                 intent.putExtra("categoryId", inventoryCategoryAdapter.getInventoryCategoryId(position));
+                intent.putExtra("myInventory", myInventory);
                 String categoryName = inventoryCategoryAdapter.getInventoryCategoryName(position);
                 if (categoryName != null && !categoryName.isEmpty()) {
                     intent.putExtra("categoryTitle", categoryName);
@@ -152,10 +159,15 @@ public class InventoryCategoryFragment extends Fragment {
         }
     }
 
-    private void inventoryLoadRequest() {
+    public List<InventoryCategory> getCachedInventoryCategories() {
+        return KoleCacheUtil.getCachedInventoryCategories(myInventory);
+    }
+
+    public void inventoryLoadRequest() {
         viewFlipper.setDisplayedChild(0);
         Intent commonIntent = new Intent(getActivity(), CommonIntentService.class);
         commonIntent.setAction(Constants.ACTION_FETCH_INVENTORY_CATEGORIES);
+        commonIntent.putExtra("myInventory", myInventory);
         getActivity().startService(commonIntent);
     }
 
@@ -170,26 +182,9 @@ public class InventoryCategoryFragment extends Fragment {
             inventoryCategoryAdapter.setData(listOfInventoryCategories);
             viewFlipper.setDisplayedChild(1);
         } else {
+            inventoryLoadFailed();
             Toast.makeText(mContext, "some problem while parsing gson cached response", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private List<InventoryCategory> getCachedInventoryCategories() {
-        List<InventoryCategory> listOfInventoryCategories = null;
-        byte[] cachedGenericJsonByteArray = KoleshopSingleton.getSharedInstance().getCachedGenericJsonByteArray(Constants.CACHE_INVENTORY_CATEGORIES, Constants.TIME_TO_LIVE_INV_CAT);
-        if(cachedGenericJsonByteArray==null) {
-            return null;
-        }
-        try {
-            GenericJsonListInventoryCategory listCategory = SerializationUtil.getGenericJsonFromSerializable(cachedGenericJsonByteArray, GenericJsonListInventoryCategory.class);
-            if(listCategory!=null) {
-                listOfInventoryCategories = listCategory.getList();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "some problem while deserlzng", e);
-            return null;
-        }
-        return listOfInventoryCategories;
     }
 
     private void inventoryLoadFailed() {

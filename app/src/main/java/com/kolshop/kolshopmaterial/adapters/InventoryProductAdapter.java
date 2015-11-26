@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
+import com.kolshop.kolshopmaterial.common.util.KoleCacheUtil;
 import com.kolshop.kolshopmaterial.common.util.ProductUtil;
 import com.kolshop.kolshopmaterial.extensions.InventoryProductClickListener;
 import com.kolshop.kolshopmaterial.model.ProductSelectionRequest;
@@ -52,10 +53,12 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     int expandedItemPosition, expandedItemPositionOld;
     List<String> pendingRequestsRandomIds;
     Long categoryId;
+    boolean myInventory;
 
 
-    public InventoryProductAdapter(Context context, Long categoryId) {
+    public InventoryProductAdapter(Context context, Long categoryId, boolean myInventory) {
         this.context = context;
+        this.myInventory = myInventory;
         this.categoryId = categoryId;
         inflator = LayoutInflater.from(context);
         pendingRequestsRandomIds = new ArrayList<>();
@@ -103,7 +106,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                     .inflate(R.layout.item_inventory_product_expanded, parent, false);
         }
 
-        InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType, context);
+        InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType, context, myInventory);
         Log.d(TAG, "on create view holder of type=" + viewType);
         return holder;
     }
@@ -124,7 +127,11 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         holder.setClickListener(new InventoryProductClickListener() {
             @Override
             public void onItemClick(View v) {
-                if (!mItems.get(position).isHeader) {
+                if(myInventory) {
+                    //open product edit screen
+                    Toast.makeText(context, "Product Edit screen is on its way!!", Toast.LENGTH_SHORT).show();
+
+                } else if (!mItems.get(position).isHeader) {
                     if (expandedItemPosition != position) {
                         expandItemAtPosition(position);
                     } else if (expandedItemPosition == position) {
@@ -221,7 +228,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         notifyItemChanged(expandedItemPositionOld);
     }
 
-    private void collapseTheExpandedItem() {
+    public void collapseTheExpandedItem() {
         expandedItemPositionOld = expandedItemPosition;
         expandedItemPosition = 0;
         notifyItemChanged(expandedItemPosition);
@@ -235,6 +242,16 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         } else {
             return mItems.get(position).isHeader ? VIEW_TYPE_HEADER : VIEW_TYPE_CONTENT;
         }
+    }
+
+    public void updateProductsCache() {
+        List<InventoryProduct> products = new ArrayList<>();
+        for(LineItem lineItem : mItems) {
+            if(!lineItem.isHeader) {
+                products.add(lineItem.product);
+            }
+        }
+        KoleCacheUtil.cacheProductsList(products, categoryId, false);
     }
 
     private static class LineItem {

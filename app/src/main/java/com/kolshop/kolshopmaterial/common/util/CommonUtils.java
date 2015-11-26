@@ -12,8 +12,10 @@ import android.net.NetworkInfo;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryCategory;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,9 +124,16 @@ public class CommonUtils {
     public static void putToDualCache(String key, Object object) {
         @SuppressWarnings("unchecked")
         Class<List<InventoryCategory>> cls = (Class<List<InventoryCategory>>)(Object)List.class;
-        /*DualCache<List<InventoryCategory>> cache = new DualCacheBuilder<List<InventoryCategory>>(Constants.CACHE_ID_STRING, Constants.APP_CACHE_VERSION, cls)
+        /*DualCache<List<InventoryCategory>> cache = new DualCacheBuilder<List<InventoryCategory>>(Constants.CACHE_ID, Constants.APP_CACHE_VERSION, cls)
                 .useReferenceInRam(5120, new SizeOfVehiculeForTesting())
                 .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);*/
+    }
+
+    public static long getTimeDifferenceInMillis_X_Minus_Y(Date dateX, Date dateY) {
+        long millisX = dateX.getTime();
+        long millisY = dateY.getTime();
+        long timeDiff = millisX - millisY;
+        return timeDiff;
     }
 
 }

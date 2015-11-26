@@ -50,10 +50,12 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     private Context mContext;
     private View.OnClickListener checkBoxOnClickListener;
     private TextView textViewHowManySelected;
+    private boolean myInventory;
 
-    public InventoryProductViewHolder(View view, int viewType, Context context) {
+    public InventoryProductViewHolder(View view, int viewType, Context context, boolean myInventory) {
         super(view);
         mContext = context;
+        this.myInventory = myInventory;
         if(viewType == VIEW_TYPE_HEADER) {
             textViewTitleProductMasterList = (TextView) view.findViewById(R.id.tv_inventory_product_header);
         } else if(viewType == VIEW_TYPE_CONTENT) {
@@ -68,6 +70,10 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
             circleImageViewProductMasterList.setOnClickListener(this);
             imageViewCheckBox = (ImageView) view.findViewById(R.id.iv_inventory_product);
             progressBarCheckBox = (ProgressBar) view.findViewById(R.id.pb_inventory_product);
+            if(myInventory) {
+                //hide the product selection option
+                clickArea2.setVisibility(View.GONE);
+            }
         } else {
             viewInventoryProductExpanded = new ViewInventoryProductExpanded(context, view);
         }
@@ -132,21 +138,23 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
         } else if(viewType == VIEW_TYPE_CONTENT) {
             setTitle(product.getName());
             setSubtitle(makeDescription());
-            int howManySelected = ProductUtil.getProductSelectionCount(product);
-            setChecked(howManySelected>0);
-            setHowManySelected(howManySelected, product.getVarieties().size());
-            boolean productSelectionInProgress = false;
-            for (Map.Entry<Long,Boolean> entry : productVarietyCheckBoxProgress.entrySet())
-            {
-                if(entry.getValue()) {
-                    productSelectionInProgress = true;
-                    break;
+            if(!myInventory) {
+                //selection options are only for global inventory
+                int howManySelected = ProductUtil.getProductSelectionCount(product);
+                setChecked(howManySelected > 0);
+                setHowManySelected(howManySelected, product.getVarieties().size());
+                boolean productSelectionInProgress = false;
+                for (Map.Entry<Long, Boolean> entry : productVarietyCheckBoxProgress.entrySet()) {
+                    if (entry.getValue()) {
+                        productSelectionInProgress = true;
+                        break;
+                    }
                 }
-            }
-            if(productSelectionInProgress) {
-                startCheckBoxProgress();
-            } else {
-                stopCheckBoxProgress();
+                if (productSelectionInProgress) {
+                    startCheckBoxProgress();
+                } else {
+                    stopCheckBoxProgress();
+                }
             }
             List<InventoryProductVariety> varieties = product.getVarieties();
             if(varieties!=null) {
@@ -158,7 +166,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
                 //todo launch this request when kolserver image server is working
                 //holder.sendImageFetchRequest(context);
             }
-        } else {
+        } else { //expanded view
             viewInventoryProductExpanded.setProduct(product, productVarietyCheckBoxProgress, positionInParentView, categoryId);
         }
     }

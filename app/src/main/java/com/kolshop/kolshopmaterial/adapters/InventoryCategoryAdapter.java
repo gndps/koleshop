@@ -40,7 +40,7 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
     public void onBindViewHolder(InventoryCategoryViewHolder holder, int position) {
         if(categories!=null) {
             InventoryCategory inventoryCategory = categories.get(position);
-            holder.setTitle(inventoryCategory.getName());
+            holder.setTitle(position+1 + ". " + inventoryCategory.getName());
             holder.setSubtitle(inventoryCategory.getDesc());
             holder.setImageUrl(inventoryCategory.getImageUrl());
             holder.sendImageFetchRequest(context);

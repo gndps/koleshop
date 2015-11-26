@@ -142,8 +142,8 @@ public class KoleshopSingleton {
 
     public DualCache<String> getDualCacheString() {
         if (dualCache == null) {
-            dualCache = new DualCacheBuilder<String>(Constants.CACHE_ID_STRING, Constants.APP_CACHE_VERSION, String.class)
-                    .useReferenceInRam(Constants.RAM_CACHE_SIZE_STRING, new SizeOf<String>() {
+            dualCache = new DualCacheBuilder<String>(Constants.CACHE_ID, Constants.APP_CACHE_VERSION, String.class)
+                    .useReferenceInRam(Constants.RAM_CACHE_SIZE, new SizeOf<String>() {
                         @Override
                         public int sizeOf(String object) {
                             byte[] b = new byte[0];
@@ -160,21 +160,21 @@ public class KoleshopSingleton {
                             }
                         }
                     })
-                    .useDefaultSerializerInDisk(Constants.DISK_CACHE_SIZE_STRING, true);
+                    .useDefaultSerializerInDisk(Constants.DISK_CACHE_SIZE, true);
         }
         return dualCache;
     }
 
     public DualCache<byte[]> getDualCacheByteArray() {
         if (dualCacheByteArray == null) {
-            dualCacheByteArray = new DualCacheBuilder<byte[]>(Constants.CACHE_ID_STRING, Constants.APP_CACHE_VERSION, byte[].class)
-                    .useReferenceInRam(Constants.RAM_CACHE_SIZE_STRING, new SizeOf<byte[]>() {
+            dualCacheByteArray = new DualCacheBuilder<byte[]>(Constants.CACHE_ID, Constants.APP_CACHE_VERSION, byte[].class)
+                    .useReferenceInRam(Constants.RAM_CACHE_SIZE, new SizeOf<byte[]>() {
                         @Override
                         public int sizeOf(byte[] object) {
                             return object.length;
                         }
                     })
-                    .useDefaultSerializerInDisk(Constants.DISK_CACHE_SIZE_STRING, true);
+                    .useDefaultSerializerInDisk(Constants.DISK_CACHE_SIZE, true);
         }
         return dualCacheByteArray;
     }

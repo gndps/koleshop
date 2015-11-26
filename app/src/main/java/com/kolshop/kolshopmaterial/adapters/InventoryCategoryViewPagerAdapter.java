@@ -21,9 +21,11 @@ public class InventoryCategoryViewPagerAdapter extends FragmentStatePagerAdapter
 
     private List<InventoryCategory> inventoryCategories = new ArrayList<>();
     private static final String TAG = "InventoryCatViewPager";
+    private boolean myInventory = false;
 
-    public InventoryCategoryViewPagerAdapter(FragmentManager fm) {
+    public InventoryCategoryViewPagerAdapter(FragmentManager fm, boolean myInventory) {
         super(fm);
+        this.myInventory = myInventory;
     }
 
     @Override
@@ -32,6 +34,7 @@ public class InventoryCategoryViewPagerAdapter extends FragmentStatePagerAdapter
         Bundle bundl = new Bundle();
         long categoryId = inventoryCategories.get(position).getId();
         bundl.putLong("categoryId", categoryId);
+        bundl.putBoolean("myInventory", myInventory);
         fragment.setArguments(bundl);
         Log.d(TAG, "view pager load page with categoryId = " + categoryId);
         return fragment;

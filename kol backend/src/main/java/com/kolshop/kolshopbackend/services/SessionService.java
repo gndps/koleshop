@@ -7,9 +7,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.appengine.api.ThreadManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kolshop.kolshopbackend.common.Constants;
@@ -182,7 +184,8 @@ public class SessionService {
                 }
             }
         };
-        new Thread(r).start();
+        ThreadFactory tf = ThreadManager.currentRequestThreadFactory();
+        tf.newThread(r).start();
     }
 
     private void validateSession(String sessionId) {

@@ -71,7 +71,6 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
             viewInventoryProductVariety.setClickListenerArea2(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, "click accepted", Toast.LENGTH_SHORT).show();
                     requestProductSelection(varietyId, varietySelected);
                 }
             });
@@ -96,6 +95,11 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
 
     @Override
     public void onClick(View v) {
-
+        if(positionInParent>0) {
+            Intent collapseProductIntent = new Intent(Constants.ACTION_COLLAPSE_EXPANDED_PRODUCT);
+            collapseProductIntent.putExtra("position", positionInParent);
+            collapseProductIntent.putExtra("categoryId", categoryId);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(collapseProductIntent);
+        }
     }
 }

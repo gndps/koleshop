@@ -20,14 +20,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.fragments.DummyHomeFragment;
-import com.kolshop.kolshopmaterial.fragments.product.InventoryProductFragment;
 import com.kolshop.kolshopmaterial.fragments.product.ProductListFragment;
 import com.kolshop.kolshopmaterial.fragments.product.InventoryCategoryFragment;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
@@ -88,9 +86,12 @@ public class HomeActivity extends AppCompatActivity {
                     case R.id.drawer_products:
                         //Products
                         getSupportActionBar().setTitle("Products");
-                        ProductListFragment productListFragment = new ProductListFragment();
+                        InventoryCategoryFragment myInventoryCategoryFragment = new InventoryCategoryFragment();
+                        Bundle bundleMyInventory = new Bundle();
+                        bundleMyInventory.putBoolean("myInventory", true);
+                        myInventoryCategoryFragment.setArguments(bundleMyInventory);
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, productListFragment).commit();
+                                .replace(R.id.fragment_container, myInventoryCategoryFragment).commit();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
                         return true;
@@ -127,6 +128,7 @@ public class HomeActivity extends AppCompatActivity {
                         return true;
                     case R.id.drawer_logout:
                         drawerLayout.closeDrawers();
+                        //todo add "are you sure you wanna log out??"
                         PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_ID, "");
                         PreferenceUtils.setPreferences(mContext, Constants.KEY_SESSION_ID, "");
                         Snackbar.make(content, menuItem.getTitle() + " Successful", Snackbar.LENGTH_LONG).show();

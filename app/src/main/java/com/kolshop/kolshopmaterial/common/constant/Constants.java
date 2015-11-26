@@ -67,6 +67,7 @@ public class Constants {
     public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS = "action_update_inventory_product_selection_success" ;
     public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE = "action_update_inventory_product_selection_failure" ;
     public static final String ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT = "action_notify_product_selection_variety_to_parent" ;
+    public static final String ACTION_COLLAPSE_EXPANDED_PRODUCT = "action_collapse_expanded_product" ;
     //gcm broadcast actions
     public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "action_gcm_broadcast_inventory_created";
 
@@ -87,21 +88,29 @@ public class Constants {
     public static final String PRICE_PROPERTY_NAME = "price";
 
     public static final int APP_CACHE_VERSION = 1;
-    public static final String CACHE_ID_STRING = "cache_id_string";
+    public static final String CACHE_ID = "cache_id_string";
     public static final String CACHE_ID_DATE = "cache_id_date";
-    public static final int RAM_CACHE_SIZE_STRING = 5 * 1024 * 1024; // 5 mb
-    public static final int DISK_CACHE_SIZE_STRING = 15 * 1024 * 1024; //15 mb
+    public static final int RAM_CACHE_SIZE = 5 * 1024 * 1024; // 5 mb
+    public static final int DISK_CACHE_SIZE = 15 * 1024 * 1024; //15 mb
     public static final int RAM_CACHE_SIZE_DATE = 1 * 1024 * 1024; // 5 mb
     public static final int DISK_CACHE_SIZE_DATE = 3 * 1024 * 1024; //15 mb
 
 
     //DualCache keys and expiration time
+    //global inventory cache constants
     public static final String CACHE_INVENTORY_CATEGORIES = "cache_inventory_categories";
     public static final int TIME_TO_LIVE_INV_CAT = 5; //cache_inventory_categories will expire in 5 minutes
     public static final String CACHE_INVENTORY_SUBCATEGORIES = "cache_inventory_subcategories_"; //this key will be extended by the parent category id
     public static final int TIME_TO_LIVE_INV_SUBCAT = 5; //cache_inventory_subcategories_x will expire in 5 minutes
     public static final String CACHE_INVENTORY_PRODUCTS = "cache_inventory_products_"; //this key will be extended by the category id
     public static final int TIME_TO_LIVE_INV_PRODUCT = 7; //cache_inventory_subcategories_x will expire in 5 minutes
+    //my inventory cache constants
+    public static final String CACHE_MY_INVENTORY_CATEGORIES = "cache_my_inventory_categories";
+    public static final int TIME_TO_LIVE_MY_INV_CAT = 5; //cache_my_inventory_categories will expire in 5 minutes
+    public static final String CACHE_MY_INVENTORY_SUBCATEGORIES = "cache_my_inventory_subcategories_"; //this key will be extended by the parent category id
+    public static final int TIME_TO_LIVE_MY_INV_SUBCAT = 5; //cache_my_inventory_subcategories_x will expire in 5 minutes
+    public static final String CACHE_MY_INVENTORY_PRODUCTS = "cache_my_inventory_products_"; //this key will be extended by the category id
+    public static final int TIME_TO_LIVE_MY_INV_PRODUCT = 7; //cache_my_inventory_subcategories_x will expire in 5 minutes
 
     //server client response statuses other than success and failure
     public static final String STATUS_KOLE_RESPONSE_CREATING_INVENTORY = "status_kole_response_creating_inventory";
