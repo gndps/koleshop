@@ -30,7 +30,6 @@ import com.kolshop.kolshopmaterial.common.constant.Actions;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.constant.KolStringExtras;
 import com.kolshop.kolshopmaterial.common.constant.Prefs;
-import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.model.ShopSettings;
 import com.google.gson.Gson;
 

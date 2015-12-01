@@ -113,11 +113,11 @@ public class CommonUtils {
     }
 
     public static boolean isUserLoggedIn(Context context) {
-        String userId = PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID);
-        if(userId.isEmpty()) {
-            return false;
-        } else {
+        Long userId = getUserId(context);
+        if(userId > 0) {
             return true;
+        } else {
+            return false;
         }
     }
 
@@ -134,6 +134,15 @@ public class CommonUtils {
         long millisY = dateY.getTime();
         long timeDiff = millisX - millisY;
         return timeDiff;
+    }
+
+    public static Long getUserId(Context context) {
+        try {
+            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
+            return userId;
+        } catch(Exception e) {
+            return 0l;
+        }
     }
 
 }

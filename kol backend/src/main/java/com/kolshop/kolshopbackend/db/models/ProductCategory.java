@@ -5,23 +5,23 @@ package com.kolshop.kolshopbackend.db.models;
  */
 public class ProductCategory {
 
-    int id;
+    Long id;
     String name;
     String imageUrl;
-    int parentProductCategoryId;
+    Long parentProductCategoryId;
 
-    public ProductCategory(int id, String name, String imageUrl, int parentProductCategoryId) {
+    public ProductCategory(Long id, String name, String imageUrl, Long parentProductCategoryId) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
         this.parentProductCategoryId = parentProductCategoryId;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -41,11 +41,11 @@ public class ProductCategory {
         this.imageUrl = imageUrl;
     }
 
-    public int getParentProductCategoryId() {
+    public Long getParentProductCategoryId() {
         return parentProductCategoryId;
     }
 
-    public void setParentProductCategoryId(int parentProductCategoryId) {
+    public void setParentProductCategoryId(Long parentProductCategoryId) {
         this.parentProductCategoryId = parentProductCategoryId;
     }
 

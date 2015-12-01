@@ -23,7 +23,7 @@ public class ProductVariety extends RealmObject {
     private String productId;
     private String name;
     private int limitedStock;
-    private boolean valid;
+    private boolean validVariety;
     private String imageUrl;
     private Date dateAdded;
     private Date dateModified;
@@ -34,12 +34,12 @@ public class ProductVariety extends RealmObject {
     public ProductVariety() {
     }
 
-    public ProductVariety(String id, String productId, String name, int limitedStock, boolean valid, String imageUrl, Date dateAdded, Date dateModified) {
+    public ProductVariety(String id, String productId, String name, int limitedStock, boolean validVariety, String imageUrl, Date dateAdded, Date dateModified) {
         this.id = id;
         this.productId = productId;
         this.name = name;
         this.limitedStock = limitedStock;
-        this.valid = valid;
+        this.validVariety = validVariety;
         this.imageUrl = imageUrl;
         this.dateAdded = dateAdded;
         this.dateModified = dateModified;
@@ -77,12 +77,12 @@ public class ProductVariety extends RealmObject {
         this.limitedStock = limitedStock;
     }
 
-    public boolean isValid() {
-        return valid;
+    public boolean isValidVariety() {
+        return validVariety;
     }
 
-    public void setValid(boolean valid) {
-        this.valid = valid;
+    public void setValidVariety(boolean validVariety) {
+        this.validVariety = validVariety;
     }
 
     public String getImageUrl() {

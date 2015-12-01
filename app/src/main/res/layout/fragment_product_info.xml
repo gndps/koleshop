@@ -1,8 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     tools:context="com.kolshop.kolshopmaterial.fragments.product.ProductBasicInfoShopkeeper">
 
@@ -12,156 +12,124 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="6dp"
-        card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="4dp">
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="2dp">
 
+        <!-- name and description linear layout -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@color/grey"
-                android:gravity="center_vertical"
-                android:paddingLeft="16dp"
-                android:text="PRODUCT INFO" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="@dimen/material_left_margin"
+                android:layout_marginRight="@dimen/material_right_margin_small_icon"
+                android:layout_marginTop="16dp"
+                android:src="@drawable/ic_info_grey600_24dp" />
 
-            <!-- name and description linear layout -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginBottom="16dp"
+                android:layout_marginRight="@dimen/material_right_margin"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginLeft="@dimen/material_left_margin"
-                    android:layout_marginRight="@dimen/material_right_margin_small_icon"
-                    android:layout_marginTop="16dp"
-                    android:src="@drawable/ic_info_grey600_24dp" />
-
+                <!-- Dummy item to prevent EditText Product Name from receiving focus -->
                 <LinearLayout
+                    android:layout_width="0px"
+                    android:layout_height="0px"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true" />
+
+                <EditText
+                    android:id="@+id/edittext_product_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginRight="@dimen/material_right_margin"
-                    android:layout_marginTop="16dp"
-                    android:orientation="vertical">
+                    android:hint="Product name"
+                    android:inputType="textCapWords"
+                    android:maxLines="1"
+                    android:nextFocusLeft="@id/edittext_product_name"
+                    android:nextFocusUp="@id/edittext_product_name"
+                    android:paddingBottom="8dp" />
 
-                    <!-- Dummy item to prevent EditText Product Name from receiving focus -->
-                    <LinearLayout
-                        android:layout_width="0px"
-                        android:layout_height="0px"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true" />
+                <EditText
+                    android:id="@+id/edittext_product_brand"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Brand"
+                    android:imeOptions="actionDone"
+                    android:inputType="textCapWords"
+                    android:maxLines="1"
+                    android:paddingBottom="8dp"
+                    android:paddingTop="16dp" />
 
-                    <EditText
-                        android:id="@+id/edittext_product_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Product name"
-                        android:inputType="textCapWords"
-                        android:maxLines="1"
-                        android:nextFocusLeft="@id/edittext_product_name"
-                        android:nextFocusUp="@id/edittext_product_name"
-                        android:paddingBottom="8dp" />
+                <!--fr.ganfra.materialspinner.MaterialSpinner
+                    android:id="@+id/spinner_product_category"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="8dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:paddingTop="4dp"
+                    app:ms_alignLabels="false"
+                    app:ms_arrowSize="16dp"
+                    app:ms_errorColor="@color/error"
+                    app:ms_floatingLabelColor="@color/secondary_text"
+                    app:ms_floatingLabelText="Product Category"
+                    app:ms_highlightColor="@color/highlight"
+                    app:ms_hint="Product Category"
+                    app:ms_multiline="false" />
 
-                    <EditText
-                        android:id="@+id/edittext_product_description"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Description"
-                        android:inputType="textCapSentences"
-                        android:maxLines="1"
-                        android:paddingBottom="8dp"
-                        android:paddingTop="16dp" />
+                <fr.ganfra.materialspinner.MaterialSpinner
+                    android:id="@+id/spinner_product_subcategory"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="8dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:paddingTop="4dp"
+                    app:ms_alignLabels="false"
+                    app:ms_arrowSize="16dp"
+                    app:ms_errorColor="@color/error"
+                    app:ms_floatingLabelColor="@color/secondary_text"
+                    app:ms_floatingLabelText="Product Subcategory"
+                    app:ms_highlightColor="@color/highlight"
+                    app:ms_hint="Product Subcategory"
+                    app:ms_multiline="false" /-->
 
-                    <EditText
-                        android:id="@+id/edittext_product_brand"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Brand"
-                        android:imeOptions="actionDone"
-                        android:inputType="textCapWords"
-                        android:maxLines="1"
-                        android:paddingBottom="8dp"
-                        android:paddingTop="16dp" />
+                <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
+                    android:id="@+id/spinner_product_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="8dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="Category"
+                    app:met_floatingLabel="normal"
+                    app:met_underlineColor="@color/accent"
+                    app:met_primaryColor="@color/accent"
+                    app:met_floatingLabelAlwaysShown="true"
+                    app:met_floatingLabelText="Category"/>
 
-                    <fr.ganfra.materialspinner.MaterialSpinner
-                        android:id="@+id/spinner_product_category"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="4dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginLeft="4dp"
-                        app:ms_errorColor="@color/error"
-                        app:ms_floatingLabelText="Product Category"
-                        app:ms_highlightColor="@color/highlight"
-                        app:ms_hint="Product Category"
-                        app:ms_multiline="false"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        app:ms_arrowSize="16dp"
-                        app:ms_alignLabels="false"
-                        app:ms_floatingLabelColor="@color/secondary_text" />
-
-                    <fr.ganfra.materialspinner.MaterialSpinner
-                        android:id="@+id/spinner_product_subcategory"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="4dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginLeft="4dp"
-                        app:ms_errorColor="@color/error"
-                        app:ms_floatingLabelText="Product Subcategory"
-                        app:ms_highlightColor="@color/highlight"
-                        app:ms_hint="Product Subcategory"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        app:ms_multiline="false"
-                        app:ms_arrowSize="16dp"
-                        app:ms_alignLabels="false"
-                        app:ms_floatingLabelColor="@color/secondary_text" />
-
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="24dp">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentLeft="true"
-                            android:gravity="center_vertical"
-                            android:paddingTop="10dp"
-                            android:text="Varieties"
-                            android:textSize="@dimen/abc_text_size_medium_material" />
-
-                        <TextView
-                            android:id="@+id/textview_product_number_of_varieties"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentTop="true"
-                            android:layout_toLeftOf="@+id/button_add_variety"
-                            android:paddingRight="10dp"
-                            android:paddingTop="10dp"
-                            android:text="1"
-                            android:textSize="@dimen/abc_text_size_medium_material" />
-
-                        <ImageButton
-                            android:id="@+id/button_add_variety"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:onClick="addVariety"
-                            android:src="@drawable/ic_add_black_24dp" />
-
-                    </RelativeLayout>
-
-                </LinearLayout>
+                <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
+                    android:id="@+id/spinner_product_subcategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="8dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    app:met_floatingLabelAlwaysShown="true"
+                    android:hint="Subcategory"
+                    app:met_floatingLabel="normal"
+                    app:met_underlineColor="@color/accent"
+                    app:met_floatingLabelText="Subcategory"/>
 
             </LinearLayout>
 

@@ -7,7 +7,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.kolshop.kolshopbackend.common.Constants;
+import com.kolshop.kolshopbackend.db.models.Brand;
 import com.kolshop.kolshopbackend.db.models.ParentProductCategory;
 import com.kolshop.kolshopbackend.db.models.ProductCategory;
 import com.kolshop.kolshopbackend.db.models.deprecated.Product;
@@ -21,6 +25,8 @@ import com.kolshop.kolshopbackend.utils.ProductUtil;
 
 
 public class ProductService {
+
+    private static final Logger logger = Logger.getLogger(ProductService.class.getName());
 
     @Deprecated
     public List<Product> getProduct(int shopId, int startIndex, int count) {
@@ -552,7 +558,8 @@ public class ProductService {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        String query = "select id,name,image_url,parent_category_id from ProductCategory";
+        String query = "select id,name,image_url,parent_category_id from ProductCategory where id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
+                + ") and parent_category_id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS + ") ;";
 
         try {
             dbConnection = DatabaseConnection.getConnection();
@@ -561,7 +568,7 @@ public class ProductService {
             ResultSet rs = preparedStatement.executeQuery();
             List<ProductCategory> productCategories = new ArrayList<>();
             while (rs.next()) {
-                ProductCategory pc = new ProductCategory(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4));
+                ProductCategory pc = new ProductCategory(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4));
                 productCategories.add(pc);
             }
 
@@ -569,8 +576,7 @@ public class ProductService {
             return productCategories;
 
         } catch (SQLException e) {
-
-            System.out.println(e.getMessage());
+            logger.log(Level.SEVERE, "some exception in getting product categories", e);
             return null;
 
         } finally {
@@ -579,6 +585,39 @@ public class ProductService {
 
         }
 
+    }
+
+    public List<Brand> getAllBrands() {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        String query = "select b.id,b.name from Brand b join Inventory i on i.brand_id = b.id " +
+                "join ProductCategory pc on pc.id = i.category_id " +
+                "and pc.id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS +
+                ") and pc.parent_category_id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS +
+                ") group by b.id;";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            List<Brand> brands = new ArrayList<>();
+            while (rs.next()) {
+                Brand brand = new Brand(rs.getLong("id"), rs.getString("name"));
+                brands.add(brand);
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return brands;
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
     }
 
     public List<ParentProductCategory> getProductCategories() {
@@ -598,7 +637,7 @@ public class ProductService {
             List<ProductCategory> productCategories = new ArrayList<>();
             int index = 0;
             while (rs.next()) {
-                ProductCategory pc = new ProductCategory(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4));
+                ProductCategory pc = new ProductCategory(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4));
                 if(rs.getInt(4) == 0)
                 {
                     parentProductCategoryList.add(new ParentProductCategory(pc));

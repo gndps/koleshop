@@ -17,33 +17,32 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.kolshop.kolshopmaterial.R;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
-import com.kolshop.kolshopmaterial.model.ProductCategory;
+import com.kolshop.kolshopmaterial.model.realm.ProductCategory;
 import com.kolshop.kolshopmaterial.model.uipackage.BasicInfo;
-import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
+import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.ganfra.materialspinner.MaterialSpinner;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClickListener {
 
-    private EditText editTextProductName, editTextDescription, editTextBrand;
-    MaterialSpinner spinnerCategory, spinnerSubcategory;
+    private EditText editTextProductName, editTextBrand;
+    //MaterialSpinner spinnerCategory, spinnerSubcategory;
+    MaterialBetterSpinner spinnerCategory, spinnerSubcategory;
     private List<ProductCategory> parentCategories, subCategories;
-    private TextView textViewNumberOfVarieties;
-    private ImageButton buttonAddVariety;
+    //private TextView textViewNumberOfVarieties;
+    //private ImageButton buttonAddVariety;
     boolean categorySelected, subcategorySelected;
-    private int brandId, productCategoryId;
+    private Long brandId, productCategoryId;
     Context mContext;
     Realm realm;
 
@@ -70,12 +69,12 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
             String brand = basicInfoBundle.getString("brand", "");
             int brandId = basicInfoBundle.getInt("brandId", 0);
             String description = basicInfoBundle.getString("description", "");
-            productCategoryId = basicInfoBundle.getInt("categoryId", 0);
+            productCategoryId = basicInfoBundle.getLong("categoryId", 0);
 
             //initialize User Interface
             editTextProductName.setText(name);
             editTextBrand.setText(brand);
-            editTextDescription.setText(description);
+            //editTextDescription.setText(description);
             updateNumberOfVarieties();
             selectCategory(productCategoryId);
         }
@@ -84,17 +83,19 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
     private void findViewsByIds(View productBasicFragment) {
         editTextProductName = (EditText) productBasicFragment.findViewById(R.id.edittext_product_name);
-        editTextDescription = (EditText) productBasicFragment.findViewById(R.id.edittext_product_description);
+        //editTextDescription = (EditText) productBasicFragment.findViewById(R.id.edittext_product_description);
         editTextBrand = (EditText) productBasicFragment.findViewById(R.id.edittext_product_brand);
-        spinnerCategory = (MaterialSpinner) productBasicFragment.findViewById(R.id.spinner_product_category);
+        //spinnerCategory = (MaterialSpinner) productBasicFragment.findViewById(R.id.spinner_product_category);
+        spinnerCategory = (MaterialBetterSpinner) productBasicFragment.findViewById(R.id.spinner_product_category);
         spinnerCategory.setFocusable(true);
         spinnerCategory.setFocusableInTouchMode(true);
-        spinnerSubcategory = (MaterialSpinner) productBasicFragment.findViewById(R.id.spinner_product_subcategory);
+        //spinnerSubcategory = (MaterialSpinner) productBasicFragment.findViewById(R.id.spinner_product_subcategory);
+        spinnerSubcategory = (MaterialBetterSpinner) productBasicFragment.findViewById(R.id.spinner_product_subcategory);
         spinnerSubcategory.setFocusable(true);
         spinnerSubcategory.setFocusableInTouchMode(true);
-        textViewNumberOfVarieties = (TextView) productBasicFragment.findViewById(R.id.textview_product_number_of_varieties);
-        buttonAddVariety = (ImageButton) productBasicFragment.findViewById(R.id.button_add_variety);
-        buttonAddVariety.setOnClickListener(this);
+        //textViewNumberOfVarieties = (TextView) productBasicFragment.findViewById(R.id.textview_product_number_of_varieties);
+        //buttonAddVariety = (ImageButton) productBasicFragment.findViewById(R.id.button_add_variety);
+        //buttonAddVariety.setOnClickListener(this);
         addEditTextHandlers();
     }
 
@@ -110,7 +111,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
     public void updateNumberOfVarieties()
     {
-        textViewNumberOfVarieties.setText(KoleshopSingleton.getSharedInstance().getNumberOfVarieties() + "");
+        //textViewNumberOfVarieties.setText(KoleshopSingleton.getSharedInstance().getNumberOfVarieties() + "");
     }
 
     public void loadCategories() {
@@ -187,12 +188,12 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 if(position>=0) {
                     categorySelected = true;
-                    int parentCategoryId = parentCategories.get(position).getId();
+                    Long parentCategoryId = parentCategories.get(position).getId();
                     productCategoryId = parentCategoryId;
                     loadSubcategoriesForId(parentCategoryId);
                 } else {
                     categorySelected = false;
-                    productCategoryId = 0;
+                    productCategoryId = 0l;
                     spinnerSubcategory.setVisibility(View.GONE);
                 }
             }
@@ -212,7 +213,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
                     productCategoryId = subCategories.get(position).getId();
                 } else {
                     subcategorySelected = false;
-                    productCategoryId = 0;
+                    productCategoryId = 0l;
                 }
             }
 
@@ -223,7 +224,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         });
     }
 
-    private void loadSubcategoriesForId(int parentCategoryId) {
+    private void loadSubcategoriesForId(Long parentCategoryId) {
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
 
         query.equalTo("parentCategoryId", parentCategoryId);
@@ -241,7 +242,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         final Context context = getActivity();
 
         if (subcategoriesList.size() > 0) {
-            productCategoryId = 0;
+            productCategoryId = 0l;
             ArrayAdapter<String> subcategoryArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, subcategoriesList);
             subcategoryArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             //productCategoryId = subCategories.get(0).getId();
@@ -253,7 +254,7 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         }
     }
 
-    private void selectCategory(int categoryId) {
+    private void selectCategory(Long categoryId) {
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
 
         query.equalTo("id", categoryId);
@@ -273,11 +274,11 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
+        /*switch (v.getId()) {
             case R.id.button_add_variety:
                 addVariety();
                 break;
-        }
+        }*/
     }
 
     public void addVariety() {
@@ -315,14 +316,14 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
                 }
             }
         });
-        editTextDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        /*editTextDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
                     hideKeyboard(v);
                 }
             }
-        });
+        });*/
     }
 
     public void hideKeyboard(View view) {
@@ -338,15 +339,15 @@ public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClick
         return editTextBrand.getText().toString();
     }
 
-    private int getBrandId() {
+    private Long getBrandId() {
         return brandId;
     }
 
     private String getDescription() {
-        return editTextDescription.getText().toString();
+        return "";//editTextDescription.getText().toString();
     }
 
-    private int getProductCategoryId() {
+    private Long getProductCategoryId() {
         return productCategoryId;
     }
 

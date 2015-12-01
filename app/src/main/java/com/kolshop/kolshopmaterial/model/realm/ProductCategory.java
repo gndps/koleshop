@@ -1,4 +1,4 @@
-package com.kolshop.kolshopmaterial.model;
+package com.kolshop.kolshopmaterial.model.realm;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -9,23 +9,23 @@ import io.realm.annotations.PrimaryKey;
 public class ProductCategory extends RealmObject {
 
     @PrimaryKey
-    private int id;
+    private long id;
 
     private String name;
     private String imageUrl;
-    private int parentCategoryId;
+    private long parentCategoryId;
 
     public ProductCategory() {
     }
 
-    public ProductCategory(int id, String name, String imageUrl, int parentCategoryId) {
+    public ProductCategory(long id, String name, String imageUrl, long parentCategoryId) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
         this.parentCategoryId = parentCategoryId;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -37,11 +37,11 @@ public class ProductCategory extends RealmObject {
         return imageUrl;
     }
 
-    public int getParentCategoryId() {
+    public long getParentCategoryId() {
         return parentCategoryId;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -53,7 +53,7 @@ public class ProductCategory extends RealmObject {
         this.imageUrl = imageUrl;
     }
 
-    public void setParentCategoryId(int parentCategoryId) {
+    public void setParentCategoryId(long parentCategoryId) {
         this.parentCategoryId = parentCategoryId;
     }
 

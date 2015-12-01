@@ -21,7 +21,7 @@
 
             <include
                 android:id="@+id/app_bar"
-                layout="@layout/app_bar"></include>
+                layout="@layout/view_app_bar"></include>
 
             <FrameLayout
                 android:id="@+id/fragment_container"
@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:headerLayout="@layout/drawer_header"
+        app:headerLayout="@layout/view_drawer_header"
         app:menu="@menu/menu_navigation_drawer" />
 
     <!--fragment

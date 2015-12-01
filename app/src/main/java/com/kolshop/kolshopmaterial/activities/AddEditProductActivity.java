@@ -55,10 +55,10 @@ public class AddEditProductActivity extends AppCompatActivity {
     private String id;
     private String name;
     private String brand;
-    private int brandId;
+    private Long brandId;
     private String description;
-    private int categoryId;
-    private int userId;
+    private Long categoryId;
+    private Long userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +69,11 @@ public class AddEditProductActivity extends AppCompatActivity {
         numberOfVarieties = 0;
         String userIdString = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID);
         if (userIdString.isEmpty()) {
-            userId = 0;
+            userId = 0l;
             Toast.makeText(AddEditProductActivity.this, "Please login to add product", Toast.LENGTH_SHORT).show();
             finish();
         } else {
-            userId = Integer.parseInt(userIdString);
+            userId = Long.parseLong(userIdString);
         }
         deletedProductVarieties = new ArrayList<>();
         fragmentTagList = new ArrayList<>();
@@ -239,9 +239,9 @@ public class AddEditProductActivity extends AppCompatActivity {
             Bundle basicInfoBundle = new Bundle();
             basicInfoBundle.putString("name", name);
             basicInfoBundle.putString("brand", brand);
-            basicInfoBundle.putInt("brandId", brandId);
+            basicInfoBundle.putLong("brandId", brandId);
             basicInfoBundle.putString("description", description);
-            basicInfoBundle.putInt("categoryId", categoryId);
+            basicInfoBundle.putLong("categoryId", categoryId);
             productBasicInfoShopkeeper.setArguments(basicInfoBundle);
 
             //initialize User Interface
@@ -257,9 +257,9 @@ public class AddEditProductActivity extends AppCompatActivity {
             this.product.setId(id);
             this.product.setName("");
             this.product.setBrand("");
-            this.product.setBrandId(0);
+            this.product.setBrandId(0l);
             this.product.setDescription("");
-            this.product.setProductCategoryId(0);
+            this.product.setProductCategoryId(0l);
             //initialize User Interface
             addNewVariety();
         }
@@ -270,7 +270,7 @@ public class AddEditProductActivity extends AppCompatActivity {
         /*int i = 0;
         if(realmListProductVariety!=null) {
             for (ProductVariety pv : realmListProductVariety) {
-                if (pv.isValid()) i++;
+                if (pv.isValidVariety()) i++;
             }
             return i;
         } else {
@@ -279,7 +279,7 @@ public class AddEditProductActivity extends AppCompatActivity {
     }
 
     private void addProductVarietyToUserInterface(ProductVariety productVariety, int index) {
-        if(productVariety.isValid()) {
+        if(productVariety.isValidVariety()) {
             ProductVarietyDetailsFragment productVarietyDetailsFragment = new ProductVarietyDetailsFragment();
             Bundle args = new Bundle();
             args.putString("id", productVariety.getId());
@@ -321,7 +321,7 @@ public class AddEditProductActivity extends AppCompatActivity {
         ProductVarietyDetailsFragment deletedFragment = (ProductVarietyDetailsFragment) frag;
         if(!deletedFragment.isBrandNewVariety()) {
             ProductVariety productVariety = deletedFragment.getProductVariety();
-            productVariety.setValid(false);
+            productVariety.setValidVariety(false);
             deletedProductVarieties.add(productVariety);
         }
         getSupportFragmentManager().beginTransaction().remove(frag).commit();

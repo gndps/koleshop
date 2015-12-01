@@ -55,5 +55,6 @@
     <string name="navigation_drawer_logout">Log out</string>
     <string name="navigation_drawer_test">Test</string>
     <string name="string_retry">RETRY</string>
+    <string name="title_activity_product_edit">ProductEditActivity</string>
 
 </resources>

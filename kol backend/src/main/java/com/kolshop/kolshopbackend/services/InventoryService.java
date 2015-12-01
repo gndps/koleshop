@@ -35,14 +35,14 @@ public class InventoryService {
 
         if(myInventory) {
             query = "select pc1.id,pc1.name,pc1.description,pc1.image_url from ProductCategory pc1 join ProductCategory pc2 on pc1.id = pc2.parent_category_id " +
-                    "and pc1.parent_category_id is null " +
+                    "and (pc1.parent_category_id is null or pc1.parent_category_id = '0') " +
                     "join Product p on p.category_id = pc2.id and p.user_id=? and p.valid='1' " +
                     "join ProductVariety pv on pv.product_id = p.id and pv.valid='1' " +
                     "group by pc1.id " +
                     "order by pc1.sort_order;";
 
         } else {
-            query = "select id,name,description,image_url from ProductCategory where parent_category_id is null and id not in ("
+            query = "select id,name,description,image_url from ProductCategory where (parent_category_id is null or parent_category_id = '0') and id not in ("
                     + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
                     + ") order by sort_order asc";
         }
@@ -85,7 +85,7 @@ public class InventoryService {
                     "join ProductVariety pv on p.id = pv.product_id and pv.valid='1' " +
                     "where parent_category_id=? " +
                     "group by pc.id " +
-                    "order by sort_order asc;";
+                    "order by pc.sort_order asc;";
         } else {
             query = "select id,name from ProductCategory where parent_category_id = ? order by sort_order asc;";
         }

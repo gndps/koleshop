@@ -8,7 +8,7 @@
 
     <include
         android:id="@+id/add_edit_product_app_bar"
-        layout="@layout/app_bar"></include>
+        layout="@layout/view_app_bar"></include>
 
     <ScrollView
         android:layout_width="match_parent"

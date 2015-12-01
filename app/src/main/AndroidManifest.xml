@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kolshop.kolshopmaterial" >
+    package="com.kolshop.kolshopmaterial">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -31,11 +31,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/koleshop_logo"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme.Base" >
+        android:theme="@style/AppTheme.Base">
         <activity
             android:name=".activities.InitialActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,7 +46,7 @@
         <receiver
             android:name=".receiver.GcmBroadcastReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
@@ -56,8 +56,8 @@
         </receiver>
 
         <!-- SMS Receiver -->
-        <receiver android:name=".receiver.SmsReceiver" >
-            <intent-filter android:priority="99999" >
+        <receiver android:name=".receiver.SmsReceiver">
+            <intent-filter android:priority="99999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
@@ -86,7 +86,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <service android:name=".network.sync.AuthenticatorService" >
+        <service android:name=".network.sync.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -104,7 +104,7 @@
 
         <service
             android:name=".network.sync.SyncService"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
@@ -116,58 +116,42 @@
 
         <activity
             android:name=".activities.TestActivity"
-            android:label="@string/title_activity_test" >
-        </activity>
-        <activity
-            android:name=".activities.ProductActivity"
-            android:label="@string/title_activity_product" >
-        </activity>
-        <activity
-            android:name=".activities.AddEditProductActivity"
-            android:label="@string/title_activity_add_edit_product" >
-        </activity>
+            android:label="@string/title_activity_test" />
 
         <service
             android:name=".services.CloudEndpointService"
-            android:exported="false" >
-        </service>
-
-        <activity
-            android:name=".ExceptionTesting"
-            android:label="@string/title_activity_exception_testing" >
-        </activity>
-
+            android:exported="false" />
         <service
             android:name=".services.SessionIntentService"
-            android:exported="false" >
-        </service>
+            android:exported="false" />
 
         <activity
             android:name=".activities.HomeActivity"
-            android:label="@string/title_activity_home" >
-        </activity>
+            android:label="@string/title_activity_home" />
 
         <service
             android:name=".services.CommonIntentService"
-            android:exported="false" >
-        </service>
+            android:exported="false" />
 
         <activity
             android:name=".activities.VerifyPhoneNumberActivity"
             android:label="@string/title_activity_verify_phone_number"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.VerifyOTPActivity"
-            android:label="@string/title_activity_verify_otp" >
-        </activity>
+            android:label="@string/title_activity_verify_otp" />
         <activity
             android:name=".activities.SelectSellerCategoryActivity"
             android:label="@string/title_activity_select_seller_category"
-            android:theme="@style/AppTheme.Base" >
-        </activity>
-        <activity android:name=".activities.InventoryProductActivity" >
-        </activity>
+            android:theme="@style/AppTheme.Base" />
+        <activity android:name=".activities.InventoryProductActivity" />
+        <activity
+            android:name=".activities.ProductEditActivity"
+            android:label="@string/title_activity_product_edit"
+            android:theme="@style/AppTheme.Base" />
+        <activity
+            android:name=".activities.AddEditProductActivity"
+            android:label="@string/title_activity_add_edit_product"></activity>
     </application>
 
 </manifest>

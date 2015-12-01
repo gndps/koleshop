@@ -258,7 +258,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         productVariety.setId(id);
         productVariety.setName(getVarietyName());
         productVariety.setImageUrl(imageUrl);
-        productVariety.setValid(valid);
+        productVariety.setValidVariety(valid);
         productVariety.setLimitedStock(getStockValue());
         productVariety.setDateAdded(dateAdded);
         productVariety.setDateModified(dateModified);

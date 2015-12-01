@@ -31,7 +31,7 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
 
     @Override
     public InventoryCategoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflator.inflate(R.layout.item_inventory_category, parent, false);
+        View view = inflator.inflate(R.layout.item_rv_inventory_category, parent, false);
         InventoryCategoryViewHolder holder = new InventoryCategoryViewHolder(view);
         return holder;
     }

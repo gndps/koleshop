@@ -26,7 +26,6 @@ import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.PreferenceUtils;
 import com.kolshop.kolshopmaterial.fragments.DummyHomeFragment;
-import com.kolshop.kolshopmaterial.fragments.product.ProductListFragment;
 import com.kolshop.kolshopmaterial.fragments.product.InventoryCategoryFragment;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
 
@@ -37,7 +36,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private BroadcastReceiver homeActivityBroadcastReceiver;
     private ProgressDialog dialog;
-    private boolean loadedProductCategories, loadedMeasuringUnits, loadedBrands;
+    private boolean loadedProductCategories, loadedBrands;
     private Context mContext;
     private DrawerLayout drawerLayout;
     View content;
@@ -110,8 +109,9 @@ public class HomeActivity extends AppCompatActivity {
                         //getSupportActionBar().setTitle("Inventory categories");
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
-                        Intent intent2 = new Intent(mContext, AddEditProductActivity.class);
-                        startActivity(intent2);
+                        //todo do some stuff
+                        Intent addEditProductIntent = new Intent(mContext, AddEditProductActivity.class);
+                        startActivity(addEditProductIntent);
                         return true;
                     case R.id.drawer_settings:
                         //Settings
@@ -175,8 +175,11 @@ public class HomeActivity extends AppCompatActivity {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_FAILED));
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_MEASURING_UNITS_LOAD_SUCCESS));
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_MEASURING_UNITS_LOAD_FAILED));
+        //lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_MEASURING_UNITS_LOAD_SUCCESS));
+        //lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_MEASURING_UNITS_LOAD_FAILED));
+        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS));
+        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED));
+
     }
 
     @Override
@@ -214,7 +217,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS)) {
                     loadedProductCategories = true;
-                    if(loadedMeasuringUnits)
+                    if(loadedBrands)
                     {
                         initialDataLoadingComplete();
                     }
@@ -231,16 +234,16 @@ public class HomeActivity extends AppCompatActivity {
                         showRetryLoadingPopup();
                     }
                 }
-                else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_MEASURING_UNITS_LOAD_SUCCESS)) {
-                    loadedMeasuringUnits = true;
+                else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS)) {
+                    loadedBrands = true;
                     if(loadedProductCategories)
                     {
                         initialDataLoadingComplete();
                     }
                 }
-                else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_MEASURING_UNITS_LOAD_FAILED)) {
+                else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED)) {
                     dialog.dismiss();
-                    loadedMeasuringUnits = false;
+                    loadedBrands = false;
                     if(!CommonUtils.isConnectedToInternet(context))
                     {
                         showInternetConnectionPopup();
@@ -311,15 +314,14 @@ public class HomeActivity extends AppCompatActivity {
     private void loadInitialData()
     {
         if(Constants.RESET_REALM) {
-            deleteRealmPrefereces();
+            deleteRealmPreferences();
         }
 
         loadedProductCategories = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED);
-        loadedMeasuringUnits = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_MEASURING_UNITS_LOADED);
         loadedBrands = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED);
-        loadedBrands = true;
+        //loadedBrands = true;
 
-        if(!loadedProductCategories || !loadedMeasuringUnits || !loadedBrands) {
+        if(!loadedProductCategories || !loadedBrands) {
             dialog = ProgressDialog.show(this, "Loading first time data", "Please wait...", true);
         }
 
@@ -327,21 +329,21 @@ public class HomeActivity extends AppCompatActivity {
             loadProductCategories();
         }
 
-        if(!loadedMeasuringUnits) {
-            loadMeasuringUnits();
-        }
-
         if(!loadedBrands) {
             loadBrands();
         }
     }
 
-    private void deleteRealmPrefereces()
+    private void deleteRealmPreferences()
     {
         //CommonUtils.closeRealm(mContext);
         PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED, false);
-        PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_MEASURING_UNITS_LOADED, false);
         PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED, false);
+        try {
+            Realm.getDefaultInstance().close();
+        } catch (Exception e) {
+            //dont give a damn
+        }
         Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
     }
 
@@ -349,13 +351,6 @@ public class HomeActivity extends AppCompatActivity {
     {
             Intent commonIntentService = new Intent(this, CommonIntentService.class);
             commonIntentService.setAction(CommonIntentService.ACTION_LOAD_PRODUCT_CATEGORIES);
-            startService(commonIntentService);
-    }
-
-    private void loadMeasuringUnits()
-    {
-            Intent commonIntentService = new Intent(this, CommonIntentService.class);
-            commonIntentService.setAction(CommonIntentService.ACTION_LOAD_MEASURING_UNITS);
             startService(commonIntentService);
     }
 

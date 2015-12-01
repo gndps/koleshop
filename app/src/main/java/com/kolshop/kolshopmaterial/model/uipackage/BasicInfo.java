@@ -8,8 +8,8 @@ public class BasicInfo {
     private String name;
     private String description;
     private String brand;
-    private int brandId;
-    private int productCategoryId;
+    private Long brandId;
+    private Long productCategoryId;
 
     public String getName() {
         return name;
@@ -35,19 +35,19 @@ public class BasicInfo {
         this.brand = brand;
     }
 
-    public int getBrandId() {
+    public Long getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(int brandId) {
+    public void setBrandId(Long brandId) {
         this.brandId = brandId;
     }
 
-    public int getProductCategoryId() {
+    public Long getProductCategoryId() {
         return productCategoryId;
     }
 
-    public void setProductCategoryId(int productCategoryId) {
+    public void setProductCategoryId(Long productCategoryId) {
         this.productCategoryId = productCategoryId;
     }
 }

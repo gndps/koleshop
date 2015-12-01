@@ -377,6 +377,7 @@ public class SessionService {
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
+        logger.log(Level.INFO, "authentic request from userId = " + userId);
         return userValid;
     }
 

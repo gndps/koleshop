@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.kolshop.kolshopmaterial.R;
+import com.kolshop.kolshopmaterial.activities.ProductEditActivity;
 import com.kolshop.kolshopmaterial.common.constant.Constants;
 import com.kolshop.kolshopmaterial.common.util.CommonUtils;
 import com.kolshop.kolshopmaterial.common.util.KoleCacheUtil;
@@ -19,6 +20,7 @@ import com.kolshop.kolshopmaterial.common.util.ProductUtil;
 import com.kolshop.kolshopmaterial.extensions.InventoryProductClickListener;
 import com.kolshop.kolshopmaterial.model.ProductSelectionRequest;
 import com.kolshop.kolshopmaterial.services.CommonIntentService;
+import com.kolshop.kolshopmaterial.singletons.KoleshopSingleton;
 import com.kolshop.kolshopmaterial.viewholders.inventory.InventoryProductViewHolder;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.kolshop.server.yolo.inventoryEndpoint.model.InventoryProductVariety;
@@ -52,11 +54,11 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     List<LineItem> mItems;
     int expandedItemPosition, expandedItemPositionOld;
     List<String> pendingRequestsRandomIds;
-    Long categoryId;
+    long categoryId;
     boolean myInventory;
 
 
-    public InventoryProductAdapter(Context context, Long categoryId, boolean myInventory) {
+    public InventoryProductAdapter(Context context, long categoryId, boolean myInventory) {
         this.context = context;
         this.myInventory = myInventory;
         this.categoryId = categoryId;
@@ -100,10 +102,10 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                     .inflate(R.layout.view_inventory_product_header, parent, false);
         } else if (viewType == VIEW_TYPE_CONTENT) {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_inventory_product, parent, false);
+                    .inflate(R.layout.item_rv_inventory_product, parent, false);
         } else {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_inventory_product_expanded, parent, false);
+                    .inflate(R.layout.item_rv_inventory_product_expanded, parent, false);
         }
 
         InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType, context, myInventory);
@@ -129,8 +131,11 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
             public void onItemClick(View v) {
                 if(myInventory) {
                     //open product edit screen
-                    Toast.makeText(context, "Product Edit screen is on its way!!", Toast.LENGTH_SHORT).show();
-
+                    //Toast.makeText(context, "Product Edit screen is on its way!!", Toast.LENGTH_SHORT).show();
+                    Intent editProductIntent = new Intent(context, ProductEditActivity.class);
+                    editProductIntent.putExtra("categoryId", categoryId);
+                    KoleshopSingleton.getSharedInstance().setCurrentProduct(mItems.get(position).product);
+                    context.startActivity(editProductIntent);
                 } else if (!mItems.get(position).isHeader) {
                     if (expandedItemPosition != position) {
                         expandItemAtPosition(position);

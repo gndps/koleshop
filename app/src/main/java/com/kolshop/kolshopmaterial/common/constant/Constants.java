@@ -34,14 +34,14 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = false;
+    public static boolean RESET_REALM = true;
 
 
     //Broadcast Actions
     public static final String ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS = "action_product_categories_load_success";
     public static final String ACTION_PRODUCT_CATEGORIES_LOAD_FAILED = "action_product_categories_load_failed";
-    public static final String ACTION_MEASURING_UNITS_LOAD_SUCCESS = "action_measuring_units_load_success";
-    public static final String ACTION_MEASURING_UNITS_LOAD_FAILED = "action_measuring_units_load_failed";
+    public static final String ACTION_PRODUCT_BRANDS_LOAD_SUCCESS = "action_product_brands_load_success";
+    public static final String ACTION_PRODUCT_BRANDS_LOAD_FAILED = "action_product_brands_load_failed";
     public static final String ACTION_ADD_VARIETY = "action_add_variety";
     public static final String ACTION_DELETE_VARIETY = "action_delete_variety";
     public static final String ACTION_PROPERTY_MODIFIED = "action_property_modified";
@@ -82,7 +82,6 @@ public class Constants {
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";
-    public static final String FLAG_MEASURING_UNITS_LOADED = "measuring_units_loaded";
     public static final String FLAG_BRANDS_LOADED = "brands_loaded";
 
     public static final String PRICE_PROPERTY_NAME = "price";
