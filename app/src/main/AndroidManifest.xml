@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kolshop.kolshopmaterial">
+    package="com.koleshop.appkoleshop">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <permission
-        android:name="com.kolshop.kolshopmaterial.permission.C2D_MESSAGE"
+        android:name="com.koleshop.appkoleshop.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.kolshop.kolshopmaterial.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.koleshop.appkoleshop.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -27,13 +27,13 @@
         android:required="true" />
 
     <application
-        android:name=".network.volley.VolleyUtil"
+        android:name="com.koleshop.appkoleshop.network.volley.VolleyUtil"
         android:allowBackup="true"
         android:icon="@mipmap/koleshop_logo"
         android:label="@string/app_name"
         android:theme="@style/AppTheme.Base">
         <activity
-            android:name=".activities.InitialActivity"
+            android:name="com.koleshop.appkoleshop.activities.InitialActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name">
             <intent-filter>
@@ -44,39 +44,39 @@
         </activity>
 
         <receiver
-            android:name=".receiver.GcmBroadcastReceiver"
+            android:name="com.koleshop.appkoleshop.receiver.GcmBroadcastReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="com.kolshop.kolshopmaterial" />
+                <category android:name="com.koleshop.appkoleshop" />
             </intent-filter>
         </receiver>
 
         <!-- SMS Receiver -->
-        <receiver android:name=".receiver.SmsReceiver">
+        <receiver android:name="com.koleshop.appkoleshop.receiver.SmsReceiver">
             <intent-filter android:priority="99999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name=".services.PushMessageProcessorService"
+            android:name="com.koleshop.appkoleshop.services.PushMessageProcessorService"
             android:exported="false" />
         <service
-            android:name=".services.RestCallService"
+            android:name="com.koleshop.appkoleshop.services.RestCallService"
             android:exported="false" />
 
         <activity
-            android:name=".activities.GetStartedActivity"
+            android:name="com.koleshop.appkoleshop.activities.GetStartedActivity"
             android:label="@string/title_activity_get_started" />
         <activity
-            android:name=".activities.ShopSettingsActivity"
+            android:name="com.koleshop.appkoleshop.activities.ShopSettingsActivity"
             android:label="@string/title_activity_shop_settings" />
         <activity
-            android:name=".activities.LocationActivity"
+            android:name="com.koleshop.appkoleshop.activities.LocationActivity"
             android:label="@string/title_activity_location" />
         <!-- Google Maps API Key -->
         <meta-data
@@ -86,7 +86,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <service android:name=".network.sync.AuthenticatorService">
+        <service android:name="com.koleshop.appkoleshop.network.sync.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -97,13 +97,13 @@
         </service>
 
         <provider
-            android:name=".network.sync.StubProvider"
-            android:authorities="com.kolshop.kolshop.provider"
+            android:name="com.koleshop.appkoleshop.network.sync.StubProvider"
+            android:authorities="com.koleshop.appkoleshop.provider"
             android:exported="false"
             android:syncable="true" />
 
         <service
-            android:name=".network.sync.SyncService"
+            android:name="com.koleshop.appkoleshop.network.sync.SyncService"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
@@ -115,42 +115,42 @@
         </service>
 
         <activity
-            android:name=".activities.TestActivity"
+            android:name="com.koleshop.appkoleshop.activities.TestActivity"
             android:label="@string/title_activity_test" />
 
         <service
-            android:name=".services.CloudEndpointService"
+            android:name="com.koleshop.appkoleshop.services.CloudEndpointService"
             android:exported="false" />
         <service
-            android:name=".services.SessionIntentService"
+            android:name="com.koleshop.appkoleshop.services.SessionIntentService"
             android:exported="false" />
 
         <activity
-            android:name=".activities.HomeActivity"
+            android:name="com.koleshop.appkoleshop.activities.HomeActivity"
             android:label="@string/title_activity_home" />
 
         <service
-            android:name=".services.CommonIntentService"
+            android:name="com.koleshop.appkoleshop.services.CommonIntentService"
             android:exported="false" />
 
         <activity
-            android:name=".activities.VerifyPhoneNumberActivity"
+            android:name="com.koleshop.appkoleshop.activities.VerifyPhoneNumberActivity"
             android:label="@string/title_activity_verify_phone_number"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activities.VerifyOTPActivity"
+            android:name="com.koleshop.appkoleshop.activities.VerifyOTPActivity"
             android:label="@string/title_activity_verify_otp" />
         <activity
-            android:name=".activities.SelectSellerCategoryActivity"
+            android:name="com.koleshop.appkoleshop.activities.SelectSellerCategoryActivity"
             android:label="@string/title_activity_select_seller_category"
             android:theme="@style/AppTheme.Base" />
-        <activity android:name=".activities.InventoryProductActivity" />
+        <activity android:name="com.koleshop.appkoleshop.activities.InventoryProductActivity" />
         <activity
-            android:name=".activities.ProductEditActivity"
+            android:name="com.koleshop.appkoleshop.activities.ProductEditActivity"
             android:label="@string/title_activity_product_edit"
             android:theme="@style/AppTheme.Base" />
         <activity
-            android:name=".activities.AddEditProductActivity"
+            android:name="com.koleshop.appkoleshop.activities.AddEditProductActivity"
             android:label="@string/title_activity_add_edit_product"></activity>
     </application>
 

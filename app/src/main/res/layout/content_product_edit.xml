@@ -9,7 +9,7 @@
     android:gravity="center_vertical"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.kolshop.kolshopmaterial.activities.ProductEditActivity"
+    tools:context="com.koleshop.appkoleshop.activities.ProductEditActivity"
     tools:showIn="@layout/activity_product_edit">
 
     <android.support.v7.widget.RecyclerView

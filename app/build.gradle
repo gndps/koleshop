@@ -21,7 +21,7 @@ android {
     buildToolsVersion "23.0.1"
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
-        applicationId 'com.kolshop.kolshopmaterial'
+        applicationId 'com.koleshop.appkoleshop'
         minSdkVersion 16
         targetSdkVersion 21
         versionCode 1
@@ -74,6 +74,7 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile 'com.github.ganfra:material-spinner:1.1.1'
     compile 'org.parceler:parceler-api:1.0.3'
+    apt "org.parceler:parceler:1.0.3"
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile('com.vincentbrison.openlibraries.android:dualcache:2.2.2@jar') {
@@ -88,5 +89,5 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.rengwuxian.materialedittext', module: 'library'
     }
-    compile project(path: ':kol backend', configuration: 'android-endpoints')
+    compile project(path: ':backend', configuration: 'android-endpoints')
 }

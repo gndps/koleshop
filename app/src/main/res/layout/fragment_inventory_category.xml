@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@color/default_background"
     android:orientation="vertical"
-    tools:context="com.kolshop.kolshopmaterial.fragments.product.InventoryCategoryFragment">
+    tools:context="com.koleshop.appkoleshop.fragments.product.InventoryCategoryFragment">
 
     <ViewFlipper
         android:id="@+id/viewflipper_inventory_category"

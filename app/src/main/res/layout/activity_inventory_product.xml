@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kolshop.kolshopmaterial.activities.InventoryProductActivity">
+    tools:context="com.koleshop.appkoleshop.activities.InventoryProductActivity">
 
     <!--android.support.design.widget.CollapsingToolbarLayout
         android:id="@+id/collapsing_toolbar"
