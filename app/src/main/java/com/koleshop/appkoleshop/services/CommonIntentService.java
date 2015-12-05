@@ -252,14 +252,16 @@ public class CommonIntentService extends IntentService {
         } else {
             ArrayList<ArrayMap<String, String>> list = (ArrayList<ArrayMap<String, String>>) result.getData();
             List<InventoryCategory> cats = new ArrayList<>();
-            for (ArrayMap<String, String> map : list) {
-                if (map != null) {
-                    InventoryCategory cat = new InventoryCategory();
-                    cat.setId(Long.valueOf(map.get("id")));
-                    cat.setName(map.get("name"));
-                    cat.setDesc(map.get("desc"));
-                    cat.setImageUrl(map.get("imageUrl"));
-                    cats.add(cat);
+            if(list!=null) {
+                for (ArrayMap<String, String> map : list) {
+                    if (map != null) {
+                        InventoryCategory cat = new InventoryCategory();
+                        cat.setId(Long.valueOf(map.get("id")));
+                        cat.setName(map.get("name"));
+                        cat.setDesc(map.get("desc"));
+                        cat.setImageUrl(map.get("imageUrl"));
+                        cats.add(cat);
+                    }
                 }
             }
 

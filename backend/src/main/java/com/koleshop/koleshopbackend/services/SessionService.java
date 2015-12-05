@@ -356,6 +356,11 @@ public class SessionService {
     }
 
     public static boolean verifyUserAuthenticity(Long userId, String sessionId) {
+
+        if(userId==null || sessionId==null || userId<1 || sessionId.isEmpty()) {
+            return false;
+        }
+
         boolean userValid = false;
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;

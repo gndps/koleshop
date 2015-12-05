@@ -2,6 +2,8 @@ package com.koleshop.appkoleshop.viewholders;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.CardView;
@@ -16,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.views.ViewProductEdit;
@@ -67,7 +70,8 @@ public class ProductEditViewHolder extends RecyclerView.ViewHolder implements Vi
         }
     }
 
-    public void bindData(int position, InventoryProduct product, InventoryProductVariety variety, long categoryId) {
+    public void bindData(final int position, InventoryProduct product, InventoryProductVariety variety, long categoryId, Bitmap localBitmap) {
+        //position is the index of variety in product.varieties...i.e. first variety will have a position 0
         this.position = position;
         this.categoryId = categoryId;
         if(viewType==VIEW_TYPE_BASIC_INFO) {
@@ -76,6 +80,13 @@ public class ProductEditViewHolder extends RecyclerView.ViewHolder implements Vi
             inventoryProductVariety = variety;
         }
         loadData();
+        if(localBitmap!=null) {
+            if(imageView!=null) {
+                imageView.setImageBitmap(localBitmap);
+            } else {
+                Toast.makeText(mContext, "image view is null", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void loadData() {
@@ -86,6 +97,14 @@ public class ProductEditViewHolder extends RecyclerView.ViewHolder implements Vi
             editTextQuantity.setText(inventoryProductVariety.getQuantity());
             editTextPrice.setText(inventoryProductVariety.getPrice() + "");
             buttonOverFlow.setOnClickListener(this);
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Constants.ACTION_CAPTURE_PRODUCT_VARIETY_PICTURE);
+                    intent.putExtra("position", position);
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                }
+            });
         } else {
             viewProductEdit.setBasicInfo(inventoryProduct, categoryId);
         }
@@ -120,5 +139,6 @@ public class ProductEditViewHolder extends RecyclerView.ViewHolder implements Vi
         Intent intent = new Intent(Constants.ACTION_DELETE_VARIETY);
         intent.putExtra("position", position);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+        Toast.makeText(mContext, "will delete variety at position " + position, Toast.LENGTH_SHORT).show();
     }
 }

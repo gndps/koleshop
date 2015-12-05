@@ -3,6 +3,6 @@
 /.idea
 .DS_Store
 /build
-kol backend/build
+backend/build
 app/build
 app/libs

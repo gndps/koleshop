@@ -26,6 +26,9 @@
         android:glEsVersion="0x00020000"
         android:required="true" />
 
+    <uses-feature android:name="android.hardware.camera"
+        android:required="true" />
+
     <application
         android:name="com.koleshop.appkoleshop.network.volley.VolleyUtil"
         android:allowBackup="true"

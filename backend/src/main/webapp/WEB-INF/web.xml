@@ -9,7 +9,8 @@
                 com.koleshop.koleshopbackend.endpoints.SessionEndPoint,
                 com.koleshop.koleshopbackend.endpoints.ProductEndpoint,
                 com.koleshop.koleshopbackend.endpoints.CommonEndpoint,
-                com.koleshop.koleshopbackend.endpoints.InventoryEndpoint
+                com.koleshop.koleshopbackend.endpoints.InventoryEndpoint,
+                com.koleshop.koleshopbackend.endpoints.BlobstoreEndpoint
             </param-value>
         </init-param>
     </servlet>

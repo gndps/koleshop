@@ -36,7 +36,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = true;
+    public static boolean RESET_REALM = false;
 
 
     //Broadcast Actions
@@ -70,6 +70,7 @@ public class Constants {
     public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE = "action_update_inventory_product_selection_failure" ;
     public static final String ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT = "action_notify_product_selection_variety_to_parent" ;
     public static final String ACTION_COLLAPSE_EXPANDED_PRODUCT = "action_collapse_expanded_product" ;
+    public static final String ACTION_CAPTURE_PRODUCT_VARIETY_PICTURE = "action_take_product_variety_picture";
     //gcm broadcast actions
     public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "action_gcm_broadcast_inventory_created";
 
