@@ -21,6 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingTop="16dp"
+            android:fontFamily="sans-serif-light"
             android:textColor="@color/default_background_font"
             android:text="koleshop"
             android:textSize="25sp" />

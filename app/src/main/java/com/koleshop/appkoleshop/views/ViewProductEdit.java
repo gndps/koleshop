@@ -8,9 +8,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.realm.Brand;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.rengwuxian.materialedittext.MaterialAutoCompleteTextView;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
@@ -37,7 +37,7 @@ public class ViewProductEdit extends CardView {
     @Bind(com.koleshop.appkoleshop.R.id.tv_spinner_subcategory_hint) TextView textViewSubcategoryHint;
     //@Bind(R.id.tv_spinner_category_hint) TextView textViewCategoryHint;
 
-    private InventoryProduct product;
+    private EditProduct product;
     private Realm realm;
     private ArrayList<ProductCategory> parentCategories;
     private ArrayList<ProductCategory> subCategories;
@@ -56,14 +56,14 @@ public class ViewProductEdit extends CardView {
         this.mContext = context;
     }
 
-    public void setBasicInfo(InventoryProduct product, long categoryIdProduct) {
+    public void setBasicInfo(EditProduct product, long categoryIdProduct) {
 
         this.product = product;
         this.categoryIdProduct = categoryIdProduct;
         setupViews();
         loadCategories();
         loadAndBindSpinners();
-        selectCategory(categoryIdProduct);
+        selectCategory(this.categoryIdProduct);
     }
 
     private void setupViews() {

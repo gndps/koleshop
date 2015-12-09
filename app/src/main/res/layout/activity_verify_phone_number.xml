@@ -14,11 +14,12 @@
             android:layout_height="match_parent"
             android:layout_weight="3"
             android:background="@color/primary"
+            android:fontFamily="sans-serif-light"
             android:gravity="bottom"
             android:minHeight="72dp"
             android:paddingLeft="72dp"
             android:shadowColor="@color/accent_material_dark"
-            android:text="KolShop Login"
+            android:text="@string/login_screen_heading"
             android:textSize="30sp" />
 
         <ProgressBar
@@ -45,6 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="72dp"
                 android:layout_marginRight="16dp"
+                android:fontFamily="sans-serif-light"
                 android:layout_marginTop="48dp"
                 android:text="Verify your phone number"
                 android:textSize="20dp" />
@@ -56,6 +58,7 @@
                 android:layout_marginLeft="72dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="10dp"
+                android:fontFamily="sans-serif-light"
                 android:text="We will never send you promotional SMS"
                 android:textSize="8dp" />
 
@@ -69,6 +72,7 @@
                 android:id="@+id/input_layout_phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
                 android:layout_marginLeft="72dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="36dp">
@@ -77,6 +81,7 @@
                     android:id="@+id/editTextPhoneVerify"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
                     android:hint="Enter phone number"
                     android:inputType="phone"
                     android:textSize="20dp" />
@@ -104,6 +109,7 @@
                 android:id="@+id/bottom_separator"
                 android:layout_width="fill_parent"
                 android:layout_height="1px"
+                android:fontFamily="sans-serif-light"
                 android:layout_marginTop="36dp"
                 android:background="#55000000"></TextView>
 
@@ -117,6 +123,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
+                    android:fontFamily="sans-serif-light"
                     android:drawableLeft="@drawable/ic_action_back"
                     android:onClick="goBack"
                     android:text="" />
@@ -127,6 +134,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
+                    android:fontFamily="sans-serif-light"
                     android:drawableRight="@drawable/ic_action_next"
                     android:onClick="requestOtp"
                     android:text="NEXT" />

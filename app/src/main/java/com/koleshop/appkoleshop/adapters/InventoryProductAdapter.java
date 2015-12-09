@@ -11,12 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.koleshop.appkoleshop.activities.ProductActivity;
 import com.koleshop.appkoleshop.activities.ProductEditActivity;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.extensions.InventoryProductClickListener;
 import com.koleshop.appkoleshop.model.ProductSelectionRequest;
+import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.singletons.KoleshopSingleton;
 import com.koleshop.appkoleshop.viewholders.inventory.InventoryProductViewHolder;
@@ -131,9 +133,12 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                 if(myInventory) {
                     //open product edit screen
                     //Toast.makeText(context, "Product Edit screen is on its way!!", Toast.LENGTH_SHORT).show();
-                    Intent editProductIntent = new Intent(context, ProductEditActivity.class);
+                    //@deprecated Intent editProductIntent = new Intent(context, ProductEditActivity.class);
+                    Intent editProductIntent = new Intent(context, ProductActivity.class);
                     editProductIntent.putExtra("categoryId", categoryId);
-                    KoleshopSingleton.getSharedInstance().setCurrentProduct(mItems.get(position).product);
+                    EditProduct pro = new EditProduct(mItems.get(position).product);
+                    Parcelable parcelableProduct = Parcels.wrap(pro);
+                    editProductIntent.putExtra("product", parcelableProduct);
                     context.startActivity(editProductIntent);
                 } else if (!mItems.get(position).isHeader) {
                     if (expandedItemPosition != position) {

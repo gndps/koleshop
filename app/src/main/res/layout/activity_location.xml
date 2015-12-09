@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kolshop.kolshop.settings.LocationActivity">
+    tools:context="com.koleshop.appkoleshop.activities.LocationActivity">
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/map"
@@ -17,6 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:fontFamily="sans-serif-light"
         android:onClick="saveLocation"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"

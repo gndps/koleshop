@@ -9,4 +9,8 @@
         <item name="android:colorControlHighlight">@color/highlight</item>
     </style>
 
+    <style name="SwitchStyle">
+        <item name="colorControlActivated">@color/primary</item>
+    </style>
+
 </resources>

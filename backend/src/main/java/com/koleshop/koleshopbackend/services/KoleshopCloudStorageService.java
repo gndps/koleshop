@@ -5,7 +5,9 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.services.storage.StorageScopes;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.gcloud.storage.Acl;
 import com.google.gcloud.storage.BlobInfo;
+import com.google.gcloud.storage.Bucket;
 import com.google.gson.Gson;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.koleshop.koleshopbackend.db.models.ImageUploadRequest;
@@ -32,6 +34,8 @@ import com.google.gcloud.storage.StorageOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -94,48 +98,62 @@ public class KoleshopCloudStorageService {
 
     public static boolean doThisShit(String blobContent, String filename) {
 
-        logger.log(Level.INFO, "----------- start logging 1 ---------");
         Storage storage = StorageOptions.defaultInstance().service();
         BlobId blobId = BlobId.of("koleshop-bucket", filename);
-        if(blobId!=null) {
-            logger.log(Level.INFO, "----------- start logging blob id is not null ---------");
-        } else {
-            logger.log(Level.INFO, "----------- start logging blod id is NULL ---------");
-        }
         Blob blob = Blob.load(storage, blobId);
-        if(blob!=null) {
-            logger.log(Level.INFO, "----------- blob is NOT null ---------");
-        } else {
-            logger.log(Level.INFO, "----------- blob is NULL ---------");
-        }
         if (blob == null) {
-            logger.log(Level.INFO, "----------- creating new blob here ---------");
             BlobInfo blobInfo = BlobInfo.builder(blobId).contentType("text/plain").build();
-            logger.log(Level.INFO, "----------- kickkkkiieeee ---------" + blobInfo.toString());
             storage.create(blobInfo, ("Hello, Cloud Storage! its gndp test here\n" + blobContent).getBytes(UTF_8));
-            logger.log(Level.INFO, "----------- just said hello---------" + blobInfo.toString());
         } else {
-            logger.log(Level.INFO, "----------- poing 1 ---------");
-            logger.log(Level.INFO, "Updating content for " + blobId.name());
             byte[] prevContent = blob.content();
-            logger.log(Level.INFO, "----------- poing 2 ---------");
             System.out.println(new String(prevContent, UTF_8));
-            logger.log(Level.INFO, "----------- poing 3 ---------");
             WritableByteChannel channel = blob.writer();
-            logger.log(Level.INFO, "----------- poing 4 ---------");
             try {
-                logger.log(Level.INFO, "----------- writing some shit ---------");
                 channel.write(ByteBuffer.wrap("Updated content".getBytes(UTF_8)));
-                logger.log(Level.INFO, "----------- writing some shit 2 ---------");
                 channel.close();
-                logger.log(Level.INFO, "----------- wrote that shit bitch ---------");
                 return true;
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "omg why", e);
                 return false;
             }
         }
         return false;
+    }
+
+    public static boolean uploadImage(ImageUploadRequest imageUploadRequest) {
+
+        Storage storage = StorageOptions.defaultInstance().service();
+        BlobId blobId = BlobId.of("koleshop-bucket", "uploads/" + imageUploadRequest.getFileName());
+        Blob blob = Blob.load(storage, blobId);
+
+        if (blob == null) {
+            //create new blob
+            //create blob info(public access for all users)
+            List<Acl> aclList = new ArrayList<>();
+            Acl.User cloudUser = Acl.User.ofAllUsers();
+            Acl.Role cloudUserRole = Acl.Role.READER;
+            aclList.add(new Acl(cloudUser, cloudUserRole));
+            Acl.User ownerUser = Acl.User.ofAllAuthenticatedUsers();
+            Acl.Role roleOwner = Acl.Role.OWNER;
+            aclList.add(new Acl(ownerUser, roleOwner));
+            BlobInfo blobInfo = BlobInfo.builder(blobId).
+                    contentType(imageUploadRequest.getMimeType())
+                    .acl(aclList)
+                    .build();
+            storage.create(blobInfo, imageUploadRequest.getImageData());
+            return true;
+        } else {
+            byte[] prevContent = blob.content();
+            System.out.println(new String(prevContent, UTF_8));
+            logger.info("updating the blob:" + imageUploadRequest.getFileName());
+            WritableByteChannel channel = blob.writer();
+            try {
+                channel.write(ByteBuffer.wrap(imageUploadRequest.getImageData()));
+                channel.close();
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
     }
 
     public static void justALoggingTest(String blobContent) {

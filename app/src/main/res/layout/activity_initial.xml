@@ -17,12 +17,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="50dp"
-            android:src="@drawable/kolshop_logo" />
+            android:src="@drawable/koleshop_logo_old" />
 
         <TextView
             android:id="@+id/textViewShopDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="-40dp"
             android:text="buy or sell in local market"

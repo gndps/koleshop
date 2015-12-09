@@ -59,12 +59,7 @@ public class KoleCacheUtil {
         GenericJsonListInventoryCategory genericCategories = new GenericJsonListInventoryCategory();
         genericCategories.setList(cats);
         try {
-            String key;
-            if(myInventory) {
-                key = Constants.CACHE_MY_INVENTORY_CATEGORIES;
-            } else {
-                key = Constants.CACHE_INVENTORY_CATEGORIES;
-            }
+            String key = myInventory?Constants.CACHE_MY_INVENTORY_CATEGORIES:Constants.CACHE_INVENTORY_CATEGORIES;
             byte[] serializedCategories = SerializationUtil.getSerializableFromGenericJson(genericCategories);
             KoleshopSingleton.getSharedInstance().getDualCacheByteArray().put(key, serializedCategories);
             if(updateDate) {

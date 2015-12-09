@@ -18,7 +18,9 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.activities.InventoryProductActivity;
+import com.koleshop.appkoleshop.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.common.constant.Constants;
+import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.extensions.KolClickListener;
 import com.koleshop.appkoleshop.extensions.KolRecyclerTouchListener;
@@ -180,17 +182,37 @@ public class InventoryCategoryFragment extends Fragment {
 
     private void inventoryLoadFailed() {
         viewFlipper.setDisplayedChild(2);
-        new AlertDialog.Builder(mContext)
-                .setTitle("Problem in loading inventory")
-                .setMessage("Please try again")
-                .setPositiveButton("TRY AGAIN", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        loadInventoryCategories();
-                    }
-                })
-                .setNegativeButton("CANCEL", null)
-                .show();
+        String title;
+        if(myInventory) {
+            title = "My Shop";
+        } else {
+            title = "Ware House";
+        }
+        if(CommonUtils.getUserId(mContext)==null || CommonUtils.getUserId(mContext)<=0) {
+            new AlertDialog.Builder(mContext)
+                    .setTitle("Please login to open " + title)
+                    .setPositiveButton("LOGIN", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
+                            startActivity(intentLogin);
+                        }
+                    })
+                    .setNegativeButton("CANCEL", null)
+                    .show();
+        } else {
+            new AlertDialog.Builder(mContext)
+                    .setTitle("Problem in loading " + title)
+                    .setMessage("Please try again")
+                    .setPositiveButton("TRY AGAIN", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            loadInventoryCategories();
+                        }
+                    })
+                    .setNegativeButton("CANCEL", null)
+                    .show();
+        }
     }
 
 }

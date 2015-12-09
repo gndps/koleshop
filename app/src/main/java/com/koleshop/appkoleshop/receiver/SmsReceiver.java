@@ -28,7 +28,7 @@ public class SmsReceiver extends BroadcastReceiver {
                     String senderAddress = currentMessage.getDisplayOriginatingAddress();
                     String message = currentMessage.getDisplayMessageBody();
                     Log.e(TAG, "Received SMS: " + message + ", Sender: " + senderAddress);
-                    if(message.contains("is your one time code for KolShop")) {
+                    if(message.contains("is your one time code for koleshop")) {
                         String verificationCode = getVerificationCode(message);
                         if(verificationCode!=null) {
                             Log.e(TAG, "OTP received: " + verificationCode);

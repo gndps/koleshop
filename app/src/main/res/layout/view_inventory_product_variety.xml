@@ -32,24 +32,25 @@
                 android:id="@+id/tv_inventory_product_variety_quantity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
                 android:gravity="left"
                 android:maxLines="1"
                 android:text="Vanilla - Ice cream cone"
                 android:textColor="@color/primary_text"
-                android:textSize="16sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tv_inventory_product_variety_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
                 android:layout_marginRight="16dp"
                 android:layout_weight="1"
                 android:gravity="right"
                 android:maxLines="1"
                 android:text="₹ 20"
                 android:textColor="@color/primary_text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="12sp" />
 
         </LinearLayout>
 

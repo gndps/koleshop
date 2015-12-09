@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -12,6 +13,7 @@ import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.util.ArrayMap;
+import com.koleshop.api.commonEndpoint.model.ImageUploadRequest;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.ProductSelectionRequest;
@@ -93,6 +95,17 @@ public class CommonIntentService extends IntentService {
             } else if (Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION.equals(action)) {
                 ProductSelectionRequest request = Parcels.unwrap(intent.getParcelableExtra("request"));
                 updateInventoryProductSelection(request);
+
+            } else if(Constants.ACTION_UPLOAD_IMAGE.equals(action)) {
+                byte[] byteArray = intent.getByteArrayExtra("image");
+                String filename = intent.getStringExtra("filename");
+                String tag = intent.getStringExtra("tag");
+                if(byteArray==null || filename==null || filename.isEmpty() || tag.isEmpty()) {
+                    Intent failedIntent = new Intent(Constants.ACTION_UPLOAD_IMAGE_FAILED);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(failedIntent);
+                } else {
+                    uploadImageToCloudStorage(byteArray, filename, tag);
+                }
             }
         }
         realm.close();
@@ -231,13 +244,21 @@ public class CommonIntentService extends IntentService {
 
         KoleResponse result = null;
 
-        try {
-            Context context = getApplicationContext();
-            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
-            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
-            result = inventoryEndpoint.getCategories(myInventory, sessionId, userId).execute();
-        } catch (Exception e) {
-            Log.e(TAG, "exception", e);
+        Context context = getApplicationContext();
+        Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
+        String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
+
+        //if result fails, then try 3 times before showing error
+        int count = 0;
+        int maxTries = 3;
+        while(count<maxTries) {
+            try {
+                result = inventoryEndpoint.getCategories(myInventory, sessionId, userId).execute();
+                count = maxTries;
+            } catch (Exception e) {
+                Log.e(TAG, "exception", e);
+                count++;
+            }
         }
         if (result == null || !result.getSuccess()) {
             Log.e(TAG, "inventory category loading failed");
@@ -494,6 +515,66 @@ public class CommonIntentService extends IntentService {
             Intent intent = new Intent(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS);
             Parcelable wrapped = Parcels.wrap(productSelectionRequest);
             intent.putExtra("request", wrapped);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+    }
+
+    private void uploadImageToCloudStorage(byte[] imageByteArray, String filename, String tag) {
+        CommonEndpoint commonEndpoint = null;
+        CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        commonEndpoint = builder.build();
+
+        com.koleshop.api.commonEndpoint.model.KoleResponse result = null;
+        Context context = getApplicationContext();
+
+        try {
+            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
+            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
+            ImageUploadRequest imageUploadRequest = new ImageUploadRequest();
+            imageUploadRequest.setFileName(filename);
+            if(filename.toLowerCase().endsWith(".png")) {
+                imageUploadRequest.setMimeType("image/png");
+            } else {
+                imageUploadRequest.setMimeType("image/jpeg");
+            }
+            String imageString = Base64.encodeToString(imageByteArray, Base64.DEFAULT);
+            imageUploadRequest.setImageData(imageString);
+
+            //following prefs are set because of a case...when product_variety_1 image is uploading...but ProductEditActivity
+            //has stopped listening to broadcasts because the user has opened camera to capture product_variety_2 image
+            PreferenceUtils.setPreferences(context, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, "uploading");
+
+            result = commonEndpoint.uploadImage(userId, sessionId, imageUploadRequest).execute();
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+        if (result == null || !result.getSuccess()) {
+            //result is null - upload failed
+            Log.e(TAG, "image uploading failed");
+            if (result != null && result.getData() != null) Log.e(TAG, (String) result.getData());
+            Intent intent = new Intent(Constants.ACTION_UPLOAD_IMAGE_FAILED);
+            intent.putExtra("tag", tag);
+            intent.putExtra("filename", filename);
+            //the following prefs will be deleted if this broadcast is received by the product_edit_activity
+            PreferenceUtils.setPreferences(context, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, "upload_failed");
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        } else {
+            //image upload success
+            Intent intent = new Intent(Constants.ACTION_UPLOAD_IMAGE_SUCCESS);
+            intent.putExtra("tag", tag);
+            intent.putExtra("filename", filename);
+            //the following prefs will be deleted if this broadcast is received by the product_edit_activity
+            PreferenceUtils.setPreferences(context, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, "upload_success");
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }

@@ -1,52 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group
-        android:checkableBehavior="single">
+    <group android:checkableBehavior="single">
 
         <item
             android:id="@+id/drawer_products"
             android:checked="true"
             android:icon="@drawable/ic_products"
-            android:title="@string/navigation_drawer_products"/>
+            android:title="@string/navigation_drawer_products" />
 
         <item
             android:id="@+id/drawer_add_edit"
             android:icon="@drawable/ic_add_edit"
-            android:title="@string/navigation_drawer_add_edit"/>
+            android:title="@string/navigation_drawer_add_edit" />
 
         <item
             android:id="@+id/drawer_inventory"
             android:icon="@drawable/ic_inventory"
-            android:title="@string/navigation_drawer_inventory"/>
+            android:title="@string/navigation_drawer_inventory" />
 
-        <!--item
+        <item
             android:id="@+id/drawer_test"
             android:icon="@drawable/ic_login"
-            android:title="@string/navigation_drawer_test"/-->
-
-        <item
-            android:id="@+id/drawer_section"
-            android:title="@string/navigation_drawer_settings">
-            <menu>
-                <item
-                    android:id="@+id/drawer_settings"
-                    android:icon="@drawable/ic_settings"
-                    android:title="@string/navigation_drawer_settings"/>
-            </menu>
-        </item>
-
-        <item
-            android:id="@+id/drawer_login"
-            android:icon="@drawable/ic_login_lock"
-            android:title="@string/navigation_drawer_login"/>
-
-        <item
-            android:id="@+id/drawer_logout"
-            android:icon="@drawable/ic_logout"
-            android:title="@string/navigation_drawer_logout"/>
-
-
+            android:title="@string/navigation_drawer_test"/>
 
     </group>
+
+    <item
+        android:id="@+id/drawer_section"
+        android:title="@string/navigation_drawer_settings">
+        <menu>
+            <item
+                android:id="@+id/drawer_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="@string/navigation_drawer_settings" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/drawer_login"
+        android:icon="@drawable/ic_login_lock"
+        android:title="@string/navigation_drawer_login" />
+
+    <item
+        android:id="@+id/drawer_logout"
+        android:icon="@drawable/ic_logout"
+        android:title="@string/navigation_drawer_logout" />
+
 </menu>

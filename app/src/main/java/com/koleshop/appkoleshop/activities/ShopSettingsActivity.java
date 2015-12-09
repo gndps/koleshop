@@ -128,7 +128,8 @@ public class ShopSettingsActivity extends PreferenceActivity {
                     shopSettings.setSyncedToServer(false);
                     editor.putString(shopSettingKey, new Gson().toJson(shopSettings));
                     editor.commit();
-                    requestSync(preference.getContext());
+                    //todo sync not working for now
+                    //requestSync(preference.getContext());
                 }
             }
             return true;

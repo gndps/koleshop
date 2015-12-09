@@ -38,41 +38,48 @@ public class Constants {
     //configurable constants
     public static boolean RESET_REALM = false;
 
+    public static String PUBLIC_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
+    public static String IMAGE_UPLOAD_STATUS_PREFIX = "image_upload_status_";
+
 
     //Broadcast Actions
-    public static final String ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS = "action_product_categories_load_success";
-    public static final String ACTION_PRODUCT_CATEGORIES_LOAD_FAILED = "action_product_categories_load_failed";
-    public static final String ACTION_PRODUCT_BRANDS_LOAD_SUCCESS = "action_product_brands_load_success";
-    public static final String ACTION_PRODUCT_BRANDS_LOAD_FAILED = "action_product_brands_load_failed";
-    public static final String ACTION_ADD_VARIETY = "action_add_variety";
-    public static final String ACTION_DELETE_VARIETY = "action_delete_variety";
-    public static final String ACTION_PROPERTY_MODIFIED = "action_property_modified";
-    public static final String ACTION_REQUEST_OTP = "action_request_otp";
-    public static final String ACTION_REQUEST_OTP_SUCCESS = "action_request_otp_success";
-    public static final String ACTION_REQUEST_OTP_FAILED = "action_request_otp_fail";
-    public static final String ACTION_VERIFY_OTP = "action_verify_otp";
-    public static final String ACTION_VERIFY_OTP_SUCCESS = "action_verify_otp_success";
-    public static final String ACTION_VERIFY_OTP_FAILED = "action_verify_otp_fail";
-    public static final String ACTION_OTP_RECEIVED = "action_otp_received";
-    public static final String ACTION_SAVE_PRODUCT = "action_save_product";
-    public static final String ACTION_UPDATE_PRODUCT_VARIETY_UI = "action_update_product_variety_ui" ;
-    public static final String ACTION_FETCH_INVENTORY_CATEGORIES = "action_fetch_inventory_categories" ;
-    public static final String ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS = "action_fetch_inventory_categories_success" ;
-    public static final String ACTION_FETCH_INVENTORY_CATEGORIES_FAILED = "action_fetch_inventory_categories_failed" ;
-    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES = "action_fetch_inventory_subcategories" ;
-    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS = "action_fetch_inventory_subcategories_success" ;
-    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED = "action_fetch_inventory_subcategories_failed" ;
-    public static final String ACTION_FETCH_INVENTORY_PRODUCTS = "action_fetch_inventory_products" ;
-    public static final String ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS = "action_fetch_inventory_products_success" ;
-    public static final String ACTION_FETCH_INVENTORY_PRODUCTS_FAILED = "action_fetch_inventory_products_failed" ;
-    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION = "action_update_inventory_product_selection" ;
-    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS = "action_update_inventory_product_selection_success" ;
-    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE = "action_update_inventory_product_selection_failure" ;
-    public static final String ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT = "action_notify_product_selection_variety_to_parent" ;
-    public static final String ACTION_COLLAPSE_EXPANDED_PRODUCT = "action_collapse_expanded_product" ;
-    public static final String ACTION_CAPTURE_PRODUCT_VARIETY_PICTURE = "action_take_product_variety_picture";
+    public static final String ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS = "com.koleshop.action_product_categories_load_success";
+    public static final String ACTION_PRODUCT_CATEGORIES_LOAD_FAILED = "com.koleshop.action_product_categories_load_failed";
+    public static final String ACTION_PRODUCT_BRANDS_LOAD_SUCCESS = "com.koleshop.action_product_brands_load_success";
+    public static final String ACTION_PRODUCT_BRANDS_LOAD_FAILED = "com.koleshop.action_product_brands_load_failed";
+    public static final String ACTION_ADD_VARIETY = "com.koleshop.action_add_variety";
+    public static final String ACTION_DELETE_VARIETY = "com.koleshop.action_delete_variety";
+    public static final String ACTION_PROPERTY_MODIFIED = "com.koleshop.action_property_modified";
+    public static final String ACTION_REQUEST_OTP = "com.koleshop.action_request_otp";
+    public static final String ACTION_REQUEST_OTP_SUCCESS = "com.koleshop.action_request_otp_success";
+    public static final String ACTION_REQUEST_OTP_FAILED = "com.koleshop.action_request_otp_fail";
+    public static final String ACTION_VERIFY_OTP = "com.koleshop.action_verify_otp";
+    public static final String ACTION_VERIFY_OTP_SUCCESS = "com.koleshop.action_verify_otp_success";
+    public static final String ACTION_VERIFY_OTP_FAILED = "com.koleshop.action_verify_otp_fail";
+    public static final String ACTION_OTP_RECEIVED = "com.koleshop.action_otp_received";
+    public static final String ACTION_SAVE_PRODUCT = "com.koleshop.action_save_product";
+    public static final String ACTION_UPDATE_PRODUCT_VARIETY_UI = "com.koleshop.action_update_product_variety_ui" ;
+    public static final String ACTION_FETCH_INVENTORY_CATEGORIES = "com.koleshop.action_fetch_inventory_categories" ;
+    public static final String ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS = "com.koleshop.action_fetch_inventory_categories_success" ;
+    public static final String ACTION_FETCH_INVENTORY_CATEGORIES_FAILED = "com.koleshop.action_fetch_inventory_categories_failed" ;
+    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES = "com.koleshop.action_fetch_inventory_subcategories" ;
+    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS = "com.koleshop.action_fetch_inventory_subcategories_success" ;
+    public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED = "com.koleshop.action_fetch_inventory_subcategories_failed" ;
+    public static final String ACTION_FETCH_INVENTORY_PRODUCTS = "com.koleshop.action_fetch_inventory_products" ;
+    public static final String ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS = "com.koleshop.action_fetch_inventory_products_success" ;
+    public static final String ACTION_FETCH_INVENTORY_PRODUCTS_FAILED = "com.koleshop.action_fetch_inventory_products_failed" ;
+    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION = "com.koleshop.action_update_inventory_product_selection" ;
+    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS = "com.koleshop.action_update_inventory_product_selection_success" ;
+    public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE = "com.koleshop.action_update_inventory_product_selection_failure" ;
+    public static final String ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT = "com.koleshop.action_notify_product_selection_variety_to_parent" ;
+    public static final String ACTION_COLLAPSE_EXPANDED_PRODUCT = "com.koleshop.action_collapse_expanded_product" ;
+    public static final String ACTION_CAPTURE_PRODUCT_VARIETY_PICTURE = "com.koleshop.action_take_product_variety_picture";
+    public static final String ACTION_UPLOAD_IMAGE = "com.koleshop.action_upload_bitmap";
+    public static final String ACTION_UPLOAD_IMAGE_SUCCESS = "com.koleshop.action_upload_bitmap_success";
+    public static final String ACTION_UPLOAD_IMAGE_FAILED = "com.koleshop.action_upload_bitmap_failed";
+
     //gcm broadcast actions
-    public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "action_gcm_broadcast_inventory_created";
+    public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "com.koleshop.action_gcm_broadcast_inventory_created";
 
     //Shared preferences keys
     public static final String KEY_REG_ID = "registration_id";

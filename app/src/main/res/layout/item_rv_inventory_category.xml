@@ -30,6 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Grocery"
+            android:fontFamily="sans-serif-light"
             android:textColor="@color/primary_text"
             android:textSize="16sp" />
 
@@ -38,6 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="2"
+            android:fontFamily="sans-serif-light"
             android:text="this is the description of the category. lets make the paper long"
             android:textColor="@color/secondary_text"
             android:textSize="14sp" />

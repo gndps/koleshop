@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary"
-    tools:context="com.kolshop.kolshop.initial.GetStartedActivity">
+    tools:context="com.koleshop.appkoleshop.activities.GetStartedActivity">
 
     <ImageView
         android:id="@+id/imageViewShopLogo_Choose"
@@ -12,12 +12,13 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="50dp"
-        android:src="@drawable/kolshop_logo" />
+        android:src="@drawable/koleshop_logo_old" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:fontFamily="sans-serif-light"
         android:layout_below="@+id/imageViewShopLogo_Choose"
         android:text="Congratulations! verification is complete"/>
 
@@ -30,6 +31,7 @@
         android:layout_marginBottom="12dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="6dp"
+        android:fontFamily="sans-serif-light"
         android:clickable="true"
         android:onClick="getStarted"
         android:text="Get Started" />

@@ -23,5 +23,6 @@
     <color name="default_background_font">#B7B6B7</color>
     <color name="offwhite">#FAFAFA</color>
     <color name="otherGreen">#5BB990</color>
+    <color name="veryLightGray">#D5D5D5</color>
 
 </resources>

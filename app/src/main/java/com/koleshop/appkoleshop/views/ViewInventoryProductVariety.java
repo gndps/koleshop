@@ -56,7 +56,11 @@ public class ViewInventoryProductVariety extends RelativeLayout {
 
     private void loadTheData() {
         textViewQuantity.setText(variety.getQuantity());
-        textViewPrice.setText(Constants.INDIAN_RUPEE_SYMBOL + variety.getPrice());
+        String price = Constants.INDIAN_RUPEE_SYMBOL + " " + variety.getPrice();
+        if(price.endsWith(".0")) {
+            price = price.substring(0, price.length()-2);
+        }
+        textViewPrice.setText(price);
         setChecked(variety.getSelected());
         //todo set the image url for this shit
         if(productCheckboxProgress) {

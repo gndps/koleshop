@@ -32,6 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Vanilla - Ice cream"
+                android:fontFamily="sans-serif-light"
                 android:textColor="@color/primary_text"
                 android:textSize="16sp" />
 
@@ -40,6 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
+                android:fontFamily="sans-serif-light"
                 android:text="this is the description of the ice cream. hits should be 2 lines long"
                 android:textColor="@color/secondary_text"
                 android:textSize="12sp" />
@@ -76,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:clickable="false"
+                android:fontFamily="sans-serif-light"
                 android:focusable="false"
                 android:text=""/>
 

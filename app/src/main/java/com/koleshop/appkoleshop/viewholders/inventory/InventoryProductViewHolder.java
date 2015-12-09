@@ -206,7 +206,11 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
             String description = "";
             boolean first = true;
             for(InventoryProductVariety ipv : product.getVarieties()) {
-                String desc = ipv.getQuantity() + "(" + Constants.INDIAN_RUPEE_SYMBOL + " " + ipv.getPrice() + ")";
+                String price = Constants.INDIAN_RUPEE_SYMBOL + " " + ipv.getPrice();
+                if(price.endsWith(".0")) {
+                    price = price.substring(0, price.length()-2);
+                }
+                String desc = ipv.getQuantity() + " - " + price;
                 if(ipv.getSelected()) {
                     desc += " ✓";
                 } else {

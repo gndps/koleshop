@@ -8,10 +8,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
 
-import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
+import com.koleshop.appkoleshop.common.constant.Constants;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -142,6 +145,19 @@ public class CommonUtils {
         } catch(Exception e) {
             return 0l;
         }
+    }
+
+    public static TextView getActionBarTextView(Toolbar mToolBar) {
+        TextView titleTextView = null;
+
+        try {
+            Field f = mToolBar.getClass().getDeclaredField("mTitleTextView");
+            f.setAccessible(true);
+            titleTextView = (TextView) f.get(mToolBar);
+        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException e) {
+        }
+        return titleTextView;
     }
 
 }

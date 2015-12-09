@@ -26,6 +26,7 @@
         android:layout_above="@+id/email"
         android:layout_marginLeft="@dimen/spacing_large"
         android:layout_marginStart="@dimen/spacing_large"
+        android:fontFamily="sans-serif-light"
         android:text="My store name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
     <TextView
@@ -36,6 +37,7 @@
         android:layout_marginLeft="@dimen/spacing_large"
         android:layout_marginStart="@dimen/spacing_large"
         android:layout_marginBottom="@dimen/spacing_large"
+        android:fontFamily="sans-serif-light"
         android:text="8585945716"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 

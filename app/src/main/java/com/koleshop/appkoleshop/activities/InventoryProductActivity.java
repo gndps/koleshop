@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
@@ -11,15 +13,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.adapters.InventoryCategoryViewPagerAdapter;
 import com.koleshop.appkoleshop.common.constant.Constants;
+import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class InventoryProductActivity extends AppCompatActivity {
@@ -87,6 +93,8 @@ public class InventoryProductActivity extends AppCompatActivity {
         viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper_inventory_product_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar_inventory_products);
         toolbar.setTitle(categoryTitle);
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
+        CommonUtils.getActionBarTextView(toolbar).setTypeface(typeface);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,6 +139,7 @@ public class InventoryProductActivity extends AppCompatActivity {
         setupViewPager(viewPager, list);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(viewPager);
+        changeTabsFont();
     }
 
     private void setupViewPager(ViewPager viewPager, List<InventoryCategory> subcategories) {
@@ -155,5 +164,22 @@ public class InventoryProductActivity extends AppCompatActivity {
 
     public void retry(View v) {
         fetchCategories();
+    }
+
+    private void changeTabsFont() {
+
+        ViewGroup vg = (ViewGroup) tabLayout.getChildAt(0);
+        int tabsCount = vg.getChildCount();
+        for (int j = 0; j < tabsCount; j++) {
+            ViewGroup vgTab = (ViewGroup) vg.getChildAt(j);
+            int tabChildsCount = vgTab.getChildCount();
+            for (int i = 0; i < tabChildsCount; i++) {
+                View tabViewChild = vgTab.getChildAt(i);
+                if (tabViewChild instanceof TextView) {
+                    Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/RobotoCondensed-Regular.ttf");
+                    ((TextView) tabViewChild).setTypeface(typeface, Typeface.NORMAL);
+                }
+            }
+        }
     }
 }

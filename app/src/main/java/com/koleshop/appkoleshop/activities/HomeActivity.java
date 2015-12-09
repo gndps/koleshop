@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -16,20 +17,25 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.PreferenceUtils;
 import com.koleshop.appkoleshop.fragments.DummyHomeFragment;
+import com.koleshop.appkoleshop.fragments.productedit.ProductVarietyEditFragment;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.fragments.product.InventoryCategoryFragment;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.exceptions.RealmException;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -49,21 +55,33 @@ public class HomeActivity extends AppCompatActivity {
         mContext = this;
         setupToolbar();
         setupDrawerLayout();
-        if (getIntent().getBooleanExtra("CLOSE_APPLICATION", false))
-        {
+        addInitialFragment();
+        if (getIntent().getBooleanExtra("CLOSE_APPLICATION", false)) {
             finish();
-        }
-        else {
+        } else {
             initializeBroadcastReceivers();
             loadInitialData();
         }
         String registrationId = PreferenceUtils.getRegistrationId(mContext);
         Log.d(TAG, "registrationId = " + registrationId);
+
+        DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
+
+        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
+        Log.d(TAG, "width = " + dpWidth + "dp");
+        Log.d(TAG, "height = " + dpHeight + "dp");
+
+        //Toast.makeText(mContext, "width = " + dpWidth + "dp, height = " + dpHeight + "dp", Toast.LENGTH_SHORT).show();
     }
 
-    private void setupToolbar()
-    {
+    private void setupToolbar() {
         final Toolbar toolbar = (Toolbar) findViewById(com.koleshop.appkoleshop.R.id.app_bar);
+        toolbar.setTitle("Home");
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
+        CommonUtils.getActionBarTextView(toolbar).setTypeface(typeface);
+
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
 
@@ -71,6 +89,7 @@ public class HomeActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(com.koleshop.appkoleshop.R.drawable.ic_menu_white_24dp);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setElevation(8.0f);
+
         }
     }
 
@@ -81,9 +100,9 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
-                    case com.koleshop.appkoleshop.R.id.drawer_products:
+                    case R.id.drawer_products:
                         //Products
-                        getSupportActionBar().setTitle("Products");
+                        getSupportActionBar().setTitle("My Shop");
                         InventoryCategoryFragment myInventoryCategoryFragment = new InventoryCategoryFragment();
                         Bundle bundleMyInventory = new Bundle();
                         bundleMyInventory.putBoolean("myInventory", true);
@@ -93,17 +112,17 @@ public class HomeActivity extends AppCompatActivity {
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
                         return true;
-                    case com.koleshop.appkoleshop.R.id.drawer_inventory:
+                    case R.id.drawer_inventory:
                         //Drawer inventory
-                        getSupportActionBar().setTitle("Inventory categories");
+                        getSupportActionBar().setTitle("Ware House");
                         InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
                         getSupportFragmentManager().beginTransaction()
-                                .replace(com.koleshop.appkoleshop.R.id.fragment_container, inventoryCategoryFragment).commit();
+                                .replace(R.id.fragment_container, inventoryCategoryFragment).commit();
                         //Snackbar.make(content, menuItem.getTitle() + " opened", Snackbar.LENGTH_LONG).show();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
                         return true;
-                    case com.koleshop.appkoleshop.R.id.drawer_add_edit:
+                    case R.id.drawer_add_edit:
                         //Add/Edit Products
                         //getSupportActionBar().setTitle("Inventory categories");
                         menuItem.setChecked(true);
@@ -112,57 +131,67 @@ public class HomeActivity extends AppCompatActivity {
                         Intent addEditProductIntent = new Intent(mContext, AddEditProductActivity.class);
                         startActivity(addEditProductIntent);
                         return true;
-                    case com.koleshop.appkoleshop.R.id.drawer_settings:
+                    case R.id.drawer_settings:
                         //Settings
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
                         Intent intent3 = new Intent(mContext, ShopSettingsActivity.class);
                         startActivity(intent3);
                         return true;
-                    case com.koleshop.appkoleshop.R.id.drawer_login:
+                    case R.id.drawer_login:
                         //Log In  or Log out
                         drawerLayout.closeDrawers();
                         Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
                         startActivity(intentLogin);
                         return true;
-                    case com.koleshop.appkoleshop.R.id.drawer_logout:
+                    case R.id.drawer_logout:
                         drawerLayout.closeDrawers();
-                        //todo add "are you sure you wanna log out??"
-                        PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_ID, "");
-                        PreferenceUtils.setPreferences(mContext, Constants.KEY_SESSION_ID, "");
-                        Snackbar.make(content, menuItem.getTitle() + " Successful", Snackbar.LENGTH_LONG).show();
-                        view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(true);
-                        view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(false);
-                        return true;
-                    /*case R.id.drawer_test:
-                        getSupportActionBar().setTitle("Testing sticky header shit");
-                        InventoryProductFragment fragment = new InventoryProductFragment();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                        builder.setMessage("Are you sure ?")
+                                .setPositiveButton("LOG OUT", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_ID, "");
+                                        PreferenceUtils.setPreferences(mContext, Constants.KEY_SESSION_ID, "");
+                                        view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(true);
+                                        view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(false);
+                                    }
+                                })
+                                .setNegativeButton("CANCEL", null);
+                        builder.create().show();
+                        return false;
+                    case R.id.drawer_test:
+                        getSupportActionBar().setTitle("Testing cardview shit");
+                        ProductVarietyEditFragment fragment = new ProductVarietyEditFragment();
                         Bundle bundl = new Bundle();
                         bundl.putLong("categoryId", 120l);
                         fragment.setArguments(bundl);
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, fragment).commit();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
-                        return true;*/
+                        return true;
                 }
 
                 return true;
             }
         });
+
         //setup login and logout buttons visibility
         boolean loggedIn = false;
-        if(!PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID).isEmpty()) {
+        if (!PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID).isEmpty()) {
             loggedIn = true;
         }
 
-        if(loggedIn) {
+        if (loggedIn) {
             view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(false);
             view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(true);
         } else {
             view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(true);
             view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(false);
         }
+    }
 
-        getSupportActionBar().setTitle("Home");
+    private void addInitialFragment() {
         DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(com.koleshop.appkoleshop.R.id.fragment_container, dummyHomeFragment).commit();
@@ -216,39 +245,28 @@ public class HomeActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS)) {
                     loadedProductCategories = true;
-                    if(loadedBrands)
-                    {
+                    if (loadedBrands) {
                         initialDataLoadingComplete();
                     }
-                }
-                else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_FAILED)) {
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_FAILED)) {
                     dialog.dismiss();
                     loadedProductCategories = false;
-                    if(!CommonUtils.isConnectedToInternet(context))
-                    {
+                    if (!CommonUtils.isConnectedToInternet(context)) {
                         showInternetConnectionPopup();
-                    }
-                    else
-                    {
+                    } else {
                         showRetryLoadingPopup();
                     }
-                }
-                else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS)) {
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS)) {
                     loadedBrands = true;
-                    if(loadedProductCategories)
-                    {
+                    if (loadedProductCategories) {
                         initialDataLoadingComplete();
                     }
-                }
-                else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED)) {
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED)) {
                     dialog.dismiss();
                     loadedBrands = false;
-                    if(!CommonUtils.isConnectedToInternet(context))
-                    {
+                    if (!CommonUtils.isConnectedToInternet(context)) {
                         showInternetConnectionPopup();
-                    }
-                    else
-                    {
+                    } else {
                         showRetryLoadingPopup();
                     }
                 }
@@ -305,14 +323,12 @@ public class HomeActivity extends AppCompatActivity {
         }
     }*/
 
-    private String[] getNavigationDrawerArray()
-    {
+    private String[] getNavigationDrawerArray() {
         return getResources().getStringArray(com.koleshop.appkoleshop.R.array.navigation_drawer_array);
     }
 
-    private void loadInitialData()
-    {
-        if(Constants.RESET_REALM) {
+    private void loadInitialData() {
+        if (Constants.RESET_REALM) {
             deleteRealmPreferences();
         }
 
@@ -320,21 +336,21 @@ public class HomeActivity extends AppCompatActivity {
         loadedBrands = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED);
         //loadedBrands = true;
 
-        if(!loadedProductCategories || !loadedBrands) {
-            dialog = ProgressDialog.show(this, "Loading first time data", "Please wait...", true);
+        if (!loadedProductCategories || !loadedBrands) {
+            //todo add some fun fact in loading screen
+            dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
         }
 
-        if(!loadedProductCategories) {
+        if (!loadedProductCategories) {
             loadProductCategories();
         }
 
-        if(!loadedBrands) {
+        if (!loadedBrands) {
             loadBrands();
         }
     }
 
-    private void deleteRealmPreferences()
-    {
+    private void deleteRealmPreferences() {
         //CommonUtils.closeRealm(mContext);
         PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED, false);
         PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED, false);
@@ -343,14 +359,23 @@ public class HomeActivity extends AppCompatActivity {
         } catch (Exception e) {
             //dont give a damn
         }
-        Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+        try {
+            Realm r = Realm.getDefaultInstance();
+            r.close();
+            if (r != null) {
+                Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+            }
+        } catch (RealmException e) {
+            Log.e(TAG, "realm exception", e);
+        } finally {
+            Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+        }
     }
 
-    private void loadProductCategories()
-    {
-            Intent commonIntentService = new Intent(this, CommonIntentService.class);
-            commonIntentService.setAction(CommonIntentService.ACTION_LOAD_PRODUCT_CATEGORIES);
-            startService(commonIntentService);
+    private void loadProductCategories() {
+        Intent commonIntentService = new Intent(this, CommonIntentService.class);
+        commonIntentService.setAction(CommonIntentService.ACTION_LOAD_PRODUCT_CATEGORIES);
+        startService(commonIntentService);
     }
 
     private void loadBrands() {
@@ -359,14 +384,12 @@ public class HomeActivity extends AppCompatActivity {
         startService(commonIntentService);
     }
 
-    private void initialDataLoadingComplete()
-    {
+    private void initialDataLoadingComplete() {
         dialog.dismiss();
         //TODO show tutorial if first time use
     }
 
-    private void showInternetConnectionPopup()
-    {
+    private void showInternetConnectionPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Device is not connected to internet. Try Again?")
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
@@ -382,8 +405,7 @@ public class HomeActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private void showRetryLoadingPopup()
-    {
+    private void showRetryLoadingPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Some problem occurred while loading. Try Again?")
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
@@ -399,8 +421,7 @@ public class HomeActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private void closeTheApplication()
-    {
+    private void closeTheApplication() {
         Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("CLOSE_APPLICATION", true);

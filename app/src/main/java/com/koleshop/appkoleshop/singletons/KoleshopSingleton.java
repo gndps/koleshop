@@ -36,7 +36,6 @@ public class KoleshopSingleton {
     private DualCache<String> dualCache;
     private DualCache<byte[]> dualCacheByteArray;
     private DualCache<Date> dualCacheDate;
-    private InventoryProduct currentProduct;
 
     protected KoleshopSingleton() {
 
@@ -239,13 +238,5 @@ public class KoleshopSingleton {
             //result for this key was never cached or is cleared
             return null;
         }
-    }
-
-    public void setCurrentProduct(InventoryProduct currentProduct) {
-        this.currentProduct = currentProduct;
-    }
-
-    public InventoryProduct getCurrentProduct() {
-        return currentProduct;
     }
 }

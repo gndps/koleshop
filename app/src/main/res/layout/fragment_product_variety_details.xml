@@ -28,6 +28,7 @@
                     android:id="@+id/variety_details_heading"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
+                    android:fontFamily="sans-serif-light"
                     android:layout_alignParentLeft="true"
                     android:background="@color/grey"
                     android:gravity="center_vertical"
@@ -71,6 +72,7 @@
                         android:id="@+id/edittext_product_variety_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-light"
                         android:hint="Variety name"
                         android:imeOptions="actionDone"
                         android:inputType="textCapWords"
@@ -100,6 +102,7 @@
                             android:paddingRight="8dp"
                             android:hint="product price"
                             android:layout_gravity="center"
+                            android:fontFamily="sans-serif-light"
                             android:imeOptions="actionDone"
                             android:inputType="numberDecimal"
                             android:maxLines="1"
@@ -129,7 +132,8 @@
                             android:paddingLeft="4dp"
                             android:paddingRight="16dp"
                             android:text="Stock"
-                            android:textSize="@dimen/abc_text_size_medium_material" />
+                            android:textSize="@dimen/abc_text_size_medium_material"
+                            android:fontFamily="sans-serif-light"/>
 
                         <View
                             android:layout_width="0dp"
@@ -146,11 +150,13 @@
                             android:inputType="number"
                             android:maxLines="1"
                             android:visibility="gone"
-                            android:singleLine="true" />
+                            android:singleLine="true"
+                            android:fontFamily="sans-serif-light"/>
 
                         <Switch
                             android:id="@+id/switch_product_available"
                             android:layout_width="64dp"
+                            android:fontFamily="sans-serif-light"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
                             android:checked="true" />
