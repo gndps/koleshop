@@ -73,7 +73,7 @@ public class Constants {
     public static final String ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE = "com.koleshop.action_update_inventory_product_selection_failure" ;
     public static final String ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT = "com.koleshop.action_notify_product_selection_variety_to_parent" ;
     public static final String ACTION_COLLAPSE_EXPANDED_PRODUCT = "com.koleshop.action_collapse_expanded_product" ;
-    public static final String ACTION_CAPTURE_PRODUCT_VARIETY_PICTURE = "com.koleshop.action_take_product_variety_picture";
+    @Deprecated public static final String ACTION_CAPTURE_PRODUCT_VARIETY_PICTURE = "com.koleshop.action_take_product_variety_picture";
     public static final String ACTION_UPLOAD_IMAGE = "com.koleshop.action_upload_bitmap";
     public static final String ACTION_UPLOAD_IMAGE_SUCCESS = "com.koleshop.action_upload_bitmap_success";
     public static final String ACTION_UPLOAD_IMAGE_FAILED = "com.koleshop.action_upload_bitmap_failed";

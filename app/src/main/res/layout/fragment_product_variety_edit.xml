@@ -60,10 +60,11 @@
 
                     <ProgressBar
                         android:id="@+id/pb_image_upload_product_edit"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="bottom"
                         android:indeterminate="true"
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:indeterminateTint="@color/offwhite"
                         android:visibility="gone" />
 

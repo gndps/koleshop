@@ -159,7 +159,7 @@ public class HomeActivity extends AppCompatActivity {
                                 .setNegativeButton("CANCEL", null);
                         builder.create().show();
                         return false;
-                    case R.id.drawer_test:
+                    /*case R.id.drawer_test:
                         getSupportActionBar().setTitle("Testing cardview shit");
                         ProductVarietyEditFragment fragment = new ProductVarietyEditFragment();
                         Bundle bundl = new Bundle();
@@ -169,7 +169,7 @@ public class HomeActivity extends AppCompatActivity {
                                 .replace(R.id.fragment_container, fragment).commit();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
-                        return true;
+                        return true;*/
                 }
 
                 return true;

@@ -20,6 +20,10 @@ public class EditProductVar {
     int limitedStock;
     String tag;
     boolean showImageProcessing;
+    boolean valid;
+    byte[] tempBitmapByteArray;
+    String imageFilename;
+    int position;
 
     public EditProductVar() {
     }
@@ -42,6 +46,7 @@ public class EditProductVar {
         this.selected = inventoryProductVariety.getSelected();
         this.limitedStock = inventoryProductVariety.getLimitedStock();
         this.tag = CommonUtils.randomString(10);
+        this.valid = true;
     }
 
     public Long getId() {
@@ -106,5 +111,37 @@ public class EditProductVar {
 
     public void setShowImageProcessing(boolean showImageProcessing) {
         this.showImageProcessing = showImageProcessing;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+
+    public byte[] getTempBitmapByteArray() {
+        return tempBitmapByteArray;
+    }
+
+    public void setTempBitmapByteArray(byte[] tempBitmapByteArray) {
+        this.tempBitmapByteArray = tempBitmapByteArray;
+    }
+
+    public String getImageFilename() {
+        return imageFilename;
+    }
+
+    public void setImageFilename(String imageFilename) {
+        this.imageFilename = imageFilename;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

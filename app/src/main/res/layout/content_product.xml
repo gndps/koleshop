@@ -10,7 +10,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/sb_product">
 
             <LinearLayout
                 android:id="@+id/container_product_edit_fragments"

@@ -19,6 +19,7 @@ public class EditProduct {
     String name;
     String brand;
     List<EditProductVar> editProductVars;
+    long categoryId;
 
     public EditProduct() {
     }
@@ -30,7 +31,7 @@ public class EditProduct {
         this.editProductVars = editProductVars;
     }
 
-    public EditProduct(InventoryProduct product) {
+    public EditProduct(InventoryProduct product, Long categoryId) {
         this.id = product.getId();
         this.name = product.getName();
         this.brand = product.getBrand();
@@ -40,6 +41,7 @@ public class EditProduct {
             vars.add(editProductVar);
         }
         this.editProductVars = vars;
+        this.categoryId = categoryId;
     }
 
     public Long getId() {
@@ -72,5 +74,13 @@ public class EditProduct {
 
     public void setEditProductVars(List<EditProductVar> editProductVars) {
         this.editProductVars = editProductVars;
+    }
+
+    public long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(long categoryId) {
+        this.categoryId = categoryId;
     }
 }

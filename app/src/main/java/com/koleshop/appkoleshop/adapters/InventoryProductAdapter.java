@@ -135,8 +135,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                     //Toast.makeText(context, "Product Edit screen is on its way!!", Toast.LENGTH_SHORT).show();
                     //@deprecated Intent editProductIntent = new Intent(context, ProductEditActivity.class);
                     Intent editProductIntent = new Intent(context, ProductActivity.class);
-                    editProductIntent.putExtra("categoryId", categoryId);
-                    EditProduct pro = new EditProduct(mItems.get(position).product);
+                    EditProduct pro = new EditProduct(mItems.get(position).product, categoryId);
                     Parcelable parcelableProduct = Parcels.wrap(pro);
                     editProductIntent.putExtra("product", parcelableProduct);
                     context.startActivity(editProductIntent);

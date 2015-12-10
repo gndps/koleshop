@@ -56,6 +56,11 @@
     <string name="navigation_drawer_test">Test</string>
     <string name="string_retry">RETRY</string>
     <string name="title_activity_product_edit">ProductEditActivity</string>
+    <string name="choose_image_picker">Change picture</string>
+    <string-array name="choose_image_options">
+        <item>Camera</item>
+        <item>Gallery</item>
+    </string-array>
 
     <string name="pick_account">A google account is required to proceed</string>
     <string name="not_online">Device not connected to internet</string>

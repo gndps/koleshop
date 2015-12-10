@@ -6,8 +6,12 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
@@ -158,6 +162,15 @@ public class CommonUtils {
         } catch (IllegalAccessException e) {
         }
         return titleTextView;
+    }
+
+    public static String getPathFromUri(Context context, Uri uri) {
+        if (Build.VERSION.SDK_INT < 11)
+            return RealPathUtil.getRealPathFromURI_BelowAPI11(context, uri);
+        else if (Build.VERSION.SDK_INT < 19)
+            return RealPathUtil.getRealPathFromURI_API11to18(context, uri);
+        else
+            return RealPathUtil.getRealPathFromURI_API19(context, uri);
     }
 
 }

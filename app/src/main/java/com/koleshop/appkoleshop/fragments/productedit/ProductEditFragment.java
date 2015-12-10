@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.realm.Brand;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.rengwuxian.materialedittext.MaterialAutoCompleteTextView;
@@ -34,15 +37,14 @@ public class ProductEditFragment extends Fragment {
     @Bind(R.id.spinner_product_edit_1) MaterialBetterSpinner spinnerCategory;
     @Bind(R.id.spinner_product_edit_2) MaterialBetterSpinner spinnerSubcategory;
 
-    private OnFragmentInteractionListener mListener;
     private ArrayList<ProductCategory> parentCategories;
     private ArrayList<ProductCategory> subCategories;
     private Context mContext;
     private Realm realm;
     private List<String> brands;
-    private long categoryId, selectedParentCategoryId;
-    private Long id;
-    private String name, brand;
+    private long selectedParentCategoryId;
+    private EditProduct product;
+    private InteractionListener mListener;
 
 
     public ProductEditFragment() {
@@ -57,60 +59,80 @@ public class ProductEditFragment extends Fragment {
         mContext = getActivity();
         View v = inflater.inflate(R.layout.fragment_product_edit, container, false);
         ButterKnife.bind(this, v);
-        Bundle bundle = getArguments();
-        if(bundle!=null) {
-            id = bundle.getLong("id", 0l);
-            name = bundle.getString("name", "");
-            brand = bundle.getString("brand", "");
-            categoryId = bundle.getLong("categoryId", 0l);
-            loadDataIntoViews();
-        }
+        editTextBrand.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                if (product != null) {
+                    product.setBrand(s.toString());
+                }
+            }
+        });
+        editTextProductName.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                if(product!=null) {
+                    product.setName(s.toString());
+                }
+            }
+        });
         loadBrands();
         loadCategories();
         loadAndBindSpinners();
-        selectCategory(categoryId);
         return v;
     }
 
     private void loadDataIntoViews() {
-        editTextProductName.setText(name);
-        editTextBrand.setText(brand);
+        editTextProductName.setText(product.getName());
+        editTextBrand.setText(product.getBrand());
         spinnerCategory.setFocusable(true);
         spinnerCategory.setFocusableInTouchMode(true);
         spinnerSubcategory.setFocusable(true);
         spinnerSubcategory.setFocusableInTouchMode(true);
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.product = mListener.getProductFromParent();
+        loadDataIntoViews();
+        selectCategory(product.getCategoryId());
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof InteractionListener) {
+            mListener = (InteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement ProductEditFragmentInteractionListener");
         }
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
     private void loadBrands() {
-        Realm realm = Realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();
         RealmQuery<Brand> brandRealmQuery = realm.where(Brand.class);
 
         final RealmResults<Brand> brandRealmResults = brandRealmQuery.findAllSorted("name");
@@ -157,14 +179,14 @@ public class ProductEditFragment extends Fragment {
                 if (position >= 0) {
                     //categorySelected = true;
                     long parentCategoryId = parentCategories.get(position).getId();
-                    if(selectedParentCategoryId!=parentCategoryId) {
-                        categoryId = parentCategoryId;
+                    if (selectedParentCategoryId != parentCategoryId) {
+                        product.setCategoryId(parentCategoryId);
                         selectedParentCategoryId = parentCategoryId;
                         loadSubcategoriesForId(parentCategoryId);
                     }
                 } else {
                     //categorySelected = false;
-                    categoryId = 0l;
+                    product.setCategoryId(0l);
                     spinnerSubcategory.setVisibility(View.GONE);
                 }
             }
@@ -176,10 +198,10 @@ public class ProductEditFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= 0) {
                     //subcategorySelected = true;
-                    categoryId = subCategories.get(position).getId();
+                    product.setCategoryId(subCategories.get(position).getId());
                 } else {
                     //subcategorySelected = false;
-                    categoryId = 0l;
+                    product.setCategoryId(0l);
                 }
             }
         });
@@ -201,7 +223,7 @@ public class ProductEditFragment extends Fragment {
         }
 
         if (subcategoriesList.size() > 0) {
-            categoryId = 0l;
+            //product.setCategoryId(0l);
             ArrayAdapter<String> subcategoryArrayAdapter = new ArrayAdapter<>(mContext, android.R.layout.simple_dropdown_item_1line, subcategoriesList);
             subcategoryArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             //productCategoryId = subCategories.get(0).getId();
@@ -233,7 +255,7 @@ public class ProductEditFragment extends Fragment {
             loadSubcategoriesForId(selectedParentCategoryId);
             int selectedSubcategoryIndex = getIndexOfCategoryInList(subCategories, productCategory.getId());
             spinnerSubcategory.setText(subCategories.get(selectedSubcategoryIndex).getName());
-        } else {
+        } else if(productCategory!=null) {
             int ind = getIndexOfCategoryInList(parentCategories, productCategory.getId());
             spinnerCategory.setSelection(ind);
         }
@@ -248,5 +270,13 @@ public class ProductEditFragment extends Fragment {
             index++;
         }
         return 0;
+    }
+
+    public void setProduct(EditProduct product) {
+        this.product = product;
+    }
+
+    public interface InteractionListener {
+        EditProduct getProductFromParent();
     }
 }
