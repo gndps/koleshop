@@ -177,10 +177,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         //setup login and logout buttons visibility
-        boolean loggedIn = false;
-        if (!PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID).isEmpty()) {
-            loggedIn = true;
-        }
+        boolean loggedIn = PreferenceUtils.isUserLoggedIn(mContext);
 
         if (loggedIn) {
             view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(false);

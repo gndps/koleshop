@@ -40,6 +40,7 @@ public class Constants {
 
     public static String PUBLIC_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
     public static String IMAGE_UPLOAD_STATUS_PREFIX = "image_upload_status_";
+    public static int IMAGE_UPLOAD_DIMENSIONS = 400;
 
 
     //Broadcast Actions

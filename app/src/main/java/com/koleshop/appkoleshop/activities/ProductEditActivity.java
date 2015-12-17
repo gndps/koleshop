@@ -19,6 +19,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -256,7 +257,7 @@ public class ProductEditActivity extends AppCompatActivity {
             //set processing on variety image view
             setProcessingOnVariety(imageCaptureTag, true, true);
 
-            //1. resize the image and set to image vew......2. Upload the image
+            /*//1. resize the image and set to image vew......2. Upload the image
             new AsyncTask<String, Void, Void>() {
                 @Override
                 protected Void doInBackground(String... params) {
@@ -264,14 +265,16 @@ public class ProductEditActivity extends AppCompatActivity {
                     Bitmap resizedBitmap = ImageUtils.getResizedBitmap(600, 600, currentPhotoPath); //aspect ratio will be maintained
                     setTempBitmapOnVariety(varietyTag, resizedBitmap, true);
                     galleryAddPic();
-                    /*if (mapTagFilename == null) {
-                        mapTagFilename = new HashMap<>();
-                    }
-                    mapTagFilename.put(varietyTag, currentImageFilename);*/
+                    //if (mapTagFilename == null) {
+                    //    mapTagFilename = new HashMap<>();
+                    //}
+                    //mapTagFilename.put(varietyTag, currentImageFilename);
                     ImageUtils.uploadBitmap(mContext, resizedBitmap, currentImageFilename, varietyTag);
                     return null;
                 }
-            }.execute(imageCaptureTag, null, null);
+            }.execute(imageCaptureTag, null, null);*/
+        } else {
+            Log.d(TAG, "no image returned");
         }
     }
 
@@ -316,8 +319,8 @@ public class ProductEditActivity extends AppCompatActivity {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         Long userId = CommonUtils.getUserId(mContext);
-        String random4 = CommonUtils.randomString(4);
-        String imageFileName = "IMG_" + userId + "_" + timeStamp + "_" + random4;
+        String random6 = CommonUtils.randomString(6);
+        String imageFileName = "IMG_" + userId + "_" + timeStamp + "_" + random6;
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(

@@ -64,6 +64,9 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
                         android:indeterminate="true"
+                        android:layout_marginBottom="-6dp"
+                        android:paddingLeft="1dp"
+                        android:paddingRight="1dp"
                         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:indeterminateTint="@color/offwhite"
                         android:visibility="gone" />

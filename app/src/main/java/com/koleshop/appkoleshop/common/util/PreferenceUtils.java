@@ -106,4 +106,23 @@ public class PreferenceUtils {
         return registrationId;
     }
 
+    public static Long getUserId(Context context) {
+        String userIdString = PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID);
+        Long userId;
+        try {
+            userId = Long.parseLong(userIdString);
+        } catch (Exception e) {
+            userId = 0l;
+        }
+        return userId;
+    }
+
+    public static String getSessionId(Context context) {
+        return getPreferences(context, Constants.KEY_SESSION_ID);
+    }
+
+    public static boolean isUserLoggedIn(Context context) {
+        return getUserId(context)>0;
+    }
+
 }

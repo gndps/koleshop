@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:id="@+id/sb_product"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.koleshop.appkoleshop.activities.ProductActivity"
     tools:showIn="@layout/activity_product">
 
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/container_product_edit_fragments"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/sb_product">
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"></LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/container_product_edit_fragments"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"></LinearLayout>
-
-    </ScrollView>
-
-</RelativeLayout>
+</android.support.v4.widget.NestedScrollView>

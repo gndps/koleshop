@@ -3,6 +3,8 @@ package com.koleshop.appkoleshop.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
@@ -15,6 +17,8 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.util.ArrayMap;
 import com.koleshop.api.commonEndpoint.model.ImageUploadRequest;
 import com.koleshop.appkoleshop.common.constant.Constants;
+import com.koleshop.appkoleshop.common.util.CommonUtils;
+import com.koleshop.appkoleshop.common.util.ImageUtils;
 import com.koleshop.appkoleshop.common.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.ProductSelectionRequest;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
@@ -34,7 +38,9 @@ import org.parceler.Parcels;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
@@ -59,7 +65,7 @@ public class CommonIntentService extends IntentService {
             if (ACTION_LOAD_PRODUCT_CATEGORIES.equals(action) && !PreferenceUtils.getPreferencesFlag(getApplicationContext(), Constants.FLAG_PRODUCT_CATEGORIES_LOADED)) {
                 loadProductCategories();
 
-            }  else if (ACTION_LOAD_BRANDS.equals(action) && !PreferenceUtils.getPreferencesFlag(getApplicationContext(), Constants.FLAG_BRANDS_LOADED)) {
+            } else if (ACTION_LOAD_BRANDS.equals(action) && !PreferenceUtils.getPreferencesFlag(getApplicationContext(), Constants.FLAG_BRANDS_LOADED)) {
                 loadBrands();
 
                 //inventory categories
@@ -96,15 +102,16 @@ public class CommonIntentService extends IntentService {
                 ProductSelectionRequest request = Parcels.unwrap(intent.getParcelableExtra("request"));
                 updateInventoryProductSelection(request);
 
-            } else if(Constants.ACTION_UPLOAD_IMAGE.equals(action)) {
-                byte[] byteArray = intent.getByteArrayExtra("image");
+                //upload image
+            } else if (Constants.ACTION_UPLOAD_IMAGE.equals(action)) {
                 String filename = intent.getStringExtra("filename");
+                String filepath = intent.getStringExtra("filepath");
                 String tag = intent.getStringExtra("tag");
-                if(byteArray==null || filename==null || filename.isEmpty() || tag.isEmpty()) {
+                if (filepath == null || filepath.isEmpty() || filename == null || filename.isEmpty() || tag == null || tag.isEmpty()) {
                     Intent failedIntent = new Intent(Constants.ACTION_UPLOAD_IMAGE_FAILED);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(failedIntent);
                 } else {
-                    uploadImageToCloudStorage(byteArray, filename, tag);
+                    uploadImageToCloudStorage(filepath, filename, tag);
                 }
             }
         }
@@ -130,9 +137,19 @@ public class CommonIntentService extends IntentService {
 
         try {
             Context context = getApplicationContext();
-            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
-            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
-            result = commonEndpoint.getAllBrands(userId, sessionId).execute();
+            Long userId = PreferenceUtils.getUserId(context);
+            String sessionId = PreferenceUtils.getSessionId(context);
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = commonEndpoint.getAllBrands(userId, sessionId).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
         }
@@ -189,9 +206,19 @@ public class CommonIntentService extends IntentService {
 
         try {
             Context context = getApplicationContext();
-            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
-            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
-            result = commonEndpoint.getAllProductCategories(userId, sessionId).execute();
+            Long userId = PreferenceUtils.getUserId(context);
+            String sessionId = PreferenceUtils.getSessionId(context);
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = commonEndpoint.getAllProductCategories(userId, sessionId).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
         }
@@ -245,13 +272,13 @@ public class CommonIntentService extends IntentService {
         KoleResponse result = null;
 
         Context context = getApplicationContext();
-        Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
-        String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
+        Long userId = PreferenceUtils.getUserId(context);
+        String sessionId = PreferenceUtils.getSessionId(context);
 
-        //if result fails, then try 3 times before showing error
+        //if result fails, then retry 3 times before showing error
         int count = 0;
         int maxTries = 3;
-        while(count<maxTries) {
+        while (count < maxTries) {
             try {
                 result = inventoryEndpoint.getCategories(myInventory, sessionId, userId).execute();
                 count = maxTries;
@@ -273,7 +300,7 @@ public class CommonIntentService extends IntentService {
         } else {
             ArrayList<ArrayMap<String, String>> list = (ArrayList<ArrayMap<String, String>>) result.getData();
             List<InventoryCategory> cats = new ArrayList<>();
-            if(list!=null) {
+            if (list != null) {
                 for (ArrayMap<String, String> map : list) {
                     if (map != null) {
                         InventoryCategory cat = new InventoryCategory();
@@ -290,7 +317,7 @@ public class CommonIntentService extends IntentService {
             if (cats != null && cats.size() > 0) {
                 Log.d(TAG, "inventory cateogires fetched");
                 boolean cachedCategories = KoleCacheUtil.cacheInventoryCategories(cats, true, myInventory);
-                if(cachedCategories) {
+                if (cachedCategories) {
                     Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 } else {
@@ -325,9 +352,19 @@ public class CommonIntentService extends IntentService {
 
         try {
             Context context = getApplicationContext();
-            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
-            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
-            result = inventoryEndpoint.getSubcategories(userId, sessionId, categoryId, myInventory).execute();
+            Long userId = PreferenceUtils.getUserId(context);
+            String sessionId = PreferenceUtils.getSessionId(context);
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = inventoryEndpoint.getSubcategories(userId, sessionId, categoryId, myInventory).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
         }
@@ -357,7 +394,7 @@ public class CommonIntentService extends IntentService {
         if (cats != null && cats.size() > 0) {
             Log.d(TAG, "inventory subcateogires fetched");
             boolean categoriesCached = KoleCacheUtil.cacheInventorySubcategories(cats, categoryId, true);
-            if(categoriesCached) {
+            if (categoriesCached) {
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS);
                 intent.putExtra("catId", categoryId);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -395,9 +432,19 @@ public class CommonIntentService extends IntentService {
 
         try {
             Context context = getApplicationContext();
-            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
-            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
-            result = inventoryEndpoint.getProductsForCategoryAndUser(categoryId, myInventory, sessionId, userId).execute();
+            Long userId = PreferenceUtils.getUserId(context);
+            String sessionId = PreferenceUtils.getSessionId(context);
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = inventoryEndpoint.getProductsForCategoryAndUser(categoryId, myInventory, sessionId, userId).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
         }
@@ -452,7 +499,7 @@ public class CommonIntentService extends IntentService {
             Log.d(TAG, "products fetch SUCCESS for category id " + categoryId + ".");
             String key = Constants.CACHE_INVENTORY_PRODUCTS + categoryId;
             boolean productsCached = KoleCacheUtil.cacheProductsList(products, categoryId, true);
-            if(productsCached) {
+            if (productsCached) {
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS);
                 intent.putExtra("catId", categoryId);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -490,15 +537,26 @@ public class CommonIntentService extends IntentService {
 
         try {
             Context context = getApplicationContext();
-            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
-            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
+            Long userId = PreferenceUtils.getUserId(context);
+            String sessionId = PreferenceUtils.getSessionId(context);
             ProductVarietySelection productVarietySelection = new ProductVarietySelection();
-            if(productSelectionRequest.isWillSelectOnSuccess()) {
+            if (productSelectionRequest.isWillSelectOnSuccess()) {
                 productVarietySelection.setSelectProductIds(productSelectionRequest.getProductVarietyIds());
             } else {
                 productVarietySelection.setDeselectProductIds(productSelectionRequest.getProductVarietyIds());
             }
-            result = inventoryEndpoint.updateProductSelection(sessionId, userId, productVarietySelection).execute();
+
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = inventoryEndpoint.updateProductSelection(sessionId, userId, productVarietySelection).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
         }
@@ -519,7 +577,7 @@ public class CommonIntentService extends IntentService {
         }
     }
 
-    private void uploadImageToCloudStorage(byte[] imageByteArray, String filename, String tag) {
+    private void uploadImageToCloudStorage(String filepath, String filename, String tag) {
         CommonEndpoint commonEndpoint = null;
         CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -534,15 +592,22 @@ public class CommonIntentService extends IntentService {
 
         commonEndpoint = builder.build();
 
+
         com.koleshop.api.commonEndpoint.model.KoleResponse result = null;
         Context context = getApplicationContext();
 
         try {
-            Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
-            String sessionId = PreferenceUtils.getPreferences(context, Constants.KEY_SESSION_ID);
+            Long userId = PreferenceUtils.getUserId(context);
+            String sessionId = PreferenceUtils.getSessionId(context);
+            byte[] imageByteArray = ImageUtils.getImageByteArrayForUpload(filepath);
             ImageUploadRequest imageUploadRequest = new ImageUploadRequest();
+            if(!filename.startsWith("IMG_") || !filename.endsWith("_" + userId + ".jpg") || !filename.endsWith("_" + userId + ".png")) {
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                String random6 = CommonUtils.randomString(6);
+                filename = "IMG" + "_" + timeStamp + "_" + random6 + "_" + userId + ".jpg";
+            }
             imageUploadRequest.setFileName(filename);
-            if(filename.toLowerCase().endsWith(".png")) {
+            if (filename.toLowerCase().endsWith(".png")) {
                 imageUploadRequest.setMimeType("image/png");
             } else {
                 imageUploadRequest.setMimeType("image/jpeg");
@@ -550,11 +615,22 @@ public class CommonIntentService extends IntentService {
             String imageString = Base64.encodeToString(imageByteArray, Base64.DEFAULT);
             imageUploadRequest.setImageData(imageString);
 
-            //following prefs are set because of a case...when product_variety_1 image is uploading...but ProductEditActivity
+            //following prefs are set because of a case...when product_variety_1 image is uploading...but ProductActivity
             //has stopped listening to broadcasts because the user has opened camera to capture product_variety_2 image
             PreferenceUtils.setPreferences(context, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, "uploading");
 
-            result = commonEndpoint.uploadImage(userId, sessionId, imageUploadRequest).execute();
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = commonEndpoint.uploadImage(userId, sessionId, imageUploadRequest).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
+
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
         }

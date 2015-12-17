@@ -1,16 +1,21 @@
 package com.koleshop.appkoleshop.fragments.productedit;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,12 +29,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.ImageUtils;
+import com.koleshop.appkoleshop.common.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.squareup.picasso.Picasso;
 
-import org.parceler.Parcels;
+import java.io.File;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -60,6 +67,8 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
     private InteractionListener mListener;
     private EditProductVar variety;
     private Context mContext;
+    private BroadcastReceiver editFragmentBroadcastReceiver;
+    private String TAG = "ProVarEditFrag";
 
     public ProductVarietyEditFragment() {
         // Required empty public constructor
@@ -97,7 +106,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                 try {
                     float price = Float.parseFloat(s.toString());
                     editTextPrice.setError(null);
-                    if(variety!=null) {
+                    if (variety != null) {
                         variety.setPrice(price);
                     }
                 } catch (Exception e) {
@@ -124,6 +133,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
 
             }
         });
+        initializeBroadcastReceivers();
 
         return v;
     }
@@ -131,54 +141,59 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
     @Override
     public void onResume() {
         super.onResume();
-        reloadData();
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
+        lbm.registerReceiver(editFragmentBroadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_SUCCESS));
+        lbm.registerReceiver(editFragmentBroadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_FAILED));
+        fixImageUploadingProcess();
+        variety = mListener.refreshVariety(getTag());
+        loadTheDataIntoUi();
+    }
+
+    @Override
+    public void onPause() {
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(editFragmentBroadcastReceiver);
+        super.onPause();
+    }
+
+    private void initializeBroadcastReceivers() {
+        editFragmentBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equalsIgnoreCase(Constants.ACTION_UPLOAD_IMAGE_SUCCESS)) {
+                    String tag = intent.getStringExtra("tag");
+                    String filename = intent.getStringExtra("filename");
+                    if (tag != null && !tag.isEmpty() && filename != null && !filename.isEmpty() && tag.equalsIgnoreCase(variety.getTag())) {
+                        PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, null);
+                        String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
+                        variety.setShowImageProcessing(false);
+                        variety.setImageUrl(url);
+                        reloadImageViewAndProcessing();
+                    }
+
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_UPLOAD_IMAGE_FAILED)) {
+                    String tag = intent.getStringExtra("tag");
+                    if (tag != null && !tag.isEmpty() && tag.equalsIgnoreCase(variety.getTag())) {
+                        PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, null);
+                        variety.setShowImageProcessing(false);
+                        variety.setImagePath(null);
+                        reloadImageViewAndProcessing();
+                    }
+                }
+            }
+        };
     }
 
     private void loadTheDataIntoUi() {
         setPosition(variety.getPosition());
-        Drawable drawableCamera;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            drawableCamera = mContext.getDrawable(R.drawable.ic_photo_camera_grey600_48dp);
-        } else {
-            drawableCamera = mContext.getResources().getDrawable(R.drawable.ic_photo_camera_grey600_48dp);
-        }
-
-        if (variety.getTempBitmapByteArray() != null) {
-            //load local image
-            if (imageView != null) {
-                final Bitmap bitmap = ImageUtils.getBitmapFromByteArray(variety.getTempBitmapByteArray());
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageView.invalidate();
-                        imageView.setImageBitmap(bitmap);
-                    }
-                });
-            } else {
-                Toast.makeText(mContext, "image view not created", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-
-            Picasso.with(mContext)
-                    .load(variety.getImageUrl())
-                    .placeholder(drawableCamera)
-                    .error(drawableCamera)
-                    .into(imageView);
-        }
-
-        if (variety.isShowImageProcessing()) {
-            progressBarImage.setVisibility(View.VISIBLE);
-        } else {
-            progressBarImage.setVisibility(View.GONE);
-        }
+        reloadImageViewAndProcessing();
 
         switchStock.setChecked(variety.getLimitedStock() > 0);
         editTextQuantity.setText(variety.getQuantity());
-        if(variety.getPrice()>0) {
-            String priceString  = variety.getPrice() + "";
-            if(priceString.endsWith(".0")) {
-                priceString = priceString.substring(0,priceString.length()-2);
+        if (variety.getPrice() > 0) {
+            String priceString = variety.getPrice() + "";
+            if (priceString.endsWith(".0")) {
+                priceString = priceString.substring(0, priceString.length() - 2);
             }
             editTextPrice.setText(priceString);
         }
@@ -249,7 +264,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
 
         void captureImage(String varietyTag);
 
-        EditProductVar getVariety(String varietyTag);
+        EditProductVar refreshVariety(String varietyTag);
     }
 
     public void setPosition(int position) {
@@ -257,8 +272,93 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
         textViewNumber.setText(position + 1 + ".");
     }
 
-    public void reloadData() {
-        variety = mListener.getVariety(getTag());
-        loadTheDataIntoUi();
+    private void fixImageUploadingProcess() {
+        if (variety == null) {
+            return;
+        }
+        if (variety.isShowImageProcessing()) {
+            String status = PreferenceUtils.getPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + variety.getTag());
+            if (status != null && !status.isEmpty()) {
+                //set the correct status
+                boolean uploading = status.equalsIgnoreCase("uploading") ? true : false;
+                if (!uploading) {
+                    variety.setShowImageProcessing(false);
+                } else {
+                    PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + variety.getTag(), null);
+                    if (status.equalsIgnoreCase("upload_failed")) {
+                        variety.setImagePath(null);
+                    } else if (status.equalsIgnoreCase("upload_success")) {
+                        String filename = variety.getImageFilename();
+                        if (filename != null && !filename.isEmpty()) {
+                            String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
+                            variety.setImageUrl(url);
+                        } else {
+                            Log.d(TAG, "some problem while getting filename for tag");
+                        }
+                    }
+                }
+            } else {
+                //variety has the correct status
+            }
+        }
+    }
+
+    private void reloadImageViewAndProcessing() {
+
+        Drawable drawableCamera;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            drawableCamera = mContext.getDrawable(R.drawable.ic_photo_camera_grey600_48dp);
+        } else {
+            drawableCamera = mContext.getResources().getDrawable(R.drawable.ic_photo_camera_grey600_48dp);
+        }
+
+        if (variety.getImagePath() != null && imageView != null) {
+            //load local image
+            final String imageLoadPath = new File(variety.getImagePath()).toString();
+            Log.d(TAG, "will try to load local image from path : " + imageLoadPath);
+            try {
+                new AsyncTask<String, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(String... params) {
+                        String path = params[0];
+                        final Bitmap resizedBitmap = ImageUtils.getResizedBitmap(150, 150, path);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                imageView.setImageBitmap(resizedBitmap);
+                            }
+                        });
+                        return null;
+                    }
+                }.execute(imageLoadPath);
+
+            } catch (Exception e) {
+                Log.d(TAG, "some problem occurred while setting local image to image view", e);
+            }
+        } else if (imageView != null) {
+            //load from internet
+            String imageUrl = variety.getImageUrl();
+            Picasso.with(mContext)
+                    .load(imageUrl)
+                    .fit()
+                    .centerCrop()
+                    .placeholder(drawableCamera)
+                    .error(drawableCamera)
+                    .into(imageView);
+        } else if (imageView == null) {
+            //this condition should never be called
+            Toast.makeText(mContext, "image view not created", Toast.LENGTH_SHORT).show();
+        }
+
+        reloadProcessing();
+    }
+
+    private void reloadProcessing() {
+        if (variety.isShowImageProcessing()) {
+            progressBarImage.setVisibility(View.VISIBLE);
+        } else {
+            progressBarImage.setVisibility(View.GONE);
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.koleshop.appkoleshop.fragments.productedit;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -25,7 +24,6 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import fr.ganfra.materialspinner.MaterialSpinner;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;

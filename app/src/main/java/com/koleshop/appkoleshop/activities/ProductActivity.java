@@ -14,10 +14,10 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -55,7 +55,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
     @Bind(R.id.container_product_edit_fragments)
     LinearLayout containerVarietyFragments;
     @Bind(R.id.sb_product)
-    ScrollView scrollView;
+    NestedScrollView scrollView;
     static String tagFragmentBasicInfo = "frag_basic_info";
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int PICK_IMAGE_REQUEST = 2;
@@ -111,7 +111,8 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         if (!dontAddFragsAgain) {
             loadFragments();
         }
-        initializeBroadcastReceivers();
+
+        //initializeBroadcastReceivers();
     }
 
     @Override
@@ -154,23 +155,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-        lbm.registerReceiver(productEditBroadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_SUCCESS));
-        lbm.registerReceiver(productEditBroadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_FAILED));
-        //fix the image uploading status if the activity missed the broadcast while capturing another image
-        fixImageUploadingProcess();
-    }
-
-    @Override
-    protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(productEditBroadcastReceiver);
-        super.onPause();
-    }
-
-    private void initializeBroadcastReceivers() {
+    /*private void initializeBroadcastReceivers() {
         productEditBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -189,11 +174,26 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
                     if (tag != null && !tag.isEmpty()) {
                         PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, null);
                         setProcessingOnVariety(tag, false);
-                        setTempImageOnVariety(tag, null, null);
+                        setTempImageOnVariety(tag, null);
                     }
                 }
             }
         };
+    }*/
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+        //lbm.registerReceiver(productEditBroadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_SUCCESS));
+        //lbm.registerReceiver(productEditBroadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_FAILED));
+        //fix the image uploading status if the activity missed the broadcast while capturing another image
+    }
+
+    @Override
+    protected void onPause() {
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(productEditBroadcastReceiver);
+        super.onPause();
     }
 
     @Override
@@ -209,7 +209,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
                     editProductVar.setValid(false);
                     //fragment transaction
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                    //ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                     ft.remove(frag);
                     // Start the animated transition.
                     ft.commit();
@@ -223,6 +223,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
     }
 
     private void addVariety() {
+        //scrollView.fullScroll(View.FOCUS_DOWN);
         EditProductVar newvar = new EditProductVar();
         newvar.setTag(CommonUtils.randomString(10));
         int numberOfValidVarieties = 0;
@@ -243,7 +244,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
             public void run() {
                 scrollView.fullScroll(View.FOCUS_DOWN);
             }
-        }, 100);
+        }, 500);
     }
 
     @Override
@@ -268,7 +269,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
     }
 
     @Override
-    public EditProductVar getVariety(String varietyTag) {
+    public EditProductVar refreshVariety(String varietyTag) {
         return getProductVarietyByTag(varietyTag);
     }
 
@@ -305,37 +306,22 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         if ((requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
                 ||(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)) {
 
-            //set processing on variety image view
-            setProcessingOnVariety(imageCaptureTag, true);
-
+            //get image path
             if(requestCode == PICK_IMAGE_REQUEST) {
                 Uri uri = data.getData();
                 currentPhotoPath = CommonUtils.getPathFromUri(mContext, uri);
                 currentImageFilename = currentPhotoPath.substring(currentPhotoPath.lastIndexOf("/")+1);
             }
 
-            new AsyncTask<String, Void, Void>() {
-                @Override
-                protected Void doInBackground(String... params) {
+            //load image in ui
+            setProcessingOnVariety(imageCaptureTag, true);
+            setTempImageOnVariety(imageCaptureTag, currentPhotoPath);
 
-                    // 1. Resize the image
-                    final String varietyTag = params[0];
-                    final Bitmap resizedBitmap = ImageUtils.getResizedBitmap(600, 600, currentPhotoPath); //aspect ratio will be maintained
-
-                    //2. Set resized bitmap to image vew
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setTempImageOnVariety(varietyTag, resizedBitmap, currentImageFilename);
-                        }
-                    });
-
-                    // 3. Upload the image and add to gallery
-                    ImageUtils.uploadBitmap(mContext, resizedBitmap, currentImageFilename, varietyTag);
-                    galleryAddPic();
-                    return null;
-                }
-            }.execute(imageCaptureTag, null, null);
+            //upload - happens on new thread
+            ImageUtils.uploadBitmap(mContext, currentPhotoPath, currentImageFilename, imageCaptureTag);
+        } else {
+            //if no image taken, then set image view progress bar to gone
+            setProcessingOnVariety(imageCaptureTag, false);
         }
     }
 
@@ -343,15 +329,17 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         Long userId = CommonUtils.getUserId(mContext);
-        String random4 = CommonUtils.randomString(4);
-        String imageFileName = "IMG_" + userId + "_" + timeStamp + "_" + random4;
+        String random6 = CommonUtils.randomString(6);
+        String imageFileName = "IMG" + "_" + timeStamp + "_" + random6 + "_" + userId + ".jpg";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
+        /*File image = File.createTempFile(
+                imageFileName,  // prefix
+                null,         // suffix
+                storageDir      // directory
+        );*/
+
+        File image = new File(storageDir, imageFileName);
 
         currentImageFilename = imageFileName + ".jpg";
 
@@ -362,20 +350,23 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
 
     private void setProcessingOnVariety(String tag, boolean processing) {
         getProductVarietyByTag(tag).setShowImageProcessing(processing);
-        reloadDataInFragmentWithTag(tag);
+        //getProductVarietyFragByTag(tag).setImageProcessing(processing);
     }
 
-    private void setImageUrlOnVariety(String tag, String url) {
-        getProductVarietyByTag(tag).setImageUrl(url);
-        reloadDataInFragmentWithTag(tag);
+    /*private void setImageUrlOnVariety(String tag, String url) {
+        getProductVarietyFragByTag(tag).setImageUrl(url);
+    }*/
+
+    private void setTempImageOnVariety(String imageTag, String imagePath) {
+        getProductVarietyByTag(imageTag).setImagePath(imagePath);
+        //ProductVarietyEditFragment frag = getProductVarietyFragByTag(imageTag);
+        //frag.setImagePath(imagePath);
     }
 
-    private void setTempImageOnVariety(String imageTag, Bitmap bitmap, String currentImageFilename) {
-        EditProductVar productVar = getProductVarietyByTag(imageTag);
-        productVar.setTempBitmapByteArray(ImageUtils.getByteArrayFromBitmap(bitmap));
-        productVar.setImageFilename(currentImageFilename);
-        reloadDataInFragmentWithTag(imageTag);
-    }
+    /*private ProductVarietyEditFragment getProductVarietyFragByTag(String tag) {
+        ProductVarietyEditFragment frag = (ProductVarietyEditFragment) getSupportFragmentManager().findFragmentByTag(tag);
+        return frag;
+    }*/
 
     private EditProductVar getProductVarietyByTag(String tag) {
         for (EditProductVar var : product.getEditProductVars()) {
@@ -392,43 +383,6 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
-    }
-
-    private void reloadDataInFragmentWithTag(String tag) {
-        ProductVarietyEditFragment frag = (ProductVarietyEditFragment) getSupportFragmentManager().findFragmentByTag(tag);
-        if (frag != null) {
-            frag.reloadData();
-        }
-    }
-
-    private void fixImageUploadingProcess() {
-        for (EditProductVar var : product.getEditProductVars()) {
-            if (var.isShowImageProcessing()) {
-                String status = PreferenceUtils.getPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + var.getTag());
-                if (status != null && !status.isEmpty()) {
-                    //set the correct status
-                    boolean uploading = status.equalsIgnoreCase("uploading") ? true : false;
-                    if (!uploading) {
-                        var.setShowImageProcessing(false);
-                    } else {
-                        PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + var.getTag(), null);
-                        if (status.equalsIgnoreCase("upload_failed")) {
-                            setTempImageOnVariety(status, null, null);
-                        } else if (status.equalsIgnoreCase("upload_success")) {
-                            String filename = var.getImageFilename();
-                            if (filename != null && !filename.isEmpty()) {
-                                String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
-                                var.setImageUrl(url);
-                            } else {
-                                Log.d(TAG, "some problem while getting filename for tag");
-                            }
-                        }
-                    }
-                } else {
-                    //variety has the correct status
-                }
-            }
-        }
     }
 
     @Override

@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.services.CommonIntentService;
@@ -43,29 +44,33 @@ public class ImageUtils {
         return (bitmap);
     }
 
-    public static void uploadBitmap(Context context, Bitmap bitmap, String filename, String varietyTag) {
-
-        byte[] byteArray = getByteArrayFromBitmap(bitmap);
+    public static void uploadBitmap(Context context, String filepath, String filename, String varietyTag) {
 
         Intent uploadIntent = new Intent(context, CommonIntentService.class);
         uploadIntent.setAction(Constants.ACTION_UPLOAD_IMAGE);
-        uploadIntent.putExtra("image", byteArray);
+        uploadIntent.putExtra("filepath", filepath);
         uploadIntent.putExtra("filename", filename);
         uploadIntent.putExtra("tag", varietyTag);
         context.startService(uploadIntent);
 
     }
 
-    public static byte[] getByteArrayFromBitmap(Bitmap bitmap) {
+    public static byte[] getByteArrayFromBitmap(Bitmap bitmap, int quality) {
         try {
             //Convert to byte array
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
             byte[] byteArray = stream.toByteArray();
             return byteArray;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static byte[] getImageByteArrayForUpload(String imagePath) {
+        Bitmap bm = getResizedBitmap(Constants.IMAGE_UPLOAD_DIMENSIONS, Constants.IMAGE_UPLOAD_DIMENSIONS, imagePath);
+        byte[] ba = getByteArrayFromBitmap(bm, 90);
+        return ba;
     }
 
     public static Bitmap getBitmapFromByteArray(byte[] byteArray) {
@@ -125,5 +130,7 @@ public class ImageUtils {
                 return null;
 
             }
-        }.execute(null,null,null);
-    }}
+        }.execute(null, null, null);
+    }
+
+}

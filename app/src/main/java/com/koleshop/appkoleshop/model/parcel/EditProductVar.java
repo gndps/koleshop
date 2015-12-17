@@ -21,9 +21,9 @@ public class EditProductVar {
     String tag;
     boolean showImageProcessing;
     boolean valid;
-    byte[] tempBitmapByteArray;
     String imageFilename;
     int position;
+    String imagePath;
 
     public EditProductVar() {
     }
@@ -121,14 +121,6 @@ public class EditProductVar {
         this.valid = valid;
     }
 
-    public byte[] getTempBitmapByteArray() {
-        return tempBitmapByteArray;
-    }
-
-    public void setTempBitmapByteArray(byte[] tempBitmapByteArray) {
-        this.tempBitmapByteArray = tempBitmapByteArray;
-    }
-
     public String getImageFilename() {
         return imageFilename;
     }
@@ -143,5 +135,13 @@ public class EditProductVar {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }
