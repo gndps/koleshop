@@ -117,7 +117,9 @@
                         app:met_floatingLabel="highlight"
                         app:met_floatingLabelAnimating="true"
                         app:met_primaryColor="@color/accent"
-                        android:imeOptions="actionDone"
+                        android:imeOptions="actionNext"
+                        android:capitalize="words"
+                        android:nextFocusForward="@+id/met_product_edit_variety_price"
                         android:inputType="textNoSuggestions"
                         android:maxLines="1" />
 
@@ -135,7 +137,7 @@
                         app:met_floatingLabelAnimating="true"
                         app:met_primaryColor="@color/accent"
                         android:imeOptions="actionDone"
-                        android:inputType="textNoSuggestions"
+                        android:inputType="textNoSuggestions|numberDecimal"
                         android:maxLines="1" />
 
                 </LinearLayout>

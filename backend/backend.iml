@@ -60,7 +60,7 @@
     <orderEntry type="library" exported="" name="gcloud-java-core-0.1.0" level="project" />
     <orderEntry type="library" exported="" name="gcloud-java-datastore-0.1.0" level="project" />
     <orderEntry type="library" exported="" name="gcloud-java-storage-0.1.0" level="project" />
-    <orderEntry type="library" exported="" name="guava-19.0-rc3" level="project" />
+    <orderEntry type="library" exported="" name="guava-19.0" level="project" />
     <orderEntry type="library" exported="" name="google-api-client-appengine-1.21.0" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-jackson2-1.21.0" level="project" />
     <orderEntry type="library" exported="" name="google-auth-library-credentials-0.3.1" level="project" />

@@ -3,8 +3,6 @@ package com.koleshop.appkoleshop.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
@@ -19,6 +17,7 @@ import com.koleshop.api.commonEndpoint.model.ImageUploadRequest;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.ImageUtils;
+import com.koleshop.appkoleshop.common.util.NetworkUtils;
 import com.koleshop.appkoleshop.common.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.ProductSelectionRequest;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
@@ -393,7 +392,7 @@ public class CommonIntentService extends IntentService {
         //cache categories and broadcast result success/failure
         if (cats != null && cats.size() > 0) {
             Log.d(TAG, "inventory subcateogires fetched");
-            boolean categoriesCached = KoleCacheUtil.cacheInventorySubcategories(cats, categoryId, true);
+            boolean categoriesCached = KoleCacheUtil.cacheInventorySubcategories(cats, categoryId, true, myInventory);
             if (categoriesCached) {
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS);
                 intent.putExtra("catId", categoryId);
@@ -484,7 +483,7 @@ public class CommonIntentService extends IntentService {
                         invProVar.setPrice(((BigDecimal) variety.get("price")).floatValue());
                         invProVar.setImageUrl((String) variety.get("imageUrl"));
                         //invProVar.setVegNonVeg((String) variety.get("vegNonVeg"));
-                        invProVar.setSelected((Boolean) variety.get("selected"));
+                        invProVar.setValid((Boolean) variety.get("valid"));
                         invProVar.setLimitedStock(((BigDecimal) variety.get("limitedStock")).intValue());
                         inventoryProductVarieties.add(invProVar);
                     }
@@ -497,8 +496,7 @@ public class CommonIntentService extends IntentService {
         //cache response and broadcast success
         if (products != null && products.size() > 0) {
             Log.d(TAG, "products fetch SUCCESS for category id " + categoryId + ".");
-            String key = Constants.CACHE_INVENTORY_PRODUCTS + categoryId;
-            boolean productsCached = KoleCacheUtil.cacheProductsList(products, categoryId, true);
+            boolean productsCached = KoleCacheUtil.cacheProductsList(products, categoryId, true, myInventory);
             if (productsCached) {
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS);
                 intent.putExtra("catId", categoryId);
@@ -617,7 +615,7 @@ public class CommonIntentService extends IntentService {
 
             //following prefs are set because of a case...when product_variety_1 image is uploading...but ProductActivity
             //has stopped listening to broadcasts because the user has opened camera to capture product_variety_2 image
-            PreferenceUtils.setPreferences(context, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, "uploading");
+            NetworkUtils.setRequestStatus(context, tag, Constants.REQUEST_STATUS_PROCESSING);
 
             int count = 0;
             int maxTries = 3;
@@ -642,7 +640,7 @@ public class CommonIntentService extends IntentService {
             intent.putExtra("tag", tag);
             intent.putExtra("filename", filename);
             //the following prefs will be deleted if this broadcast is received by the product_edit_activity
-            PreferenceUtils.setPreferences(context, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, "upload_failed");
+            NetworkUtils.setRequestStatus(context, tag, Constants.REQUEST_STATUS_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         } else {
             //image upload success
@@ -650,7 +648,7 @@ public class CommonIntentService extends IntentService {
             intent.putExtra("tag", tag);
             intent.putExtra("filename", filename);
             //the following prefs will be deleted if this broadcast is received by the product_edit_activity
-            PreferenceUtils.setPreferences(context, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, "upload_success");
+            NetworkUtils.setRequestStatus(context, tag, Constants.REQUEST_STATUS_SUCCESS);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }

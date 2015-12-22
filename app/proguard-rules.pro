@@ -29,7 +29,7 @@
 -keep interface android.support.design.widget.** { *; }
 
 #proguard for dual cache lib
--keep class com.vincentbrison.** { ; }
+-keep class com.vincentbrison.** { *; }
 -dontwarn com.vincentbrison.*
 -keep class com.fasterxml.jackson.databind.ObjectMapper {
     public <methods>;

@@ -5,33 +5,37 @@
     android:background="@color/primary"
     tools:context=".InitialActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
         android:layout_height="match_parent">
 
 
         <ImageView
             android:id="@+id/imageViewShopLogo"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
+            android:layout_centerVertical="true"
             android:layout_marginTop="50dp"
             android:src="@drawable/koleshop_logo_old" />
 
         <TextView
             android:id="@+id/textViewShopDescription"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
+            android:gravity="center"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="-40dp"
+            android:layout_below="@+id/imageViewShopLogo"
+            android:layout_above="@+id/ll_initial_activity_buttons"
+            android:layout_marginTop="-20dp"
             android:text="buy or sell in local market"
             android:textSize="25sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:id="@+id/ll_initial_activity_buttons"
+            android:gravity="bottom">
 
             <ImageButton
                 android:id="@+id/btn_buy_initial"
@@ -62,7 +66,7 @@
                 android:src="@drawable/icon_sell" />
 
         </LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
 
     <ProgressBar
         android:id="@+id/pb_initial_activity"

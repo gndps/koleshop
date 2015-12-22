@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -100,6 +101,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
+                    case R.id.drawer_home:
+                        getSupportActionBar().setTitle("Home");
+                        DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, dummyHomeFragment).commit();
+                        menuItem.setChecked(true);
+                        drawerLayout.closeDrawers();
+                        return true;
                     case R.id.drawer_products:
                         //Products
                         getSupportActionBar().setTitle("My Shop");
@@ -108,7 +117,7 @@ public class HomeActivity extends AppCompatActivity {
                         bundleMyInventory.putBoolean("myInventory", true);
                         myInventoryCategoryFragment.setArguments(bundleMyInventory);
                         getSupportFragmentManager().beginTransaction()
-                                .replace(com.koleshop.appkoleshop.R.id.fragment_container, myInventoryCategoryFragment).commit();
+                                .replace(R.id.fragment_container, myInventoryCategoryFragment).commit();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
                         return true;
@@ -204,6 +213,8 @@ public class HomeActivity extends AppCompatActivity {
         //lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_MEASURING_UNITS_LOAD_FAILED));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED));
+        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_TO_WAREHOUSE));
+        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_TO_MYSHOP));
 
     }
 
@@ -266,6 +277,21 @@ public class HomeActivity extends AppCompatActivity {
                     } else {
                         showRetryLoadingPopup();
                     }
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_TO_WAREHOUSE)) {
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    getSupportActionBar().setTitle("Ware House");
+                    InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
+                    ft.replace(R.id.fragment_container, inventoryCategoryFragment);
+                    ft.addToBackStack(null);
+                    ft.commit();
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_TO_MYSHOP)) {
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    getSupportActionBar().setTitle("My Shop");
+                    InventoryCategoryFragment myInventoryCategoryFragment = new InventoryCategoryFragment();
+                    Bundle bundleMyInventory = new Bundle();
+                    bundleMyInventory.putBoolean("myInventory", true);
+                    myInventoryCategoryFragment.setArguments(bundleMyInventory);
+                    ft.replace(R.id.fragment_container, myInventoryCategoryFragment).commit();
                 }
             }
         };

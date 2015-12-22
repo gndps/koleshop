@@ -10,7 +10,7 @@ public class InventoryProductVariety {
     float price;
     String imageUrl;
     //String vegNonVeg;
-    boolean selected;
+    boolean valid; // valid
     int limitedStock;
 
     public Long getId() {
@@ -53,12 +53,12 @@ public class InventoryProductVariety {
         this.vegNonVeg = vegNonVeg;
     }*/
 
-    public boolean isSelected() {
-        return selected;
+    public boolean isValid() {
+        return valid;
     }
 
-    public void setSelected(boolean selected) {
-        this.selected = selected;
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 
     public void setLimitedStock(int limitedStock) {

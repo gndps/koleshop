@@ -7,28 +7,41 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.activities.InventoryProductActivity;
+import com.koleshop.appkoleshop.activities.ProductActivity;
 import com.koleshop.appkoleshop.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.extensions.KolClickListener;
 import com.koleshop.appkoleshop.extensions.KolRecyclerTouchListener;
+import com.koleshop.appkoleshop.model.parcel.EditProduct;
+import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.adapters.InventoryCategoryAdapter;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
+import org.parceler.Parcels;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryCategoryFragment extends Fragment {
@@ -40,13 +53,15 @@ public class InventoryCategoryFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiverInventoryCategoryFragment;
     private static final String TAG = "InventoryCategoryFrag";
     private boolean myInventory = false;
+    FloatingActionsMenu menuMultipleActions;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         mContext = getActivity();
         Bundle args = getArguments();
-        if(args!=null) {
+        if (args != null) {
             myInventory = args.getBoolean("myInventory", false);
         }
         initializeBroadcastReceivers();
@@ -97,8 +112,23 @@ public class InventoryCategoryFragment extends Fragment {
 
             }
         }));
-        loadInventoryCategories();
+        initFabMenu(layout);
         return layout;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_inventory_category_fragment, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add_product:
+                addNewProduct();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -108,6 +138,7 @@ public class InventoryCategoryFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED));
         lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED));
+        loadInventoryCategories();
     }
 
     private void initializeBroadcastReceivers() {
@@ -117,14 +148,14 @@ public class InventoryCategoryFragment extends Fragment {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS)) {
                     inventoryLoadSuccess(null);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED)) {
-                    if(intent.getExtras()!=null && intent.getStringExtra("status")!=null) {
+                    if (intent.getExtras() != null && intent.getStringExtra("status") != null) {
                         intent.getStringExtra("status").equalsIgnoreCase(Constants.STATUS_KOLE_RESPONSE_CREATING_INVENTORY);
                         //wait for push broadcast of inventory created
                         //do nothing -- because processing is already showing...
                     } else {
                         inventoryLoadFailed();
                     }
-                } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED)) {
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED)) {
                     loadInventoryCategories();
                 }
             }
@@ -145,10 +176,10 @@ public class InventoryCategoryFragment extends Fragment {
 
     private void loadInventoryCategories() {
         List<InventoryCategory> cachedCategories = getCachedInventoryCategories();
-        if (cachedCategories != null) {
+        if (cachedCategories != null && Constants.KOLE_CACHE_ALLOWED) {
             inventoryLoadSuccess(cachedCategories);
         } else {
-            inventoryLoadRequest();
+            loadInventoryCategoriesFromInternet();
         }
     }
 
@@ -156,7 +187,7 @@ public class InventoryCategoryFragment extends Fragment {
         return KoleCacheUtil.getCachedInventoryCategories(myInventory);
     }
 
-    public void inventoryLoadRequest() {
+    public void loadInventoryCategoriesFromInternet() {
         viewFlipper.setDisplayedChild(0);
         Intent commonIntent = new Intent(getActivity(), CommonIntentService.class);
         commonIntent.setAction(Constants.ACTION_FETCH_INVENTORY_CATEGORIES);
@@ -183,12 +214,12 @@ public class InventoryCategoryFragment extends Fragment {
     private void inventoryLoadFailed() {
         viewFlipper.setDisplayedChild(2);
         String title;
-        if(myInventory) {
+        if (myInventory) {
             title = "My Shop";
         } else {
             title = "Ware House";
         }
-        if(CommonUtils.getUserId(mContext)==null || CommonUtils.getUserId(mContext)<=0) {
+        if (CommonUtils.getUserId(mContext) == null || CommonUtils.getUserId(mContext) <= 0) {
             new AlertDialog.Builder(mContext)
                     .setTitle("Please login to open " + title)
                     .setPositiveButton("LOGIN", new DialogInterface.OnClickListener() {
@@ -213,6 +244,58 @@ public class InventoryCategoryFragment extends Fragment {
                     .setNegativeButton("CANCEL", null)
                     .show();
         }
+    }
+
+    private void initFabMenu(View layout) {
+        //final View actionB = layout.findViewById(R.id.action_b);
+
+        /*FloatingActionButton actionC = new FloatingActionButton(mContext);
+        actionC.setTitle("Add/Remove products from Ware House");
+        actionC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionB.setVisibility(actionB.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+            }
+        });*/
+
+        final FloatingActionsMenu menuMultipleActions = (FloatingActionsMenu) layout.findViewById(R.id.multiple_actions);
+        if(!myInventory) {
+            menuMultipleActions.setVisibility(View.GONE);
+            return;
+        }
+        //menuMultipleActions.addButton(actionC);
+
+        final FloatingActionButton actionAddProduct = (FloatingActionButton) layout.findViewById(R.id.action_add_product);
+        actionAddProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                menuMultipleActions.collapse();
+                addNewProduct();
+            }
+        });
+
+        final FloatingActionButton actionSwitchToWareHouse = (FloatingActionButton) layout.findViewById(R.id.action_switch_to_warehouse);
+        actionSwitchToWareHouse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menuMultipleActions.collapse();
+                Intent intent = new Intent(Constants.ACTION_SWITCH_TO_WAREHOUSE);
+                LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+                broadcastManager.sendBroadcast(intent);
+            }
+        });
+    }
+
+    private void addNewProduct() {
+        Intent intentAddProduct = new Intent(mContext, ProductActivity.class);
+        EditProduct product = new EditProduct();
+        EditProductVar emptyVar = new EditProductVar();
+        List<EditProductVar> varList = new ArrayList<>();
+        varList.add(emptyVar);
+        product.setEditProductVars(varList);
+        Parcelable productParcel = Parcels.wrap(product);
+        intentAddProduct.putExtra("product", productParcel);
+        startActivity(intentAddProduct);
     }
 
 }

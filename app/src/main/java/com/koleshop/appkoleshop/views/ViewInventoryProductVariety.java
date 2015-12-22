@@ -61,7 +61,7 @@ public class ViewInventoryProductVariety extends RelativeLayout {
             price = price.substring(0, price.length()-2);
         }
         textViewPrice.setText(price);
-        setChecked(variety.getSelected());
+        setChecked(variety.getValid());
         //todo set the image url for this shit
         if(productCheckboxProgress) {
             imageViewCheckbox.setVisibility(GONE);

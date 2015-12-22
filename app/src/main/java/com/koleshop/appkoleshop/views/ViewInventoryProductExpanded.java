@@ -57,7 +57,7 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
         for (InventoryProductVariety var : varieties) {
             ViewInventoryProductVariety viewInventoryProductVariety = new ViewInventoryProductVariety(mContext, var, checkboxesProgress.get(var.getId()), null);
             final Long varietyId = var.getId();
-            final boolean varietySelected = var.getSelected();
+            final boolean varietySelected = var.getValid();
             viewInventoryProductVariety.setClickListenerArea1(this);
             viewInventoryProductVariety.setClickListenerArea2(new OnClickListener() {
                 @Override

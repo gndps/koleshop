@@ -36,6 +36,8 @@ public class KoleshopSingleton {
     private DualCache<String> dualCache;
     private DualCache<byte[]> dualCacheByteArray;
     private DualCache<Date> dualCacheDate;
+    private boolean reloadSubcategories;
+    private Long reloadProductsCategoryId;
 
     protected KoleshopSingleton() {
 
@@ -238,5 +240,21 @@ public class KoleshopSingleton {
             //result for this key was never cached or is cleared
             return null;
         }
+    }
+
+    public boolean isReloadSubcategories() {
+        return reloadSubcategories;
+    }
+
+    public void setReloadSubcategories(boolean reloadSubcategories) {
+        this.reloadSubcategories = reloadSubcategories;
+    }
+
+    public Long getReloadProductsCategoryId() {
+        return reloadProductsCategoryId;
+    }
+
+    public void setReloadProductsCategoryId(Long reloadProductsCategoryId) {
+        this.reloadProductsCategoryId = reloadProductsCategoryId;
     }
 }

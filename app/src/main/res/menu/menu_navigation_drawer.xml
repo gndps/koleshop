@@ -4,6 +4,12 @@
     <group android:checkableBehavior="single">
 
         <item
+            android:id="@+id/drawer_home"
+            android:checked="true"
+            android:icon="@drawable/ic_home_grey600_24dp"
+            android:title="@string/navigation_drawer_home" />
+
+        <item
             android:id="@+id/drawer_products"
             android:checked="true"
             android:icon="@drawable/ic_products"

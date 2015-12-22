@@ -37,9 +37,10 @@ public class Constants {
 
     //configurable constants
     public static boolean RESET_REALM = false;
+    public static boolean KOLE_CACHE_ALLOWED = true;
 
     public static String PUBLIC_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
-    public static String IMAGE_UPLOAD_STATUS_PREFIX = "image_upload_status_";
+    public static String REQUEST_STATUS_PREFIX = "image_upload_status_";
     public static int IMAGE_UPLOAD_DIMENSIONS = 400;
 
 
@@ -78,6 +79,10 @@ public class Constants {
     public static final String ACTION_UPLOAD_IMAGE = "com.koleshop.action_upload_bitmap";
     public static final String ACTION_UPLOAD_IMAGE_SUCCESS = "com.koleshop.action_upload_bitmap_success";
     public static final String ACTION_UPLOAD_IMAGE_FAILED = "com.koleshop.action_upload_bitmap_failed";
+    public static final String ACTION_PRODUCT_SAVE_SUCCESS = "com.koleshop.action_product_save_success";
+    public static final String ACTION_PRODUCT_SAVE_FAILED = "com.koleshop.action_product_save_failed";
+    public static final String ACTION_SWITCH_TO_WAREHOUSE = "com.koleshop.action_switch_to_warehouse";
+    public static final String ACTION_SWITCH_TO_MYSHOP = "com.koleshop.action_switch_to_myshop";
 
     //gcm broadcast actions
     public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "com.koleshop.action_gcm_broadcast_inventory_created";
@@ -114,19 +119,24 @@ public class Constants {
     public static final String CACHE_INVENTORY_SUBCATEGORIES = "cache_inventory_subcategories_"; //this key will be extended by the parent category id
     public static final int TIME_TO_LIVE_INV_SUBCAT = 5; //cache_inventory_subcategories_x will expire in 5 minutes
     public static final String CACHE_INVENTORY_PRODUCTS = "cache_inventory_products_"; //this key will be extended by the category id
-    public static final int TIME_TO_LIVE_INV_PRODUCT = 7; //cache_inventory_subcategories_x will expire in 5 minutes
+    public static final int TIME_TO_LIVE_INV_PRODUCT = 5; //cache_inventory_subcategories_x will expire in 5 minutes
     //my inventory cache constants
     public static final String CACHE_MY_INVENTORY_CATEGORIES = "cache_my_inventory_categories";
     public static final int TIME_TO_LIVE_MY_INV_CAT = 5; //cache_my_inventory_categories will expire in 5 minutes
     public static final String CACHE_MY_INVENTORY_SUBCATEGORIES = "cache_my_inventory_subcategories_"; //this key will be extended by the parent category id
     public static final int TIME_TO_LIVE_MY_INV_SUBCAT = 5; //cache_my_inventory_subcategories_x will expire in 5 minutes
     public static final String CACHE_MY_INVENTORY_PRODUCTS = "cache_my_inventory_products_"; //this key will be extended by the category id
-    public static final int TIME_TO_LIVE_MY_INV_PRODUCT = 7; //cache_my_inventory_subcategories_x will expire in 5 minutes
+    public static final int TIME_TO_LIVE_MY_INV_PRODUCT = 5; //cache_my_inventory_subcategories_x will expire in 5 minutes
 
     //server client response statuses other than success and failure
     public static final String STATUS_KOLE_RESPONSE_CREATING_INVENTORY = "status_kole_response_creating_inventory";
 
     //Symbols
     public static final String INDIAN_RUPEE_SYMBOL = "\u20B9";
+
+    //Request Status
+    public static final String REQUEST_STATUS_PROCESSING = "request_processing" ;
+    public static final String REQUEST_STATUS_SUCCESS = "request_success";
+    public static final String REQUEST_STATUS_FAILED = "reqeust_failed";
 
 }

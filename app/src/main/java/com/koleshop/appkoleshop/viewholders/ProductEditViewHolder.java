@@ -123,7 +123,7 @@ public class ProductEditViewHolder extends RecyclerView.ViewHolder implements Vi
                 progressBarImage.setVisibility(View.GONE);
             }
 
-            switchStock.setSelected(editProductVariety.isSelected());
+            switchStock.setSelected(editProductVariety.getLimitedStock()>0);
             editTextQuantity.setText(editProductVariety.getQuantity());
             editTextPrice.setText(editProductVariety.getPrice() + "");
             buttonOverFlow.setOnClickListener(this);

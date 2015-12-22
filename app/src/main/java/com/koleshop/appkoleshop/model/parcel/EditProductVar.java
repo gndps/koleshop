@@ -16,7 +16,6 @@ public class EditProductVar {
     String quantity;
     float price;
     String imageUrl;
-    boolean selected;
     int limitedStock;
     String tag;
     boolean showImageProcessing;
@@ -26,14 +25,20 @@ public class EditProductVar {
     String imagePath;
 
     public EditProductVar() {
+        this.id = 0l;
+        this.quantity = "";
+        this.price = 0;
+        this.imageUrl = "";
+        this.tag = CommonUtils.randomString(10);
+        this.limitedStock = 1;
+        this.valid = true;
     }
 
-    public EditProductVar(Long id, String quantity, float price, String imageUrl, boolean selected, int limitedStock, String tag) {
+    public EditProductVar(Long id, String quantity, float price, String imageUrl, int limitedStock, String tag) {
         this.id = id;
         this.quantity = quantity;
         this.price = price;
         this.imageUrl = imageUrl;
-        this.selected = selected;
         this.limitedStock = limitedStock;
         this.tag = tag;
     }
@@ -43,10 +48,21 @@ public class EditProductVar {
         this.quantity = inventoryProductVariety.getQuantity();
         this.price = inventoryProductVariety.getPrice();
         this.imageUrl = inventoryProductVariety.getImageUrl();
-        this.selected = inventoryProductVariety.getSelected();
+        this.valid = inventoryProductVariety.getValid();
         this.limitedStock = inventoryProductVariety.getLimitedStock();
         this.tag = CommonUtils.randomString(10);
-        this.valid = true;
+        //this.valid = true;
+    }
+
+    public EditProductVar(com.koleshop.api.productEndpoint.model.InventoryProductVariety inventoryProductVariety) {
+        this.id = inventoryProductVariety.getId();
+        this.quantity = inventoryProductVariety.getQuantity();
+        this.price = inventoryProductVariety.getPrice();
+        this.imageUrl = inventoryProductVariety.getImageUrl();
+        this.valid = inventoryProductVariety.getValid();
+        this.limitedStock = inventoryProductVariety.getLimitedStock();
+        this.tag = CommonUtils.randomString(10);
+        //this.valid = true;
     }
 
     public Long getId() {
@@ -79,14 +95,6 @@ public class EditProductVar {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public boolean isSelected() {
-        return selected;
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected = selected;
     }
 
     public int getLimitedStock() {

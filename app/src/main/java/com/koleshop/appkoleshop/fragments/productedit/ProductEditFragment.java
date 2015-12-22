@@ -72,6 +72,9 @@ public class ProductEditFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
                 if (product != null) {
+                    if(!product.getBrand().equalsIgnoreCase(s.toString())) {
+                        mListener.productModified(true);
+                    }
                     product.setBrand(s.toString());
                 }
             }
@@ -91,6 +94,9 @@ public class ProductEditFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
                 if(product!=null) {
+                    if(!product.getName().equalsIgnoreCase(s.toString())) {
+                        mListener.productModified(true);
+                    }
                     product.setName(s.toString());
                 }
             }
@@ -113,9 +119,7 @@ public class ProductEditFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        this.product = mListener.getProductFromParent();
-        loadDataIntoViews();
-        selectCategory(product.getCategoryId());
+        refreshData();
     }
 
     @Override
@@ -127,6 +131,12 @@ public class ProductEditFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement ProductEditFragmentInteractionListener");
         }
+    }
+
+    public void refreshData() {
+        this.product = mListener.getProductFromParent();
+        loadDataIntoViews();
+        selectCategory(product.getCategoryId());
     }
 
     private void loadBrands() {
@@ -178,7 +188,9 @@ public class ProductEditFragment extends Fragment {
                     //categorySelected = true;
                     long parentCategoryId = parentCategories.get(position).getId();
                     if (selectedParentCategoryId != parentCategoryId) {
-                        product.setCategoryId(parentCategoryId);
+                        mListener.productModified(true);
+                        //product.setCategoryId(parentCategoryId);
+                        product.setCategoryId(0l);
                         selectedParentCategoryId = parentCategoryId;
                         loadSubcategoriesForId(parentCategoryId);
                     }
@@ -197,6 +209,7 @@ public class ProductEditFragment extends Fragment {
                 if (position >= 0) {
                     //subcategorySelected = true;
                     product.setCategoryId(subCategories.get(position).getId());
+                    mListener.productModified(true);
                 } else {
                     //subcategorySelected = false;
                     product.setCategoryId(0l);
@@ -240,12 +253,12 @@ public class ProductEditFragment extends Fragment {
                 .equalTo("id", categoryId);
         productCategory = query.findFirst();
 
-        query.equalTo("id", categoryId);
+        //query.equalTo("id", categoryId);
 
         if (productCategory!=null && productCategory.getParentCategoryId() > 0l) {
-            query = realm.where(ProductCategory.class);
+            /*query = realm.where(ProductCategory.class);
             query.equalTo("id", productCategory.getParentCategoryId());
-            final ProductCategory parentProductCategory = query.findFirst();
+            final ProductCategory parentProductCategory = query.findFirst();*/
             selectedParentCategoryId = productCategory.getParentCategoryId();
             int selectedCategoryIndex = getIndexOfCategoryInList(parentCategories, productCategory.getParentCategoryId());
             spinnerCategory.setText(parentCategories.get(selectedCategoryIndex).getName());
@@ -276,5 +289,13 @@ public class ProductEditFragment extends Fragment {
 
     public interface InteractionListener {
         EditProduct getProductFromParent();
+        void productModified(boolean modified);
     }
+
+    public void setErrorOnProductName() {
+        editTextProductName.requestFocus();
+        editTextProductName.setText("");
+        editTextProductName.setError("Name can't be empty");
+    }
+
 }

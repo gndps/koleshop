@@ -57,6 +57,7 @@
                     app:met_floatingLabelText="Name"
                     app:met_primaryColor="@color/accent"
                     android:imeOptions="actionDone"
+                    android:capitalize="words"
                     android:inputType="textCapSentences|textNoSuggestions"
                     android:maxLines="1" />
 

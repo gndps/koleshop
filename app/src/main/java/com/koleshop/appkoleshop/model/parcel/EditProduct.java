@@ -20,8 +20,12 @@ public class EditProduct {
     String brand;
     List<EditProductVar> editProductVars;
     long categoryId;
+    boolean isModified;
 
     public EditProduct() {
+        this.id = 0l;
+        this.name = "";
+        this.brand = "";
     }
 
     public EditProduct(Long id, String name, String brand, List<EditProductVar> editProductVars) {
@@ -37,6 +41,19 @@ public class EditProduct {
         this.brand = product.getBrand();
         List<EditProductVar> vars = new ArrayList<>();
         for(InventoryProductVariety var : product.getVarieties()) {
+            EditProductVar editProductVar = new EditProductVar(var);
+            vars.add(editProductVar);
+        }
+        this.editProductVars = vars;
+        this.categoryId = categoryId;
+    }
+
+    public EditProduct(com.koleshop.api.productEndpoint.model.InventoryProduct product, Long categoryId) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.brand = product.getBrand();
+        List<EditProductVar> vars = new ArrayList<>();
+        for(com.koleshop.api.productEndpoint.model.InventoryProductVariety var : product.getVarieties()) {
             EditProductVar editProductVar = new EditProductVar(var);
             vars.add(editProductVar);
         }
@@ -82,5 +99,13 @@ public class EditProduct {
 
     public void setCategoryId(long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public boolean isModified() {
+        return isModified;
+    }
+
+    public void setIsModified(boolean isModified) {
+        this.isModified = isModified;
     }
 }

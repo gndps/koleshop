@@ -259,7 +259,9 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                 products.add(lineItem.product);
             }
         }
-        KoleCacheUtil.cacheProductsList(products, categoryId, false);
+        //can only be called from my inventory = false
+        KoleCacheUtil.cacheProductsList(products, categoryId, false, false);
+        KoleCacheUtil.invalidateProductsCache(categoryId, true);
     }
 
     private static class LineItem {
@@ -308,7 +310,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
             for (InventoryProductVariety ipv : lineItem.product.getVarieties()) {
                 if (request.getProductVarietyIds().contains(ipv.getId())) {
                     if (success) {
-                        ipv.setSelected(request.isWillSelectOnSuccess());
+                        ipv.setValid(request.isWillSelectOnSuccess());
                     }
                     lineItem.varietyProgress.put(ipv.getId(), false);
                 }

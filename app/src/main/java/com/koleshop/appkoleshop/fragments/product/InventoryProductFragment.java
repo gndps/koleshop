@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -19,6 +20,7 @@ import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
+import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.extensions.KolClickListener;
 import com.koleshop.appkoleshop.extensions.KolRecyclerTouchListener;
 import com.koleshop.appkoleshop.model.ProductSelectionRequest;
@@ -45,6 +47,8 @@ public class InventoryProductFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiverInventoryProductFragment;
     private long categoryId;
     Button buttonRetry, buttonReload;
+    LayoutManager lm;
+    boolean refreshProductsInsteadOfReloading;
     private final static String TAG = "InventProductFragment";
     private static final int VIEW_TYPE_HEADER = 0x01;
     private static final int VIEW_TYPE_CONTENT = 0x00;
@@ -64,10 +68,12 @@ public class InventoryProductFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
-        if(bundle!=null) {
+        if (bundle != null) {
             myInventory = bundle.getBoolean("myInventory", false);
         }
         mContext = getActivity();
+        refreshProductsInsteadOfReloading = false;
+        fetchProducts();
     }
 
     @Override
@@ -90,10 +96,14 @@ public class InventoryProductFragment extends Fragment {
         buttonRetry.setOnClickListener(retryClickListener);
         buttonReload.setOnClickListener(retryClickListener);
         initializeBroadcastReceivers();
-        LayoutManager lm = new LayoutManager(getActivity());
+        lm = new LayoutManager(getActivity());
         recyclerView.setLayoutManager(lm);
-        fetchProducts();
         return layout;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -106,6 +116,13 @@ public class InventoryProductFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE));
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT));
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_COLLAPSE_EXPANDED_PRODUCT));
+        if(KoleshopSingleton.getSharedInstance().getReloadProductsCategoryId()!=null &&
+                KoleshopSingleton.getSharedInstance().getReloadProductsCategoryId()==categoryId) {
+            //refresh products list to show changes
+            KoleshopSingleton.getSharedInstance().setReloadProductsCategoryId(0l);
+            refreshProductsInsteadOfReloading = true;
+            fetchProducts();
+        }
     }
 
     private void initializeBroadcastReceivers() {
@@ -187,23 +204,28 @@ public class InventoryProductFragment extends Fragment {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                //show a mandatory progress bar for 350 ms...to make smooth transitions between tabs
-                Date threadStartTimeStamp = new Date();
-                int FRAGMENT_LOAD_WAIT_TIME = 350; //in milliseconds
-                final List<InventoryProduct> listOfProducts = getCachedProducts();
-                Date dateNow = new Date();
-                long timeDiff = CommonUtils.getTimeDifferenceInMillis_X_Minus_Y(dateNow, threadStartTimeStamp);
-                if (listOfProducts != null && listOfProducts.size() > 0) {
-                    if(timeDiff < FRAGMENT_LOAD_WAIT_TIME) {
-                        long sleepTime = FRAGMENT_LOAD_WAIT_TIME-timeDiff;
+                final List<InventoryProduct> listOfProducts = KoleCacheUtil.getCachedProducts(myInventory, categoryId);
+                boolean cachedProductsAvailable = listOfProducts != null && listOfProducts.size() > 0 && Constants.KOLE_CACHE_ALLOWED;
+
+                if (cachedProductsAvailable && (!refreshProductsInsteadOfReloading || inventoryProductAdapter==null)) {
+
+                    //show a mandatory progress bar for 350 ms...to make smooth transitions between tabs
+                    Date threadStartTimeStamp = new Date();
+                    int FRAGMENT_LOAD_WAIT_TIME = 350; //in milliseconds
+                    Date dateNow = new Date();
+                    long timeDiff = CommonUtils.getTimeDifferenceInMillis_X_Minus_Y(dateNow, threadStartTimeStamp);
+                    if (timeDiff < FRAGMENT_LOAD_WAIT_TIME) {
+                        long sleepTime = FRAGMENT_LOAD_WAIT_TIME - timeDiff;
                         try {
                             Thread.sleep(sleepTime);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
+
+                    //load products list
                     FragmentActivity activity = getActivity();
-                    if(activity!=null) {
+                    if (activity != null) {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -211,6 +233,9 @@ public class InventoryProductFragment extends Fragment {
                             }
                         });
                     }
+                } else if (cachedProductsAvailable && refreshProductsInsteadOfReloading && inventoryProductAdapter!=null) {
+                    inventoryProductAdapter.setProductsList(listOfProducts);
+                    inventoryProductAdapter.notifyItemRangeChanged(0, inventoryProductAdapter.getItemCount());
                 } else {
                     fetchProductsFromInternet();
                 }
@@ -229,36 +254,15 @@ public class InventoryProductFragment extends Fragment {
         mContext.startService(intent);
     }
 
-    private List<InventoryProduct> getCachedProducts() {
-        String cacheKey = Constants.CACHE_INVENTORY_PRODUCTS + categoryId;
-        byte[] productByteArray = KoleshopSingleton.getSharedInstance().getCachedGenericJsonByteArray(cacheKey, Constants.TIME_TO_LIVE_INV_PRODUCT);
-        if (productByteArray != null && productByteArray.length > 0) {
-            try {
-                GenericJsonListInventoryProduct genericProducts = SerializationUtil.getGenericJsonFromSerializable(productByteArray, GenericJsonListInventoryProduct.class);
-                if (genericProducts != null) {
-                    List<InventoryProduct> products = genericProducts.getList();
-                    return products;
-                } else {
-                    return null;
-                }
-            } catch (Exception e) {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
-
     private void loadProducts(final List<InventoryProduct> listOfProducts) {
         /*recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .margin(getResources().getDimensionPixelSize(R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
                 .build());*/
         FragmentActivity activity = getActivity();
-        if(activity==null) {
+        if (activity == null) {
             return;
-        }
-        else {
+        } else {
             try {
                 inventoryProductAdapter = new InventoryProductAdapter(activity, categoryId, myInventory);
                 recyclerView.setAdapter(inventoryProductAdapter);
@@ -269,7 +273,7 @@ public class InventoryProductFragment extends Fragment {
                 if (listOfProducts != null && listOfProducts.size() > 0) {
                     products = listOfProducts;
                 } else {
-                    products = getCachedProducts();
+                    products = KoleCacheUtil.getCachedProducts(myInventory, categoryId);
                 }
 
                 //set recycler view click listener
@@ -298,6 +302,7 @@ public class InventoryProductFragment extends Fragment {
             } catch (Exception e) {
                 Log.e(TAG, "fragment loading problem", e);
             }
+
         }
     }
 

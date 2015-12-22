@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
@@ -28,7 +27,7 @@ import com.google.gson.Gson;
 import com.koleshop.appkoleshop.adapters.ProductEditAdapter;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
-import com.koleshop.appkoleshop.common.util.ImageUtils;
+import com.koleshop.appkoleshop.common.util.NetworkUtils;
 import com.koleshop.appkoleshop.common.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
@@ -120,7 +119,7 @@ public class ProductEditActivity extends AppCompatActivity {
             }
 
             //fix the image uploading status if the activity missed the broadcast while capturing a new image
-            fixImageUploadingProcess();
+            //fixImageUploadingProcess();
         } else if (extras != null) {
             categoryId = extras.getLong("categoryId");
             Parcelable parcelableProduct = extras.getParcelable("product");
@@ -156,7 +155,7 @@ public class ProductEditActivity extends AppCompatActivity {
                     String tag = intent.getStringExtra("tag");
                     String filename = intent.getStringExtra("filename");
                     if (tag != null && !tag.isEmpty() && filename != null && !filename.isEmpty()) {
-                        PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, null);
+                        //PreferenceUtils.setPreferences(mContext, Constants.REQUEST_STATUS_PREFIX + tag, null);
                         String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
                         setProcessingOnVariety(tag, false, false);
                         setImageUrlOnVariety(tag, url, true);
@@ -165,7 +164,7 @@ public class ProductEditActivity extends AppCompatActivity {
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_UPLOAD_IMAGE_FAILED)) {
                     String tag = intent.getStringExtra("tag");
                     if (tag != null && !tag.isEmpty()) {
-                        PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, null);
+                        //PreferenceUtils.setPreferences(mContext, Constants.REQUEST_STATUS_PREFIX + tag, null);
                         setProcessingOnVariety(tag, false, false);
                         setTempBitmapOnVariety(tag, null, true);
                     }
@@ -344,17 +343,29 @@ public class ProductEditActivity extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
-    private void fixImageUploadingProcess() {
+    /*private void fixImageUploadingProcess() {
         for (EditProductVar var : product.getEditProductVars()) {
             if (var.isShowImageProcessing()) {
-                String status = PreferenceUtils.getPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + var.getTag());
+                String status = NetworkUtils.getRequestStatus(mContext, var.getTag());
+                switch (status) {
+                    case Constants.REQUEST_STATUS_PROCESSING:
+                        break;
+                    case Constants.REQUEST_STATUS_SUCCESS:
+                        var.setShowImageProcessing(false);
+                        break;
+                    case Constants.REQUEST_STATUS_FAILED:
+                        var.setShowImageProcessing(false);
+                        break;
+                    default:
+                        break;
+                }
                 if (status != null && !status.isEmpty()) {
                     //set the correct status
                     boolean uploading = status.equalsIgnoreCase("uploading") ? true : false;
                     if (!uploading) {
                         var.setShowImageProcessing(false);
                     } else {
-                        PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + var.getTag(), null);
+                        PreferenceUtils.setPreferences(mContext, Constants.REQUEST_STATUS_PREFIX + var.getTag(), null);
                         if (status.equalsIgnoreCase("upload_failed")) {
                             setTempBitmapOnVariety(status, null, true);
                         } else if (status.equalsIgnoreCase("upload_success")) {
@@ -364,7 +375,7 @@ public class ProductEditActivity extends AppCompatActivity {
                                 var.setImageUrl(url);
                             } else {
                                 Log.d(TAG, "some problem while getting filename for tag");
-                            }*/
+                            }
                         }
                     }
                 } else {
@@ -372,6 +383,6 @@ public class ProductEditActivity extends AppCompatActivity {
                 }
             }
         }
-    }
+    }*/
 
 }

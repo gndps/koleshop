@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,6 +32,7 @@ import android.widget.Toast;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.ImageUtils;
+import com.koleshop.appkoleshop.common.util.NetworkUtils;
 import com.koleshop.appkoleshop.common.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.rengwuxian.materialedittext.MaterialEditText;
@@ -84,7 +86,14 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
         switchStock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (variety != null) {
-                    variety.setSelected(isChecked);
+                    if((variety.getLimitedStock()<=0 && isChecked) || variety.getLimitedStock()>=1 && !isChecked) {
+                        mListener.productModified(true);
+                    }
+                    if(isChecked) {
+                        variety.setLimitedStock(1);
+                    } else {
+                        variety.setLimitedStock(0);
+                    }
                 }
             }
         });
@@ -105,6 +114,9 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                                       int before, int count) {
                 try {
                     float price = Float.parseFloat(s.toString());
+                    if(variety.getPrice() != price) {
+                        mListener.productModified(true);
+                    }
                     editTextPrice.setError(null);
                     if (variety != null) {
                         variety.setPrice(price);
@@ -124,6 +136,9 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (variety != null) {
+                    if(variety.getQuantity()!=null && !variety.getQuantity().equalsIgnoreCase(s.toString())) {
+                        mListener.productModified(true);
+                    }
                     variety.setQuantity(s.toString());
                 }
             }
@@ -145,8 +160,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
         lbm.registerReceiver(editFragmentBroadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_SUCCESS));
         lbm.registerReceiver(editFragmentBroadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_FAILED));
         fixImageUploadingProcess();
-        variety = mListener.refreshVariety(getTag());
-        loadTheDataIntoUi();
+        refreshData();
     }
 
     @Override
@@ -163,7 +177,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                     String tag = intent.getStringExtra("tag");
                     String filename = intent.getStringExtra("filename");
                     if (tag != null && !tag.isEmpty() && filename != null && !filename.isEmpty() && tag.equalsIgnoreCase(variety.getTag())) {
-                        PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, null);
+                        NetworkUtils.setRequestStatusComplete(mContext, tag);
                         String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
                         variety.setShowImageProcessing(false);
                         variety.setImageUrl(url);
@@ -173,7 +187,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_UPLOAD_IMAGE_FAILED)) {
                     String tag = intent.getStringExtra("tag");
                     if (tag != null && !tag.isEmpty() && tag.equalsIgnoreCase(variety.getTag())) {
-                        PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + tag, null);
+                        NetworkUtils.setRequestStatusComplete(mContext, tag);
                         variety.setShowImageProcessing(false);
                         variety.setImagePath(null);
                         reloadImageViewAndProcessing();
@@ -181,6 +195,11 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                 }
             }
         };
+    }
+
+    public void refreshData() {
+        variety = mListener.refreshVariety(getTag());
+        loadTheDataIntoUi();
     }
 
     private void loadTheDataIntoUi() {
@@ -249,6 +268,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
 
     public void deleteProductVariety() {
         if (mListener != null) {
+            mListener.productModified(true);
             mListener.deleteVariety(variety.getTag());
         }
     }
@@ -265,6 +285,8 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
         void captureImage(String varietyTag);
 
         EditProductVar refreshVariety(String varietyTag);
+
+        void productModified(boolean modified);
     }
 
     public void setPosition(int position) {
@@ -277,28 +299,26 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
             return;
         }
         if (variety.isShowImageProcessing()) {
-            String status = PreferenceUtils.getPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + variety.getTag());
-            if (status != null && !status.isEmpty()) {
-                //set the correct status
-                boolean uploading = status.equalsIgnoreCase("uploading") ? true : false;
-                if (!uploading) {
+            String status = NetworkUtils.getRequestStatus(mContext, variety.getTag());
+            switch (status) {
+                case Constants.REQUEST_STATUS_PROCESSING:
+                    break;
+                case Constants.REQUEST_STATUS_SUCCESS:
                     variety.setShowImageProcessing(false);
-                } else {
-                    PreferenceUtils.setPreferences(mContext, Constants.IMAGE_UPLOAD_STATUS_PREFIX + variety.getTag(), null);
-                    if (status.equalsIgnoreCase("upload_failed")) {
-                        variety.setImagePath(null);
-                    } else if (status.equalsIgnoreCase("upload_success")) {
-                        String filename = variety.getImageFilename();
-                        if (filename != null && !filename.isEmpty()) {
-                            String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
-                            variety.setImageUrl(url);
-                        } else {
-                            Log.d(TAG, "some problem while getting filename for tag");
-                        }
+                    String filename = variety.getImageFilename();
+                    if (filename != null && !filename.isEmpty()) {
+                        String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
+                        variety.setImageUrl(url);
+                    } else {
+                        Log.d(TAG, "some problem while getting filename for tag");
                     }
-                }
-            } else {
-                //variety has the correct status
+                    break;
+                case Constants.REQUEST_STATUS_FAILED:
+                    variety.setShowImageProcessing(false);
+                    variety.setImagePath(null);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -339,6 +359,13 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
         } else if (imageView != null) {
             //load from internet
             String imageUrl = variety.getImageUrl();
+            boolean validUrl = URLUtil.isValidUrl(imageUrl);
+            if(!validUrl) {
+                imageUrl = Constants.PUBLIC_IMAGE_URL_PREFIX + imageUrl;
+            } else {
+                Log.d(TAG, "url is valid");
+            }
+            Log.d(TAG, "will load this url : " + imageUrl);
             Picasso.with(mContext)
                     .load(imageUrl)
                     .fit()
@@ -360,5 +387,9 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
         } else {
             progressBarImage.setVisibility(View.GONE);
         }
+    }
+
+    public EditProductVar getVariety() {
+        return variety;
     }
 }

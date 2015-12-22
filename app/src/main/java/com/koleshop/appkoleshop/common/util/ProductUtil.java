@@ -75,7 +75,7 @@ public class ProductUtil {
         }
         int count = 0;
         for(InventoryProductVariety ipv : product.getVarieties()) {
-            if(ipv.getSelected()) {
+            if(ipv.getValid()) {
                 count++;
             }
         }

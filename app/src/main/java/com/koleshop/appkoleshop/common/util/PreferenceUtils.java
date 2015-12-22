@@ -2,10 +2,12 @@ package com.koleshop.appkoleshop.common.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.constant.Prefs;
+import com.koleshop.appkoleshop.model.parcel.EditProduct;
 
 import java.util.HashMap;
 import java.util.Iterator;

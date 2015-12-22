@@ -211,7 +211,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
                     price = price.substring(0, price.length()-2);
                 }
                 String desc = ipv.getQuantity() + " - " + price;
-                if(ipv.getSelected()) {
+                if(ipv.getValid()) {
                     desc += " ✓";
                 } else {
                     desc += " ✗";

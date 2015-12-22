@@ -6,12 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
 import com.koleshop.koleshopbackend.db.models.Brand;
+import com.koleshop.koleshopbackend.db.models.InventoryProduct;
+import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
 import com.koleshop.koleshopbackend.db.models.deprecated.ProductVarietyAttribute;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.models.ParentProductCategory;
@@ -27,6 +30,394 @@ import com.koleshop.koleshopbackend.utils.ProductUtil;
 public class ProductService {
 
     private static final Logger logger = Logger.getLogger(ProductService.class.getName());
+
+    public InventoryProduct addNewProduct(InventoryProduct product, Long categoryId, Long userId, Long brandId) {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        boolean rollbackTransaction = false;
+
+        String query = "insert into Product (name, brand, brand_id, category_id, user_id) values(?,?,?,?,?)";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setAutoCommit(false);
+            preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, product.getName());
+            preparedStatement.setString(2, product.getBrand());
+            preparedStatement.setLong(3, brandId);
+            preparedStatement.setLong(4, categoryId);
+            preparedStatement.setLong(5, userId);
+
+            // execute insert product SQL statement
+            preparedStatement.executeUpdate();
+            ResultSet keyResultSet = preparedStatement.getGeneratedKeys();
+            Long newProductId = 0L;
+            if (keyResultSet.next()) {
+                newProductId = keyResultSet.getLong(1);
+                product.setId(newProductId);
+            }
+
+            if (newProductId > 0) {
+                List<InventoryProductVariety> productVarieties = product.getVarieties();
+                for (InventoryProductVariety productVariety : productVarieties) {
+                    //add product variety
+                    query = "insert into ProductVariety (product_id, quantity, price, image, limited_stock, valid) " +
+                            "values (?,?,?,?,?,'1')";
+                    preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                    preparedStatement.setLong(1, newProductId);
+                    preparedStatement.setString(2, productVariety.getQuantity());
+                    preparedStatement.setFloat(3, productVariety.getPrice());
+                    preparedStatement.setString(4, productVariety.getImageUrl());
+                    preparedStatement.setInt(5, productVariety.getLimitedStock());
+                    preparedStatement.executeUpdate();
+                    ResultSet rs = preparedStatement.getGeneratedKeys();
+                    Long generatedProductVarietyId = 0L;
+                    if (rs.next()) {
+                        generatedProductVarietyId = rs.getLong(1);
+                    }
+                    if (generatedProductVarietyId > 0) {
+                        productVariety.setId(generatedProductVarietyId);
+                    } else {
+                        //product variety id not generated, some problem occurred;
+                        logger.log(Level.SEVERE, "product variety id not generated for userId = " + userId);
+                        rollbackTransaction = true;
+                        break;
+                    }
+                }
+
+            } else {
+                //product id not generated, some problem occurred;
+                logger.log(Level.SEVERE, "product id not generated for userId = " + userId);
+                rollbackTransaction = true;
+            }
+
+            if (rollbackTransaction) {
+                dbConnection.rollback();
+                logger.log(Level.SEVERE, "product creation failed for userId = " + userId);
+                product.setId(0L);
+                product = null;
+            } else {
+                dbConnection.commit();
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return product;
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "product creation failed for userId = " + userId, e);
+            return null;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+    }
+
+    public InventoryProduct updateProduct(InventoryProduct product, Long categoryId, Long userId, Long brandId) {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        boolean rollbackTransaction = false;
+        boolean productInfoIsCorrect;
+
+        String query = "update Product set name=?, brand=?, brand_id=?, category_id=? where id=? and user_id=?";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setAutoCommit(false);
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setString(1, product.getName());
+            preparedStatement.setString(2, product.getBrand());
+            preparedStatement.setLong(3, brandId);
+            preparedStatement.setLong(4, categoryId);
+            preparedStatement.setLong(5, product.getId());
+            preparedStatement.setLong(6, userId);
+
+            int updated = preparedStatement.executeUpdate();
+            if(updated>0) {
+                //product belongs to the given userId
+                productInfoIsCorrect = true;
+            } else {
+                //check that the product belongs the given userId
+                query = "select count(*) from Product where id = ? and user_id = ?";
+                preparedStatement = dbConnection.prepareStatement(query);
+                ResultSet resultSetConfirm = preparedStatement.executeQuery();
+                if(resultSetConfirm!=null && resultSetConfirm.getInt(1) == 1) {
+                    //the product information is correct
+                    productInfoIsCorrect = true;
+                } else {
+                    productInfoIsCorrect = false;
+                }
+            }
+
+            if(productInfoIsCorrect) {
+                List<InventoryProductVariety> productVarieties = product.getVarieties();
+                for (InventoryProductVariety productVariety : productVarieties) {
+
+                    Long productVarietyId = 0l;
+
+                    if (productVariety.getId()!=null && productVariety.getId() > 0) {
+                        //update the product variety
+                        productVarietyId = productVariety.getId();
+                        if(!productVariety.isValid()) {
+                            productVariety.setQuantity(productVariety.getQuantity() + "_deleted_");
+                        }
+                        query = "update ProductVariety " +
+                                " set quantity=?, price=?, image=?, limited_stock=?, valid=? where id=?";
+                        preparedStatement = dbConnection.prepareStatement(query);
+                        preparedStatement.setString(1, productVariety.getQuantity());
+                        preparedStatement.setFloat(2, productVariety.getPrice());
+                        preparedStatement.setString(3, productVariety.getImageUrl());
+                        preparedStatement.setInt(4, productVariety.getLimitedStock());
+                        preparedStatement.setBoolean(5, productVariety.isValid());
+                        preparedStatement.setLong(6, productVarietyId);
+                        int update = preparedStatement.executeUpdate();
+                        if (update <= 0) {
+                            rollbackTransaction = true;
+                            break;
+                        }
+                    } else {
+                        //insert product variety
+                        query = "insert into ProductVariety (product_id, quantity, price, image, limited_stock, valid) " +
+                                "values (?,?,?,?,?,'1');";
+                        preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                        preparedStatement.setLong(1, product.getId());
+                        preparedStatement.setString(2, productVariety.getQuantity());
+                        preparedStatement.setFloat(3, productVariety.getPrice());
+                        preparedStatement.setString(4, productVariety.getImageUrl());
+                        preparedStatement.setInt(5, productVariety.getLimitedStock());
+                        preparedStatement.executeUpdate();
+                        ResultSet rs = preparedStatement.getGeneratedKeys();
+
+                        if (rs.next()) {
+                            productVarietyId = rs.getLong(1);
+                        }
+                        if(productVarietyId > 0l) {
+                            productVariety.setId(productVarietyId);
+                        } else {
+                            rollbackTransaction = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (rollbackTransaction) {
+                dbConnection.rollback();
+                logger.log(Level.SEVERE, "product updating failed for userId = " + userId + " and product id = " + product.getId());
+                product = null;
+            } else {
+                dbConnection.commit();
+
+                //remove deleted varieties from product
+                Iterator<InventoryProductVariety> varietyIterator = product.getVarieties().iterator();
+                while (varietyIterator.hasNext()) {
+                    if (!varietyIterator.next().isValid()) {
+                        varietyIterator.remove();
+                    }
+                }
+
+            }
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return product;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "product updating failed for userId = " + userId + " and product id = " + product.getId(), e);
+            return null;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+
+    }
+
+    public InventoryProduct saveProduct(InventoryProduct product, Long categoryId, Long userId) {
+        Long brandId = getBrandId(product);
+        InventoryProduct savedProduct;
+        if (product.getId() == 0) {
+            savedProduct = addNewProduct(product, categoryId, userId, brandId);
+        } else {
+            savedProduct = updateProduct(product, categoryId, userId, brandId);
+        }
+        return savedProduct;
+    }
+
+    private boolean adjustBrandIdOld(Product product) {
+        if (product.getBrandId() == 0) {
+            Long newBrandId = insertBrandIfNotAlready(product.getBrand());
+            product.setBrandId(newBrandId);
+            return newBrandId > 0;
+        } else
+            return true;
+    }
+
+    private long getBrandId(InventoryProduct product) {
+        if (product.getBrand() == null || product.getBrand().isEmpty()) {
+            product.setBrand("No Brand");
+        }
+        Long brandId = insertBrandIfNotAlready(product.getBrand());
+        return brandId;
+    }
+
+    private Long insertBrandIfNotAlready(String brand) {
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        String query = "select id from Brand where name = ? ";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setString(1, brand);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.first()) {
+                Long brandId = rs.getLong(1);
+                DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+                return brandId;
+            } else {
+
+                query = "insert ignore into Brand (name) values(?)";
+                preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setString(1, brand);
+
+                if (preparedStatement.executeUpdate() > 0) {
+                    //brand inserted
+                    ResultSet keyResultSet = preparedStatement.getGeneratedKeys();
+                    Long newBrandId = 0L;
+                    if (keyResultSet.next()) {
+                        newBrandId = keyResultSet.getLong(1);
+                    }
+                    DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+                    return newBrandId;
+                } else {
+                    return 0L;
+                }
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+            return 0L;
+
+        } finally {
+
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+
+        }
+    }
+
+    public List<ProductCategory> getAllProductCategories() {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        String query = "select id,name,image_url,parent_category_id from ProductCategory where id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
+                + ") and parent_category_id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS + ") ;";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            List<ProductCategory> productCategories = new ArrayList<>();
+            while (rs.next()) {
+                ProductCategory pc = new ProductCategory(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4));
+                productCategories.add(pc);
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return productCategories;
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "some exception in getting product categories", e);
+            return null;
+
+        } finally {
+
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+
+        }
+
+    }
+
+    public List<Brand> getAllBrands() {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        String query = "select b.id,b.name from Brand b join Inventory i on i.brand_id = b.id " +
+                "join ProductCategory pc on pc.id = i.category_id " +
+                "and pc.id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS +
+                ") and pc.parent_category_id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS +
+                ") group by b.id;";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            List<Brand> brands = new ArrayList<>();
+            while (rs.next()) {
+                Brand brand = new Brand(rs.getLong("id"), rs.getString("name"));
+                brands.add(brand);
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return brands;
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+    }
+
+    public List<ParentProductCategory> getProductCategories() {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        List<ParentProductCategory> parentProductCategoryList = new ArrayList<>();
+
+        String query = "select id,name,image_url,parent_category_id from ProductCategory";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            List<ProductCategory> productCategories = new ArrayList<>();
+            int index = 0;
+            while (rs.next()) {
+                ProductCategory pc = new ProductCategory(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4));
+                if (rs.getInt(4) == 0) {
+                    parentProductCategoryList.add(new ParentProductCategory(pc));
+                } else {
+                    productCategories.add(pc);
+                }
+            }
+
+            for (ProductCategory pc : productCategories) {
+                for (ParentProductCategory ppc : parentProductCategoryList) {
+                    if (pc.getParentProductCategoryId() == ppc.getParentProductCategory().getId()) {
+                        ppc.getChildrenProductCategories().add(pc);
+                    }
+                }
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return parentProductCategoryList;
+
+        } catch (SQLException e) {
+
+            System.out.println(e.getMessage());
+            return null;
+
+        } finally {
+
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+
+        }
+    }
 
     @Deprecated
     public List<Product> getProduct(int shopId, int startIndex, int count) {
@@ -151,14 +542,13 @@ public class ProductService {
     }
 
     @Deprecated
-    public Long addNewProduct(Product product) {
+    public Long addNewProductOld(Product product) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
         boolean rollbackTransaction = false;
 
-        if(!adjustBrandId(product))
-        {
+        if (!adjustBrandIdOld(product)) {
             return 0L;
         }
 
@@ -300,14 +690,49 @@ public class ProductService {
     }
 
     @Deprecated
-    public Long updateProduct(Product product) {
+    public List<ProductVarietyAttributeMeasuringUnit> getMeasuringUnits() {
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        List<ProductVarietyAttributeMeasuringUnit> measuringUnits = new ArrayList<>();
+
+        String query = "select id,unit_type,unit,is_base_unit,conversion_rate,unit_full_name from ProductVarietyAttributeMeasuringUnit";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                ProductVarietyAttributeMeasuringUnit mu = new ProductVarietyAttributeMeasuringUnit(rs.getInt(1), rs.getString(2),
+                        rs.getString(3), rs.getBoolean(4), rs.getFloat(5), rs.getString(6));
+                measuringUnits.add(mu);
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return measuringUnits;
+
+        } catch (SQLException e) {
+
+            System.out.println(e.getMessage());
+            return null;
+
+        } finally {
+
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+
+        }
+    }
+
+    @Deprecated
+    public Long updateProductOld(Product product) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
         boolean rollbackTransaction = false;
 
-        if(!adjustBrandId(product))
-        {
+        if (!adjustBrandIdOld(product)) {
             return 0L;
         }
         if (product.getBrandId() == 0 && !product.getBrand().trim().isEmpty()) {
@@ -328,19 +753,16 @@ public class ProductService {
             preparedStatement.setLong(5, product.getId());
 
             int updated = preparedStatement.executeUpdate();
-            if(updated<=0)
-            {
+            if (updated <= 0) {
                 rollbackTransaction = true;
-            }
-            else {
+            } else {
                 List<ProductVariety> productVarieties = product.getProductVarieties();
                 outerloop:
                 for (ProductVariety productVariety : productVarieties) {
 
                     Long productVarietyId = 0L;
 
-                    if(productVariety.getId()>0)
-                    {
+                    if (productVariety.getId() > 0) {
                         productVarietyId = productVariety.getId();
                         query = "update ProductVariety set name=?, limited_stock=?, valid=?, image_url=? where id=?";
                         preparedStatement = dbConnection.prepareStatement(query);
@@ -350,14 +772,11 @@ public class ProductService {
                         preparedStatement.setString(4, productVariety.getImageUrl());
                         preparedStatement.setLong(5, productVarietyId);
                         int update = preparedStatement.executeUpdate();
-                        if(update<=0)
-                        {
+                        if (update <= 0) {
                             rollbackTransaction = true;
                             break outerloop;
                         }
-                    }
-
-                    else {
+                    } else {
                         //insert product variety
                         query = "insert into ProductVariety (product_id, name, limited_stock, valid, image_url)" +
                                 "values (?,?,?, '1', ?)";
@@ -414,13 +833,11 @@ public class ProductService {
 
                             if (productVarietyAttributeId > 0) {
                                 boolean pvaAlreadyExists = false;
-                                if(pva.getAttributeValueId()>0)
-                                {
+                                if (pva.getAttributeValueId() > 0) {
                                     //already exists need update
                                     pvaAlreadyExists = true;
                                     query = "update ProductVarietyAttributeValue set product_variety_id=?, product_variety_attribute_id=?, detail=? where id=?";
-                                }
-                                else {
+                                } else {
                                     query = "insert into ProductVarietyAttributeValue (product_variety_id, product_variety_attribute_id, detail)" +
                                             "values (?,?,?)";
                                 }
@@ -430,12 +847,10 @@ public class ProductService {
                                 preparedStatement.setString(3, pva.getValue());
                                 preparedStatement.setLong(4, pva.getAttributeValueId());
                                 int updatedInserted = preparedStatement.executeUpdate();
-                                if(updatedInserted<=0)
-                                {
+                                if (updatedInserted <= 0) {
                                     rollbackTransaction = true;
                                     break outerloop;
-                                }
-                                else if(!pvaAlreadyExists) {
+                                } else if (!pvaAlreadyExists) {
                                     ResultSet rs3 = preparedStatement.getGeneratedKeys();
                                     Long generatedProductVarietyAttributeValueId = 0L;
                                     if (rs3.next()) {
@@ -487,223 +902,12 @@ public class ProductService {
     }
 
     @Deprecated
-    public boolean saveProduct(Product product) {
+    public boolean saveProductOld(Product product) {
         if (product.getId() == 0) {
-            addNewProduct(product);
+            addNewProductOld(product);
         } else {
-            updateProduct(product);
+            updateProductOld(product);
         }
         return false;
-    }
-
-    private boolean adjustBrandId(Product product) {
-        if (product.getBrandId() == 0) {
-            Long newBrandId = insertBrandIfNotAlready(product.getBrand());
-            product.setBrandId(newBrandId);
-            return newBrandId > 0;
-        } else
-            return true;
-    }
-
-    private Long insertBrandIfNotAlready(String brand) {
-        Connection dbConnection = null;
-        PreparedStatement preparedStatement = null;
-
-        String query = "select id from Brand where name = ? ";
-
-        try {
-            dbConnection = DatabaseConnection.getConnection();
-            preparedStatement = dbConnection.prepareStatement(query);
-            preparedStatement.setString(1, brand);
-
-            ResultSet rs = preparedStatement.executeQuery();
-            if (rs.first()) {
-                Long brandId = rs.getLong(1);
-                DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
-                return brandId;
-            } else {
-
-                query = "insert ignore into Brand (name) values(?)";
-                preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.setString(1, brand);
-
-                if (preparedStatement.executeUpdate() > 0) {
-                    //brand inserted
-                    ResultSet keyResultSet = preparedStatement.getGeneratedKeys();
-                    Long newBrandId = 0L;
-                    if (keyResultSet.next()) {
-                        newBrandId = keyResultSet.getLong(1);
-                    }
-                    DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
-                    return newBrandId;
-                } else {
-                    return 0L;
-                }
-            }
-
-        } catch (SQLException e) {
-
-            e.printStackTrace();
-            return 0L;
-
-        } finally {
-
-            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
-
-        }
-    }
-
-    public List<ProductCategory> getAllProductCategories() {
-
-        Connection dbConnection = null;
-        PreparedStatement preparedStatement = null;
-
-        String query = "select id,name,image_url,parent_category_id from ProductCategory where id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
-                + ") and parent_category_id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS + ") ;";
-
-        try {
-            dbConnection = DatabaseConnection.getConnection();
-            preparedStatement = dbConnection.prepareStatement(query);
-
-            ResultSet rs = preparedStatement.executeQuery();
-            List<ProductCategory> productCategories = new ArrayList<>();
-            while (rs.next()) {
-                ProductCategory pc = new ProductCategory(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4));
-                productCategories.add(pc);
-            }
-
-            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
-            return productCategories;
-
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "some exception in getting product categories", e);
-            return null;
-
-        } finally {
-
-            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
-
-        }
-
-    }
-
-    public List<Brand> getAllBrands() {
-
-        Connection dbConnection = null;
-        PreparedStatement preparedStatement = null;
-
-        String query = "select b.id,b.name from Brand b join Inventory i on i.brand_id = b.id " +
-                "join ProductCategory pc on pc.id = i.category_id " +
-                "and pc.id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS +
-                ") and pc.parent_category_id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS +
-                ") group by b.id;";
-
-        try {
-            dbConnection = DatabaseConnection.getConnection();
-            preparedStatement = dbConnection.prepareStatement(query);
-
-            ResultSet rs = preparedStatement.executeQuery();
-            List<Brand> brands = new ArrayList<>();
-            while (rs.next()) {
-                Brand brand = new Brand(rs.getLong("id"), rs.getString("name"));
-                brands.add(brand);
-            }
-
-            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
-            return brands;
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return null;
-        } finally {
-            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
-        }
-    }
-
-    public List<ParentProductCategory> getProductCategories() {
-
-        Connection dbConnection = null;
-        PreparedStatement preparedStatement = null;
-
-        List<ParentProductCategory> parentProductCategoryList = new ArrayList<>();
-
-        String query = "select id,name,image_url,parent_category_id from ProductCategory";
-
-        try {
-            dbConnection = DatabaseConnection.getConnection();
-            preparedStatement = dbConnection.prepareStatement(query);
-
-            ResultSet rs = preparedStatement.executeQuery();
-            List<ProductCategory> productCategories = new ArrayList<>();
-            int index = 0;
-            while (rs.next()) {
-                ProductCategory pc = new ProductCategory(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4));
-                if(rs.getInt(4) == 0)
-                {
-                    parentProductCategoryList.add(new ParentProductCategory(pc));
-                }
-                else {
-                    productCategories.add(pc);
-                }
-            }
-
-            for(ProductCategory pc : productCategories) {
-                for (ParentProductCategory ppc : parentProductCategoryList) {
-                    if (pc.getParentProductCategoryId() == ppc.getParentProductCategory().getId()) {
-                        ppc.getChildrenProductCategories().add(pc);
-                    }
-                }
-            }
-
-            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
-            return parentProductCategoryList;
-
-        } catch (SQLException e) {
-
-            System.out.println(e.getMessage());
-            return null;
-
-        } finally {
-
-            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
-
-        }
-    }
-
-    @Deprecated
-    public List<ProductVarietyAttributeMeasuringUnit> getMeasuringUnits()
-    {
-        Connection dbConnection = null;
-        PreparedStatement preparedStatement = null;
-
-        List<ProductVarietyAttributeMeasuringUnit> measuringUnits = new ArrayList<>();
-
-        String query = "select id,unit_type,unit,is_base_unit,conversion_rate,unit_full_name from ProductVarietyAttributeMeasuringUnit";
-
-        try {
-            dbConnection = DatabaseConnection.getConnection();
-            preparedStatement = dbConnection.prepareStatement(query);
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                ProductVarietyAttributeMeasuringUnit mu = new ProductVarietyAttributeMeasuringUnit(rs.getInt(1), rs.getString(2),
-                        rs.getString(3), rs.getBoolean(4), rs.getFloat(5), rs.getString(6));
-                measuringUnits.add(mu);
-            }
-
-            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
-            return measuringUnits;
-
-        } catch (SQLException e) {
-
-            System.out.println(e.getMessage());
-            return null;
-
-        } finally {
-
-            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
-
-        }
     }
 }

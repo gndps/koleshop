@@ -24,5 +24,6 @@
     <color name="offwhite">#FAFAFA</color>
     <color name="otherGreen">#5BB990</color>
     <color name="veryLightGray">#D5D5D5</color>
+    <color name="black_semi_transparent">#B2000000</color>
 
 </resources>

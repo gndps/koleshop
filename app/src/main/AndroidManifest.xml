@@ -158,7 +158,11 @@
         <activity
             android:name=".activities.ProductActivity"
             android:label="@string/title_activity_product"
-            android:theme="@style/AppTheme.Base"></activity>
+            android:theme="@style/AppTheme.Base" />
+
+        <service
+            android:name=".services.ProductIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
@@ -12,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -24,8 +24,8 @@ import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
+import com.koleshop.appkoleshop.singletons.KoleshopSingleton;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 public class InventoryProductActivity extends AppCompatActivity {
@@ -39,6 +39,8 @@ public class InventoryProductActivity extends AppCompatActivity {
     ViewPager viewPager;
     private static final String TAG = "InventoryPrductActity";
     private boolean myInventory = false;
+    int selectedPage;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,10 @@ public class InventoryProductActivity extends AppCompatActivity {
         }
         initializeBroadcastReceivers();
         setupActivity();
+        fetchCategories();
+        if(savedInstanceState != null) {
+            selectedPage = savedInstanceState.getInt("selectedPage");
+        }
     }
 
     @Override
@@ -61,6 +67,16 @@ public class InventoryProductActivity extends AppCompatActivity {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(inventoryProductBroadcastReceiver, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS));
         lbm.registerReceiver(inventoryProductBroadcastReceiver, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED));
+        if(KoleshopSingleton.getSharedInstance().isReloadSubcategories()) {
+            KoleshopSingleton.getSharedInstance().setReloadSubcategories(false);
+            fetchCategories();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("selectedPage", selectedPage);
     }
 
     private void initializeBroadcastReceivers() {
@@ -105,12 +121,11 @@ public class InventoryProductActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         tabLayout = (TabLayout) findViewById(R.id.tab_inventory_product);
         tabLayout.setVisibility(View.GONE);
-        fetchCategories();
     }
 
     private void fetchCategories() {
         List<InventoryCategory> list = KoleCacheUtil.getCachedSubcategories(myInventory, parentCategoryId);
-        if(list!=null && list.size()>0) {
+        if(list!=null && list.size()>0 && Constants.KOLE_CACHE_ALLOWED) {
             loadCategories(list);
         } else {
             requestCategoriesFromInternet();
@@ -139,6 +154,9 @@ public class InventoryProductActivity extends AppCompatActivity {
         setupViewPager(viewPager, list);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(viewPager);
+        if(viewPager.getChildCount() > selectedPage) {
+            viewPager.setCurrentItem(selectedPage);
+        }
         changeTabsFont();
     }
 
@@ -152,6 +170,20 @@ public class InventoryProductActivity extends AppCompatActivity {
         }
         adapter.setInventoryCategories(categories);
         viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                selectedPage = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
     }
 
     private void failedLoadingCategories() {

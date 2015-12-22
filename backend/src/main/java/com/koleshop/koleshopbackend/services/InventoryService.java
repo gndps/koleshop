@@ -183,7 +183,7 @@ public class InventoryService {
                 } else {
                     //save the inventory product from previous iteration
                     if(currentInventoryProduct!=null) {
-                        //---------------------------------------------------------------------> place 88
+                        //---------------------------------------> place 88
                         currentInventoryProduct.setVarieties(inventoryProductVarieties);
                         result.add(currentInventoryProduct);
                     }
@@ -209,7 +209,7 @@ public class InventoryService {
                 inventoryProductVariety.setPrice(rs.getFloat("price"));
                 inventoryProductVariety.setImageUrl(rs.getString("image"));
                 inventoryProductVariety.setLimitedStock(rs.getInt("limited_stock"));
-                inventoryProductVariety.setSelected(rs.getBoolean("selected"));
+                inventoryProductVariety.setValid(rs.getBoolean("selected"));
                 inventoryProductVarieties.add(inventoryProductVariety);
             }
 

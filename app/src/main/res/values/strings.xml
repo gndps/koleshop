@@ -8,6 +8,11 @@
     <string name="hello_world">Hello world!</string>
     <string name="koleshop_domain_type">koleshop.com</string>
     <string name="action_settings">Settings</string>
+    <string name="action_save_product">Save</string>
+    <string name="action_add_product">Add new product</string>
+    <string name="action_switch_to_warehouse">Warehouse</string>
+    <string name="action_switch_to_myshop">My Shop</string>
+    <string name="action_discard_product_changes">Discard</string>
     <string name="title_activity_choose">Use koleshop as</string>
     <string name="title_activity_login">Koleshop login</string>
     <string name="title_activity_get_started">Get Started</string>
@@ -47,6 +52,7 @@
     <string name="title_activity_verify_otp">VerifyOTPActivity</string>
     <string name="title_activity_progress">ProgressActivity</string>
     <string name="title_activity_select_seller_category">SelectSellerCategoryActivity</string>
+    <string name="navigation_drawer_home">Home</string>
     <string name="navigation_drawer_products">My Shop</string>
     <string name="navigation_drawer_add_edit">Add/Edit Product</string>
     <string name="navigation_drawer_inventory">Ware House</string>
@@ -65,5 +71,9 @@
     <string name="pick_account">A google account is required to proceed</string>
     <string name="not_online">Device not connected to internet</string>
     <string name="login_screen_heading">Koleshop Login</string>
+
+    <string name="product_save_changes">SAVE</string>
+    <string name="product_dont_save_changes">DONT SAVE</string>
+    <string name="product_save_cancel">CANCEL</string>
 
 </resources>
