@@ -12,6 +12,7 @@ import io.realm.RealmList;
 /**
  * Created by Gundeep on 01/10/15.
  */
+@Deprecated
 public class VarietyAttributeParcelConverter implements ParcelConverter<RealmList<VarietyAttribute>> {
     @Override
     public void toParcel(RealmList<VarietyAttribute> input, Parcel parcel) {

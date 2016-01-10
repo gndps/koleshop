@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@Deprecated
 public class Product implements Parcelable {
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {

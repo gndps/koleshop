@@ -86,13 +86,13 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
         switchStock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (variety != null) {
-                    if((variety.getLimitedStock()<=0 && isChecked) || variety.getLimitedStock()>=1 && !isChecked) {
+                    if((!variety.getLimitedStock() && isChecked) || variety.getLimitedStock() && !isChecked) {
                         mListener.productModified(true);
                     }
                     if(isChecked) {
-                        variety.setLimitedStock(1);
+                        variety.setLimitedStock(true);
                     } else {
-                        variety.setLimitedStock(0);
+                        variety.setLimitedStock(false);
                     }
                 }
             }
@@ -207,7 +207,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
 
         reloadImageViewAndProcessing();
 
-        switchStock.setChecked(variety.getLimitedStock() > 0);
+        switchStock.setChecked(variety.getLimitedStock());
         editTextQuantity.setText(variety.getQuantity());
         if (variety.getPrice() > 0) {
             String priceString = variety.getPrice() + "";

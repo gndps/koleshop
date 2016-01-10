@@ -44,6 +44,7 @@ import java.util.Map;
 
 import io.realm.Realm;
 
+@Deprecated
 public class ProductEditActivity extends AppCompatActivity {
 
     private Context mContext;

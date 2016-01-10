@@ -33,6 +33,7 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
+@Deprecated
 public class ProductBasicInfoShopkeeper extends Fragment implements View.OnClickListener {
 
     private EditText editTextProductName, editTextBrand;

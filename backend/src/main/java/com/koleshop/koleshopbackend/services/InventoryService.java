@@ -208,7 +208,7 @@ public class InventoryService {
                 inventoryProductVariety.setQuantity(rs.getString("quantity"));
                 inventoryProductVariety.setPrice(rs.getFloat("price"));
                 inventoryProductVariety.setImageUrl(rs.getString("image"));
-                inventoryProductVariety.setLimitedStock(rs.getInt("limited_stock"));
+                inventoryProductVariety.setLimitedStock(rs.getBoolean("limited_stock"));
                 inventoryProductVariety.setValid(rs.getBoolean("selected"));
                 inventoryProductVarieties.add(inventoryProductVariety);
             }

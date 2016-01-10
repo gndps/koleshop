@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.model;
 /**
  * Created by gundeepsingh on 17/08/14.
  */
+@Deprecated
 public class RestCallResponse {
 
     private String status;

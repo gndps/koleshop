@@ -1,6 +1,7 @@
 package com.koleshop.appkoleshop.fragments.product;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +44,9 @@ import org.parceler.Parcels;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 public class InventoryCategoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -53,6 +56,7 @@ public class InventoryCategoryFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiverInventoryCategoryFragment;
     private static final String TAG = "InventoryCategoryFrag";
     private boolean myInventory = false;
+    @Bind(R.id.multiple_actions)
     FloatingActionsMenu menuMultipleActions;
 
     @Override
@@ -71,6 +75,7 @@ public class InventoryCategoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View layout = inflater.inflate(com.koleshop.appkoleshop.R.layout.fragment_inventory_category, container, false);
+        ButterKnife.bind(this, layout);
         recyclerView = (RecyclerView) layout.findViewById(com.koleshop.appkoleshop.R.id.rv_inventory_category);
         viewFlipper = (ViewFlipper) layout.findViewById(com.koleshop.appkoleshop.R.id.viewflipper_inventory_category);
         recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
@@ -84,35 +89,49 @@ public class InventoryCategoryFragment extends Fragment {
         recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                Intent intent = new Intent(mContext, InventoryProductActivity.class);
-                intent.putExtra("categoryId", inventoryCategoryAdapter.getInventoryCategoryId(position));
-                intent.putExtra("myInventory", myInventory);
-                String categoryName = inventoryCategoryAdapter.getInventoryCategoryName(position);
-                if (categoryName != null && !categoryName.isEmpty()) {
-                    intent.putExtra("categoryTitle", categoryName);
-                    startActivity(intent);
+                if(menuMultipleActions!=null && menuMultipleActions.isExpanded()) {
+                    menuMultipleActions.collapse();
                 } else {
-                    new AlertDialog.Builder(mContext)
-                            .setTitle("Some problem occurred")
-                            .setMessage("Please try again")
-                            .setPositiveButton("OK", null)
-                            .show();
-                }
+                    Intent intent = new Intent(mContext, InventoryProductActivity.class);
+                    intent.putExtra("categoryId", inventoryCategoryAdapter.getInventoryCategoryId(position));
+                    intent.putExtra("myInventory", myInventory);
+                    String categoryName = inventoryCategoryAdapter.getInventoryCategoryName(position);
+                    if (categoryName != null && !categoryName.isEmpty()) {
+                        intent.putExtra("categoryTitle", categoryName);
+                        startActivity(intent);
+                    } else {
+                        new AlertDialog.Builder(mContext)
+                                .setTitle("Some problem occurred")
+                                .setMessage("Please try again")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    }
                 /*final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.exit_to_right, R.anim.enter_from_left);
                 ft.replace(R.id.fragment_container, new InventoryProductFragment(), "InventoryProductFragment");
                 ft.addToBackStack(null);
                 ft.commit();*/
-                //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onItemLongClick(View v, int position) {
-                Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
 
             }
         }));
-        initFabMenu(layout);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if(menuMultipleActions!=null && menuMultipleActions.isExpanded()) {
+                    menuMultipleActions.collapse();
+                } else {
+                    super.onScrolled(recyclerView, dx, dy);
+                }
+            }
+        });
+        initFabMenu();
         return layout;
     }
 
@@ -130,6 +149,8 @@ public class InventoryCategoryFragment extends Fragment {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
     @Override
     public void onResume() {
@@ -246,44 +267,80 @@ public class InventoryCategoryFragment extends Fragment {
         }
     }
 
-    private void initFabMenu(View layout) {
-        //final View actionB = layout.findViewById(R.id.action_b);
+    private void initFabMenu() {
 
-        /*FloatingActionButton actionC = new FloatingActionButton(mContext);
-        actionC.setTitle("Add/Remove products from Ware House");
-        actionC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actionB.setVisibility(actionB.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-            }
-        });*/
+        if (myInventory) {
 
-        final FloatingActionsMenu menuMultipleActions = (FloatingActionsMenu) layout.findViewById(R.id.multiple_actions);
-        if(!myInventory) {
-            menuMultipleActions.setVisibility(View.GONE);
-            return;
+            //1. add new product fab
+            final FloatingActionButton actionAddNewProduct = new FloatingActionButton(mContext);
+            actionAddNewProduct.setTitle("Add new product");
+            actionAddNewProduct.setSize(FloatingActionButton.SIZE_MINI);
+            actionAddNewProduct.setColorNormalResId(R.color.white);
+            actionAddNewProduct.setColorPressedResId(R.color.offwhite);
+            actionAddNewProduct.setIcon(R.drawable.ic_add_grey600_48dp);
+            actionAddNewProduct.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    menuMultipleActions.collapse();
+                    addNewProduct();
+                }
+            });
+            menuMultipleActions.addButton(actionAddNewProduct);
+
+            //2. add products from warehouse
+            final FloatingActionButton actionAddFromWarehouse = new FloatingActionButton(mContext);
+            actionAddFromWarehouse.setTitle("✓/✗ from Ware House");
+            actionAddFromWarehouse.setSize(FloatingActionButton.SIZE_MINI);
+            actionAddFromWarehouse.setColorNormalResId(R.color.white);
+            actionAddFromWarehouse.setColorPressedResId(R.color.offwhite);
+            actionAddFromWarehouse.setIcon(R.drawable.ic_store_grey600_24dp);
+            actionAddFromWarehouse.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    menuMultipleActions.collapse();
+                    Intent intent = new Intent(Constants.ACTION_SWITCH_TO_WAREHOUSE);
+                    LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+                    broadcastManager.sendBroadcast(intent);
+                }
+            });
+            menuMultipleActions.addButton(actionAddFromWarehouse);
+
+        } else {
+            //change the menu multiple actions
+            //1. add new product fab
+            final FloatingActionButton actionAddNewProduct = new FloatingActionButton(mContext);
+            actionAddNewProduct.setTitle("Add new product");
+            actionAddNewProduct.setSize(FloatingActionButton.SIZE_MINI);
+            actionAddNewProduct.setColorNormalResId(R.color.white);
+            actionAddNewProduct.setColorPressedResId(R.color.offwhite);
+            actionAddNewProduct.setIcon(R.drawable.ic_add_grey600_48dp);
+            actionAddNewProduct.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    menuMultipleActions.collapse();
+                    addNewProduct();
+                }
+            });
+            menuMultipleActions.addButton(actionAddNewProduct);
+
+            //2. back to my shop
+            final FloatingActionButton actionSwitchBackToMyShop = new FloatingActionButton(mContext);
+            actionSwitchBackToMyShop.setTitle("Back to My Shop");
+            actionSwitchBackToMyShop.setSize(FloatingActionButton.SIZE_MINI);
+            actionSwitchBackToMyShop.setColorNormalResId(R.color.white);
+            actionSwitchBackToMyShop.setColorPressedResId(R.color.offwhite);
+            actionSwitchBackToMyShop.setIcon(R.drawable.ic_home_grey600_24dp);
+            actionSwitchBackToMyShop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    menuMultipleActions.collapse();
+                    Intent intent = new Intent(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP);
+                    LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+                    broadcastManager.sendBroadcast(intent);
+                }
+            });
+            menuMultipleActions.addButton(actionSwitchBackToMyShop);
         }
-        //menuMultipleActions.addButton(actionC);
-
-        final FloatingActionButton actionAddProduct = (FloatingActionButton) layout.findViewById(R.id.action_add_product);
-        actionAddProduct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                menuMultipleActions.collapse();
-                addNewProduct();
-            }
-        });
-
-        final FloatingActionButton actionSwitchToWareHouse = (FloatingActionButton) layout.findViewById(R.id.action_switch_to_warehouse);
-        actionSwitchToWareHouse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                menuMultipleActions.collapse();
-                Intent intent = new Intent(Constants.ACTION_SWITCH_TO_WAREHOUSE);
-                LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
-                broadcastManager.sendBroadcast(intent);
-            }
-        });
     }
 
     private void addNewProduct() {
@@ -296,6 +353,14 @@ public class InventoryCategoryFragment extends Fragment {
         Parcelable productParcel = Parcels.wrap(product);
         intentAddProduct.putExtra("product", productParcel);
         startActivity(intentAddProduct);
+    }
+
+    public boolean isBackAllowed() {
+        if(menuMultipleActions!=null && menuMultipleActions.isExpanded()) {
+            menuMultipleActions.collapse();
+            return false;
+        }
+        return true;
     }
 
 }

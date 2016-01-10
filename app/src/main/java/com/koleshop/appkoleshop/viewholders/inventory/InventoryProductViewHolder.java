@@ -51,6 +51,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     private View.OnClickListener checkBoxOnClickListener;
     private TextView textViewHowManySelected;
     private boolean myInventory;
+    private View verticalDivider;
 
     public InventoryProductViewHolder(View view, int viewType, Context context, boolean myInventory) {
         super(view);
@@ -62,6 +63,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
             clickArea1 = (LinearLayout) view.findViewById(R.id.ll_inventory_product_click_area_1);
             clickArea1.setOnClickListener(this);
             clickArea2 = (LinearLayout) view.findViewById(R.id.ll_inventory_product_click_area_2);
+            verticalDivider = view.findViewById(R.id.view_vertical_divider);
             textViewTitleProductMasterList = (TextView) view.findViewById(R.id.textViewTitleProductMasterListItem);
             textViewSubtitleProductMasterList = (TextView) view.findViewById(R.id.textViewSubtitleProductMasterListItem);
             textViewHowManySelected = (TextView) view.findViewById(R.id.tv_how_many_selected);
@@ -73,6 +75,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
             if(myInventory) {
                 //hide the product selection option
                 clickArea2.setVisibility(View.GONE);
+                verticalDivider.setVisibility(View.GONE);
             }
         } else {
             viewInventoryProductExpanded = new ViewInventoryProductExpanded(context, view);
@@ -188,6 +191,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     public void startCheckBoxProgress() {
         //imageViewCheckBox.setVisibility(View.GONE);
         clickArea2.setVisibility(View.GONE);
+        verticalDivider.setVisibility(View.GONE);
         clickArea2.setOnClickListener(null);
         progressBarCheckBox.setVisibility(View.VISIBLE);
     }
@@ -195,6 +199,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     private void stopCheckBoxProgress() {
         //imageViewCheckBox.setVisibility(View.VISIBLE);
         clickArea2.setVisibility(View.VISIBLE);
+        verticalDivider.setVisibility(View.VISIBLE);
         clickArea2.setOnClickListener(checkBoxOnClickListener);
         progressBarCheckBox.setVisibility(View.GONE);
     }

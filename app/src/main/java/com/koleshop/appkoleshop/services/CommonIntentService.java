@@ -484,7 +484,7 @@ public class CommonIntentService extends IntentService {
                         invProVar.setImageUrl((String) variety.get("imageUrl"));
                         //invProVar.setVegNonVeg((String) variety.get("vegNonVeg"));
                         invProVar.setValid((Boolean) variety.get("valid"));
-                        invProVar.setLimitedStock(((BigDecimal) variety.get("limitedStock")).intValue());
+                        invProVar.setLimitedStock((Boolean) variety.get("limitedStock"));
                         inventoryProductVarieties.add(invProVar);
                     }
                     prod.setVarieties(inventoryProductVarieties);

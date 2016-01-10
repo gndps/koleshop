@@ -11,7 +11,7 @@ public class InventoryProductVariety {
     String imageUrl;
     //String vegNonVeg;
     boolean valid; // valid
-    int limitedStock;
+    boolean limitedStock;
 
     public Long getId() {
         return id;
@@ -61,11 +61,11 @@ public class InventoryProductVariety {
         this.valid = valid;
     }
 
-    public void setLimitedStock(int limitedStock) {
-        this.limitedStock = limitedStock;
+    public boolean isLimitedStock() {
+        return limitedStock;
     }
 
-    public int getLimitedStock() {
-        return limitedStock;
+    public void setLimitedStock(boolean limitedStock) {
+        this.limitedStock = limitedStock;
     }
 }

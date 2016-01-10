@@ -176,9 +176,22 @@ public class KoleCacheUtil {
 
     public static void addNewProductToCache(EditProduct product) {
         InventoryProduct inventoryProduct = KoleshopUtils.getInventoryProductFromEditProduct2(product);
+
+        //cache my inventory (my shop)
         List<InventoryProduct> list = getCachedProducts(true, product.getCategoryId());
-        list.add(inventoryProduct);
-        cacheProductsList(list, product.getCategoryId(), true, true);
+        if(list!=null) {
+            list.add(inventoryProduct);
+            cacheProductsList(list, product.getCategoryId(), true, true);
+        }
+
+        //cache ware house
+        List<InventoryProduct> wareHouseList = getCachedProducts(false, product.getCategoryId());
+        if(wareHouseList!=null) {
+            wareHouseList.add(inventoryProduct);
+            cacheProductsList(wareHouseList, product.getCategoryId(), true, false);
+        } else {
+
+        }
     }
 
     public static void updateProductInCache(EditProduct product) {

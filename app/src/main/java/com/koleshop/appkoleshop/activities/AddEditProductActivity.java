@@ -36,6 +36,7 @@ import java.util.List;
 
 import io.realm.RealmList;
 
+@Deprecated
 public class AddEditProductActivity extends AppCompatActivity {
 
     private static String TAG = "Kolshop_AddEditActivity";

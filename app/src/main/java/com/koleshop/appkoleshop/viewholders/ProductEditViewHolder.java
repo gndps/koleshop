@@ -34,6 +34,8 @@ import com.squareup.picasso.Picasso;
 /**
  * Created by Gundeep on 28/11/15.
  */
+
+@Deprecated
 public class ProductEditViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     TextView textViewNumber;
@@ -123,7 +125,7 @@ public class ProductEditViewHolder extends RecyclerView.ViewHolder implements Vi
                 progressBarImage.setVisibility(View.GONE);
             }
 
-            switchStock.setSelected(editProductVariety.getLimitedStock()>0);
+            switchStock.setSelected(editProductVariety.getLimitedStock());
             editTextQuantity.setText(editProductVariety.getQuantity());
             editTextPrice.setText(editProductVariety.getPrice() + "");
             buttonOverFlow.setOnClickListener(this);

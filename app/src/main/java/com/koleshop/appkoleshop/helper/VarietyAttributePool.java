@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * Created by Gundeep on 05/10/15.
  */
+@Deprecated
 public class VarietyAttributePool {
 
     List<VarietyAttribute> varietyAttributes;

@@ -13,7 +13,7 @@ import com.koleshop.appkoleshop.model.Product;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Deprecated
 public class ProductDatabaseHelper extends SQLiteOpenHelper {
 
     // Logcat tag

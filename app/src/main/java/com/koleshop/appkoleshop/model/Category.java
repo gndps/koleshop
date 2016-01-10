@@ -1,5 +1,6 @@
 package com.koleshop.appkoleshop.model;
 
+@Deprecated
 public class Category {
     int id;
     String name;

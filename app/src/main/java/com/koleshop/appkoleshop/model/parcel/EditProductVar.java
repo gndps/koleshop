@@ -16,7 +16,7 @@ public class EditProductVar {
     String quantity;
     float price;
     String imageUrl;
-    int limitedStock;
+    boolean limitedStock;
     String tag;
     boolean showImageProcessing;
     boolean valid;
@@ -30,11 +30,11 @@ public class EditProductVar {
         this.price = 0;
         this.imageUrl = "";
         this.tag = CommonUtils.randomString(10);
-        this.limitedStock = 1;
+        this.limitedStock = true;
         this.valid = true;
     }
 
-    public EditProductVar(Long id, String quantity, float price, String imageUrl, int limitedStock, String tag) {
+    public EditProductVar(Long id, String quantity, float price, String imageUrl, boolean limitedStock, String tag) {
         this.id = id;
         this.quantity = quantity;
         this.price = price;
@@ -97,11 +97,11 @@ public class EditProductVar {
         this.imageUrl = imageUrl;
     }
 
-    public int getLimitedStock() {
+    public boolean getLimitedStock() {
         return limitedStock;
     }
 
-    public void setLimitedStock(int limitedStock) {
+    public void setLimitedStock(boolean limitedStock) {
         this.limitedStock = limitedStock;
     }
 

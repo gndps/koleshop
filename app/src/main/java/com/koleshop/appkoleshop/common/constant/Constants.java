@@ -82,7 +82,7 @@ public class Constants {
     public static final String ACTION_PRODUCT_SAVE_SUCCESS = "com.koleshop.action_product_save_success";
     public static final String ACTION_PRODUCT_SAVE_FAILED = "com.koleshop.action_product_save_failed";
     public static final String ACTION_SWITCH_TO_WAREHOUSE = "com.koleshop.action_switch_to_warehouse";
-    public static final String ACTION_SWITCH_TO_MYSHOP = "com.koleshop.action_switch_to_myshop";
+    public static final String ACTION_SWITCH_BACK_TO_MY_SHOP = "com.koleshop.action_switch_back_to_myshop";
 
     //gcm broadcast actions
     public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "com.koleshop.action_gcm_broadcast_inventory_created";

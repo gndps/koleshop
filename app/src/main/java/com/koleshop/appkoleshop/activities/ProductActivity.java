@@ -46,6 +46,7 @@ import com.koleshop.appkoleshop.common.util.ImageUtils;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.common.util.NetworkUtils;
 import com.koleshop.appkoleshop.common.util.PreferenceUtils;
+import com.koleshop.appkoleshop.common.util.RealmUtils;
 import com.koleshop.appkoleshop.fragments.productedit.ProductEditFragment;
 import com.koleshop.appkoleshop.fragments.productedit.ProductVarietyEditFragment;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
@@ -156,7 +157,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         //set refresh status of subcategories and products -- they should refresh data to show changes made in product/categories
         KoleshopSingleton kss = KoleshopSingleton.getSharedInstance();
         kss.setReloadSubcategories(false);
-        kss.setReloadProductsCategoryId(0l);
+        kss.setReloadProducts(false);
     }
 
     @Override
@@ -365,7 +366,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         }
         newvar.setPosition(numberOfValidVarieties);
         newvar.setValid(true);
-        newvar.setLimitedStock(1);
+        newvar.setLimitedStock(true);
         product.getEditProductVars().add(newvar);
         ProductVarietyEditFragment varietyFragment = new ProductVarietyEditFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.container_product_edit_fragments, varietyFragment, newvar.getTag()).commit();
@@ -652,7 +653,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
                     inventoryProductVariety.setPrice(Float.valueOf(String.valueOf(var.get("price"))));
                     inventoryProductVariety.setImageUrl((String) var.get("imageUrl"));
                     inventoryProductVariety.setValid((Boolean) var.get("valid"));
-                    inventoryProductVariety.setLimitedStock(((Double) var.get("limitedStock")).intValue());
+                    inventoryProductVariety.setLimitedStock(((Boolean) var.get("limitedStock")));
                     vars.add(inventoryProductVariety);
                 }
                 savedProduct.setVarieties(vars);
@@ -664,13 +665,19 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
                 product = receivedProduct;
                 if (newProduct) {
                     KoleCacheUtil.addNewProductToCache(product);
+                    Long parentCategoryId = RealmUtils.getParentCategoryIdForCategoryId(product.getCategoryId());
+                    KoleCacheUtil.invalidateInventorySubcategories(parentCategoryId, true);
+                    KoleCacheUtil.invalidateInventoryCategories(true);
                 } else {
                     if (oldCategoryId == product.getCategoryId()) {
                         KoleCacheUtil.updateProductInCache(product);
+                        KoleCacheUtil.invalidateProductsCache(product.getCategoryId(), false);
                     } else {
                         KoleshopSingleton.getSharedInstance().setReloadSubcategories(true);
                         KoleCacheUtil.invalidateProductsCache(product.getCategoryId(), true);
+                        KoleCacheUtil.invalidateProductsCache(product.getCategoryId(), false);
                         KoleCacheUtil.invalidateProductsCache(oldCategoryId, true);
+                        KoleCacheUtil.invalidateProductsCache(oldCategoryId, false);
                         KoleCacheUtil.invalidateInventoryCategories(true);
 
                         //get parent category ids for both these categories and invalidate their cache
@@ -686,18 +693,22 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
                                 ProductCategory cat = iterator.next();
                                 if (cat != null && cat.getParentCategoryId() > 0l) {
                                     KoleCacheUtil.invalidateInventorySubcategories(cat.getParentCategoryId(), true);
-                                    KoleshopSingleton.getSharedInstance().setReloadProductsCategoryId(0l);
+                                    KoleCacheUtil.invalidateInventorySubcategories(cat.getParentCategoryId(), false);
+                                    KoleshopSingleton.getSharedInstance().setReloadProducts(true);
                                 }
                             }
                         }
                     }
                 }
-                KoleshopSingleton.getSharedInstance().setReloadProductsCategoryId(oldCategoryId);
+                KoleshopSingleton.getSharedInstance().setReloadProducts(true);
             }
 
         } catch (Exception e) {
             Log.e(TAG, "some prob in parsing saved product from shared prefs", e);
             KoleCacheUtil.invalidateProductsCache(product.getCategoryId(), true);
+            Long parentCategoryId = RealmUtils.getParentCategoryIdForCategoryId(product.getCategoryId());
+            KoleCacheUtil.invalidateInventorySubcategories(parentCategoryId, true);
+            KoleCacheUtil.invalidateInventoryCategories(true);
             KoleshopSingleton.getSharedInstance().setReloadSubcategories(true);
             PreferenceUtils.setPreferences(mContext, "savedProduct", null);
             super.onBackPressed();

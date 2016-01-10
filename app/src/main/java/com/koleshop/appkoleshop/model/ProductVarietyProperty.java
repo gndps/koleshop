@@ -6,6 +6,7 @@ import com.koleshop.appkoleshop.model.realm.VarietyAttribute;
 /**
  * Created by Gundeep on 27/09/15.
  */
+@Deprecated
 public class ProductVarietyProperty {
 
     VarietyAttribute varietyAttribute;

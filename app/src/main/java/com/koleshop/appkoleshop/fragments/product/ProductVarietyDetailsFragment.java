@@ -55,6 +55,7 @@ import io.realm.RealmResults;
 /**
  * A simple {@link Fragment} subclass.
  */
+@Deprecated
 public class ProductVarietyDetailsFragment extends Fragment implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     private static String TAG = "ProductVarietyDetailFragment";

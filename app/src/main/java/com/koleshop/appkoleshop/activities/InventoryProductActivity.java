@@ -5,30 +5,41 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.adapters.InventoryCategoryViewPagerAdapter;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
+import com.koleshop.appkoleshop.fragments.product.InventoryProductFragment;
+import com.koleshop.appkoleshop.model.parcel.EditProduct;
+import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.koleshop.appkoleshop.services.CommonIntentService;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.appkoleshop.singletons.KoleshopSingleton;
 
+import org.parceler.Parcels;
+
+import java.util.ArrayList;
 import java.util.List;
 
-public class InventoryProductActivity extends AppCompatActivity {
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
+public class InventoryProductActivity extends AppCompatActivity implements InventoryProductFragment.InventoryProductFragmentInteractionListener {
 
     long parentCategoryId;
     String categoryTitle;
@@ -40,12 +51,16 @@ public class InventoryProductActivity extends AppCompatActivity {
     private static final String TAG = "InventoryPrductActity";
     private boolean myInventory = false;
     int selectedPage;
+    @Bind(R.id.fab_add_new_product)
+    FloatingActionButton menuMultipleActions;
+    Long selectedCategoryId;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory_product);
+        ButterKnife.bind(this);
         mContext = this;
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -56,7 +71,7 @@ public class InventoryProductActivity extends AppCompatActivity {
         initializeBroadcastReceivers();
         setupActivity();
         fetchCategories();
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             selectedPage = savedInstanceState.getInt("selectedPage");
         }
     }
@@ -67,7 +82,7 @@ public class InventoryProductActivity extends AppCompatActivity {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(inventoryProductBroadcastReceiver, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS));
         lbm.registerReceiver(inventoryProductBroadcastReceiver, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED));
-        if(KoleshopSingleton.getSharedInstance().isReloadSubcategories()) {
+        if (KoleshopSingleton.getSharedInstance().isReloadSubcategories()) {
             KoleshopSingleton.getSharedInstance().setReloadSubcategories(false);
             fetchCategories();
         }
@@ -85,12 +100,12 @@ public class InventoryProductActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS)) {
                     long receivedCategoryId = intent.getLongExtra("catId", 0l);
-                    if(receivedCategoryId == parentCategoryId) {
+                    if (receivedCategoryId == parentCategoryId) {
                         loadCategories(null);
                     }
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED)) {
                     Long receivedCategoryId = intent.getLongExtra("catId", 0l);
-                    if(receivedCategoryId == parentCategoryId) {
+                    if (receivedCategoryId == parentCategoryId) {
                         failedLoadingCategories();
                     }
                 }
@@ -103,6 +118,11 @@ public class InventoryProductActivity extends AppCompatActivity {
         super.onPause();
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
         lbm.unregisterReceiver(inventoryProductBroadcastReceiver);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     private void setupActivity() {
@@ -121,11 +141,12 @@ public class InventoryProductActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         tabLayout = (TabLayout) findViewById(R.id.tab_inventory_product);
         tabLayout.setVisibility(View.GONE);
+        initFabMenu();
     }
 
     private void fetchCategories() {
         List<InventoryCategory> list = KoleCacheUtil.getCachedSubcategories(myInventory, parentCategoryId);
-        if(list!=null && list.size()>0 && Constants.KOLE_CACHE_ALLOWED) {
+        if (list != null && list.size() > 0 && Constants.KOLE_CACHE_ALLOWED) {
             loadCategories(list);
         } else {
             requestCategoriesFromInternet();
@@ -154,7 +175,7 @@ public class InventoryProductActivity extends AppCompatActivity {
         setupViewPager(viewPager, list);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(viewPager);
-        if(viewPager.getChildCount() > selectedPage) {
+        if (viewPager.getChildCount() > selectedPage) {
             viewPager.setCurrentItem(selectedPage);
         }
         changeTabsFont();
@@ -162,8 +183,8 @@ public class InventoryProductActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager, List<InventoryCategory> subcategories) {
         InventoryCategoryViewPagerAdapter adapter = new InventoryCategoryViewPagerAdapter(getSupportFragmentManager(), myInventory);
-        List<InventoryCategory> categories;
-        if(subcategories!=null && subcategories.size()>0){
+        final List<InventoryCategory> categories;
+        if (subcategories != null && subcategories.size() > 0) {
             categories = subcategories;
         } else {
             categories = KoleCacheUtil.getCachedSubcategories(myInventory, parentCategoryId);
@@ -178,18 +199,37 @@ public class InventoryProductActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 selectedPage = position;
+                selectedCategoryId = categories.get(position).getId();
+                Long leftCategoryId = null, rightCategoryId = null;
+                if (position - 1 >= 0) {
+                    leftCategoryId = categories.get(position - 1).getId();
+                }
+                if (position + 1 < categories.size()) {
+                    rightCategoryId = categories.get(position + 1).getId();
+                }
+                List<Long> listOfCategoriesWhoseFragmentsAreLoaded = new ArrayList<>();
+                listOfCategoriesWhoseFragmentsAreLoaded.add(selectedCategoryId);
+                if (leftCategoryId != null) {
+                    listOfCategoriesWhoseFragmentsAreLoaded.add(leftCategoryId);
+                }
+                if (rightCategoryId != null) {
+                    listOfCategoriesWhoseFragmentsAreLoaded.add(rightCategoryId);
+                }
+                KoleshopSingleton.getSharedInstance().setReloadProductsCategoryIds(listOfCategoriesWhoseFragmentsAreLoaded);
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
             }
         });
+        selectedCategoryId = categories.get(0).getId();
+        menuMultipleActions.setVisibility(View.VISIBLE);
     }
 
     private void failedLoadingCategories() {
         viewFlipper.setVisibility(View.VISIBLE);
         viewFlipper.setDisplayedChild(1);
-        if(viewPager!=null) {
+        if (viewPager != null) {
             viewPager.setVisibility(View.GONE);
         }
     }
@@ -212,6 +252,48 @@ public class InventoryProductActivity extends AppCompatActivity {
                     ((TextView) tabViewChild).setTypeface(typeface, Typeface.NORMAL);
                 }
             }
+        }
+    }
+
+    private void initFabMenu() {
+        menuMultipleActions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addNewProduct();
+            }
+        });
+        menuMultipleActions.setSize(FloatingActionButton.SIZE_NORMAL);
+        menuMultipleActions.setColorNormalResId(R.color.white);
+        menuMultipleActions.setColorPressedResId(R.color.offwhite);
+        menuMultipleActions.setIcon(R.drawable.ic_add_grey600_48dp);
+    }
+
+    private void addNewProduct() {
+        Intent intentAddProduct = new Intent(mContext, ProductActivity.class);
+        EditProduct product = new EditProduct();
+        product.setCategoryId(selectedCategoryId);
+        EditProductVar emptyVar = new EditProductVar();
+        List<EditProductVar> varList = new ArrayList<>();
+        varList.add(emptyVar);
+        product.setEditProductVars(varList);
+        Parcelable productParcel = Parcels.wrap(product);
+        intentAddProduct.putExtra("product", productParcel);
+        startActivity(intentAddProduct);
+    }
+
+    @Override
+    public void hideFloatingActionButton() {
+        if (menuMultipleActions.getVisibility() == View.VISIBLE) {
+            menuMultipleActions.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.hide_to_bottom));
+            menuMultipleActions.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void showFloatingActionButton() {
+        if (menuMultipleActions.getVisibility() == View.GONE) {
+            menuMultipleActions.setVisibility(View.VISIBLE);
+            menuMultipleActions.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.show_from_bottom));
         }
     }
 }

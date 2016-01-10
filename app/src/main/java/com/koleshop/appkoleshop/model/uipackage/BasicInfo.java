@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.model.uipackage;
 /**
  * Created by Gundeep on 29/09/15.
  */
+@Deprecated
 public class BasicInfo {
 
     private String name;

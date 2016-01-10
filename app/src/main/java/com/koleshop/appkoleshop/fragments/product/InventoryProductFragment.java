@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -59,6 +60,11 @@ public class InventoryProductFragment extends Fragment {
     private static final int VF_NO_PRODUCTS = 3;
 
     private boolean myInventory = false;
+
+    private boolean updateCacheOnPause = false;
+    InventoryProductFragmentInteractionListener mListener;
+    private boolean fabHidden;
+    private boolean fabStateKnown;
 
     public InventoryProductFragment() {
         // Required empty public constructor
@@ -116,12 +122,20 @@ public class InventoryProductFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE));
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT));
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_COLLAPSE_EXPANDED_PRODUCT));
-        if(KoleshopSingleton.getSharedInstance().getReloadProductsCategoryId()!=null &&
-                KoleshopSingleton.getSharedInstance().getReloadProductsCategoryId()==categoryId) {
+
+        KoleshopSingleton koleshopSingleton = KoleshopSingleton.getSharedInstance();
+        if(koleshopSingleton.isReloadProducts() && koleshopSingleton.getReloadProductsCategoryIds()!=null) {
             //refresh products list to show changes
-            KoleshopSingleton.getSharedInstance().setReloadProductsCategoryId(0l);
-            refreshProductsInsteadOfReloading = true;
-            fetchProducts();
+            List<Long> refreshProductList = koleshopSingleton.getReloadProductsCategoryIds();
+            if(refreshProductList.contains(categoryId)) {
+                refreshProductList.remove(categoryId);
+                koleshopSingleton.setReloadProductsCategoryIds(refreshProductList);
+                refreshProductsInsteadOfReloading = true;
+                fetchProducts();
+            }
+            if(refreshProductList!=null && refreshProductList.isEmpty()) {
+                koleshopSingleton.setReloadProducts(false);
+            }
         }
     }
 
@@ -155,7 +169,7 @@ public class InventoryProductFragment extends Fragment {
                         ProductSelectionRequest request = Parcels.unwrap(parcelableRequest);
                         if (inventoryProductAdapter != null && inventoryProductAdapter.getPendingRequestsRandomIds() != null && inventoryProductAdapter.getPendingRequestsRandomIds().contains(request.getRandomId())) {
                             inventoryProductAdapter.updateProductSelection(request, true);
-                            inventoryProductAdapter.updateProductsCache();
+                            updateCacheOnPause = true;
                         }
 
                         //update product selection failed
@@ -197,6 +211,20 @@ public class InventoryProductFragment extends Fragment {
         super.onPause();
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.unregisterReceiver(mBroadcastReceiverInventoryProductFragment);
+        if(updateCacheOnPause) {
+            inventoryProductAdapter.updateProductsCache();
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof InventoryProductFragmentInteractionListener) {
+            mListener = (InventoryProductFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement InventoryProductFragmentInteractionListener");
+        }
     }
 
     private void fetchProducts() {
@@ -288,6 +316,40 @@ public class InventoryProductFragment extends Fragment {
                         //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
                     }
                 }));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+                        @Override
+                        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                            int dy = scrollY - oldScrollY;
+                            if(dy > 0 && !fabHidden) {
+                                mListener.hideFloatingActionButton();
+                                fabHidden = true;
+                                fabStateKnown = true;
+                            } else if(dy < 0 && (fabHidden || !fabStateKnown)) {
+                                mListener.showFloatingActionButton();
+                                fabHidden = false;
+                                fabStateKnown = true;
+                            }
+
+                        }
+                    });
+                } else {
+                    recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                        @Override
+                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                            super.onScrolled(recyclerView, dx, dy);
+                            if(dy > 0 && !fabHidden) {
+                                mListener.hideFloatingActionButton();
+                                fabHidden = true;
+                                fabStateKnown = true;
+                            } else if(dy < 0 && (fabHidden || !fabStateKnown)) {
+                                mListener.showFloatingActionButton();
+                                fabHidden = false;
+                                fabStateKnown = true;
+                            }
+                        }
+                    });
+                }
                 //recyclerView.setVerticalScrollBarEnabled(true); //no need of scroll bar...google play doesn't have it
 
 
@@ -308,6 +370,11 @@ public class InventoryProductFragment extends Fragment {
 
     private void couldNotLoadProducts() {
         viewFlipper.setDisplayedChild(VF_LOAD_FAILED);
+    }
+
+    public interface InventoryProductFragmentInteractionListener {
+        void hideFloatingActionButton();
+        void showFloatingActionButton();
     }
 
 }

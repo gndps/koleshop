@@ -1,6 +1,7 @@
 package com.koleshop.appkoleshop.activities;
 
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,6 +35,8 @@ import com.koleshop.appkoleshop.fragments.productedit.ProductVarietyEditFragment
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.fragments.product.InventoryCategoryFragment;
 
+import butterknife.BindString;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.exceptions.RealmException;
@@ -47,11 +50,21 @@ public class HomeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     View content;
     private String TAG = "HomeActivity";
+    private int FRAGMENT_HOME = 0x00;
+    private int FRAGMENT_MY_SHOP = 0x01;
+    private int FRAGMENT_WAREHOUSE = 0x02;
+    private int selectedFragment;
+    private String titleOnBackPressed;
+
+    @BindString(R.string.navigation_drawer_products) String titleMyShop;
+    @BindString(R.string.navigation_drawer_inventory) String titleWareHouse;
+    @BindString(R.string.navigation_drawer_home) String titleHome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(com.koleshop.appkoleshop.R.layout.activity_home);
+        ButterKnife.bind(this);
         content = findViewById(com.koleshop.appkoleshop.R.id.home_coordinatorlayout);
         mContext = this;
         setupToolbar();
@@ -79,7 +92,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         final Toolbar toolbar = (Toolbar) findViewById(com.koleshop.appkoleshop.R.id.app_bar);
-        toolbar.setTitle("Home");
+        toolbar.setTitle(titleHome);
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
         CommonUtils.getActionBarTextView(toolbar).setTypeface(typeface);
 
@@ -102,36 +115,39 @@ public class HomeActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.drawer_home:
-                        getSupportActionBar().setTitle("Home");
+                        getSupportActionBar().setTitle(titleHome);
                         DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container, dummyHomeFragment).commit();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
+                        selectedFragment = FRAGMENT_HOME;
                         return true;
                     case R.id.drawer_products:
                         //Products
-                        getSupportActionBar().setTitle("My Shop");
+                        getSupportActionBar().setTitle(titleMyShop);
                         InventoryCategoryFragment myInventoryCategoryFragment = new InventoryCategoryFragment();
                         Bundle bundleMyInventory = new Bundle();
                         bundleMyInventory.putBoolean("myInventory", true);
                         myInventoryCategoryFragment.setArguments(bundleMyInventory);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, myInventoryCategoryFragment).commit();
+                        getFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, myInventoryCategoryFragment, "frag_my_shop").commit();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
+                        selectedFragment = FRAGMENT_MY_SHOP;
                         return true;
                     case R.id.drawer_inventory:
                         //Drawer inventory
-                        getSupportActionBar().setTitle("Ware House");
+                        getSupportActionBar().setTitle(titleWareHouse);
                         InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, inventoryCategoryFragment).commit();
+                        getFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, inventoryCategoryFragment, "frag_ware_house").commit();
                         //Snackbar.make(content, menuItem.getTitle() + " opened", Snackbar.LENGTH_LONG).show();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
+                        selectedFragment = FRAGMENT_WAREHOUSE;
                         return true;
-                    case R.id.drawer_add_edit:
+                    /*case R.id.drawer_add_edit:
                         //Add/Edit Products
                         //getSupportActionBar().setTitle("Inventory categories");
                         menuItem.setChecked(true);
@@ -139,7 +155,7 @@ public class HomeActivity extends AppCompatActivity {
                         //todo do some stuff
                         Intent addEditProductIntent = new Intent(mContext, AddEditProductActivity.class);
                         startActivity(addEditProductIntent);
-                        return true;
+                        return true;*/
                     case R.id.drawer_settings:
                         //Settings
                         menuItem.setChecked(true);
@@ -214,7 +230,7 @@ public class HomeActivity extends AppCompatActivity {
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_TO_WAREHOUSE));
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_TO_MYSHOP));
+        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP));
 
     }
 
@@ -245,6 +261,30 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(selectedFragment == FRAGMENT_WAREHOUSE) {
+            InventoryCategoryFragment inventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag("frag_my_shop");
+            if(inventoryCategoryFragment.isBackAllowed()) {
+                FragmentManager fragmentManager = getFragmentManager();
+                if (fragmentManager.getBackStackEntryCount() > 0) {
+                    fragmentManager.popBackStack();
+                    if (titleOnBackPressed != null && !titleOnBackPressed.isEmpty()) {
+                        getSupportActionBar().setTitle(titleMyShop);
+                        titleOnBackPressed = "";
+                    }
+                } else {
+                    super.onBackPressed();
+                }
+            }
+        } else if(selectedFragment == FRAGMENT_MY_SHOP) {
+            InventoryCategoryFragment myInventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag("frag_my_shop");
+            if(myInventoryCategoryFragment.isBackAllowed()) {
+                super.onBackPressed();
+            }
+        }
     }
 
     private void initializeBroadcastReceivers() {
@@ -278,20 +318,25 @@ public class HomeActivity extends AppCompatActivity {
                         showRetryLoadingPopup();
                     }
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_TO_WAREHOUSE)) {
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    getSupportActionBar().setTitle("Ware House");
+
                     InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
-                    ft.replace(R.id.fragment_container, inventoryCategoryFragment);
+                    Bundle bundleMyInventory = new Bundle();
+                    bundleMyInventory.putBoolean("switchedFromMyShop", true);
+                    inventoryCategoryFragment.setArguments(bundleMyInventory);
+
+                    getSupportActionBar().setTitle(titleWareHouse);
+                    titleOnBackPressed = titleMyShop;
+                    selectedFragment = FRAGMENT_WAREHOUSE;
+
+                    android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.setCustomAnimations(
+                            R.animator.card_flip_right_in, R.animator.card_flip_right_out,
+                            R.animator.card_flip_left_in, R.animator.card_flip_left_out);
+                    ft.replace(R.id.fragment_container, inventoryCategoryFragment, "frag_ware_house");
                     ft.addToBackStack(null);
                     ft.commit();
-                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_TO_MYSHOP)) {
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    getSupportActionBar().setTitle("My Shop");
-                    InventoryCategoryFragment myInventoryCategoryFragment = new InventoryCategoryFragment();
-                    Bundle bundleMyInventory = new Bundle();
-                    bundleMyInventory.putBoolean("myInventory", true);
-                    myInventoryCategoryFragment.setArguments(bundleMyInventory);
-                    ft.replace(R.id.fragment_container, myInventoryCategoryFragment).commit();
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP)) {
+                    onBackPressed();
                 }
             }
         };

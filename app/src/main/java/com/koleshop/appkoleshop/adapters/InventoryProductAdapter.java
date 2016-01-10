@@ -16,6 +16,7 @@ import com.koleshop.appkoleshop.activities.ProductEditActivity;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.KoleCacheUtil;
+import com.koleshop.appkoleshop.common.util.RealmUtils;
 import com.koleshop.appkoleshop.extensions.InventoryProductClickListener;
 import com.koleshop.appkoleshop.model.ProductSelectionRequest;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
@@ -130,7 +131,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         holder.setClickListener(new InventoryProductClickListener() {
             @Override
             public void onItemClick(View v) {
-                if(myInventory) {
+                if (myInventory) {
                     //open product edit screen
                     //Toast.makeText(context, "Product Edit screen is on its way!!", Toast.LENGTH_SHORT).show();
                     //@deprecated Intent editProductIntent = new Intent(context, ProductEditActivity.class);
@@ -202,7 +203,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         int productsSelected = ProductUtil.getProductSelectionCount(currentProduct);
         ArrayList<Long> productSelection = new ArrayList<>();
         ProductSelectionRequest request = new ProductSelectionRequest();
-        if(varietyId==0) {
+        if (varietyId == 0) {
             //all varieties selected
             for (InventoryProductVariety ipv : currentProduct.getVarieties()) {
                 productSelection.add(ipv.getId());
@@ -254,14 +255,20 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
 
     public void updateProductsCache() {
         List<InventoryProduct> products = new ArrayList<>();
-        for(LineItem lineItem : mItems) {
-            if(!lineItem.isHeader) {
+        for (LineItem lineItem : mItems) {
+            if (!lineItem.isHeader) {
                 products.add(lineItem.product);
             }
         }
         //can only be called from my inventory = false
-        KoleCacheUtil.cacheProductsList(products, categoryId, false, false);
+        if (products != null) {
+            KoleCacheUtil.cacheProductsList(products, categoryId, false, false);
+        } else {
+            KoleCacheUtil.invalidateProductsCache(categoryId, false);
+        }
         KoleCacheUtil.invalidateProductsCache(categoryId, true);
+        KoleCacheUtil.invalidateInventoryCategories(true);
+        KoleCacheUtil.invalidateInventorySubcategories(RealmUtils.getParentCategoryIdForCategoryId(categoryId), true);
     }
 
     private static class LineItem {
@@ -283,7 +290,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
             this.sectionFirstPosition = sectionFirstPosition;
             this.product = product;
             varietyProgress = new HashMap<>();
-            if(product!=null) {
+            if (product != null) {
                 List<InventoryProductVariety> listipv = product.getVarieties();
                 for (InventoryProductVariety ipv : listipv) {
                     varietyProgress.put(ipv.getId(), false);
@@ -300,11 +307,11 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         int updatePosition = request.getPositionOfUpdate();
 
         LineItem lineItem = mItems.get(updatePosition);
-        if(lineItem==null) {
+        if (lineItem == null) {
             Toast.makeText(context, "line item is null at position " + updatePosition, Toast.LENGTH_SHORT).show();
-        } else if(lineItem.product==null) {
+        } else if (lineItem.product == null) {
             Toast.makeText(context, "product is null at position " + updatePosition, Toast.LENGTH_SHORT).show();
-        } else if(lineItem.product.getVarieties() == null) {
+        } else if (lineItem.product.getVarieties() == null) {
             Toast.makeText(context, "varieties are null at position " + updatePosition, Toast.LENGTH_SHORT).show();
         } else {
             for (InventoryProductVariety ipv : lineItem.product.getVarieties()) {
@@ -318,7 +325,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         }
         notifyItemChanged(updatePosition);
 
-        if(!success) {
+        if (!success) {
             //todo make a snack bar with product and variety name
         }
 

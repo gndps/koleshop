@@ -37,7 +37,8 @@ public class KoleshopSingleton {
     private DualCache<byte[]> dualCacheByteArray;
     private DualCache<Date> dualCacheDate;
     private boolean reloadSubcategories;
-    private Long reloadProductsCategoryId;
+    private List<Long> reloadProductsCategoryIds;
+    private boolean reloadProducts;
 
     protected KoleshopSingleton() {
 
@@ -250,11 +251,19 @@ public class KoleshopSingleton {
         this.reloadSubcategories = reloadSubcategories;
     }
 
-    public Long getReloadProductsCategoryId() {
-        return reloadProductsCategoryId;
+    public List<Long> getReloadProductsCategoryIds() {
+        return reloadProductsCategoryIds;
     }
 
-    public void setReloadProductsCategoryId(Long reloadProductsCategoryId) {
-        this.reloadProductsCategoryId = reloadProductsCategoryId;
+    public void setReloadProductsCategoryIds(List<Long> reloadProductsCategoryIds) {
+        this.reloadProductsCategoryIds = reloadProductsCategoryIds;
+    }
+
+    public boolean isReloadProducts() {
+        return reloadProducts;
+    }
+
+    public void setReloadProducts(boolean reloadProducts) {
+        this.reloadProducts = reloadProducts;
     }
 }

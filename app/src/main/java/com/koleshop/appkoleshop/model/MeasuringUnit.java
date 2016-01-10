@@ -6,6 +6,7 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Gundeep on 10/07/15.
  */
+@Deprecated
 public class MeasuringUnit extends RealmObject {
 
 

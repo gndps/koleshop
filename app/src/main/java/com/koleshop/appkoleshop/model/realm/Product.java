@@ -12,6 +12,7 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Gundeep on 05/09/15.
  */
+@Deprecated
 @Parcel(value = Parcel.Serialization.BEAN, analyze = { Product.class })
 public class Product extends RealmObject{
 

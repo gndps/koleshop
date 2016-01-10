@@ -69,7 +69,7 @@ public class ProductService {
                     preparedStatement.setString(2, productVariety.getQuantity());
                     preparedStatement.setFloat(3, productVariety.getPrice());
                     preparedStatement.setString(4, productVariety.getImageUrl());
-                    preparedStatement.setInt(5, productVariety.getLimitedStock());
+                    preparedStatement.setBoolean(5, productVariety.isLimitedStock());
                     preparedStatement.executeUpdate();
                     ResultSet rs = preparedStatement.getGeneratedKeys();
                     Long generatedProductVarietyId = 0L;
@@ -158,16 +158,13 @@ public class ProductService {
                     if (productVariety.getId()!=null && productVariety.getId() > 0) {
                         //update the product variety
                         productVarietyId = productVariety.getId();
-                        if(!productVariety.isValid()) {
-                            productVariety.setQuantity(productVariety.getQuantity() + "_deleted_");
-                        }
                         query = "update ProductVariety " +
                                 " set quantity=?, price=?, image=?, limited_stock=?, valid=? where id=?";
                         preparedStatement = dbConnection.prepareStatement(query);
                         preparedStatement.setString(1, productVariety.getQuantity());
                         preparedStatement.setFloat(2, productVariety.getPrice());
                         preparedStatement.setString(3, productVariety.getImageUrl());
-                        preparedStatement.setInt(4, productVariety.getLimitedStock());
+                        preparedStatement.setBoolean(4, productVariety.isLimitedStock());
                         preparedStatement.setBoolean(5, productVariety.isValid());
                         preparedStatement.setLong(6, productVarietyId);
                         int update = preparedStatement.executeUpdate();
@@ -176,26 +173,55 @@ public class ProductService {
                             break;
                         }
                     } else {
-                        //insert product variety
-                        query = "insert into ProductVariety (product_id, quantity, price, image, limited_stock, valid) " +
-                                "values (?,?,?,?,?,'1');";
-                        preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                        preparedStatement.setLong(1, product.getId());
-                        preparedStatement.setString(2, productVariety.getQuantity());
-                        preparedStatement.setFloat(3, productVariety.getPrice());
-                        preparedStatement.setString(4, productVariety.getImageUrl());
-                        preparedStatement.setInt(5, productVariety.getLimitedStock());
-                        preparedStatement.executeUpdate();
-                        ResultSet rs = preparedStatement.getGeneratedKeys();
 
-                        if (rs.next()) {
+                        //check if this a similar deleted product variety is already there in the db...if yes, then update, else add new variety
+                        query = "select pv.id from ProductVariety pv " +
+                                "join Product p on p.id = pv.product_id and p.user_id=? and p.id = ? " +
+                                "where pv.quantity = ? and pv.valid=0";
+                        preparedStatement = dbConnection.prepareStatement(query);
+                        preparedStatement.setLong(1, userId);
+                        preparedStatement.setLong(2, product.getId());
+                        preparedStatement.setString(3, productVariety.getQuantity());
+                        ResultSet rs = preparedStatement.executeQuery();
+                        if(rs!=null && rs.next()) {
                             productVarietyId = rs.getLong(1);
-                        }
-                        if(productVarietyId > 0l) {
-                            productVariety.setId(productVarietyId);
+                            if(productVarietyId > 0) {
+                                query = "update ProductVariety " +
+                                        " set quantity=?, price=?, image=?, limited_stock=?, valid=1 where id=?";
+                                preparedStatement = dbConnection.prepareStatement(query);
+                                preparedStatement.setString(1, productVariety.getQuantity());
+                                preparedStatement.setFloat(2, productVariety.getPrice());
+                                preparedStatement.setString(3, productVariety.getImageUrl());
+                                preparedStatement.setBoolean(4, productVariety.isLimitedStock());
+                                preparedStatement.setLong(5, productVarietyId);
+                                int update = preparedStatement.executeUpdate();
+                                if (update <= 0) {
+                                    rollbackTransaction = true;
+                                    break;
+                                }
+                            }
                         } else {
-                            rollbackTransaction = true;
-                            break;
+                            //insert product variety
+                            query = "insert into ProductVariety (product_id, quantity, price, image, limited_stock, valid) " +
+                                    "values (?,?,?,?,?,'1');";
+                            preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                            preparedStatement.setLong(1, product.getId());
+                            preparedStatement.setString(2, productVariety.getQuantity());
+                            preparedStatement.setFloat(3, productVariety.getPrice());
+                            preparedStatement.setString(4, productVariety.getImageUrl());
+                            preparedStatement.setBoolean(5, productVariety.isLimitedStock());
+                            preparedStatement.executeUpdate();
+                            rs = preparedStatement.getGeneratedKeys();
+
+                            if (rs.next()) {
+                                productVarietyId = rs.getLong(1);
+                            }
+                            if (productVarietyId > 0l) {
+                                productVariety.setId(productVarietyId);
+                            } else {
+                                rollbackTransaction = true;
+                                break;
+                            }
                         }
                     }
                 }
