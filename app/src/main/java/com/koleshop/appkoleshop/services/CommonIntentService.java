@@ -615,7 +615,7 @@ public class CommonIntentService extends IntentService {
 
             //following prefs are set because of a case...when product_variety_1 image is uploading...but ProductActivity
             //has stopped listening to broadcasts because the user has opened camera to capture product_variety_2 image
-            NetworkUtils.setRequestStatus(context, tag, Constants.REQUEST_STATUS_PROCESSING);
+            NetworkUtils.setRequestStatusProcessing(context, tag);
 
             int count = 0;
             int maxTries = 3;
@@ -640,7 +640,7 @@ public class CommonIntentService extends IntentService {
             intent.putExtra("tag", tag);
             intent.putExtra("filename", filename);
             //the following prefs will be deleted if this broadcast is received by the product_edit_activity
-            NetworkUtils.setRequestStatus(context, tag, Constants.REQUEST_STATUS_FAILED);
+            NetworkUtils.setRequestStatusFailed(context, tag);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         } else {
             //image upload success
@@ -648,7 +648,7 @@ public class CommonIntentService extends IntentService {
             intent.putExtra("tag", tag);
             intent.putExtra("filename", filename);
             //the following prefs will be deleted if this broadcast is received by the product_edit_activity
-            NetworkUtils.setRequestStatus(context, tag, Constants.REQUEST_STATUS_SUCCESS);
+            NetworkUtils.setRequestStatusSuccess(context, tag);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }

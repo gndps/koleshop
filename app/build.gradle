@@ -66,6 +66,11 @@ dependencies {
         exclude group: 'com.rengwuxian.materialedittext', module: 'library'
     }
     compile project(path: ':backend', configuration: 'android-endpoints')
+    compile('com.github.ganfra:material-spinner:1.1.1') {
+        exclude group: 'com.nineoldandroids', module: 'library'
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+    }
+    //compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.google.code.gson:gson:2.4'
@@ -74,6 +79,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-identity:8.3.0'
     compile 'com.google.android.gms:play-services-gcm:8.3.0'
     compile 'com.google.android.gms:play-services-maps:8.3.0'
+    compile 'com.google.android.gms:play-services-location:8.3.0'
     compile 'org.lucasr.dspec:dspec:0.1.1'
     compile 'com.yqritc:recyclerview-flexibledivider:1.1.0'
     compile 'com.github.traex.rippleeffect:library:1.2.3'
@@ -81,10 +87,6 @@ dependencies {
     compile 'io.realm:realm-android:0.85.1'
     compile 'me.grantland:autofittextview:0.2.+'
     compile 'com.android.support:design:23.1.1'
-    compile ('com.github.ganfra:material-spinner:1.1.1'){
-        exclude group: 'com.nineoldandroids', module: 'library'
-        exclude group: 'com.android.support', module: 'appcompat-v7'
-    }
     compile 'org.parceler:parceler-api:1.0.3'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
@@ -93,6 +95,5 @@ dependencies {
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.android.support:support-v4:23.1.1'
-    //compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.getbase:floatingactionbutton:1.10.1'
 }

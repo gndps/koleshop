@@ -96,6 +96,8 @@ public class Constants {
     public static final String KEY_USER_ID = "pref_user_id";
     public static final String KEY_SESSION_ID = "pref_session_id";
     public static final String KEY_GOOGLE_API_TOKEN = "pref_google_api_token";
+    public static final String KEY_SELLER_SETTINGS = "pref_seller_settings";
+    public static final String KEY_SELLER_SETTINGS_MILLIS = "pref_seller_settings_millis";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";
@@ -133,10 +135,5 @@ public class Constants {
 
     //Symbols
     public static final String INDIAN_RUPEE_SYMBOL = "\u20B9";
-
-    //Request Status
-    public static final String REQUEST_STATUS_PROCESSING = "request_processing" ;
-    public static final String REQUEST_STATUS_SUCCESS = "request_success";
-    public static final String REQUEST_STATUS_FAILED = "reqeust_failed";
 
 }

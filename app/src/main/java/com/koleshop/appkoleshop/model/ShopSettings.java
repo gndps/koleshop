@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 /**
  * Created by gundeepsingh on 29/08/14.
  */
+@Deprecated
 public class ShopSettings {
 
     private String username;

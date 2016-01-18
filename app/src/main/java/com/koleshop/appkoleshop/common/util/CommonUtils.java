@@ -13,15 +13,19 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.appkoleshop.common.constant.Constants;
 
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +36,8 @@ import io.realm.RealmConfiguration;
  */
 
 public class CommonUtils {
+
+    private static final String TAG = "CommonUtils";
 
     static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String EMAIL_PATTERN =
@@ -171,6 +177,41 @@ public class CommonUtils {
             return RealPathUtil.getRealPathFromURI_API11to18(context, uri);
         else
             return RealPathUtil.getRealPathFromURI_API19(context, uri);
+    }
+
+    public static String getPriceStringFromFloat(Float priceFloat) {
+        if(priceFloat!=null) {
+            String formattedString = String.format("%.02f", priceFloat);
+            if(formattedString.endsWith(".00")) {
+                formattedString = String.format("%.0f", priceFloat);
+            }
+            return ""+formattedString;
+        } else {
+            return "";
+        }
+    }
+
+    public static String getSettingsTimeFromDate(Date date) {
+        if(date!=null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+            int hour = cal.get(Calendar.HOUR_OF_DAY);
+            int minute = cal.get(Calendar.MINUTE);
+
+            Calendar cal2 = Calendar.getInstance();
+            cal2.set(2015, 11, 31, hour, minute, 0);
+            return new SimpleDateFormat("hh:mm a").format(cal2.getTime());
+        } else {
+            return "N/A";
+        }
+    }
+
+    public static Date fixTheTimeForSettings(int hours, int minutes) {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(2015, 11, 31, hours, minutes, 0);
+        Log.d(TAG, cal.getTime().toString());
+        return cal.getTime();
     }
 
 }

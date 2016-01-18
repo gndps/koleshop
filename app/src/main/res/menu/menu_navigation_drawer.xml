@@ -6,6 +6,7 @@
         <item
             android:id="@+id/drawer_home"
             android:checked="true"
+            android:visible="false"
             android:icon="@drawable/ic_home_grey600_24dp"
             android:title="@string/navigation_drawer_home" />
 
@@ -25,6 +26,21 @@
             android:icon="@drawable/ic_store_grey600_24dp"
             android:title="@string/navigation_drawer_inventory" />
 
+        <item
+            android:id="@+id/drawer_orders"
+            android:icon="@drawable/ic_assignment_grey600_24dp"
+            android:title="@string/navigation_drawer_orders" />
+
+        <item
+            android:id="@+id/drawer_sales"
+            android:icon="@drawable/ic_graph"
+            android:title="@string/navigation_drawer_sales" />
+
+        <item
+            android:id="@+id/drawer_out_of_stock"
+            android:icon="@drawable/ic_not_available"
+            android:title="@string/navigation_drawer_out_of_stock" />
+
         <!--item
             android:id="@+id/drawer_test"
             android:icon="@drawable/ic_login"
@@ -32,25 +48,40 @@
 
     </group>
 
-    <item
-        android:id="@+id/drawer_section"
-        android:title="@string/navigation_drawer_settings">
-        <menu>
-            <item
-                android:id="@+id/drawer_settings"
-                android:icon="@drawable/ic_settings"
-                android:title="@string/navigation_drawer_settings" />
-        </menu>
-    </item>
+    <group
+        android:id="@+id/shopkeeper_drawer_settings"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/drawer_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/navigation_drawer_settings" />
 
-    <item
-        android:id="@+id/drawer_login"
-        android:icon="@drawable/ic_login_lock"
-        android:title="@string/navigation_drawer_login" />
+        <item
+            android:id="@+id/drawer_login"
+            android:icon="@drawable/ic_login_lock"
+            android:title="@string/navigation_drawer_login" />
 
-    <item
-        android:id="@+id/drawer_logout"
-        android:icon="@drawable/ic_logout"
-        android:title="@string/navigation_drawer_logout" />
+        <item
+            android:id="@+id/drawer_logout"
+            android:icon="@drawable/ic_logout"
+            android:title="@string/navigation_drawer_logout" />
+
+    </group>
+
+    <group android:id="@+id/shopkeeper_drawer_help"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/drawer_help"
+            android:menuCategory="secondary"
+            android:title="@string/navigation_drawer_help" />
+    </group>
+
+    <group android:id="@+id/shopkeeper_drawer_legal"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/drawer_legal"
+            android:menuCategory="secondary"
+            android:title="@string/navigation_drawer_legal" />
+    </group>
 
 </menu>

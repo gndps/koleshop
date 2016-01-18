@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.settings.SellerSettingsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/app_bar"
+            layout="@layout/view_app_bar"></include>
+
+        <ViewFlipper
+            android:id="@+id/vf_seller_settings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!--dummy loading view-->
+            <ProgressBar
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center" />
+
+            <!--error view-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/image_cloud_disconnect" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Can't load settings"
+                    android:textColor="@color/default_background_font" />
+
+                <Button
+                    android:layout_width="120dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="sans-serif-light"
+                    android:onClick="reloadSettings"
+                    android:text="@string/string_retry" />
+
+            </LinearLayout>
+
+            <!--the actual settings view-->
+            <ScrollView
+                android:id="@+id/sv_seller_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <FrameLayout
+                    android:id="@+id/fl_settings_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <fragment
+                        android:id="@+id/frag_shop_settings"
+                        android:name="com.koleshop.appkoleshop.fragments.settings.ShopSettingsFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <fragment
+                        android:id="@+id/frag_delivery_settings"
+                        android:name="com.koleshop.appkoleshop.fragments.settings.DeliverySettingsFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </FrameLayout>
+
+            </ScrollView>
+
+        </ViewFlipper>
+
+    </LinearLayout>
+
+</RelativeLayout>

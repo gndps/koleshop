@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:id="@+id/fl_main_action_button"
+    android:background="@color/accent">
+
+    <Button
+        android:id="@+id/reusable_action_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="28sp"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:text="DONE"
+        android:onClick="mainActionButtonClicked"/>
+
+    <ImageView
+        android:layout_marginRight="16dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right|center_vertical"
+        android:src="@drawable/ic_arrow_forward_white_48dp"/>
+
+</FrameLayout>

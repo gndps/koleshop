@@ -301,9 +301,9 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
         if (variety.isShowImageProcessing()) {
             String status = NetworkUtils.getRequestStatus(mContext, variety.getTag());
             switch (status) {
-                case Constants.REQUEST_STATUS_PROCESSING:
+                case NetworkUtils.REQUEST_STATUS_PROCESSING:
                     break;
-                case Constants.REQUEST_STATUS_SUCCESS:
+                case NetworkUtils.REQUEST_STATUS_SUCCESS:
                     variety.setShowImageProcessing(false);
                     String filename = variety.getImageFilename();
                     if (filename != null && !filename.isEmpty()) {
@@ -313,7 +313,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                         Log.d(TAG, "some problem while getting filename for tag");
                     }
                     break;
-                case Constants.REQUEST_STATUS_FAILED:
+                case NetworkUtils.REQUEST_STATUS_FAILED:
                     variety.setShowImageProcessing(false);
                     variety.setImagePath(null);
                     break;

@@ -4,13 +4,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.koleshop.appkoleshop.common.constant.Constants;
+import com.koleshop.appkoleshop.common.util.PreferenceUtils;
 
 public class GcmBroadcastReceiver extends BroadcastReceiver {
 
     //gcm keys
     public static final String GCM_NOTI_USER_INVENTORY_CREATED = "gcm_noti_user_inventory_created";
+    public static final String GCM_NOTI_DELETE_OLD_SETTINGS_CACHE = "gcm_noti_delete_old_settings_cache";
 
     private static String TAG = "GCM_BROADCAST_RECEIVER";
 
@@ -45,6 +48,20 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
                 localBroadcastIntent.setAction(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED);
                 lbm.sendBroadcast(localBroadcastIntent);
                 break;
+            case GCM_NOTI_DELETE_OLD_SETTINGS_CACHE:
+                //delete the old seller settings
+                Long updatedSettingsMillis = intent.getLongExtra("millis", 0);
+                String savedSettingsMillisString = PreferenceUtils.getPreferences(context, Constants.KEY_SELLER_SETTINGS_MILLIS);
+                if(savedSettingsMillisString!=null && !savedSettingsMillisString.isEmpty()) {
+                    try {
+                        Long savedSettingsMillis = Long.parseLong(savedSettingsMillisString);
+                        if(updatedSettingsMillis>savedSettingsMillis) {
+                            PreferenceUtils.setPreferences(context, Constants.KEY_SELLER_SETTINGS, "");
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "problem in parsing the saved settings millis");
+                    }
+                }
         }
 
         /*String test = intent.getStringExtra("data");

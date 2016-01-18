@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.koleshop.appkoleshop.activities.seller.HomeActivity;
+
 
 public class GetStartedActivity extends Activity {
 

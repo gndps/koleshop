@@ -1,26 +1,52 @@
 package com.koleshop.koleshopbackend.db.models;
 
 /**
- * Created by gundeepsingh on 29/08/14.
+ * Created by Gundeep on 10/01/16.
  */
 public class Address {
 
-    private int id;
-    private String name;
-    private int pincode;
-    private String address;
-    private String landmark;
-    private int cityId;
-    private int stateId;
-    private int countryId;
-    private String phone;
+    Long id;
+    Long userId;
+    String name;
+    String address;
+    int addressType;
+    Long phoneNumber;
+    int countryCode;
+    String nickname;
+    Double gpsLong;
+    Double gpsLat;
 
-    public int getId() {
+    public Address() {
+
+    }
+
+    public Address(Long id, Long userId, String name, String address, int addressType, Long phoneNumber, int countryCode, String nickname, Double gpsLong, Double gpsLat) {
+        this.id = id;
+        this.userId = userId;
+        this.name = name;
+        this.address = address;
+        this.addressType = addressType;
+        this.phoneNumber = phoneNumber;
+        this.countryCode = countryCode;
+        this.nickname = nickname;
+        this.gpsLong = gpsLong;
+        this.gpsLat = gpsLat;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -31,14 +57,6 @@ public class Address {
         this.name = name;
     }
 
-    public int getPincode() {
-        return pincode;
-    }
-
-    public void setPincode(int pincode) {
-        this.pincode = pincode;
-    }
-
     public String getAddress() {
         return address;
     }
@@ -47,51 +65,51 @@ public class Address {
         this.address = address;
     }
 
-    public String getLandmark() {
-        return landmark;
+    public int getAddressType() {
+        return addressType;
     }
 
-    public void setLandmark(String landmark) {
-        this.landmark = landmark;
+    public void setAddressType(int addressType) {
+        this.addressType = addressType;
     }
 
-    public int getCityId() {
-        return cityId;
+    public Long getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setCityId(int cityId) {
-        this.cityId = cityId;
+    public void setPhoneNumber(Long phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public int getStateId() {
-        return stateId;
+    public int getCountryCode() {
+        return countryCode;
     }
 
-    public void setStateId(int stateId) {
-        this.stateId = stateId;
+    public void setCountryCode(int countryCode) {
+        this.countryCode = countryCode;
     }
 
-    public int getCountryId() {
-        return countryId;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setCountryId(int countryId) {
-        this.countryId = countryId;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
-    public String getPhone() {
-        return phone;
+    public Double getGpsLong() {
+        return gpsLong;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setGpsLong(Double gpsLong) {
+        this.gpsLong = gpsLong;
     }
 
-    @Override
-    public String toString() {
-        return "Address [id=" + id + ", name=" + name + ", pincode=" + pincode +
-                ", address=" + address + ", landmark=" + landmark + ", cityId=" + cityId +
-                ", stateId=" + stateId + ", countryId=" + countryId + ", phone=" + phone + "]";
+    public Double getGpsLat() {
+        return gpsLat;
     }
 
+    public void setGpsLat(Double gpsLat) {
+        this.gpsLat = gpsLat;
+    }
 }

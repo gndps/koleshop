@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="172dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/drawer_header_pattern"
     android:orientation="vertical"
     android:paddingTop="@dimen/status_bar_height"
@@ -15,10 +15,10 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="@dimen/spacing_large"
-        app:civ_border_width="1dp"
-        app:civ_border_color="@color/holo_light"
         android:elevation="0dp"
-        tools:src="@drawable/ic_user_profile"/>
+        app:civ_border_color="@color/holo_light"
+        app:civ_border_width="1dp"
+        tools:src="@drawable/ic_user_profile" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -28,17 +28,18 @@
         android:layout_marginStart="@dimen/spacing_large"
         android:fontFamily="sans-serif-light"
         android:text="My store name"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+
     <TextView
         android:id="@+id/email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/spacing_large"
         android:layout_marginLeft="@dimen/spacing_large"
         android:layout_marginStart="@dimen/spacing_large"
-        android:layout_marginBottom="@dimen/spacing_large"
         android:fontFamily="sans-serif-light"
         android:text="8585945716"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
 </RelativeLayout>

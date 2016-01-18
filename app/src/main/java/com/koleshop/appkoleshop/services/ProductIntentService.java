@@ -80,7 +80,7 @@ public class ProductIntentService extends IntentService {
         productEndpoint = builder.build();
         KoleResponse result = null;
 
-        NetworkUtils.setRequestStatus(context, requestTag, Constants.REQUEST_STATUS_PROCESSING);
+        NetworkUtils.setRequestStatusProcessing(context, requestTag);
 
         try {
             Long userId = PreferenceUtils.getUserId(context);
@@ -106,13 +106,13 @@ public class ProductIntentService extends IntentService {
             Log.e(TAG, "product save failed");
             if (result != null && result.getData() != null) Log.e(TAG, (String) result.getData());
 
-            NetworkUtils.setRequestStatus(context, requestTag, Constants.REQUEST_STATUS_FAILED);
+            NetworkUtils.setRequestStatusFailed(context, requestTag);
 
             Intent intent = new Intent(Constants.ACTION_PRODUCT_SAVE_FAILED);
             intent.putExtra("requestTag", requestTag);
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         } else {
-            NetworkUtils.setRequestStatus(context, requestTag, Constants.REQUEST_STATUS_SUCCESS);
+            NetworkUtils.setRequestStatusSuccess(context, requestTag);
 
             //save result in shared prefs
             Gson gson = new Gson();

@@ -193,7 +193,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_save_product_changes:
+            case R.id.action_save_settings:
                 if (validateProductBeforeSaving()) {
                     saveProduct();
                 }
@@ -213,7 +213,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
             //show dialog to save/discard changes
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mContext);
             builder.setMessage("Product modified. Save changes?")
-                    .setPositiveButton(R.string.product_save_changes, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.save_changes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             savedUsingBackButton = true;
                             if (validateProductBeforeSaving()) {
@@ -221,13 +221,13 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
                             }
                         }
                     })
-                    .setNegativeButton(R.string.product_dont_save_changes, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.dont_save_changes, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ProductActivity.super.onBackPressed();
                         }
                     })
-                    .setNeutralButton(R.string.product_save_cancel, null);
+                    .setNeutralButton(R.string.save_cancel, null);
             builder.create().show();
         } else {
             //remove network request status from preferences
@@ -305,13 +305,13 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         if (savingProduct) {
             String requestStatus = NetworkUtils.getRequestStatus(mContext, productSaveRequestTag);
             switch (requestStatus) {
-                case Constants.REQUEST_STATUS_PROCESSING:
+                case NetworkUtils.REQUEST_STATUS_PROCESSING:
                     processingAnimation(true);
                     break;
-                case Constants.REQUEST_STATUS_SUCCESS:
+                case NetworkUtils.REQUEST_STATUS_SUCCESS:
                     saveProductSuccess();
                     break;
-                case Constants.REQUEST_STATUS_FAILED:
+                case NetworkUtils.REQUEST_STATUS_FAILED:
                     saveProductFailed();
                     break;
                 default:
@@ -580,14 +580,23 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         }
 
         boolean atleastOneVarietyExist = false;
+        boolean atLeastOneVarietyNonEmpty = false;
         for (EditProductVar var : product.getEditProductVars()) {
             if (var.isValid()) {
                 atleastOneVarietyExist = true;
+                if(var.getQuantity()!=null && !var.getQuantity().isEmpty()) {
+                    atLeastOneVarietyNonEmpty = true;
+                }
             }
         }
 
         if (!atleastOneVarietyExist) {
             Snackbar.make(fab, "Please add a variety using the plus button", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+            return false;
+        }
+
+        if (!atLeastOneVarietyNonEmpty) {
+            Snackbar.make(fab, "Variety quantity should not be empty", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
             return false;
         }
 

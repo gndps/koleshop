@@ -76,15 +76,8 @@
             android:name=".activities.GetStartedActivity"
             android:label="@string/title_activity_get_started" />
         <activity
-            android:name=".activities.ShopSettingsActivity"
-            android:label="@string/title_activity_shop_settings" />
-        <activity
             android:name=".activities.LocationActivity"
             android:label="@string/title_activity_location" />
-        <!-- Google Maps API Key -->
-        <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyB8g4pxXoNrQcbR7Rp97C6bOtzHIVRvWag" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -129,7 +122,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".activities.HomeActivity"
+            android:name=".activities.seller.HomeActivity"
             android:label="@string/title_activity_home" />
 
         <service
@@ -162,7 +155,28 @@
 
         <service
             android:name=".services.ProductIntentService"
-            android:exported="false"></service>
+            android:exported="false" />
+        <service
+            android:name=".services.SettingsIntentService"
+            android:exported="false" />
+
+        <activity android:name=".activities.buyer.HomeActivity" />
+        <activity android:name=".activities.settings.SellerSettingsActivity" />
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name=".activities.settings.MapsActivity"
+            android:label="@string/title_activity_maps"></activity>
     </application>
 
 </manifest>

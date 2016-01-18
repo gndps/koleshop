@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -25,6 +24,7 @@ import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.activities.seller.HomeActivity;
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.util.CommonUtils;
 import com.koleshop.appkoleshop.common.util.PreferenceUtils;
@@ -109,6 +109,14 @@ public class InitialActivity extends AppCompatActivity {
 
         if (checkPlayServices()) {
             if (!TEST_MODE) {
+                new AsyncTask<Void, Void, Void>(
+                ) {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        PreferenceUtils.deleteNetworkRequestStatusPreferences(mContext);
+                        return null;
+                    }
+                }.execute();
                 loadUserProfileIfLoggedIn();
             } else {
                 Intent intent = new Intent(getApplicationContext(), TEST_CLASS);

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ThreadFactory;
@@ -48,6 +49,10 @@ public class SessionService {
                         hashmap.put("mobiles", String.valueOf(phone));
                         hashmap.put("message", otp + " is your one time code for koleshop");
                         gatewayUrl = Constants.SMS_GATEWAY_URL_2;
+                    } else if (gatewayNumber == 3) {
+                        hashmap.put("numbers", String.valueOf(phone));
+                        hashmap.put("message", otp + " is your one time code for koleshop");
+                        gatewayUrl = Constants.SMS_GATEWAY_URL_3;
                     }
                     RestCallResponse otpRequestResponse = RestClient.sendGet(gatewayUrl, hashmap);
                     if (otpRequestResponse.getStatus().equalsIgnoreCase("success")) {
@@ -108,6 +113,7 @@ public class SessionService {
                     restCallResponse.setReason(null);
                     validateSession(sessionId);
                     if(sessionType == Constants.USER_SESSION_TYPE_SELLER) {
+                        createAddressAndShopSettingsIfNotAlreadyExists(userId);
                         createUserInventoryFromGlobalInventory(userId);
                     }
                 } else {
@@ -128,6 +134,61 @@ public class SessionService {
             restCallResponse.setData(null);
         }
         return restCallResponse;
+    }
+
+    private void createAddressAndShopSettingsIfNotAlreadyExists(Long userId) {
+        Connection dbConnection;
+        PreparedStatement preparedStatement;
+        Long addressId = null;
+        boolean alreadyExists = false;
+
+        String query = "select id from Address where user_id=? and address_type='" + Constants.ADDRESS_TYPE_SELLER + "'";
+
+        try {
+            //check if address already exists
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setLong(1, userId);
+            System.out.println(query);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs != null && rs.first()) {
+                addressId = rs.getLong(1);
+                if(addressId!=null && addressId>0) {
+                    alreadyExists = true;
+                } else {
+                    //insert shop address, if not already exists
+                    query = "insert into Address(user_id, address_type) values (?,'" + Constants.ADDRESS_TYPE_SELLER + "')";
+                    preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                    preparedStatement.setLong(1, userId);
+                    System.out.println(query);
+                    int executed = preparedStatement.executeUpdate();
+                    ResultSet rsSession = preparedStatement.getGeneratedKeys();
+                    if (executed > 0 && rsSession != null && rsSession.next()) {
+                        addressId = rsSession.getLong(1);
+                    } else {
+                        logger.severe("address not generated for userId " + userId);
+                    }
+                }
+            }
+
+            if(!alreadyExists && addressId > 0) {
+                //create seller settings
+                query = "insert into SellerSettings(user_id, address_id) values (?,?)";
+                preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setLong(1, userId);
+                System.out.println(query);
+                int executed = preparedStatement.executeUpdate();
+                ResultSet rsSession = preparedStatement.getGeneratedKeys();
+                if (executed > 0 && rsSession != null && rsSession.next()) {
+                    rsSession.getLong(1);
+                } else {
+                    logger.severe("settings not generated for userId " + userId);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
     }
 
     private void createUserInventoryFromGlobalInventory(final Long userId) {

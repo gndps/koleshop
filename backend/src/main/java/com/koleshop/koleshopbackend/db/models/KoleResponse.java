@@ -50,4 +50,18 @@ public class KoleResponse {
     public void setData(Object data) {
         this.data = data;
     }
+
+    public static KoleResponse failedResponse() {
+        KoleResponse kr = new KoleResponse();
+        kr.setSuccess(false);
+        kr.setData(null);
+        return kr;
+    }
+
+    public static KoleResponse failedResponse(String reason) {
+        KoleResponse kr = new KoleResponse();
+        kr.setStatus(reason);
+        kr.setData(null);
+        return kr;
+    }
 }

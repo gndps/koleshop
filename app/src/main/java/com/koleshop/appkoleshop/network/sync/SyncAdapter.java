@@ -29,6 +29,8 @@ import java.util.Map;
 /**
  * Created by gundeepsingh on 30/08/14.
  */
+
+@Deprecated
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     ContentResolver mContentResolver;

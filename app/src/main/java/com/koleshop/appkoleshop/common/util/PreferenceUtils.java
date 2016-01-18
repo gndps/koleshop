@@ -2,12 +2,10 @@ package com.koleshop.appkoleshop.common.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.koleshop.appkoleshop.common.constant.Constants;
 import com.koleshop.appkoleshop.common.constant.Prefs;
-import com.koleshop.appkoleshop.model.parcel.EditProduct;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,7 +26,7 @@ public class PreferenceUtils {
     }
 
     public static void setPreferences(Context context, HashMap<String, String> map) {
-        SharedPreferences prefs = context.getSharedPreferences(Prefs.KOL_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(Prefs.KOLE_PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         Iterator it = map.entrySet().iterator();
         while (it.hasNext()) {
@@ -44,21 +42,29 @@ public class PreferenceUtils {
     }
 
     public static void setPreferences(Context context, String key, String value) {
-        SharedPreferences prefs = context.getSharedPreferences(Prefs.KOL_PREFS, Context.MODE_PRIVATE);
+        setPreferences(context, key, value, Prefs.KOLE_PREFS);
+    }
+
+    public static void setPreferences(Context context, String key, String value, String preferencesName) {
+        SharedPreferences prefs = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         if(value == null)
         {
             value = "";
         }
-            if(key!=null && !key.trim().equalsIgnoreCase(""))
-            {
-                editor.putString(key, value);
-            }
+        if(key!=null && !key.trim().equalsIgnoreCase(""))
+        {
+            editor.putString(key, value);
+        }
         editor.apply();
     }
 
     public static String getPreferences(Context context, String key) {
-        SharedPreferences prefs = context.getSharedPreferences(Prefs.KOL_PREFS, Context.MODE_PRIVATE);
+        return getPreferences(context, key, Prefs.KOLE_PREFS);
+    }
+
+    public static String getPreferences(Context context, String key, String preferencesName) {
+        SharedPreferences prefs = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE);
         return prefs.getString(key, "");
     }
 
@@ -79,8 +85,15 @@ public class PreferenceUtils {
         //Realm.deleteRealmFile(context);
     }
 
+    public static void deleteNetworkRequestStatusPreferences(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(Prefs.NETWORK_REQUEST_PREFS, Context.MODE_PRIVATE);
+        if(preferences.getAll().size()>10) {
+            preferences.edit().clear().apply();
+        }
+    }
+
     public static void storeRegistrationId(Context context, String regId) {
-        final SharedPreferences prefs = context.getSharedPreferences(Prefs.KOL_PREFS, Context.MODE_PRIVATE);
+        final SharedPreferences prefs = context.getSharedPreferences(Prefs.KOLE_PREFS, Context.MODE_PRIVATE);
         int appVersion = CommonUtils.getAppVersion(context);
         Log.i(TAG, "Saving regId on app version " + appVersion);
         SharedPreferences.Editor editor = prefs.edit();
@@ -90,7 +103,7 @@ public class PreferenceUtils {
     }
 
     public static String getRegistrationId(Context context) {
-        final SharedPreferences prefs = context.getSharedPreferences(Prefs.KOL_PREFS, Context.MODE_PRIVATE);
+        final SharedPreferences prefs = context.getSharedPreferences(Prefs.KOLE_PREFS, Context.MODE_PRIVATE);
         String registrationId = prefs.getString(Constants.KEY_REG_ID, "");
         if (registrationId.isEmpty()) {
             Log.i(TAG, "Registration not found.");

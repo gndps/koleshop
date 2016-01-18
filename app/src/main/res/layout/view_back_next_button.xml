@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:gravity="center_vertical"
+    android:id="@+id/rl_back_next_button"
+    android:background="@color/offwhite">
+
+    <Button
+        android:id="@+id/reusable_back_button"
+        android:layout_width="160dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:text="BACK"
+        android:gravity="left|center_vertical"
+        android:drawablePadding="8dp"
+        android:textColor="@color/secondary_text"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:drawableLeft="@drawable/ic_action_back"
+        android:onClick="backButtonClicked"/>
+
+    <Button
+        android:id="@+id/reusable_next_button"
+        android:layout_width="160dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:text="NEXT"
+        android:gravity="right|center_vertical"
+        android:drawablePadding="8dp"
+        android:textColor="@color/secondary_text"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:drawableRight="@drawable/ic_action_next"
+        android:onClick="nextButtonClicked"/>
+
+</RelativeLayout>
