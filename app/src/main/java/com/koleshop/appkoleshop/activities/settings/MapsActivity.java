@@ -22,6 +22,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -151,6 +152,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                LatLng geoLocation = cameraPosition.target;
+                if(geoLocation!=null) {
+                    gpsLat = geoLocation.latitude;
+                    gpsLong = geoLocation.longitude;
+                }
+            }
+
+        });
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gpsLat, gpsLong), 14.0f));
         mMap.setPadding(0, 0, 0, 56);
     }
