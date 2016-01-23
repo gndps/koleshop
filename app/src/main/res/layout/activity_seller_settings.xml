@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.settings.SellerSettingsActivity">
+    android:orientation="vertical"
+    tools:context=".ui.seller.activities.SellerSettingsActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <include
@@ -69,13 +71,13 @@
 
                     <fragment
                         android:id="@+id/frag_shop_settings"
-                        android:name="com.koleshop.appkoleshop.fragments.settings.ShopSettingsFragment"
+                        android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.ShopSettingsFragment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
                     <fragment
                         android:id="@+id/frag_delivery_settings"
-                        android:name="com.koleshop.appkoleshop.fragments.settings.DeliverySettingsFragment"
+                        android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.DeliverySettingsFragment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
@@ -87,4 +89,15 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
+
+        <include
+            android:id="@+id/button_bar_back_next"
+            layout="@layout/view_back_next_button"></include>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,5 +1,6 @@
 package com.koleshop.koleshopbackend.services;
 
+import com.google.android.gcm.server.Message;
 import com.google.gson.JsonObject;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
@@ -13,9 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -147,8 +146,8 @@ public class CommonService {
 
         Address addressObject = settings.getAddress();
 
-        Date openTime = settings.getShopOpenTime();
-        Date closeTime = settings.getShopCloseTime();
+        int openTime = settings.getShopOpenTime();
+        int closeTime = settings.getShopCloseTime();
         logger.log(Level.INFO, "updating shop settings...");
         logger.log(Level.INFO, "shop open time : " + openTime);
         logger.log(Level.INFO, "shop close time : " + closeTime);
@@ -157,8 +156,8 @@ public class CommonService {
         Long maxDeliveryDistance = settings.getMaximumDeliveryDistance();
         Float minOrder = settings.getMinimumOrder();
         Float deliveryCharges = settings.getDeliveryCharges();
-        Date deliveryStartTime = settings.getDeliveryStartTime();
-        Date deliveryEndTime = settings.getDeliveryEndTime();
+        int deliveryStartTime = settings.getDeliveryStartTime();
+        int deliveryEndTime = settings.getDeliveryEndTime();
         logger.log(Level.INFO, "deliveryStartTime: " + deliveryStartTime);
         logger.log(Level.INFO, "deliveryEndTime: " + deliveryEndTime);
         String address = null;
@@ -200,34 +199,18 @@ public class CommonService {
             preparedStatement.setString(6, Constants.SELLER_ADDRESS_NICKNAME);
             preparedStatement.setDouble(7, gpsLong);
             preparedStatement.setDouble(8, gpsLat);
-            if(openTime!=null) {
-                preparedStatement.setTimestamp(9, new java.sql.Timestamp(openTime.getTime()));
-            } else {
-                preparedStatement.setDate(9, null);
-            }
-            if(closeTime!=null) {
-                preparedStatement.setTimestamp(10, new java.sql.Timestamp(closeTime.getTime()));
-            } else {
-                preparedStatement.setDate(10, null);
-            }
+            preparedStatement.setInt(9, openTime);
+            preparedStatement.setInt(10, closeTime);
             preparedStatement.setBoolean(11, pickupFromShop);
             preparedStatement.setBoolean(12, homeDelivery);
             preparedStatement.setLong(13, maxDeliveryDistance);
             preparedStatement.setFloat(14, minOrder);
             preparedStatement.setFloat(15, deliveryCharges);
-            if(deliveryStartTime!=null){
-                preparedStatement.setTimestamp(16, new java.sql.Timestamp(deliveryStartTime.getTime()));
-            } else {
-                preparedStatement.setDate(16, null);
-            }
-            if(deliveryEndTime!=null) {
-                preparedStatement.setTimestamp(17, new java.sql.Timestamp(deliveryEndTime.getTime()));
-            } else {
-                preparedStatement.setDate(17, null);
-            }
+            preparedStatement.setInt(16, deliveryStartTime);
+            preparedStatement.setInt(17, deliveryEndTime);
             preparedStatement.setLong(18, userId);
 
-            logger.log(Level.INFO, "prepared statment = " + preparedStatement.toString());
+            logger.log(Level.INFO, "prepared statement = " + preparedStatement.toString());
 
             int update = preparedStatement.executeUpdate();
             if (update > 0) {
@@ -236,10 +219,12 @@ public class CommonService {
                 response.setData("settings_updated");
 
                 //delete any old caches stored in phones
-                JsonObject notificationJsonObject = new JsonObject();
-                notificationJsonObject.addProperty("type", Constants.GCM_NOTI_DELETE_OLD_SETTINGS_CACHE);
-                notificationJsonObject.addProperty("millis", new Date().getTime());
-                GcmHelper.notifyUser(userId, notificationJsonObject, Constants.GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE);
+                Message gcmMessage = new Message.Builder()
+                        .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE)
+                        .addData("type", Constants.GCM_NOTI_DELETE_OLD_SETTINGS_CACHE)
+                        .addData("millis", ""+new Date().getTime())
+                        .build();
+                GcmHelper.notifyUser(userId, gcmMessage, 2);
             } else {
                 //settings update
                 response.setStatus("settings_not_updated");
@@ -298,30 +283,14 @@ public class CommonService {
                 String nickname = rs.getString("nickname");
                 Double gpsLongitude = rs.getDouble("gps_long");
                 Double gpsLatitude = rs.getDouble("gps_lat");
-                java.sql.Time sqlOpenTime = rs.getTime("open_time");
-                Date openTime = null;
-                if (sqlOpenTime != null) {
-                    openTime = new Date(sqlOpenTime.getTime());
-                }
-                java.sql.Time sqlCloseTime = rs.getTime("close_time");
-                Date closeTime = null;
-                if (sqlCloseTime != null) {
-                    closeTime = new Date(sqlCloseTime.getTime());
-                }
+                int openTime = rs.getInt("open_time");
+                int closeTime = rs.getInt("close_time");
                 boolean homeDelivery = rs.getBoolean("home_delivery");
                 Long maxDeliveryDistance = rs.getLong("max_delivery_distance");
                 Float minOrder = rs.getFloat("min_order");
                 Float deliveryCharges = rs.getFloat("delivery_charges");
-                Date deliveryStartTime = null;
-                java.sql.Time sqlDeliveryStartTime = rs.getTime("delivery_start_time");
-                if (sqlDeliveryStartTime != null) {
-                    deliveryStartTime = new Date(sqlDeliveryStartTime.getTime());
-                }
-                Date deliveryEndTime = null;
-                java.sql.Time sqlDeliveryEndTime = rs.getTime("delivery_end_time");
-                if (sqlDeliveryEndTime != null) {
-                    deliveryEndTime = new Date(sqlDeliveryEndTime.getTime());
-                }
+                int deliveryStartTime = rs.getInt("delivery_start_time");
+                int deliveryEndTime = rs.getInt("delivery_end_time");
 
                 Address address = new Address(addressId, userId, addressName, addressString, 1, phoneNumber, countryCode, nickname, gpsLongitude, gpsLatitude);
                 SellerSettings sellerSettings = new SellerSettings(sellerSettingsId, userId, address, openTime, closeTime, true, homeDelivery, maxDeliveryDistance,

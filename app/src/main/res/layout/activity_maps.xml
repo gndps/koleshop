@@ -8,11 +8,6 @@
         android:id="@+id/app_bar"
         layout="@layout/view_app_bar"></include>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=" " />
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +18,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context="com.koleshop.appkoleshop.activities.settings.MapsActivity" />
+            tools:context=".ui.common.activities.MapsActivity" />
 
         <ImageView
             android:id="@+id/iv_gps_pin_icon"
@@ -31,6 +26,14 @@
             android:layout_height="48dp"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center"
+            android:src="@drawable/ic_gps_pin_grey"/>
+
+        <ImageView
+            android:id="@+id/iv_gps_pin_icon2"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
             android:src="@drawable/ic_gps_pin_accent"/>
 
     </FrameLayout>

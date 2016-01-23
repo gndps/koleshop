@@ -2,7 +2,7 @@ package com.koleshop.appkoleshop.singletons;
 
 import android.util.Log;
 
-import com.koleshop.appkoleshop.common.constant.Constants;
+import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.vincentbrison.openlibraries.android.dualcache.lib.DualCache;

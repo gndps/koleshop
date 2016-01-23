@@ -1,1 +1,59 @@
-{"project_info":{"project_id":"koleshop-1","project_number":"885947438841","name":"koleshop-1"},"client":[{"client_info":{"mobilesdk_app_id":"1:885947438841:android:80186a3268047bee","client_id":"android:com.koleshop.appkoleshop","client_type":1,"android_client_info":{"package_name":"com.koleshop.appkoleshop"}},"oauth_client":[],"api_key":[],"services":{"analytics_service":{"status":1},"cloud_messaging_service":{"status":2,"apns_config":[]},"appinvite_service":{"status":1,"other_platform_oauth_client":[]},"google_signin_service":{"status":1},"ads_service":{"status":1}}}],"client_info":[],"ARTIFACT_VERSION":"1"}
+{
+  "project_info": {
+    "project_id": "koleshop-1",
+    "project_number": "885947438841",
+    "name": "koleshop-1"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885947438841:android:80186a3268047bee",
+        "client_id": "android:com.koleshop.appkoleshop",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.koleshop.appkoleshop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "885947438841-i6hbgcf65n24kbtr8sqcmh8rtr6hpg7j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.koleshop.appkoleshop",
+            "certificate_hash": "1E62EB3718852D91BA2C4BD522DD5633DE15C634"
+          }
+        },
+        {
+          "client_id": "885947438841-epsd7tfvjl24onrpvlhamba9mped1nue.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.koleshop.appkoleshop",
+            "certificate_hash": "22515F005626ACB371275298F3E4E943D2DA14DE"
+          }
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}

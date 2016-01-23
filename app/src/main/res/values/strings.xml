@@ -17,6 +17,7 @@
     <string name="title_activity_login">Koleshop login</string>
     <string name="title_activity_get_started">Get Started</string>
     <string name="title_activity_location">Map Location</string>
+    <string name="action_search_address">Search Address</string>
 
     <string-array name="shop_settings_array">
         <item>shopname</item>
@@ -156,5 +157,6 @@
     <string name="delivery_end_time">Delivery end time</string>
     <string name="home_delivery">Home Delivery</string>
     <string name="title_activity_maps">Select Location</string>
+    <string name="title_shop_location">Set Shop Location</string>
 
 </resources>

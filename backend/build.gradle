@@ -39,6 +39,7 @@ dependencies {
     compile 'com.google.appengine:appengine-testing:1.9.30'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.google.http-client:google-http-client-gson:1.19.0'
+    compile 'com.google.gcm:gcm-server:1.0.0'
 }
 
 appengine {

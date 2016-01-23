@@ -8,6 +8,7 @@
     <color name="primary_dark">#388E3C</color>
     <color name="primary_light">#C8E6C9</color>
     <color name="accent">#07A7C5</color>
+    <color name="accent_transparent">#4507A7C5</color>
     <color name="highlight">#868686</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
@@ -27,5 +28,7 @@
     <color name="black_semi_transparent">#B2000000</color>
     <color name="indian_flag_saffron">#FF9933</color>
     <color name="indian_flag_green">#138808</color>
+    <color name="delivery_settings_stroke_color_no">#C1751F</color>
+    <color name="delivery_settings_stroke_color_yes">#4C9211</color>
 
 </resources>

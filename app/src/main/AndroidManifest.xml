@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -36,7 +37,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme.Base">
         <activity
-            android:name=".activities.InitialActivity"
+            android:name=".ui.common.activities.InitialActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name">
             <intent-filter>
@@ -46,7 +47,8 @@
             </intent-filter>
         </activity>
 
-        <receiver
+        <!--
+        receiver
             android:name=".receiver.GcmBroadcastReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
@@ -56,7 +58,37 @@
 
                 <category android:name="com.koleshop.appkoleshop" />
             </intent-filter>
+        </receiver
+        -->
+
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.koleshop.appkoleshop" />
+            </intent-filter>
         </receiver>
+
+        <service
+            android:name=".services.MyGcmListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".services.RegistrationIntentService"
+            android:exported="false" />
+        <service
+            android:name=".services.MyInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
 
         <!-- SMS Receiver -->
         <receiver android:name=".receiver.SmsReceiver">
@@ -65,64 +97,24 @@
             </intent-filter>
         </receiver>
 
-        <service
-            android:name=".services.PushMessageProcessorService"
-            android:exported="false" />
-        <service
-            android:name=".services.RestCallService"
-            android:exported="false" />
-
         <activity
-            android:name=".activities.GetStartedActivity"
+            android:name=".ui.common.activities.GetStartedActivity"
             android:label="@string/title_activity_get_started" />
-        <activity
-            android:name=".activities.LocationActivity"
-            android:label="@string/title_activity_location" />
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <service android:name=".network.sync.AuthenticatorService">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
-
-        <provider
-            android:name=".network.sync.StubProvider"
-            android:authorities="com.koleshop.appkoleshop.provider"
-            android:exported="false"
-            android:syncable="true" />
-
-        <service
-            android:name=".network.sync.SyncService"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
-        </service>
-
         <activity
-            android:name=".activities.TestActivity"
+            android:name=".ui.common.activities.TestActivity"
             android:label="@string/title_activity_test" />
 
-        <service
-            android:name=".services.CloudEndpointService"
-            android:exported="false" />
         <service
             android:name=".services.SessionIntentService"
             android:exported="false" />
 
         <activity
-            android:name=".activities.seller.HomeActivity"
+            android:name=".ui.seller.activities.HomeActivity"
             android:label="@string/title_activity_home" />
 
         <service
@@ -130,26 +122,19 @@
             android:exported="false" />
 
         <activity
-            android:name=".activities.VerifyPhoneNumberActivity"
+            android:name=".ui.common.activities.VerifyPhoneNumberActivity"
             android:label="@string/title_activity_verify_phone_number"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activities.VerifyOTPActivity"
+            android:name=".ui.common.activities.VerifyOTPActivity"
             android:label="@string/title_activity_verify_otp" />
         <activity
-            android:name=".activities.SelectSellerCategoryActivity"
+            android:name=".ui.seller.activities.SelectSellerCategoryActivity"
             android:label="@string/title_activity_select_seller_category"
             android:theme="@style/AppTheme.Base" />
-        <activity android:name=".activities.InventoryProductActivity" />
+        <activity android:name=".ui.seller.activities.InventoryProductActivity" />
         <activity
-            android:name=".activities.ProductEditActivity"
-            android:label="@string/title_activity_product_edit"
-            android:theme="@style/AppTheme.Base" />
-        <activity
-            android:name=".activities.AddEditProductActivity"
-            android:label="@string/title_activity_add_edit_product" />
-        <activity
-            android:name=".activities.ProductActivity"
+            android:name=".ui.seller.activities.ProductActivity"
             android:label="@string/title_activity_product"
             android:theme="@style/AppTheme.Base" />
 
@@ -160,8 +145,8 @@
             android:name=".services.SettingsIntentService"
             android:exported="false" />
 
-        <activity android:name=".activities.buyer.HomeActivity" />
-        <activity android:name=".activities.settings.SellerSettingsActivity" />
+        <activity android:name=".ui.buyer.activities.HomeActivity" />
+        <activity android:name=".ui.seller.activities.SellerSettingsActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -175,8 +160,9 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".activities.settings.MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:name=".ui.common.activities.MapsActivity"
+            android:label="@string/title_activity_maps" />
+        <activity android:name=".ui.seller.activities.SellerOrdersActivity"></activity>
     </application>
 
 </manifest>

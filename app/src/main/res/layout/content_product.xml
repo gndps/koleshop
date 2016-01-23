@@ -7,7 +7,7 @@
     android:animateLayoutChanges="true"
     android:id="@+id/sb_product"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.koleshop.appkoleshop.activities.ProductActivity"
+    tools:context=".ui.seller.activities.ProductActivity"
     tools:showIn="@layout/activity_product">
 
     <LinearLayout

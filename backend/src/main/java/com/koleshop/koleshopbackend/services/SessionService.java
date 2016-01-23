@@ -5,12 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.android.gcm.server.Message;
 import com.google.appengine.api.ThreadManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -215,10 +217,12 @@ public class SessionService {
                                 preparedStatement.setLong(1, userId);
                                 int update = preparedStatement.executeUpdate();
                                 if(update>0) {
-                                    JsonObject notificationJsonObject = new JsonObject();
-                                    notificationJsonObject.addProperty("type", Constants.GCM_NOTI_USER_INVENTORY_CREATED);
-                                    notificationJsonObject.addProperty("deviceAdded", true);
-                                    GcmHelper.notifyUser(userId, notificationJsonObject, Constants.GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED);
+                                    Message gcmMessage = new Message.Builder()
+                                            .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED)
+                                            .addData("type", Constants.GCM_NOTI_USER_INVENTORY_CREATED)
+                                            .addData("deviceAdded", "true")
+                                            .build();
+                                    GcmHelper.notifyUser(userId, gcmMessage, 2);
                                 } else {
                                     //some problem occurred
                                 }
@@ -332,6 +336,73 @@ public class SessionService {
 
         }
 
+    }
+
+    public boolean updateDeviceUser(Long userId, String oldDeviceId, String newDeviceId) {
+        //device id is google_registration_id for android devices
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        boolean result = false;
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            String query = "update DeviceUser set device_id=? where user_id=? and device_id=?";
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setString(1, newDeviceId);
+            preparedStatement.setLong(2, userId);
+            preparedStatement.setString(3, oldDeviceId);
+            if (preparedStatement.executeUpdate() > 0) {
+                result = true;
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (dbConnection != null) {
+                    dbConnection.close();
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+            } finally {
+                return result;
+            }
+        }
+    }
+
+    public boolean deleteDeviceUser(Long userId, String deviceId) {
+        //device id is google_registration_id for android devices
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        boolean result = false;
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            String query = "delete from DeviceUser where user_id=? and device_id=?";
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setString(2, deviceId);
+            if (preparedStatement.executeUpdate() > 0) {
+                result = true;
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (dbConnection != null) {
+                    dbConnection.close();
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+            } finally {
+                return result;
+            }
+        }
     }
 
     private static Long getUserId(Long phone) {

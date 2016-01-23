@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
-import com.google.api.client.util.ArrayMap;
 import android.util.Log;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -15,20 +14,16 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.gson.Gson;
 import com.koleshop.api.productEndpoint.ProductEndpoint;
 import com.koleshop.api.productEndpoint.model.InventoryProduct;
-import com.koleshop.api.productEndpoint.model.InventoryProductVariety;
 import com.koleshop.api.productEndpoint.model.KoleResponse;
-import com.koleshop.appkoleshop.common.constant.Constants;
-import com.koleshop.appkoleshop.common.util.KoleshopUtils;
-import com.koleshop.appkoleshop.common.util.NetworkUtils;
-import com.koleshop.appkoleshop.common.util.PreferenceUtils;
+import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.koleshop.appkoleshop.util.NetworkUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
-import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 
 import org.parceler.Parcels;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class ProductIntentService extends IntentService {

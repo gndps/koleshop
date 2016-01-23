@@ -11,7 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
-import com.koleshop.appkoleshop.common.constant.Constants;
+import com.koleshop.appkoleshop.constant.Constants;
 
 public class SmsReceiver extends BroadcastReceiver {
     private static final String TAG = SmsReceiver.class.getSimpleName();

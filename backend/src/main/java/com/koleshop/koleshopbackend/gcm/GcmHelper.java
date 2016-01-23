@@ -1,34 +1,74 @@
 package com.koleshop.koleshopbackend.gcm;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.google.android.gcm.server.Message;
+import com.google.android.gcm.server.MulticastResult;
+import com.google.android.gcm.server.Result;
+import com.google.android.gcm.server.Sender;
 import com.google.gson.JsonObject;
+import com.koleshop.koleshopbackend.common.Constants;
+import com.koleshop.koleshopbackend.services.SessionService;
 import com.koleshop.koleshopbackend.services.UserService;
-import com.koleshop.koleshopbackend.db.models.GcmContent;
 
 public class GcmHelper {
 
-    public static void broadcastToDeviceIds(List<String> deviceIdsList, JsonObject jsonObject) {
-        GcmContent gcmContent = new GcmContent();
-        gcmContent.setRegistration_ids(deviceIdsList);
-        gcmContent.setData(jsonObject);
-        GoogleCloudMessaging.sendMessage(gcmContent);
-    }
+    private static final Logger logger = Logger.getLogger(GcmHelper.class.getName());
 
-    public static void notifyUser(Long userId, JsonObject jsonObject, String collapseKey) {
+    public static void notifyUser(Long userId, Message message, int numOfRetries) {
 
         List<String> deviceIds = UserService.getDeviceIdsForUserId(userId);
 
-        /*JsonObject jsonobj = new JsonObject();
-        jsonobj.addProperty("test", "fuck");
-        jsonobj.addProperty("data", "gndp");*/
+        logger.log(Level.INFO, "will notify user...data=" + message.getData());
 
-        GcmContent cloudMessage = new GcmContent()
-                .data(jsonObject)
-                .collapse_key(collapseKey)
-                .registration_ids(deviceIds);
+        try {
+            Sender sender = new Sender(Constants.GCM_API_KEY);
+            if(sender!=null) {
+                MulticastResult result = sender.send(message, deviceIds, numOfRetries);
 
-        GoogleCloudMessaging.sendMessage(cloudMessage);
+                //1. log the result status
+                if(result==null || result.getFailure() == deviceIds.size()) {
+                    logger.log(Level.SEVERE, "Gcm message sending failed for message type : " + message.getData().get("type"));
+                    if(result!=null) {
+                        logger.log(Level.SEVERE, result.getResults().toString());
+                    }
+                } else {
+                    logger.log(Level.INFO, "gcm successfully sent!");
+                }
+
+                //2. update or delete the registration tokens if reqd.
+                if(result!=null) {
+                    try {
+                        int index = 0;
+                        for (Result singleResult : result.getResults()) {
+                            String canonicalRegistrationId = singleResult.getCanonicalRegistrationId();
+                            if (canonicalRegistrationId != null && !canonicalRegistrationId.isEmpty()) {
+                                if (deviceIds.contains(canonicalRegistrationId)) {
+                                    //delete deviceIds.get(index) from db
+                                    new SessionService().deleteDeviceUser(userId, deviceIds.get(index));
+                                } else {
+                                    //update the device id with the new canonicalRegistrationId
+                                    new SessionService().updateDeviceUser(userId, deviceIds.get(index), canonicalRegistrationId);
+                                }
+                            }
+                            index++;
+                        }
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "problem in updating canonical registration id", e);
+                    }
+                }
+
+            } else {
+                logger.log(Level.SEVERE, "Gcm sender is null...wtf");
+            }
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "some problem in sending gcm message", e);
+        }
+
     }
 
 }

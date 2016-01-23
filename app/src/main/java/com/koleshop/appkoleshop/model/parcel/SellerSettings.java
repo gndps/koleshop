@@ -14,15 +14,15 @@ public class SellerSettings {
     Long id;
     Long userId;
     Address address;
-    Date shopOpenTime;
-    Date shopCloseTime;
+    int shopOpenTime;
+    int shopCloseTime;
     boolean pickupFromShop;
     boolean homeDelivery;
     Long maximumDeliveryDistance;
     Float minimumOrder;
     Float deliveryCharges;
-    Date deliveryStartTime;
-    Date deliveryEndTime;
+    int deliveryStartTime;
+    int deliveryEndTime;
 
     public SellerSettings() {
     }
@@ -51,19 +51,19 @@ public class SellerSettings {
         this.address = address;
     }
 
-    public Date getShopOpenTime() {
+    public int getShopOpenTime() {
         return shopOpenTime;
     }
 
-    public void setShopOpenTime(Date shopOpenTime) {
+    public void setShopOpenTime(int shopOpenTime) {
         this.shopOpenTime = shopOpenTime;
     }
 
-    public Date getShopCloseTime() {
+    public int getShopCloseTime() {
         return shopCloseTime;
     }
 
-    public void setShopCloseTime(Date shopCloseTime) {
+    public void setShopCloseTime(int shopCloseTime) {
         this.shopCloseTime = shopCloseTime;
     }
 
@@ -107,19 +107,19 @@ public class SellerSettings {
         this.deliveryCharges = deliveryCharges;
     }
 
-    public Date getDeliveryStartTime() {
+    public int getDeliveryStartTime() {
         return deliveryStartTime;
     }
 
-    public void setDeliveryStartTime(Date deliveryStartTime) {
+    public void setDeliveryStartTime(int deliveryStartTime) {
         this.deliveryStartTime = deliveryStartTime;
     }
 
-    public Date getDeliveryEndTime() {
+    public int getDeliveryEndTime() {
         return deliveryEndTime;
     }
 
-    public void setDeliveryEndTime(Date deliveryEndTime) {
+    public void setDeliveryEndTime(int deliveryEndTime) {
         this.deliveryEndTime = deliveryEndTime;
     }
 }

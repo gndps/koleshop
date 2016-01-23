@@ -9,8 +9,8 @@ import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
-import com.koleshop.appkoleshop.common.constant.Constants;
-import com.koleshop.appkoleshop.common.util.PreferenceUtils;
+import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.api.sessionApi.SessionApi;
 import com.koleshop.api.sessionApi.model.RestCallResponse;
 

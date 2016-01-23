@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -15,16 +16,13 @@ import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.util.ArrayMap;
-import com.google.api.client.util.DateTime;
 import com.google.gson.Gson;
 import com.koleshop.api.commonEndpoint.CommonEndpoint;
 import com.koleshop.api.commonEndpoint.model.KoleResponse;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
-import com.koleshop.appkoleshop.common.constant.Constants;
-import com.koleshop.appkoleshop.common.util.CommonUtils;
-import com.koleshop.appkoleshop.common.util.NetworkUtils;
-import com.koleshop.appkoleshop.common.util.PreferenceUtils;
+import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.util.NetworkUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.parcel.Address;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 
@@ -33,7 +31,6 @@ import org.parceler.Parcels;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -55,9 +52,6 @@ public class SettingsIntentService extends IntentService {
 
 
     private static final String TAG = "SettingsIntentService";
-
-    private AddressIntentServiceListener mListener;
-    private SettingsIntentServiceListener mListenerSettings;
 
     public SettingsIntentService() {
         super("AddressIntentService");
@@ -170,22 +164,14 @@ public class SettingsIntentService extends IntentService {
                     backendSettings.setUserId(userId);
                     backendSettings.setAddress(backendAddress);
                     backendSettings.setDeliveryCharges(sellerSettings.getDeliveryCharges());
-                    if(sellerSettings.getDeliveryEndTime()!=null) {
-                        backendSettings.setDeliveryEndTime(new DateTime(sellerSettings.getDeliveryEndTime()));
-                    }
-                    if(sellerSettings.getDeliveryStartTime()!=null) {
-                        backendSettings.setDeliveryStartTime(new DateTime(sellerSettings.getDeliveryStartTime()));
-                    }
+                    backendSettings.setDeliveryEndTime(sellerSettings.getDeliveryEndTime());
+                    backendSettings.setDeliveryStartTime(sellerSettings.getDeliveryStartTime());
                     backendSettings.setHomeDelivery(sellerSettings.isHomeDelivery());
                     backendSettings.setMaximumDeliveryDistance(sellerSettings.getMaximumDeliveryDistance());
                     backendSettings.setMinimumOrder(sellerSettings.getMinimumOrder());
                     backendSettings.setPickupFromShop(sellerSettings.isPickupFromShop());
-                    if(sellerSettings.getShopCloseTime()!=null) {
-                        backendSettings.setShopCloseTime(new DateTime(sellerSettings.getShopCloseTime()));
-                    }
-                    if(sellerSettings.getShopOpenTime()!=null) {
-                        backendSettings.setShopOpenTime(new DateTime(sellerSettings.getShopOpenTime()));
-                    }
+                    backendSettings.setShopCloseTime(sellerSettings.getShopCloseTime());
+                    backendSettings.setShopOpenTime(sellerSettings.getShopOpenTime());
 
                     result = commonEndpoint.updateSellerSettings(sessionId, backendSettings).execute();
                     count = maxTries;
@@ -204,7 +190,11 @@ public class SettingsIntentService extends IntentService {
             //convert the result to string and save in preferences
             SellerSettings receivedSellerSettings = new SellerSettings();
             String settingsString = new Gson().toJson(sellerSettings);
-            PreferenceUtils.setPreferences(context, Constants.KEY_SELLER_SETTINGS, settingsString);
+            SharedPreferences.Editor prefs = PreferenceUtils.getSharedPreferencesEditor(context);
+            prefs.putString(Constants.KEY_SELLER_SETTINGS, settingsString);
+            prefs.putLong(Constants.KEY_SELLER_SETTINGS_MILLIS, new Date().getTime());
+            prefs.apply();
+
 
             //update the network request status
             NetworkUtils.setRequestStatusSuccess(context, uniqueRequestId);
@@ -279,13 +269,13 @@ public class SettingsIntentService extends IntentService {
                 sellerSettings.setMinimumOrder(((BigDecimal) map.get("minimumOrder")).floatValue());
                 sellerSettings.setDeliveryCharges(((BigDecimal) map.get("deliveryCharges")).floatValue());
                 sellerSettings.setMaximumDeliveryDistance(Long.valueOf((String) map.get("maximumDeliveryDistance")));
-                sellerSettings.setDeliveryStartTime((Date) map.get("deliveryStartTime"));
-                sellerSettings.setDeliveryEndTime((Date) map.get("deliveryEndTime"));
-                sellerSettings.setShopOpenTime((Date) map.get("shopOpenTime"));
-                sellerSettings.setShopCloseTime((Date) map.get("shopCloseTime"));
+                sellerSettings.setDeliveryStartTime(((BigDecimal) map.get("deliveryStartTime")).intValue());
+                sellerSettings.setDeliveryEndTime(((BigDecimal) map.get("deliveryEndTime")).intValue());
+                sellerSettings.setShopOpenTime(((BigDecimal) map.get("shopOpenTime")).intValue());
+                sellerSettings.setShopCloseTime(((BigDecimal) map.get("shopCloseTime")).intValue());
                 sellerSettings.setUserId(userId);
                 ArrayMap<String, Object> addressMap = (ArrayMap<String, Object>) map.get("address");
-                if(addressMap!=null) {
+                if (addressMap != null) {
                     address.setUserId(userId);
                     address.setId(Long.valueOf((String) addressMap.get("id")));
                     address.setAddress((String) addressMap.get("address"));
@@ -303,7 +293,10 @@ public class SettingsIntentService extends IntentService {
 
             //convert the result to string and save in preferences
             String settingsString = new Gson().toJson(sellerSettings);
-            PreferenceUtils.setPreferences(context, Constants.KEY_SELLER_SETTINGS, settingsString);
+            SharedPreferences.Editor prefs = PreferenceUtils.getSharedPreferencesEditor(context);
+            prefs.putString(Constants.KEY_SELLER_SETTINGS, settingsString);
+            prefs.putLong(Constants.KEY_SELLER_SETTINGS_MILLIS, new Date().getTime());
+            prefs.apply();
 
             //update the network request status
             NetworkUtils.setRequestStatusSuccess(context, uniqueRequestId);

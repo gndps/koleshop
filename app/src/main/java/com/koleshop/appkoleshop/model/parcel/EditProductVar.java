@@ -1,7 +1,7 @@
 package com.koleshop.appkoleshop.model.parcel;
 
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
-import com.koleshop.appkoleshop.common.util.CommonUtils;
+import com.koleshop.appkoleshop.util.CommonUtils;
 
 import org.parceler.Parcel;
 

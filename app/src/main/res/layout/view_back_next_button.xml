@@ -4,7 +4,12 @@
     android:layout_height="48dp"
     android:gravity="center_vertical"
     android:id="@+id/rl_back_next_button"
-    android:background="@color/offwhite">
+    android:background="@color/white">
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#a0a0a0"/>
 
     <Button
         android:id="@+id/reusable_back_button"
