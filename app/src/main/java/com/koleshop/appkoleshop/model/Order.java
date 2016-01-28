@@ -21,6 +21,7 @@ public class Order {
     Long buyerId;
     String buyerName;
     Long buyerPhone;
+    String buyerImageUrl;
     OrderStatus status;
     List<OrderItem> list;
     float deliveryCharges;
@@ -42,6 +43,7 @@ public class Order {
         this.buyerId = buyerId;
         this.buyerName = buyerName;
         this.buyerPhone = buyerPhone;
+        this.buyerImageUrl = buyerImageUrl;
         this.status = status;
         this.list = list;
         this.deliveryCharges = deliveryCharges;
@@ -111,6 +113,14 @@ public class Order {
 
     public void setBuyerPhone(Long buyerPhone) {
         this.buyerPhone = buyerPhone;
+    }
+
+    public String getBuyerImageUrl() {
+        return buyerImageUrl;
+    }
+
+    public void setBuyerImageUrl(String buyerImageUrl) {
+        this.buyerImageUrl = buyerImageUrl;
     }
 
     public OrderStatus getStatus() {

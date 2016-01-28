@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.koleshop.appkoleshop.ui.common.activities.OrderDetailsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/default_background"
+        android:orientation="vertical">
+
+        <fragment
+            android:id="@+id/fragment_aod_seller_details"
+            android:name="com.koleshop.appkoleshop.ui.seller.fragments.orders.SellerOrderDetailsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_marginTop="16dp"
+            tools:layout="@layout/fragment_seller_order_details" />
+
+        <fragment
+            android:id="@+id/fragment_aot_seller_items_list"
+            android:name="com.koleshop.appkoleshop.ui.seller.fragments.orders.SellerItemListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_marginTop="16dp"
+            tools:layout="@layout/fragment_seller_item_list" />
+
+    </LinearLayout>
+
+</RelativeLayout>

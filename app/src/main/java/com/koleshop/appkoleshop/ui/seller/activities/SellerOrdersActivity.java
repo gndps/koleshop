@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
-import com.koleshop.appkoleshop.ui.seller.adapters.SellerOrdersAdapter;
+import com.koleshop.appkoleshop.ui.seller.adapters.SellerOrderTabsAdapter;
 import com.koleshop.appkoleshop.util.CommonUtils;
 
 import butterknife.Bind;
@@ -64,7 +64,7 @@ public class SellerOrdersActivity extends AppCompatActivity {
 
     private void setupViewPagerAndTabLayout() {
         //setupViewPager(viewPager, list);
-        SellerOrdersAdapter adapter = new SellerOrdersAdapter(getSupportFragmentManager());
+        SellerOrderTabsAdapter adapter = new SellerOrderTabsAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
     }

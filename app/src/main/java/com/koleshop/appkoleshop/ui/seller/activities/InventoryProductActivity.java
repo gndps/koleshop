@@ -21,6 +21,7 @@ import android.widget.ViewFlipper;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.ui.seller.adapters.InventoryCategoryViewPagerAdapter;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.CommonUtils;
@@ -145,7 +146,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     }
 
     private void fetchCategories() {
-        List<InventoryCategory> list = KoleCacheUtil.getCachedSubcategories(myInventory, parentCategoryId);
+        List<ProductCategory> list = KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, parentCategoryId);
         if (list != null && list.size() > 0 && Constants.KOLE_CACHE_ALLOWED) {
             loadCategories(list);
         } else {
@@ -167,7 +168,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         startService(serviceIntent);
     }
 
-    private void loadCategories(List<InventoryCategory> list) {
+    private void loadCategories(List<ProductCategory> list) {
         viewFlipper.setVisibility(View.GONE);
         viewPager = (ViewPager) findViewById(R.id.view_pager_inventory_product);
         viewPager.setVisibility(View.VISIBLE);
@@ -181,13 +182,13 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         changeTabsFont();
     }
 
-    private void setupViewPager(ViewPager viewPager, List<InventoryCategory> subcategories) {
+    private void setupViewPager(ViewPager viewPager, List<ProductCategory> subcategories) {
         InventoryCategoryViewPagerAdapter adapter = new InventoryCategoryViewPagerAdapter(getSupportFragmentManager(), myInventory);
-        final List<InventoryCategory> categories;
+        final List<ProductCategory> categories;
         if (subcategories != null && subcategories.size() > 0) {
             categories = subcategories;
         } else {
-            categories = KoleCacheUtil.getCachedSubcategories(myInventory, parentCategoryId);
+            categories = KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, parentCategoryId);
         }
         adapter.setInventoryCategories(categories);
         viewPager.setAdapter(adapter);

@@ -2,6 +2,8 @@ package com.koleshop.appkoleshop.model.parcel;
 
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
+import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 
 import org.parceler.Parcel;
 
@@ -35,30 +37,16 @@ public class EditProduct {
         this.editProductVars = editProductVars;
     }
 
-    public EditProduct(InventoryProduct product, Long categoryId) {
+    public EditProduct(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.brand = product.getBrand();
         List<EditProductVar> vars = new ArrayList<>();
-        for(InventoryProductVariety var : product.getVarieties()) {
+        for(ProductVariety var : product.getVarieties()) {
             EditProductVar editProductVar = new EditProductVar(var);
             vars.add(editProductVar);
         }
         this.editProductVars = vars;
-        this.categoryId = categoryId;
-    }
-
-    public EditProduct(com.koleshop.api.productEndpoint.model.InventoryProduct product, Long categoryId) {
-        this.id = product.getId();
-        this.name = product.getName();
-        this.brand = product.getBrand();
-        List<EditProductVar> vars = new ArrayList<>();
-        for(com.koleshop.api.productEndpoint.model.InventoryProductVariety var : product.getVarieties()) {
-            EditProductVar editProductVar = new EditProductVar(var);
-            vars.add(editProductVar);
-        }
-        this.editProductVars = vars;
-        this.categoryId = categoryId;
     }
 
     public Long getId() {

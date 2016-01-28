@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -20,7 +20,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ViewInventoryProductVariety extends RelativeLayout {
 
-    private InventoryProductVariety variety;
+    private ProductVariety variety;
     private LayoutInflater inflater;
     private View v;
     private CircleImageView imageView;
@@ -45,7 +45,7 @@ public class ViewInventoryProductVariety extends RelativeLayout {
         clickArea2 = (LinearLayout) v.findViewById(R.id.ll_variety_click_area_2);
     }
 
-    public ViewInventoryProductVariety(Context context, InventoryProductVariety variety, boolean productCheckboxProgress,
+    public ViewInventoryProductVariety(Context context, ProductVariety variety, boolean productCheckboxProgress,
                                        OnClickListener productVarietyOnClickListener) {
         this(context);
         this.variety = variety;
@@ -61,7 +61,7 @@ public class ViewInventoryProductVariety extends RelativeLayout {
             price = price.substring(0, price.length()-2);
         }
         textViewPrice.setText(price);
-        setChecked(variety.getValid());
+        setChecked(variety.isVarietyValid());
         //todo set the image url for this shit
         if(productCheckboxProgress) {
             imageViewCheckbox.setVisibility(GONE);

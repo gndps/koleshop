@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.listeners.KolClickListener;
@@ -230,7 +231,7 @@ public class InventoryProductFragment extends Fragment {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                final List<InventoryProduct> listOfProducts = KoleCacheUtil.getCachedProducts(myInventory, categoryId);
+                final List<Product> listOfProducts = KoleCacheUtil.getCachedProducts(myInventory, categoryId);
                 boolean cachedProductsAvailable = listOfProducts != null && listOfProducts.size() > 0 && Constants.KOLE_CACHE_ALLOWED;
 
                 if (cachedProductsAvailable && (!refreshProductsInsteadOfReloading || inventoryProductAdapter==null)) {
@@ -280,7 +281,7 @@ public class InventoryProductFragment extends Fragment {
         mContext.startService(intent);
     }
 
-    private void loadProducts(final List<InventoryProduct> listOfProducts) {
+    private void loadProducts(final List<Product> listOfProducts) {
         /*recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .margin(getResources().getDimensionPixelSize(R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
@@ -295,7 +296,7 @@ public class InventoryProductFragment extends Fragment {
                 recyclerView.setHasFixedSize(true);
 
                 //get products to load
-                final List<InventoryProduct> products;
+                final List<Product> products;
                 if (listOfProducts != null && listOfProducts.size() > 0) {
                     products = listOfProducts;
                 } else {
@@ -351,7 +352,7 @@ public class InventoryProductFragment extends Fragment {
                 //recyclerView.setVerticalScrollBarEnabled(true); //no need of scroll bar...google play doesn't have it
 
 
-                if (products != null) {
+                if (products != null && products.size()>0) {
                     inventoryProductAdapter.setProductsList(products);
                     //Log.d(TAG, "will set view flipper 2 for category id =" + categoryId);
                     viewFlipper.setDisplayedChild(VF_RECYCLER_VIEW);

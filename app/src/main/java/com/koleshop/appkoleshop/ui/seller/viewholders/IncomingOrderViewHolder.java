@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.listeners.KolClickListener;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.squareup.picasso.Picasso;
@@ -24,7 +25,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by Gundeep on 23/01/16.
  */
-public class IncomingProductViewHolder extends RecyclerView.ViewHolder {
+public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
     private Object order;
     private Context mContext;
     @Bind(R.id.iv_iot_avatar)
@@ -44,7 +45,7 @@ public class IncomingProductViewHolder extends RecyclerView.ViewHolder {
     @Bind(R.id.tv_iot_timings)
     TextView textViewTimings;
 
-    public IncomingProductViewHolder(View itemView, Context context) {
+    public IncomingOrderViewHolder(View itemView, Context context) {
         super(itemView);
         this.mContext = context;
         ButterKnife.bind(this, itemView);
@@ -57,7 +58,7 @@ public class IncomingProductViewHolder extends RecyclerView.ViewHolder {
         }
 
         //1. load image view
-        if(order.getSellerImageUrl()!=null && !order.getSellerImageUrl().isEmpty()) {
+        if(order.getBuyerImageUrl()!=null && !order.getBuyerImageUrl().isEmpty()) {
             Picasso.with(mContext)
                     .load(order.getSellerImageUrl())
                     .into(imageViewAvatar);
@@ -98,7 +99,7 @@ public class IncomingProductViewHolder extends RecyclerView.ViewHolder {
                 day = "Tomorrow ";
             }
 
-            time = day + CommonUtils.getDateStringInFormat(order.getDeliveryTime(), "h:m a");
+            time = day + CommonUtils.getDateStringInFormat(order.getDeliveryTime(), "h:mm a");
             if(time.endsWith(":0")) {
                 time = day + CommonUtils.getDateStringInFormat(order.getDeliveryTime(), "h a");
             }
@@ -110,5 +111,9 @@ public class IncomingProductViewHolder extends RecyclerView.ViewHolder {
         }
         textViewTimings.setText(time);
 
+    }
+
+    public void setDetailsButtonClickListener(View.OnClickListener clickListener) {
+        buttonDetails.setOnClickListener(clickListener);
     }
 }

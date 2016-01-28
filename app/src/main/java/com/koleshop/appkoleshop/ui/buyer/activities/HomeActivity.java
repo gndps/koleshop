@@ -406,9 +406,10 @@ public class HomeActivity extends AppCompatActivity {
             deleteRealmPreferences();
         }
 
-        loadedProductCategories = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED);
+        //loadedProductCategories = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED);
         loadedBrands = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED);
         //loadedBrands = true;
+        loadedProductCategories = true;
 
         if (!loadedProductCategories || !loadedBrands) {
             //todo add some fun fact in loading screen

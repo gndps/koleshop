@@ -41,7 +41,7 @@
     <style name="VerticalDivider">
         <item name="android:layout_width">2dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">?android:attr/listDivider</item>
+        <item name="android:background">@color/veryLightGray</item>
     </style>
 
     <style name="NavigationDrawerStyle">

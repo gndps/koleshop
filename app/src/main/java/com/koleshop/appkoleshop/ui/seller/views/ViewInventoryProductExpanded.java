@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
+import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,7 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
 
     private LayoutInflater inflater;
     private Context mContext;
-    private InventoryProduct product;
+    private Product product;
     private TextView textViewProductTitle;
     private View view;
     private LinearLayout container;
@@ -46,18 +48,18 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
         container = (LinearLayout) view.findViewById(com.koleshop.appkoleshop.R.id.ll_inventory_product_varieties);
     }
 
-    public void setProduct(InventoryProduct product, Map<Long, Boolean> checkboxesProgress, int positionInParent, Long categoryId) {
-        List<InventoryProductVariety> varieties = product.getVarieties();
+    public void setProduct(Product product, Map<Long, Boolean> checkboxesProgress, int positionInParent) {
+        List<ProductVariety> varieties = product.getVarieties();
         this.product = product;
         this.positionInParent = positionInParent;
-        this.categoryId = categoryId;
+        this.categoryId = product.getCategoryId();
         textViewProductTitle.setText(product.getName());
         varietyViews = new ArrayList<>();
         container.removeAllViews();
-        for (InventoryProductVariety var : varieties) {
+        for (ProductVariety var : varieties) {
             ViewInventoryProductVariety viewInventoryProductVariety = new ViewInventoryProductVariety(mContext, var, checkboxesProgress.get(var.getId()), null);
             final Long varietyId = var.getId();
-            final boolean varietySelected = var.getValid();
+            final boolean varietySelected = var.isVarietyValid();
             viewInventoryProductVariety.setClickListenerArea1(this);
             viewInventoryProductVariety.setClickListenerArea2(new OnClickListener() {
                 @Override

@@ -91,7 +91,7 @@ public class InventoryEndpoint {
     @ApiMethod(name = "exposeInventoryCategory")
     public List<InventoryCategory> justatest() {
         List<InventoryCategory> list = new ArrayList<>();
-        InventoryCategory cat = new InventoryCategory(1L, "myinventory", "cool things", "someurl");
+        InventoryCategory cat = new InventoryCategory(1L, "myinventory", "cool things", "someurl", 1);
         list.add(cat);
         return list;
     }

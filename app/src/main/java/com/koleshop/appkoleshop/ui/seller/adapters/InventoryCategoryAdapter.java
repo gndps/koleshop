@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.ui.seller.viewholders.InventoryCategoryViewHolder;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 
@@ -17,11 +18,11 @@ import java.util.List;
 public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCategoryViewHolder> {
 
     private LayoutInflater inflator;
-    List<InventoryCategory> categories;
+    List<ProductCategory> categories;
     Context context;
 
 
-    public InventoryCategoryAdapter(Context context, List<InventoryCategory> categories)
+    public InventoryCategoryAdapter(Context context, List<ProductCategory> categories)
     {
         this.context = context;
         inflator = LayoutInflater.from(context);
@@ -38,10 +39,10 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
     @Override
     public void onBindViewHolder(InventoryCategoryViewHolder holder, int position) {
         if(categories!=null) {
-            InventoryCategory inventoryCategory = categories.get(position);
-            holder.setTitle(position+1 + ". " + inventoryCategory.getName());
-            holder.setSubtitle(inventoryCategory.getDesc());
-            holder.setImageUrl(inventoryCategory.getImageUrl());
+            ProductCategory productCategory = categories.get(position);
+            holder.setTitle(position+1 + ". " + productCategory.getName());
+            holder.setSubtitle(productCategory.getDesc());
+            holder.setImageUrl(productCategory.getImageUrl());
             holder.sendImageFetchRequest(context);
         }
         //data.remove(position);
@@ -55,14 +56,14 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
         } else return 0;
     }
     
-    public void setData(List<InventoryCategory> categories) {
+    public void setData(List<ProductCategory> categories) {
         this.categories = categories;
         notifyDataSetChanged();
     }
 
     public Long getInventoryCategoryId(int position) {
         if(categories!=null) {
-            InventoryCategory cat = categories.get(position);
+            ProductCategory cat = categories.get(position);
             if(cat!=null) {
                 return cat.getId();
             } else {
@@ -75,7 +76,7 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
 
     public String getInventoryCategoryName(int position) {
         if(categories!=null) {
-            InventoryCategory cat = categories.get(position);
+            ProductCategory cat = categories.get(position);
             if(cat!=null) {
                 return cat.getName();
             } else {

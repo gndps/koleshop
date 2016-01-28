@@ -5,8 +5,7 @@ package com.koleshop.appkoleshop.constant;
  */
 public class Constants {
 
-    //base url for server requests
-    public static String BASE_URL = "http://192.168.1.4:8080/";
+    public static String APP_NAME = "koleshop android app";
 
     //device type = 0 for Android Devices
     public static int DEVICE_TYPE = 0;
@@ -36,7 +35,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = false;
+    public static boolean RESET_REALM = true;
     public static boolean KOLE_CACHE_ALLOWED = true;
 
     public static String PUBLIC_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
@@ -122,11 +121,11 @@ public class Constants {
     //DualCache keys and expiration time
     //global inventory cache constants
     public static final String CACHE_INVENTORY_CATEGORIES = "cache_inventory_categories";
-    public static final int TIME_TO_LIVE_INV_CAT = 5; //cache_inventory_categories will expire in 5 minutes
+    public static final int TIME_TO_LIVE_CATEGORY_CACHE = 5; //cache_inventory_categories will expire in 5 minutes
     public static final String CACHE_INVENTORY_SUBCATEGORIES = "cache_inventory_subcategories_"; //this key will be extended by the parent category id
     public static final int TIME_TO_LIVE_INV_SUBCAT = 5; //cache_inventory_subcategories_x will expire in 5 minutes
     public static final String CACHE_INVENTORY_PRODUCTS = "cache_inventory_products_"; //this key will be extended by the category id
-    public static final int TIME_TO_LIVE_INV_PRODUCT = 5; //cache_inventory_subcategories_x will expire in 5 minutes
+    public static final int TIME_TO_LIVE_PRODUCT_CACHE = 5; //product realm cache will expire in 5 minutes
     //my inventory cache constants
     public static final String CACHE_MY_INVENTORY_CATEGORIES = "cache_my_inventory_categories";
     public static final int TIME_TO_LIVE_MY_INV_CAT = 5; //cache_my_inventory_categories will expire in 5 minutes

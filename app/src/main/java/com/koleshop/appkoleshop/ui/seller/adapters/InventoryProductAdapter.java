@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.ui.seller.activities.ProductActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.CommonUtils;
@@ -49,7 +51,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     private static final int VIEW_TYPE_CONTENT_EXPANDED = 0x02;
 
     private LayoutInflater inflator;
-    List<InventoryProduct> products;
+    List<Product> products;
     Context context;
     List<LineItem> mItems;
     int expandedItemPosition, expandedItemPositionOld;
@@ -66,7 +68,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         pendingRequestsRandomIds = new ArrayList<>();
     }
 
-    public void setProductsList(List<InventoryProduct> productsList) {
+    public void setProductsList(List<Product> productsList) {
         products = productsList;
         mItems = new ArrayList<>();
 
@@ -99,7 +101,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         View view;
         if (viewType == VIEW_TYPE_HEADER) {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(com.koleshop.appkoleshop.R.layout.view_inventory_product_header, parent, false);
+                    .inflate(com.koleshop.appkoleshop.R.layout.view_list_header, parent, false);
         } else if (viewType == VIEW_TYPE_CONTENT) {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(com.koleshop.appkoleshop.R.layout.item_rv_inventory_product, parent, false);
@@ -120,11 +122,11 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         final View itemView = holder.itemView;
 
         if (position == expandedItemPosition && position != 0) {
-            holder.bindData(VIEW_TYPE_CONTENT_EXPANDED, null, item.product, item.varietyProgress, position, categoryId);
+            holder.bindData(VIEW_TYPE_CONTENT_EXPANDED, null, item.product, item.varietyProgress, position);
         } else if (item.isHeader) {
-            holder.bindData(VIEW_TYPE_HEADER, item.text, item.product, item.varietyProgress, position, categoryId);
+            holder.bindData(VIEW_TYPE_HEADER, item.text, item.product, item.varietyProgress, position);
         } else {
-            holder.bindData(VIEW_TYPE_CONTENT, item.text, item.product, item.varietyProgress, position, categoryId);
+            holder.bindData(VIEW_TYPE_CONTENT, item.text, item.product, item.varietyProgress, position);
         }
         holder.setClickListener(new InventoryProductClickListener() {
             @Override
@@ -134,7 +136,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                     //Toast.makeText(context, "Product Edit screen is on its way!!", Toast.LENGTH_SHORT).show();
                     //@deprecated Intent editProductIntent = new Intent(context, ProductEditActivity.class);
                     Intent editProductIntent = new Intent(context, ProductActivity.class);
-                    EditProduct pro = new EditProduct(mItems.get(position).product, categoryId);
+                    EditProduct pro = new EditProduct(mItems.get(position).product);
                     Parcelable parcelableProduct = Parcels.wrap(pro);
                     editProductIntent.putExtra("product", parcelableProduct);
                     context.startActivity(editProductIntent);
@@ -159,7 +161,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
             holder.setCheckBoxOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    for (InventoryProductVariety ipv : mItems.get(position).product.getVarieties()) {
+                    for (ProductVariety ipv : mItems.get(position).product.getVarieties()) {
                         mItems.get(position).varietyProgress.put(ipv.getId(), true);
                     }
                     requestProductSelection(position, 0l, false);
@@ -198,13 +200,13 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     public void requestProductSelection(int position, Long varietyId, boolean varietySelected) {
         Intent intent = new Intent(context, CommonIntentService.class);
         intent.setAction(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION);
-        InventoryProduct currentProduct = mItems.get(position).product;
+        Product currentProduct = mItems.get(position).product;
         int productsSelected = ProductUtil.getProductSelectionCount(currentProduct);
         ArrayList<Long> productSelection = new ArrayList<>();
         ProductSelectionRequest request = new ProductSelectionRequest();
         if (varietyId == 0) {
             //all varieties selected
-            for (InventoryProductVariety ipv : currentProduct.getVarieties()) {
+            for (ProductVariety ipv : currentProduct.getVarieties()) {
                 productSelection.add(ipv.getId());
             }
 
@@ -253,7 +255,9 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     }
 
     public void updateProductsCache() {
-        List<InventoryProduct> products = new ArrayList<>();
+        //product cache will be updated only when one or more than one product selection request completes in a category...
+        //then on pause ,this function will be called, so that the cache is updated only once for a category (even if there are more that 1 product selection requests success)
+        List<Product> products = new ArrayList<>();
         for (LineItem lineItem : mItems) {
             if (!lineItem.isHeader) {
                 products.add(lineItem.product);
@@ -261,13 +265,9 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         }
         //can only be called from my inventory = false
         if (products != null) {
-            KoleCacheUtil.cacheProductsList(products, categoryId, false, false);
-        } else {
-            KoleCacheUtil.invalidateProductsCache(categoryId, false);
+            //complementary date is contained...because the products were loaded from cache
+            KoleCacheUtil.cacheProductsListInRealm(products, true, true);
         }
-        KoleCacheUtil.invalidateProductsCache(categoryId, true);
-        KoleCacheUtil.invalidateInventoryCategories(true);
-        KoleCacheUtil.invalidateInventorySubcategories(RealmUtils.getParentCategoryIdForCategoryId(categoryId), true);
     }
 
     private static class LineItem {
@@ -278,20 +278,20 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
 
         public String text;
 
-        public InventoryProduct product;
+        public Product product;
 
         public Map<Long, Boolean> varietyProgress;
 
         public LineItem(String text, boolean isHeader,
-                        int sectionFirstPosition, InventoryProduct product) {
+                        int sectionFirstPosition, Product product) {
             this.isHeader = isHeader;
             this.text = text;
             this.sectionFirstPosition = sectionFirstPosition;
             this.product = product;
             varietyProgress = new HashMap<>();
             if (product != null) {
-                List<InventoryProductVariety> listipv = product.getVarieties();
-                for (InventoryProductVariety ipv : listipv) {
+                List<ProductVariety> listipv = product.getVarieties();
+                for (ProductVariety ipv : listipv) {
                     varietyProgress.put(ipv.getId(), false);
                 }
             }
@@ -313,10 +313,10 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         } else if (lineItem.product.getVarieties() == null) {
             Toast.makeText(context, "varieties are null at position " + updatePosition, Toast.LENGTH_SHORT).show();
         } else {
-            for (InventoryProductVariety ipv : lineItem.product.getVarieties()) {
+            for (ProductVariety ipv : lineItem.product.getVarieties()) {
                 if (request.getProductVarietyIds().contains(ipv.getId())) {
                     if (success) {
-                        ipv.setValid(request.isWillSelectOnSuccess());
+                        ipv.setVarietyValid(request.isWillSelectOnSuccess());
                     }
                     lineItem.varietyProgress.put(ipv.getId(), false);
                 }

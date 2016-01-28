@@ -10,12 +10,14 @@ public class InventoryCategory {
     String name;
     String desc;
     String imageUrl;
+    int sortOrder;
 
-    public InventoryCategory(Long id, String name, String desc, String imageUrl) {
+    public InventoryCategory(Long id, String name, String desc, String imageUrl, int sortOrder) {
         this.id = id;
         this.name = name;
         this.desc = desc;
         this.imageUrl = imageUrl;
+        this.sortOrder = sortOrder;
     }
 
     public InventoryCategory() {
@@ -52,5 +54,13 @@ public class InventoryCategory {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public int getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(int sortOrder) {
+        this.sortOrder = sortOrder;
     }
 }

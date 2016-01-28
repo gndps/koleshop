@@ -36,11 +36,11 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import com.koleshop.api.productEndpoint.model.InventoryProduct;
-import com.koleshop.api.productEndpoint.model.InventoryProductVariety;
 import com.koleshop.api.productEndpoint.model.KoleResponse;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.ImageUtils;
 import com.koleshop.appkoleshop.util.KoleCacheUtil;
@@ -68,6 +68,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
@@ -647,68 +648,32 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
             KoleResponse result = new Gson().fromJson(savedProductResponse, KoleResponse.class);
             if (result != null) {
                 LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) result.getData();
-                InventoryProduct savedProduct = new InventoryProduct();
+                Product savedProduct = new Product();
                 savedProduct.setId(Long.parseLong((String) map.get("id")));
                 savedProduct.setName((String) map.get("name"));
                 savedProduct.setBrand((String) map.get("brand"));
+                savedProduct.setCategoryId(product.getCategoryId());
 
                 //extract varieties
-                List<InventoryProductVariety> vars = new ArrayList<>();
+                List<ProductVariety> vars = new ArrayList<>();
                 ArrayList<LinkedTreeMap<String, Object>> arrayListVarieties = (ArrayList<LinkedTreeMap<String, Object>>) map.get("varieties");
                 for (LinkedTreeMap<String, Object> var : arrayListVarieties) {
-                    InventoryProductVariety inventoryProductVariety = new InventoryProductVariety();
-                    inventoryProductVariety.setId(Long.valueOf((String) var.get("id")));
-                    inventoryProductVariety.setQuantity((String) var.get("quantity"));
-                    inventoryProductVariety.setPrice(Float.valueOf(String.valueOf(var.get("price"))));
-                    inventoryProductVariety.setImageUrl((String) var.get("imageUrl"));
-                    inventoryProductVariety.setValid((Boolean) var.get("valid"));
-                    inventoryProductVariety.setLimitedStock(((Boolean) var.get("limitedStock")));
-                    vars.add(inventoryProductVariety);
+                    ProductVariety productVariety = new ProductVariety();
+                    productVariety.setId(Long.valueOf((String) var.get("id")));
+                    productVariety.setQuantity((String) var.get("quantity"));
+                    productVariety.setPrice(Float.valueOf(String.valueOf(var.get("price"))));
+                    productVariety.setImageUrl((String) var.get("imageUrl"));
+                    productVariety.setVarietyValid((Boolean) var.get("valid"));
+                    productVariety.setLimitedStock(((Boolean) var.get("limitedStock")));
+                    vars.add(productVariety);
                 }
-                savedProduct.setVarieties(vars);
+                savedProduct.setVarieties(new RealmList<>(vars.toArray(new ProductVariety[vars.size()])));
 
-                receivedProduct = new EditProduct(savedProduct, product.getCategoryId());
+                receivedProduct = new EditProduct(savedProduct);
 
                 //update the product in ui and cache
-                boolean newProduct = product.getId() == null || product.getId() == 0;
                 product = receivedProduct;
-                if (newProduct) {
-                    KoleCacheUtil.addNewProductToCache(product);
-                    Long parentCategoryId = RealmUtils.getParentCategoryIdForCategoryId(product.getCategoryId());
-                    KoleCacheUtil.invalidateInventorySubcategories(parentCategoryId, true);
-                    KoleCacheUtil.invalidateInventoryCategories(true);
-                } else {
-                    if (oldCategoryId == product.getCategoryId()) {
-                        KoleCacheUtil.updateProductInCache(product);
-                        KoleCacheUtil.invalidateProductsCache(product.getCategoryId(), false);
-                    } else {
-                        KoleshopSingleton.getSharedInstance().setReloadSubcategories(true);
-                        KoleCacheUtil.invalidateProductsCache(product.getCategoryId(), true);
-                        KoleCacheUtil.invalidateProductsCache(product.getCategoryId(), false);
-                        KoleCacheUtil.invalidateProductsCache(oldCategoryId, true);
-                        KoleCacheUtil.invalidateProductsCache(oldCategoryId, false);
-                        KoleCacheUtil.invalidateInventoryCategories(true);
-
-                        //get parent category ids for both these categories and invalidate their cache
-                        Realm realm = Realm.getDefaultInstance();
-                        RealmQuery<ProductCategory> query = realm.where(ProductCategory.class)
-                                .equalTo("id", product.getCategoryId())
-                                .or()
-                                .equalTo("id", oldCategoryId);
-                        RealmResults<ProductCategory> realmResults = query.findAll();
-                        if (realmResults != null && realmResults.size() > 0) {
-                            Iterator<ProductCategory> iterator = realmResults.iterator();
-                            while (iterator.hasNext()) {
-                                ProductCategory cat = iterator.next();
-                                if (cat != null && cat.getParentCategoryId() > 0l) {
-                                    KoleCacheUtil.invalidateInventorySubcategories(cat.getParentCategoryId(), true);
-                                    KoleCacheUtil.invalidateInventorySubcategories(cat.getParentCategoryId(), false);
-                                    KoleshopSingleton.getSharedInstance().setReloadProducts(true);
-                                }
-                            }
-                        }
-                    }
-                }
+                KoleCacheUtil.addUpdateProductInRealmCache(product);
                 KoleshopSingleton.getSharedInstance().setReloadProducts(true);
             }
 
@@ -716,8 +681,8 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
             Log.e(TAG, "some prob in parsing saved product from shared prefs", e);
             KoleCacheUtil.invalidateProductsCache(product.getCategoryId(), true);
             Long parentCategoryId = RealmUtils.getParentCategoryIdForCategoryId(product.getCategoryId());
-            KoleCacheUtil.invalidateInventorySubcategories(parentCategoryId, true);
-            KoleCacheUtil.invalidateInventoryCategories(true);
+            KoleCacheUtil.invalidateProductCategoriesWithParentCategoryId(parentCategoryId, true);
+            KoleCacheUtil.invalidateProductCategoriesWithParentCategoryId(null, true);
             KoleshopSingleton.getSharedInstance().setReloadSubcategories(true);
             PreferenceUtils.setPreferences(mContext, "savedProduct", null);
             super.onBackPressed();
@@ -735,28 +700,6 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         } else {
             Toast.makeText(getApplicationContext(), "Product Saved", Toast.LENGTH_SHORT).show();
             super.onBackPressed();
-            //Snackbar.make(fab, "Product Saved", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
-            //reload fragments with new fragment tags
-            //ProductEditFragment fragmentBasicInfo = new ProductEditFragment();
-            //getSupportFragmentManager().beginTransaction().replace(R.id.container_product_edit_fragments, fragmentBasicInfo, tagFragmentBasicInfo).commitAllowingStateLoss();
-            /*List<Fragment> frags = getSupportFragmentManager().getFragments();
-
-            for(Fragment frag : frags) {
-                if(frag instanceof ProductVarietyEditFragment) {
-                    EditProductVar var = ((ProductVarietyEditFragment) frag).getVariety();
-                    for(EditProductVar editProductVar : product.getEditProductVars()) {
-                        if(var!=null && var.getQuantity().trim().equalsIgnoreCase(editProductVar.getQuantity().trim())
-                                && var.getPrice() == editProductVar.getPrice()) {
-                            //varieties match
-                            getSupportFragmentManager().beginTransaction().replace(R.id.container_product_edit_fragments)
-                        }
-                    }
-
-                } else if(frag instanceof  ProductEditFragment) {
-                    ((ProductEditFragment) frag).refreshData();
-                }
-            }*/
-            //loadValidVarietyFragmentsIntoUi();
         }
 
     }

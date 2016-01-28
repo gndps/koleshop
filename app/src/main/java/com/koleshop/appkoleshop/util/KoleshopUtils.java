@@ -4,9 +4,13 @@ import com.koleshop.api.productEndpoint.model.InventoryProductVariety;
 import com.koleshop.api.productEndpoint.model.InventoryProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
+import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.RealmList;
 
 /**
  * Created by Gundeep on 22/12/15.
@@ -53,6 +57,27 @@ public class KoleshopUtils {
         }
         inventoryProduct.setVarieties(vars);
         return inventoryProduct;
+    }
+
+    public static Product getProductFromEditProduct(EditProduct editProduct) {
+        //prepare data
+        Product product = new Product();
+        product.setId(editProduct.getId());
+        product.setName(editProduct.getName());
+        product.setBrand(editProduct.getBrand());
+        List<ProductVariety> vars = new ArrayList<>();
+        for(EditProductVar var : editProduct.getEditProductVars()) {
+            ProductVariety variety = new ProductVariety();
+            variety.setId(var.getId());
+            variety.setQuantity(var.getQuantity());
+            variety.setImageUrl(var.getImageUrl());
+            variety.setLimitedStock(var.getLimitedStock());
+            variety.setPrice(var.getPrice());
+            variety.setVarietyValid(var.isValid());
+            vars.add(variety);
+        }
+        product.setVarieties(new RealmList<>(vars.toArray(new ProductVariety[vars.size()])));
+        return product;
     }
 
 }

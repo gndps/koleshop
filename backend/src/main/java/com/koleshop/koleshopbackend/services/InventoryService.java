@@ -34,7 +34,7 @@ public class InventoryService {
         String query;
 
         if(myInventory) {
-            query = "select pc1.id,pc1.name,pc1.description,pc1.image_url from ProductCategory pc1 join ProductCategory pc2 on pc1.id = pc2.parent_category_id " +
+            query = "select pc1.id,pc1.name,pc1.description,pc1.image_url,pc1.sort_order from ProductCategory pc1 join ProductCategory pc2 on pc1.id = pc2.parent_category_id " +
                     "and (pc1.parent_category_id is null or pc1.parent_category_id = '0') " +
                     "join Product p on p.category_id = pc2.id and p.user_id=? and p.valid='1' " +
                     "join ProductVariety pv on pv.product_id = p.id and pv.valid='1' " +
@@ -42,7 +42,7 @@ public class InventoryService {
                     "order by pc1.sort_order;";
 
         } else {
-            query = "select id,name,description,image_url from ProductCategory where (parent_category_id is null or parent_category_id = '0') and id not in ("
+            query = "select id,name,description,image_url,sort_order from ProductCategory where (parent_category_id is null or parent_category_id = '0') and id not in ("
                     + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
                     + ") order by sort_order asc";
         }
@@ -61,7 +61,7 @@ public class InventoryService {
             List<InventoryCategory> list = new ArrayList<>();
 
             while (rs.next()) {
-                InventoryCategory inventoryCategory = new InventoryCategory(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4));
+                InventoryCategory inventoryCategory = new InventoryCategory(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getInt(5));
                 list.add(inventoryCategory);
             }
 
@@ -81,13 +81,13 @@ public class InventoryService {
 
         String query;
         if(myInventory) {
-            query = "select pc.id,pc.name from ProductCategory pc inner join Product p on p.category_id = pc.id and p.user_id=? and p.valid='1' " +
+            query = "select pc.id,pc.name,pc.sort_order from ProductCategory pc inner join Product p on p.category_id = pc.id and p.user_id=? and p.valid='1' " +
                     "join ProductVariety pv on p.id = pv.product_id and pv.valid='1' " +
                     "where parent_category_id=? " +
                     "group by pc.id " +
                     "order by pc.sort_order asc;";
         } else {
-            query = "select id,name from ProductCategory where parent_category_id = ? order by sort_order asc;";
+            query = "select id,name,sort_order from ProductCategory where parent_category_id = ? order by sort_order asc;";
         }
 
         try {
@@ -109,6 +109,7 @@ public class InventoryService {
                 InventoryCategory inventoryCategory = new InventoryCategory();
                 inventoryCategory.setId(rs.getLong("id"));
                 inventoryCategory.setName(rs.getString("name"));
+                inventoryCategory.setSortOrder(rs.getInt("sort_order"));
                 list.add(inventoryCategory);
             }
 

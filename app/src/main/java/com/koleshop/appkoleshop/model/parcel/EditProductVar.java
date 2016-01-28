@@ -1,6 +1,7 @@
 package com.koleshop.appkoleshop.model.parcel;
 
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.util.CommonUtils;
 
 import org.parceler.Parcel;
@@ -43,24 +44,13 @@ public class EditProductVar {
         this.tag = tag;
     }
 
-    public EditProductVar(InventoryProductVariety inventoryProductVariety) {
+    public EditProductVar(ProductVariety inventoryProductVariety) {
         this.id = inventoryProductVariety.getId();
         this.quantity = inventoryProductVariety.getQuantity();
         this.price = inventoryProductVariety.getPrice();
         this.imageUrl = inventoryProductVariety.getImageUrl();
-        this.valid = inventoryProductVariety.getValid();
-        this.limitedStock = inventoryProductVariety.getLimitedStock();
-        this.tag = CommonUtils.randomString(10);
-        //this.valid = true;
-    }
-
-    public EditProductVar(com.koleshop.api.productEndpoint.model.InventoryProductVariety inventoryProductVariety) {
-        this.id = inventoryProductVariety.getId();
-        this.quantity = inventoryProductVariety.getQuantity();
-        this.price = inventoryProductVariety.getPrice();
-        this.imageUrl = inventoryProductVariety.getImageUrl();
-        this.valid = inventoryProductVariety.getValid();
-        this.limitedStock = inventoryProductVariety.getLimitedStock();
+        this.valid = inventoryProductVariety.isVarietyValid();
+        this.limitedStock = inventoryProductVariety.isLimitedStock();
         this.tag = CommonUtils.randomString(10);
         //this.valid = true;
     }

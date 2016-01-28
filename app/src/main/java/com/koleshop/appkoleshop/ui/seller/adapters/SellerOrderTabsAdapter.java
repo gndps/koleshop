@@ -11,9 +11,9 @@ import com.koleshop.appkoleshop.ui.seller.fragments.orders.PendingOrdersFragment
 /**
  * Created by Gundeep on 22/01/16.
  */
-public class SellerOrdersAdapter extends FragmentStatePagerAdapter {
+public class SellerOrderTabsAdapter extends FragmentStatePagerAdapter {
 
-    public SellerOrdersAdapter(FragmentManager fm) {
+    public SellerOrderTabsAdapter(FragmentManager fm) {
         super(fm);
     }
 

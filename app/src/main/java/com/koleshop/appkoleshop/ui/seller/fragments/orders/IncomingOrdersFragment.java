@@ -14,7 +14,7 @@ import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.Order;
-import com.koleshop.appkoleshop.ui.seller.adapters.IncomingProductAdapter;
+import com.koleshop.appkoleshop.ui.seller.adapters.IncomingOrderAdapter;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,7 +31,7 @@ public class IncomingOrdersFragment extends Fragment {
     @Bind(R.id.button_retry_incoming_orders)
     Button buttonRetry;
 
-    IncomingProductAdapter adapter;
+    IncomingOrderAdapter adapter;
     Context mContext;
 
     public IncomingOrdersFragment() {
@@ -72,7 +72,7 @@ public class IncomingOrdersFragment extends Fragment {
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new IncomingProductAdapter(mContext);
+        adapter = new IncomingOrderAdapter(mContext);
         adapter.setOrdersList(getDummyOrderList());
         recyclerView.setAdapter(adapter);
     }

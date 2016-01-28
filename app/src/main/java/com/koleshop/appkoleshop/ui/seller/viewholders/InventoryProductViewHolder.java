@@ -11,6 +11,8 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.listeners.InventoryProductClickListener;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.util.ProductUtil;
 import com.koleshop.appkoleshop.network.volley.VolleyUtil;
 import com.koleshop.appkoleshop.ui.seller.views.ViewInventoryProductExpanded;
@@ -42,7 +44,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     private String uniqueTag;
     private InventoryProductClickListener clickListener;
     private int viewType;
-    private InventoryProduct product;
+    private Product product;
     private Map<Long, Boolean> productVarietyCheckBoxProgress;
     private String title;
     private ViewInventoryProductExpanded viewInventoryProductExpanded;
@@ -58,7 +60,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
         mContext = context;
         this.myInventory = myInventory;
         if(viewType == VIEW_TYPE_HEADER) {
-            textViewTitleProductMasterList = (TextView) view.findViewById(R.id.tv_inventory_product_header);
+            textViewTitleProductMasterList = (TextView) view.findViewById(R.id.tv_list_header);
         } else if(viewType == VIEW_TYPE_CONTENT) {
             clickArea1 = (LinearLayout) view.findViewById(R.id.ll_inventory_product_click_area_1);
             clickArea1.setOnClickListener(this);
@@ -130,7 +132,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
         VolleyUtil.getInstance().cancelRequestsWithTag(uniqueTag);
     }
 
-    public void bindData(int viewType, String title, InventoryProduct product, Map<Long, Boolean> productVarietyCheckBoxProgress, int positionInParentView, Long categoryId) {
+    public void bindData(int viewType, String title, Product product, Map<Long, Boolean> productVarietyCheckBoxProgress, int positionInParentView) {
         //bind view holder
         this.viewType = viewType;
         this.product = product;
@@ -159,7 +161,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
                     stopCheckBoxProgress();
                 }
             }
-            List<InventoryProductVariety> varieties = product.getVarieties();
+            List<ProductVariety> varieties = product.getVarieties();
             if(varieties!=null) {
                 String imageUrl = varieties.get(0).getImageUrl();
                 String smallSizeImageUrl="";
@@ -170,7 +172,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
                 //holder.sendImageFetchRequest(context);
             }
         } else { //expanded view
-            viewInventoryProductExpanded.setProduct(product, productVarietyCheckBoxProgress, positionInParentView, categoryId);
+            viewInventoryProductExpanded.setProduct(product, productVarietyCheckBoxProgress, positionInParentView);
         }
     }
 
@@ -210,13 +212,13 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
         } else{
             String description = "";
             boolean first = true;
-            for(InventoryProductVariety ipv : product.getVarieties()) {
+            for(ProductVariety ipv : product.getVarieties()) {
                 String price = Constants.INDIAN_RUPEE_SYMBOL + " " + ipv.getPrice();
                 if(price.endsWith(".0")) {
                     price = price.substring(0, price.length()-2);
                 }
                 String desc = ipv.getQuantity() + " - " + price;
-                if(ipv.getValid()) {
+                if(ipv.isVarietyValid()) {
                     desc += " ✓";
                 } else {
                     desc += " ✗";

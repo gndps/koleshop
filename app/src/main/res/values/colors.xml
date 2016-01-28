@@ -20,7 +20,7 @@
     <color name="error">#DF5748</color>
     <color name="dividercolor">#B6B6B6</color>
     <color name="white">#ffffff</color>
-    <color name="default_background">#eeeeee</color>
+    <color name="default_background">#eaeaea</color>
     <color name="default_background_font">#B7B6B7</color>
     <color name="offwhite">#FAFAFA</color>
     <color name="otherGreen">#5BB990</color>
@@ -30,5 +30,6 @@
     <color name="indian_flag_green">#138808</color>
     <color name="delivery_settings_stroke_color_no">#C1751F</color>
     <color name="delivery_settings_stroke_color_yes">#4C9211</color>
+    <color name="cool_red">#E15252</color>
 
 </resources>

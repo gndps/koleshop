@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 
+import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryProductFragment;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public class InventoryCategoryViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    private List<InventoryCategory> inventoryCategories = new ArrayList<>();
+    private List<ProductCategory> inventoryCategories = new ArrayList<>();
     private static final String TAG = "InventoryCatViewPager";
     private boolean myInventory = false;
 
@@ -48,7 +49,7 @@ public class InventoryCategoryViewPagerAdapter extends FragmentStatePagerAdapter
         return inventoryCategories.size();
     }
 
-    public void setInventoryCategories(List<InventoryCategory> list) {
+    public void setInventoryCategories(List<ProductCategory> list) {
         this.inventoryCategories = list;
     }
 

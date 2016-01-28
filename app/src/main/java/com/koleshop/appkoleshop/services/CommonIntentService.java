@@ -15,6 +15,8 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.util.ArrayMap;
 import com.koleshop.api.commonEndpoint.model.ImageUploadRequest;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.ImageUtils;
 import com.koleshop.appkoleshop.util.NetworkUtils;
@@ -28,8 +30,6 @@ import com.koleshop.api.commonEndpoint.model.BrandCollection;
 import com.koleshop.api.commonEndpoint.model.ProductCategoryCollection;
 import com.koleshop.api.yolo.inventoryEndpoint.InventoryEndpoint;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
 import com.koleshop.api.yolo.inventoryEndpoint.model.KoleResponse;
 import com.koleshop.api.yolo.inventoryEndpoint.model.ProductVarietySelection;
 
@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 
 public class CommonIntentService extends IntentService {
 
@@ -123,6 +124,7 @@ public class CommonIntentService extends IntentService {
                 new AndroidJsonFactory(), null)
                 // use 10.0.2.2 for localhost testing
                 .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
@@ -191,6 +193,7 @@ public class CommonIntentService extends IntentService {
                     new AndroidJsonFactory(), null)
                     // use 10.0.2.2 for localhost testing
                     .setRootUrl(Constants.SERVER_URL)
+                    .setApplicationName(Constants.APP_NAME)
                     .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                         @Override
                         public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
@@ -259,6 +262,7 @@ public class CommonIntentService extends IntentService {
                 new AndroidJsonFactory(), null)
                 // use 10.0.2.2 for localhost testing
                 .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
@@ -297,16 +301,24 @@ public class CommonIntentService extends IntentService {
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
         } else {
-            ArrayList<ArrayMap<String, String>> list = (ArrayList<ArrayMap<String, String>>) result.getData();
-            List<InventoryCategory> cats = new ArrayList<>();
+            ArrayList<ArrayMap<String, Object>> list = (ArrayList<ArrayMap<String, Object>>) result.getData();
+            List<ProductCategory> cats = new ArrayList<>();
             if (list != null) {
-                for (ArrayMap<String, String> map : list) {
+                for (ArrayMap<String, Object> map : list) {
                     if (map != null) {
-                        InventoryCategory cat = new InventoryCategory();
-                        cat.setId(Long.valueOf(map.get("id")));
-                        cat.setName(map.get("name"));
-                        cat.setDesc(map.get("desc"));
-                        cat.setImageUrl(map.get("imageUrl"));
+                        ProductCategory cat = new ProductCategory();
+                        cat.setId(Long.valueOf((String) map.get("id")));
+                        cat.setName((String) map.get("name"));
+                        cat.setDesc((String) map.get("desc"));
+                        cat.setImageUrl((String) map.get("imageUrl"));
+                        cat.setSortOrder(((BigDecimal) map.get("sortOrder")).intValue());
+                        cat.setAddedToMyShop(myInventory);
+                        cat.setParentCategoryId(0l);
+                        if (myInventory) {
+                            cat.setMyShopUpdateDate(new Date());
+                        } else {
+                            cat.setWarehouseUpdateDate(new Date());
+                        }
                         cats.add(cat);
                     }
                 }
@@ -315,7 +327,7 @@ public class CommonIntentService extends IntentService {
             //cache response and send success broadcast
             if (cats != null && cats.size() > 0) {
                 Log.d(TAG, "inventory cateogires fetched");
-                boolean cachedCategories = KoleCacheUtil.cacheInventoryCategories(cats, true, myInventory);
+                boolean cachedCategories = KoleCacheUtil.cacheCategoriesInRealm(cats);
                 if (cachedCategories) {
                     Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -338,6 +350,7 @@ public class CommonIntentService extends IntentService {
                 new AndroidJsonFactory(), null)
                 // use 10.0.2.2 for localhost testing
                 .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
@@ -376,14 +389,22 @@ public class CommonIntentService extends IntentService {
             return;
         }
 
-        ArrayList<ArrayMap<String, String>> list = (ArrayList<ArrayMap<String, String>>) result.getData();
-        List<InventoryCategory> cats = new ArrayList<>();
+        ArrayList<ArrayMap<String, Object>> list = (ArrayList<ArrayMap<String, Object>>) result.getData();
+        List<ProductCategory> cats = new ArrayList<>();
         if (list != null) {
-            for (ArrayMap<String, String> map : list) {
+            for (ArrayMap<String, Object> map : list) {
                 if (map != null) {
-                    InventoryCategory cat = new InventoryCategory();
-                    cat.setId(Long.valueOf(map.get("id")));
-                    cat.setName(map.get("name"));
+                    ProductCategory cat = new ProductCategory();
+                    cat.setId(Long.valueOf((String) map.get("id")));
+                    cat.setName((String) map.get("name"));
+                    cat.setSortOrder(((BigDecimal) map.get("sortOrder")).intValue());
+                    cat.setAddedToMyShop(myInventory);
+                    if (myInventory) {
+                        cat.setMyShopUpdateDate(new Date());
+                    } else {
+                        cat.setWarehouseUpdateDate(new Date());
+                    }
+                    cat.setParentCategoryId(categoryId);
                     cats.add(cat);
                 }
             }
@@ -392,7 +413,7 @@ public class CommonIntentService extends IntentService {
         //cache categories and broadcast result success/failure
         if (cats != null && cats.size() > 0) {
             Log.d(TAG, "inventory subcateogires fetched");
-            boolean categoriesCached = KoleCacheUtil.cacheInventorySubcategories(cats, categoryId, true, myInventory);
+            boolean categoriesCached = KoleCacheUtil.cacheCategoriesInRealm(cats);
             if (categoriesCached) {
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS);
                 intent.putExtra("catId", categoryId);
@@ -418,6 +439,7 @@ public class CommonIntentService extends IntentService {
                 new AndroidJsonFactory(), null)
                 // use 10.0.2.2 for localhost testing
                 .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
@@ -461,42 +483,53 @@ public class CommonIntentService extends IntentService {
 
         //extract product list from result
         ArrayList<ArrayMap<String, Object>> list = (ArrayList<ArrayMap<String, Object>>) result.getData();
-        List<InventoryProduct> products = new ArrayList<>();
+        List<Product> products;
+
+        //1. parse the response
+        products = new ArrayList<>();
         if (list != null) {
-            for (ArrayMap<String, Object> map : list) {
+            for (ArrayMap<String, Object> map : list)
                 if (map != null) {
-                    InventoryProduct prod = new InventoryProduct();
+                    Product prod = new Product();
                     prod.setId(Long.valueOf((String) map.get("id")));
                     prod.setName((String) map.get("name"));
                     //prod.setDescription((String) map.get("description"));
                     prod.setBrand((String) map.get("brand"));
+                    prod.setCategoryId(categoryId);
+                    if (myInventory) {
+                        prod.setUpdateDateMyShop(new Date());
+                    } else {
+                        prod.setUpdateDateWareHouse(new Date());
+                    }
                     //prod.setAdditionalInfo((String) map.get("additionalInfo"));
                     //prod.setAdditionalInfo((String) map.get("specialDescription"));
                     //prod.setPrivateToUser(Boolean.valueOf((Boolean) map.get("privateToUser")));
                     //prod.setSelectedByUser(Boolean.valueOf((Boolean) map.get("selectedByUser")));
                     ArrayList<ArrayMap<String, Object>> varieties = (ArrayList<ArrayMap<String, Object>>) map.get("varieties");
-                    List<InventoryProductVariety> inventoryProductVarieties = new ArrayList<>();
+                    List<ProductVariety> productVarieties = new ArrayList<>();
                     for (ArrayMap<String, Object> variety : varieties) {
-                        InventoryProductVariety invProVar = new InventoryProductVariety();
-                        invProVar.setId(Long.valueOf((String) variety.get("id")));
-                        invProVar.setQuantity((String) variety.get("quantity"));
-                        invProVar.setPrice(((BigDecimal) variety.get("price")).floatValue());
-                        invProVar.setImageUrl((String) variety.get("imageUrl"));
-                        //invProVar.setVegNonVeg((String) variety.get("vegNonVeg"));
-                        invProVar.setValid((Boolean) variety.get("valid"));
-                        invProVar.setLimitedStock((Boolean) variety.get("limitedStock"));
-                        inventoryProductVarieties.add(invProVar);
+                        ProductVariety proVar = new ProductVariety();
+                        proVar.setId(Long.valueOf((String) variety.get("id")));
+                        proVar.setQuantity((String) variety.get("quantity"));
+                        proVar.setPrice(((BigDecimal) variety.get("price")).floatValue());
+                        proVar.setImageUrl((String) variety.get("imageUrl"));
+                        //proVar.setVegNonVeg((String) variety.get("vegNonVeg"));
+                        proVar.setVarietyValid((Boolean) variety.get("valid"));
+                        proVar.setLimitedStock((Boolean) variety.get("limitedStock"));
+                        productVarieties.add(proVar);
                     }
-                    prod.setVarieties(inventoryProductVarieties);
+
+                    prod.setVarieties(new RealmList<>(productVarieties.toArray(new ProductVariety[productVarieties.size()])));
                     products.add(prod);
                 }
-            }
         }
 
-        //cache response and broadcast success
+        //2. Cache the parsed response and broadcast success
         if (products != null && products.size() > 0) {
             Log.d(TAG, "products fetch SUCCESS for category id " + categoryId + ".");
-            boolean productsCached = KoleCacheUtil.cacheProductsList(products, categoryId, true, myInventory);
+            boolean productsCached;
+            //complementary date doesn't exist because the products are loaded from internet
+            productsCached = KoleCacheUtil.cacheProductsListInRealm(products, false, false);
             if (productsCached) {
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS);
                 intent.putExtra("catId", categoryId);
@@ -514,6 +547,7 @@ public class CommonIntentService extends IntentService {
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
 
+
     }
 
     private void updateInventoryProductSelection(ProductSelectionRequest productSelectionRequest) {
@@ -522,6 +556,7 @@ public class CommonIntentService extends IntentService {
                 new AndroidJsonFactory(), null)
                 // use 10.0.2.2 for localhost testing
                 .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
@@ -581,6 +616,7 @@ public class CommonIntentService extends IntentService {
                 new AndroidJsonFactory(), null)
                 // use 10.0.2.2 for localhost testing
                 .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
@@ -599,7 +635,7 @@ public class CommonIntentService extends IntentService {
             String sessionId = PreferenceUtils.getSessionId(context);
             byte[] imageByteArray = ImageUtils.getImageByteArrayForUpload(filepath);
             ImageUploadRequest imageUploadRequest = new ImageUploadRequest();
-            if(!filename.startsWith("IMG_") || !filename.endsWith("_" + userId + ".jpg") || !filename.endsWith("_" + userId + ".png")) {
+            if (!filename.startsWith("IMG_") || !filename.endsWith("_" + userId + ".jpg") || !filename.endsWith("_" + userId + ".png")) {
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 String random6 = CommonUtils.randomString(6);
                 filename = "IMG" + "_" + timeStamp + "_" + random6 + "_" + userId + ".jpg";

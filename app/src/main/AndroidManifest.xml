@@ -162,7 +162,12 @@
         <activity
             android:name=".ui.common.activities.MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".ui.seller.activities.SellerOrdersActivity"></activity>
+        <activity android:name=".ui.seller.activities.SellerOrdersActivity" />
+        <activity
+            android:name=".ui.common.activities.OrderDetailsActivity"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Sliding.Light"></activity>
     </application>
 
 </manifest>

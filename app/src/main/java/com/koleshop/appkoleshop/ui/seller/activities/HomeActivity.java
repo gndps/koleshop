@@ -435,10 +435,20 @@ public class HomeActivity extends AppCompatActivity {
             if (r != null) {
                 Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
             }
-        } catch (RealmException e) {
+        } catch (Exception e) {
             Log.e(TAG, "realm exception", e);
         } finally {
-            Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+            try {
+                Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+            } catch(Exception e) {
+                Log.d(TAG, "Could not delete realm...must be open", e);
+                try {
+                    Realm.getDefaultInstance().close();
+                    Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+                } catch (Exception e2) {
+                    Log.d(TAG, "Could not close or delete realm", e2);
+                }
+            }
         }
     }
 

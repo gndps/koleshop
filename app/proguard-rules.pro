@@ -19,10 +19,16 @@
 -dontwarn com.squareup.okhttp.**
 -keep class android.support.v7.** { *; }
 -keep interface android.support.v7.** { *; }
+
+# realm proguard
 -keep class io.realm.annotations.RealmModule
 -keep @io.realm.annotations.RealmModule class *
+-keep class io.realm.internal.Keep
+-keep @io.realm.internal.Keep class * { *; }
 -dontwarn javax.**
 -dontwarn io.realm.**
+
+# google proguard
 -keep class com.google.**
 -dontwarn com.google.**
 -keep class android.support.design.widget.** { *; }

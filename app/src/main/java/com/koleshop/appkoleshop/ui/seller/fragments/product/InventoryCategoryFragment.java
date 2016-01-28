@@ -24,6 +24,7 @@ import android.widget.ViewFlipper;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
 import com.koleshop.appkoleshop.ui.seller.activities.ProductActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
@@ -196,7 +197,7 @@ public class InventoryCategoryFragment extends Fragment {
     }
 
     private void loadInventoryCategories() {
-        List<InventoryCategory> cachedCategories = getCachedInventoryCategories();
+        List<ProductCategory> cachedCategories = getCachedInventoryCategories();
         if (cachedCategories != null && Constants.KOLE_CACHE_ALLOWED) {
             inventoryLoadSuccess(cachedCategories);
         } else {
@@ -204,8 +205,8 @@ public class InventoryCategoryFragment extends Fragment {
         }
     }
 
-    public List<InventoryCategory> getCachedInventoryCategories() {
-        return KoleCacheUtil.getCachedInventoryCategories(myInventory);
+    public List<ProductCategory> getCachedInventoryCategories() {
+        return KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, null);
     }
 
     public void loadInventoryCategoriesFromInternet() {
@@ -216,8 +217,8 @@ public class InventoryCategoryFragment extends Fragment {
         getActivity().startService(commonIntent);
     }
 
-    private void inventoryLoadSuccess(List<InventoryCategory> categories) {
-        List<InventoryCategory> listOfInventoryCategories;
+    private void inventoryLoadSuccess(List<ProductCategory> categories) {
+        List<ProductCategory> listOfInventoryCategories;
         if (categories == null) {
             listOfInventoryCategories = getCachedInventoryCategories();
         } else {

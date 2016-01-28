@@ -300,4 +300,32 @@ public class CommonUtils {
         return format1.format(date);
     }
 
+    public static String getDayCommonName(Date date) {
+        Date dateToday = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateToday);
+        int dayToday = calendar.get(Calendar.DAY_OF_MONTH);
+        int monthToday = calendar.get(Calendar.MONTH);
+        int yearToday = calendar.get(Calendar.YEAR);
+
+        calendar.setTime(date);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH);
+        int year = calendar.get(Calendar.YEAR);
+
+        if(dayToday == day && month == monthToday && year == yearToday) {
+            //it's todays date
+            return "Today";
+        } else {
+            return "Older";
+        }
+    }
+
+    public static Date getDate(Date date, int differenceInSeconds) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.SECOND, differenceInSeconds);
+        return calendar.getTime();
+    }
+
 }
