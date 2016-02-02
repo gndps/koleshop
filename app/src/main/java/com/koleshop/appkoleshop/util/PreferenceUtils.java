@@ -114,18 +114,20 @@ public class PreferenceUtils {
     }
 
     public static Long getUserId(Context context) {
-        String userIdString = PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID);
+        return 7l;
+        /*String userIdString = PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID);
         Long userId;
         try {
             userId = Long.parseLong(userIdString);
         } catch (Exception e) {
             userId = 0l;
         }
-        return userId;
+        return userId;*/
     }
 
     public static String getSessionId(Context context) {
-        return getPreferences(context, Constants.KEY_SESSION_ID);
+        return "2fd859be-96e2-4d30-93c3-f744238bdca3";
+        //return getPreferences(context, Constants.KEY_SESSION_ID);
     }
 
     public static boolean isUserLoggedIn(Context context) {

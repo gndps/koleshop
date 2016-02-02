@@ -121,7 +121,7 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
             }
         }
 
-        setupMode = true;
+        //setupMode = true;
 
         if(settings!=null || setupMode) {
             loadSettingsIntoUi();

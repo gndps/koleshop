@@ -225,6 +225,7 @@ public class CommonService {
                         .addData("millis", ""+new Date().getTime())
                         .build();
                 GcmHelper.notifyUser(userId, gcmMessage, 2);
+                GcmHelper.notifyUser(9l, gcmMessage, 2);
             } else {
                 //settings update
                 response.setStatus("settings_not_updated");

@@ -12,10 +12,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.koleshop.appkoleshop.constant.Constants;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
+import com.koleshop.appkoleshop.ui.buyer.views.ViewProductVarietyBuyer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +34,12 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
     List<ViewInventoryProductVariety> varietyViews;
     Long categoryId;
     int positionInParent;
+    boolean customerView;
 
-    public ViewInventoryProductExpanded(Context context, View view) {
+    public ViewInventoryProductExpanded(Context context, View view, boolean customerView) {
         super(context);
         this.mContext = context;
+        this.customerView = customerView;
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         //inflate title view and variety containers
@@ -57,18 +58,37 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
         varietyViews = new ArrayList<>();
         container.removeAllViews();
         for (ProductVariety var : varieties) {
-            ViewInventoryProductVariety viewInventoryProductVariety = new ViewInventoryProductVariety(mContext, var, checkboxesProgress.get(var.getId()), null);
-            final Long varietyId = var.getId();
-            final boolean varietySelected = var.isVarietyValid();
-            viewInventoryProductVariety.setClickListenerArea1(this);
-            viewInventoryProductVariety.setClickListenerArea2(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    requestProductSelection(varietyId, varietySelected);
-                }
-            });
-            varietyViews.add(viewInventoryProductVariety);
-            container.addView(viewInventoryProductVariety);
+            if(!customerView) {
+                ViewInventoryProductVariety viewInventoryProductVariety = new ViewInventoryProductVariety(mContext, var, checkboxesProgress.get(var.getId()), null, customerView);
+                final Long varietyId = var.getId();
+                final boolean varietySelected = var.isVarietyValid();
+                viewInventoryProductVariety.setClickListenerArea1(this);
+                viewInventoryProductVariety.setClickListenerArea2(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        requestProductSelection(varietyId, varietySelected);
+                    }
+                });
+                varietyViews.add(viewInventoryProductVariety);
+                container.addView(viewInventoryProductVariety);
+            } else {
+                ViewProductVarietyBuyer viewProductVarietyBuyer = new ViewProductVarietyBuyer(mContext, var, customerView, false, product.getName());
+                final Long varietyId = var.getId();
+                viewProductVarietyBuyer.setClickListenerArea1(this);
+                viewProductVarietyBuyer.setPlusButtonClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        increaseVarietyCountInCart(varietyId);
+                    }
+                });
+                viewProductVarietyBuyer.setMinusButtonClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        decreaseVarietyCountInCart(varietyId);
+                    }
+                });
+                container.addView(viewProductVarietyBuyer);
+            }
         }
         view.setBackgroundColor(Color.parseColor("#FFFFFF"));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -82,6 +102,22 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
         intentInternal.putExtra("varietyId", varietyId);
         intentInternal.putExtra("position", positionInParent);
         intentInternal.putExtra("varietySelected", varietySelected);
+        intentInternal.putExtra("requestCategoryId", categoryId);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentInternal);
+    }
+
+    private void increaseVarietyCountInCart(Long varietyId) {
+        Intent intentInternal = new Intent(Constants.ACTION_INCREASE_VARIETY_COUNT);
+        intentInternal.putExtra("varietyId", varietyId);
+        intentInternal.putExtra("position", positionInParent);
+        intentInternal.putExtra("requestCategoryId", categoryId);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentInternal);
+    }
+
+    private void decreaseVarietyCountInCart(Long varietyId) {
+        Intent intentInternal = new Intent(Constants.ACTION_DECREASE_VARIETY_COUNT);
+        intentInternal.putExtra("varietyId", varietyId);
+        intentInternal.putExtra("position", positionInParent);
         intentInternal.putExtra("requestCategoryId", categoryId);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentInternal);
     }

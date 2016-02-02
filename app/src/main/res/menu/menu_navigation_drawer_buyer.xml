@@ -15,6 +15,12 @@
             android:icon="@drawable/ic_store_grey600_24dp"
             android:title="@string/navigation_drawer_nearby_shops" />
 
+        <item
+            android:id="@+id/drawer_cart"
+            android:checked="true"
+            android:icon="@drawable/ic_shopping_cart_grey600_24dp"
+            android:title="@string/navigation_drawer_cart" />
+
         <!--item
             android:id="@+id/drawer_add_edit"
             android:icon="@drawable/ic_add_edit"
@@ -35,6 +41,11 @@
             android:icon="@drawable/ic_favorite_grey600_24dp"
             android:title="@string/navigation_drawer_favorite_shops" />
 
+        <item
+            android:id="@+id/drawer_addresses"
+            android:icon="@drawable/ic_map_grey600_24dp"
+            android:title="@string/navigation_drawer_addresses" />
+
         <!--item
             android:id="@+id/drawer_test"
             android:icon="@drawable/ic_login"
@@ -42,7 +53,9 @@
 
     </group>
 
-    <group android:checkableBehavior="none">
+    <group
+        android:id="@+id/buyer_drawer_settings"
+        android:checkableBehavior="none">
         <item
             android:id="@+id/drawer_settings"
             android:icon="@drawable/ic_settings"
@@ -60,15 +73,19 @@
 
     </group>
 
-    <group android:checkableBehavior="none">
+    <group android:id="@+id/buyer_drawer_help"
+        android:checkableBehavior="none">
         <item
             android:id="@+id/drawer_help"
+            android:menuCategory="secondary"
             android:title="@string/navigation_drawer_help" />
     </group>
 
-    <group android:checkableBehavior="none">
+    <group android:id="@+id/buyer_drawer_legal"
+        android:checkableBehavior="none">
         <item
             android:id="@+id/drawer_legal"
+            android:menuCategory="secondary"
             android:title="@string/navigation_drawer_legal" />
     </group>
 

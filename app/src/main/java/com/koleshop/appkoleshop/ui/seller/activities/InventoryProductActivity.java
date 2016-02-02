@@ -51,6 +51,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     ViewPager viewPager;
     private static final String TAG = "InventoryPrductActity";
     private boolean myInventory = false;
+    private boolean customerView = false;
     int selectedPage;
     @Bind(R.id.fab_add_new_product)
     FloatingActionButton menuMultipleActions;
@@ -68,13 +69,17 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
             parentCategoryId = extras.getLong("categoryId");
             categoryTitle = extras.getString("categoryTitle");
             myInventory = extras.getBoolean("myInventory");
+            customerView = extras.getBoolean("customerView");
+        } else if (savedInstanceState != null) {
+            selectedPage = savedInstanceState.getInt("selectedPage");
+            parentCategoryId = savedInstanceState.getLong("categoryId");
+            categoryTitle = savedInstanceState.getString("categoryTitle");
+            myInventory = savedInstanceState.getBoolean("myInventory");
+            customerView = savedInstanceState.getBoolean("customerView");
         }
         initializeBroadcastReceivers();
         setupActivity();
         fetchCategories();
-        if (savedInstanceState != null) {
-            selectedPage = savedInstanceState.getInt("selectedPage");
-        }
     }
 
     @Override
@@ -93,6 +98,10 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("selectedPage", selectedPage);
+        outState.putLong("categoryId", parentCategoryId);
+        outState.putString("categoryTitle", categoryTitle);
+        outState.putBoolean("myInventory", myInventory);
+        outState.putBoolean("customerView", customerView);
     }
 
     private void initializeBroadcastReceivers() {
@@ -183,7 +192,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     }
 
     private void setupViewPager(ViewPager viewPager, List<ProductCategory> subcategories) {
-        InventoryCategoryViewPagerAdapter adapter = new InventoryCategoryViewPagerAdapter(getSupportFragmentManager(), myInventory);
+        InventoryCategoryViewPagerAdapter adapter = new InventoryCategoryViewPagerAdapter(getSupportFragmentManager(), myInventory, customerView);
         final List<ProductCategory> categories;
         if (subcategories != null && subcategories.size() > 0) {
             categories = subcategories;
@@ -257,16 +266,20 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     }
 
     private void initFabMenu() {
-        menuMultipleActions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addNewProduct();
-            }
-        });
-        menuMultipleActions.setSize(FloatingActionButton.SIZE_NORMAL);
-        menuMultipleActions.setColorNormalResId(R.color.white);
-        menuMultipleActions.setColorPressedResId(R.color.offwhite);
-        menuMultipleActions.setIcon(R.drawable.ic_add_grey600_48dp);
+        if(customerView) {
+            menuMultipleActions.setVisibility(View.GONE);
+        } else {
+            menuMultipleActions.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addNewProduct();
+                }
+            });
+            menuMultipleActions.setSize(FloatingActionButton.SIZE_NORMAL);
+            menuMultipleActions.setColorNormalResId(R.color.white);
+            menuMultipleActions.setColorPressedResId(R.color.offwhite);
+            menuMultipleActions.setIcon(R.drawable.ic_add_grey600_48dp);
+        }
     }
 
     private void addNewProduct() {

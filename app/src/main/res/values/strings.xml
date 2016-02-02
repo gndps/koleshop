@@ -67,6 +67,7 @@
     <string name="navigation_drawer_logout">Log out</string>
     <string name="navigation_drawer_test">Test</string>
     <string name="navigation_drawer_nearby_shops">Nearby Shops</string>
+    <string name="navigation_drawer_cart">Cart</string>
     <string name="navigation_drawer_my_orders">My Orders</string>
     <string name="navigation_drawer_saved_items">Saved Items</string>
     <string name="navigation_drawer_favorite_shops">Favorite Shops</string>

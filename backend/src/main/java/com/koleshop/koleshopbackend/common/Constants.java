@@ -35,7 +35,10 @@ public class Constants {
 	public static String GCM_NOTI_DELETE_OLD_SETTINGS_CACHE = "gcm_noti_delete_old_settings_cache";
 	public static String GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE = "gcm_coll_delete_old_settings_cache";
 
-    //server client response statuses other than success and failure
+	public static String GCM_DEMO_MESSAGE_COLLAPSE_KEY = "demo_coll_key";
+	public static String GCM_DEMO_MESSAGE = "demo_key";
+
+	//server client response statuses other than success and failure
     public static String STATUS_KOL_RESPONSE_CREATING_INVENTORY = "status_kol_response_creating_inventory";
 
 	public static String ADDRESS_TYPE_CUSTOMER = "0";

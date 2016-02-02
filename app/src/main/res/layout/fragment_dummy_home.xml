@@ -7,6 +7,7 @@
     tools:context=".ui.seller.fragments.DummyHomeFragment">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/dummy_seller_switch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
@@ -91,6 +92,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_df_sales"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -106,6 +108,7 @@
                 android:src="@drawable/sales_dummy_graph" />
 
             <TextView
+                android:id="@+id/tv_df_no_sales"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

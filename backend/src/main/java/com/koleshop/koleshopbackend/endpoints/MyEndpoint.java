@@ -6,10 +6,14 @@
 
 package com.koleshop.koleshopbackend.endpoints;
 
+import com.google.android.gcm.server.Message;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.koleshop.koleshopbackend.common.Constants;
+import com.koleshop.koleshopbackend.db.models.KoleResponse;
 import com.koleshop.koleshopbackend.db.models.MyBean;
+import com.koleshop.koleshopbackend.gcm.GcmHelper;
 
 import javax.inject.Named;
 
@@ -28,6 +32,40 @@ public class MyEndpoint {
         response.setData("Hi, " + name);
 
         return response;
+    }
+
+    @ApiMethod(name = "sendToSeller")
+    public KoleResponse sendToSeller(@Named("type") String type, @Named("jsonString") String jsonString) {
+        try {
+            Message gcmMessage = new Message.Builder()
+                    .collapseKey(Constants.GCM_DEMO_MESSAGE_COLLAPSE_KEY)
+                    .addData("type", Constants.GCM_DEMO_MESSAGE)
+                    .addData("messageType", type)
+                    .addData("jsonData", jsonString)
+                    .build();
+            GcmHelper.notifyUser(7l, gcmMessage, 2);
+            KoleResponse response = new KoleResponse();
+            response.setSuccess(true);
+            return response;
+        } catch (Exception e) {
+            return KoleResponse.failedResponse();
+        }
+    }
+
+    public KoleResponse sendToBuyer(@Named("jsonString") String jsonString) {
+        try {
+            Message gcmMessage = new Message.Builder()
+                    .collapseKey(Constants.GCM_DEMO_MESSAGE_COLLAPSE_KEY)
+                    .addData("type", Constants.GCM_DEMO_MESSAGE)
+                    .addData("jsonData", jsonString)
+                    .build();
+            GcmHelper.notifyUser(7l, gcmMessage, 2);
+            KoleResponse response = new KoleResponse();
+            response.setSuccess(true);
+            return response;
+        } catch (Exception e) {
+            return KoleResponse.failedResponse();
+        }
     }
 
 }

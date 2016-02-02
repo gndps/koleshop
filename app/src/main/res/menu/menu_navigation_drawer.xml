@@ -6,7 +6,7 @@
         <item
             android:id="@+id/drawer_home"
             android:checked="true"
-            android:visible="false"
+            android:visible="true"
             android:icon="@drawable/ic_home_grey600_24dp"
             android:title="@string/navigation_drawer_home" />
 

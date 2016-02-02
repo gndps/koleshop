@@ -84,6 +84,10 @@ public class Constants {
     public static final String ACTION_SWITCH_BACK_TO_MY_SHOP = "com.koleshop.action_switch_back_to_myshop";
     public static final String ACTION_RELOAD_SETTINGS = "com.koleshop.action_reload_settings";
 
+    //demo actions
+    public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";
+    public static final String ACTION_DECREASE_VARIETY_COUNT = "com.koleshop.action_decrease_variety_count";
+
     //gcm broadcast actions
     public static final String ACTION_GCM_REGISTRATION_COMPLETE = "com.koleshop.action_gcm_registration_complete";
     public static final String ACTION_GCM_REGISTRATION_FAILED = "com.koleshop.action_gcm_registration_failed";

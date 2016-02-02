@@ -58,6 +58,7 @@ public class InventoryProductFragment extends Fragment {
     private static final int VF_NO_PRODUCTS = 3;
 
     private boolean myInventory = false;
+    private boolean customerView = false;
 
     private boolean updateCacheOnPause = false;
     InventoryProductFragmentInteractionListener mListener;
@@ -74,6 +75,10 @@ public class InventoryProductFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             myInventory = bundle.getBoolean("myInventory", false);
+            customerView = bundle.getBoolean("customerView", false);
+        } else if(savedInstanceState!=null) {
+            myInventory = savedInstanceState.getBoolean("myInventory", false);
+            customerView = savedInstanceState.getBoolean("customerView", false);
         }
         mContext = getActivity();
         refreshProductsInsteadOfReloading = false;
@@ -108,6 +113,8 @@ public class InventoryProductFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean("myInventory", myInventory);
+        outState.putBoolean("customerView", customerView);
     }
 
     @Override
@@ -120,6 +127,8 @@ public class InventoryProductFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE));
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT));
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_COLLAPSE_EXPANDED_PRODUCT));
+        lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_INCREASE_VARIETY_COUNT));
+        lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_DECREASE_VARIETY_COUNT));
 
         KoleshopSingleton koleshopSingleton = KoleshopSingleton.getSharedInstance();
         if(koleshopSingleton.isReloadProducts() && koleshopSingleton.getReloadProductsCategoryIds()!=null) {
@@ -196,6 +205,26 @@ public class InventoryProductFragment extends Fragment {
                         int position = intent.getIntExtra("position", 0);
                         if (position > 0 && receivedCategoryId == categoryId) {
                             inventoryProductAdapter.collapseTheExpandedItem();
+                        } else {
+                            return;
+                        }
+                    } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_INCREASE_VARIETY_COUNT)) {
+                        Long requestCategoryId = intent.getLongExtra("requestCategoryId", 0l);
+                        Long varietyId = intent.getLongExtra("varietyId", 0l);
+                        int position = intent.getIntExtra("position", 0);
+                        if (varietyId > 0 && requestCategoryId == categoryId) {
+                            inventoryProductAdapter.increaseVarietyCount(position, varietyId);
+                            inventoryProductAdapter.notifyItemChanged(position);
+                        } else {
+                            return;
+                        }
+                    } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_DECREASE_VARIETY_COUNT)) {
+                        Long requestCategoryId = intent.getLongExtra("requestCategoryId", 0l);
+                        Long varietyId = intent.getLongExtra("varietyId", 0l);
+                        int position = intent.getIntExtra("position", 0);
+                        if (varietyId > 0 && requestCategoryId == categoryId) {
+                            inventoryProductAdapter.decreaseVarietyCount(position, varietyId);
+                            inventoryProductAdapter.notifyItemChanged(position);
                         } else {
                             return;
                         }
@@ -291,7 +320,7 @@ public class InventoryProductFragment extends Fragment {
             return;
         } else {
             try {
-                inventoryProductAdapter = new InventoryProductAdapter(activity, categoryId, myInventory);
+                inventoryProductAdapter = new InventoryProductAdapter(activity, categoryId, myInventory, customerView);
                 recyclerView.setAdapter(inventoryProductAdapter);
                 recyclerView.setHasFixedSize(true);
 

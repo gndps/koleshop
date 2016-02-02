@@ -57,6 +57,7 @@ public class InventoryCategoryFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiverInventoryCategoryFragment;
     private static final String TAG = "InventoryCategoryFrag";
     private boolean myInventory = false;
+    private boolean customerView = false;
     @Bind(R.id.multiple_actions)
     FloatingActionsMenu menuMultipleActions;
 
@@ -68,6 +69,7 @@ public class InventoryCategoryFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             myInventory = args.getBoolean("myInventory", false);
+            customerView = args.getBoolean("customerView", false);
         }
         initializeBroadcastReceivers();
     }
@@ -90,12 +92,13 @@ public class InventoryCategoryFragment extends Fragment {
         recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                if(menuMultipleActions!=null && menuMultipleActions.isExpanded()) {
+                if (menuMultipleActions != null && menuMultipleActions.isExpanded()) {
                     menuMultipleActions.collapse();
                 } else {
                     Intent intent = new Intent(mContext, InventoryProductActivity.class);
                     intent.putExtra("categoryId", inventoryCategoryAdapter.getInventoryCategoryId(position));
                     intent.putExtra("myInventory", myInventory);
+                    intent.putExtra("customerView", customerView);
                     String categoryName = inventoryCategoryAdapter.getInventoryCategoryName(position);
                     if (categoryName != null && !categoryName.isEmpty()) {
                         intent.putExtra("categoryTitle", categoryName);
@@ -122,17 +125,21 @@ public class InventoryCategoryFragment extends Fragment {
 
             }
         }));
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if(menuMultipleActions!=null && menuMultipleActions.isExpanded()) {
-                    menuMultipleActions.collapse();
-                } else {
-                    super.onScrolled(recyclerView, dx, dy);
+        if (!customerView) {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    if (menuMultipleActions != null && menuMultipleActions.isExpanded()) {
+                        menuMultipleActions.collapse();
+                    } else {
+                        super.onScrolled(recyclerView, dx, dy);
+                    }
                 }
-            }
-        });
-        initFabMenu();
+            });
+            initFabMenu();
+        } else {
+            menuMultipleActions.setVisibility(View.GONE);
+        }
         return layout;
     }
 
@@ -150,7 +157,6 @@ public class InventoryCategoryFragment extends Fragment {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 
     @Override
@@ -235,6 +241,12 @@ public class InventoryCategoryFragment extends Fragment {
 
     private void inventoryLoadFailed() {
         viewFlipper.setDisplayedChild(2);
+
+        if (customerView) {
+            Toast.makeText(mContext, "Some problem in opening shop", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         String title;
         if (myInventory) {
             title = "My Shop";
@@ -357,7 +369,7 @@ public class InventoryCategoryFragment extends Fragment {
     }
 
     public boolean isBackAllowed() {
-        if(menuMultipleActions!=null && menuMultipleActions.isExpanded()) {
+        if (menuMultipleActions != null && menuMultipleActions.isExpanded()) {
             menuMultipleActions.collapse();
             return false;
         }

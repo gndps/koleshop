@@ -45,3 +45,10 @@
     public ** writeValueAsString(**);
 }
 -keepnames class com.fasterxml.jackson.** { *; }
+
+#proguard for Icepick
+-dontwarn icepick.**
+-keep class **$$Icepick { *; }
+-keepclasseswithmembernames class * {
+    @icepick.* <fields>;
+}

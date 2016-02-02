@@ -167,7 +167,12 @@
             android:name=".ui.common.activities.OrderDetailsActivity"
             android:excludeFromRecents="true"
             android:taskAffinity=""
-            android:theme="@style/Theme.Sliding.Light"></activity>
+            android:theme="@style/Theme.Sliding.Light" />
+        <activity android:name=".ui.buyer.activities.CartActivity" />
+
+        <service
+            android:name=".services.DemoIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

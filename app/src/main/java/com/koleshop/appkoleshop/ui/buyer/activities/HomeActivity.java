@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.CommonUtils;
@@ -53,7 +54,7 @@ public class HomeActivity extends AppCompatActivity {
     private int selectedFragment;
     private String titleOnBackPressed;
 
-    @BindString(R.string.navigation_drawer_products) String titleMyShop;
+    @BindString(R.string.navigation_drawer_nearby_shops) String titleNearbyShops;
     @BindString(R.string.navigation_drawer_inventory) String titleWareHouse;
     @BindString(R.string.navigation_drawer_home) String titleHome;
 
@@ -114,22 +115,29 @@ public class HomeActivity extends AppCompatActivity {
                     case R.id.drawer_home:
                         getSupportActionBar().setTitle(titleHome);
                         DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
-                        getSupportFragmentManager().beginTransaction()
+                        Bundle bundl = new Bundle();
+                        bundl.putBoolean("buyerMode", true);
+                        dummyHomeFragment.setArguments(bundl);
+                        getFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container, dummyHomeFragment).commit();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
                         selectedFragment = FRAGMENT_HOME;
                         return true;
-                    case R.id.drawer_products:
+                    case R.id.drawer_nearby_shops:
                         //Products
-                        getSupportActionBar().setTitle(titleMyShop);
-                        InventoryCategoryFragment myInventoryCategoryFragment = new InventoryCategoryFragment();
-                        Bundle bundleMyInventory = new Bundle();
-                        bundleMyInventory.putBoolean("myInventory", true);
-                        myInventoryCategoryFragment.setArguments(bundleMyInventory);
+                        getSupportActionBar().setTitle(titleNearbyShops);
+                        NearbyShopsFragment nearbyShopsFragment= new NearbyShopsFragment();
                         getFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, myInventoryCategoryFragment, "frag_my_shop").commit();
+                                .replace(R.id.fragment_container, nearbyShopsFragment, "frag_my_shop").commit();
                         menuItem.setChecked(true);
+                        drawerLayout.closeDrawers();
+                        selectedFragment = FRAGMENT_MY_SHOP;
+                        return true;
+                    case R.id.drawer_cart:
+                        //Cart
+                        Intent intentCart = new Intent(mContext, CartActivity.class);
+                        startActivity(intentCart);
                         drawerLayout.closeDrawers();
                         selectedFragment = FRAGMENT_MY_SHOP;
                         return true;
@@ -212,7 +220,10 @@ public class HomeActivity extends AppCompatActivity {
 
     private void addInitialFragment() {
         DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
-        getSupportFragmentManager().beginTransaction()
+        Bundle bundl = new Bundle();
+        bundl.putBoolean("buyerMode", true);
+        dummyHomeFragment.setArguments(bundl);
+        getFragmentManager().beginTransaction()
                 .replace(com.koleshop.appkoleshop.R.id.fragment_container, dummyHomeFragment).commit();
     }
 
@@ -269,7 +280,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (fragmentManager.getBackStackEntryCount() > 0) {
                     fragmentManager.popBackStack();
                     if (titleOnBackPressed != null && !titleOnBackPressed.isEmpty()) {
-                        getSupportActionBar().setTitle(titleMyShop);
+                        getSupportActionBar().setTitle(titleNearbyShops);
                         titleOnBackPressed = "";
                     }
                 } else {
@@ -286,7 +297,7 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             getSupportActionBar().setTitle(titleHome);
             DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
-            getSupportFragmentManager().beginTransaction()
+            getFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, dummyHomeFragment).commit();
             drawerLayout.closeDrawers();
             selectedFragment = FRAGMENT_HOME;
@@ -331,7 +342,7 @@ public class HomeActivity extends AppCompatActivity {
                     inventoryCategoryFragment.setArguments(bundleMyInventory);
 
                     getSupportActionBar().setTitle(titleWareHouse);
-                    titleOnBackPressed = titleMyShop;
+                    titleOnBackPressed = titleNearbyShops;
                     selectedFragment = FRAGMENT_WAREHOUSE;
 
                     android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();

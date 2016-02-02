@@ -53,12 +53,14 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     private View.OnClickListener checkBoxOnClickListener;
     private TextView textViewHowManySelected;
     private boolean myInventory;
+    private boolean customerView;
     private View verticalDivider;
 
-    public InventoryProductViewHolder(View view, int viewType, Context context, boolean myInventory) {
+    public InventoryProductViewHolder(View view, int viewType, Context context, boolean myInventory, boolean customerView) {
         super(view);
         mContext = context;
         this.myInventory = myInventory;
+        this.customerView = customerView;
         if(viewType == VIEW_TYPE_HEADER) {
             textViewTitleProductMasterList = (TextView) view.findViewById(R.id.tv_list_header);
         } else if(viewType == VIEW_TYPE_CONTENT) {
@@ -66,6 +68,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
             clickArea1.setOnClickListener(this);
             clickArea2 = (LinearLayout) view.findViewById(R.id.ll_inventory_product_click_area_2);
             verticalDivider = view.findViewById(R.id.view_vertical_divider);
+            verticalDivider.setVisibility(View.GONE);
             textViewTitleProductMasterList = (TextView) view.findViewById(R.id.textViewTitleProductMasterListItem);
             textViewSubtitleProductMasterList = (TextView) view.findViewById(R.id.textViewSubtitleProductMasterListItem);
             textViewHowManySelected = (TextView) view.findViewById(R.id.tv_how_many_selected);
@@ -80,7 +83,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
                 verticalDivider.setVisibility(View.GONE);
             }
         } else {
-            viewInventoryProductExpanded = new ViewInventoryProductExpanded(context, view);
+            viewInventoryProductExpanded = new ViewInventoryProductExpanded(context, view, customerView);
         }
     }
 

@@ -114,7 +114,7 @@ public class HomeActivity extends AppCompatActivity {
                     case R.id.drawer_home:
                         getSupportActionBar().setTitle(titleHome);
                         DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
-                        getSupportFragmentManager().beginTransaction()
+                        getFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container, dummyHomeFragment).commit();
                         menuItem.setChecked(true);
                         drawerLayout.closeDrawers();
@@ -217,7 +217,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void addInitialFragment() {
         DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
-        getSupportFragmentManager().beginTransaction()
+        getFragmentManager().beginTransaction()
                 .replace(com.koleshop.appkoleshop.R.id.fragment_container, dummyHomeFragment).commit();
     }
 

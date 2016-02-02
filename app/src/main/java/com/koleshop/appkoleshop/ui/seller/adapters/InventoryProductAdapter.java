@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.koleshop.appkoleshop.model.demo.Cart;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.ui.seller.activities.ProductActivity;
@@ -58,12 +59,14 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     List<String> pendingRequestsRandomIds;
     long categoryId;
     boolean myInventory;
+    boolean customerView;
 
 
-    public InventoryProductAdapter(Context context, long categoryId, boolean myInventory) {
+    public InventoryProductAdapter(Context context, long categoryId, boolean myInventory, boolean customerView) {
         this.context = context;
         this.myInventory = myInventory;
         this.categoryId = categoryId;
+        this.customerView = customerView;
         inflator = LayoutInflater.from(context);
         pendingRequestsRandomIds = new ArrayList<>();
     }
@@ -110,7 +113,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                     .inflate(com.koleshop.appkoleshop.R.layout.item_rv_inventory_product_expanded, parent, false);
         }
 
-        InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType, context, myInventory);
+        InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType, context, myInventory, customerView);
         Log.d(TAG, "on create view holder of type=" + viewType);
         return holder;
     }
@@ -131,7 +134,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         holder.setClickListener(new InventoryProductClickListener() {
             @Override
             public void onItemClick(View v) {
-                if (myInventory) {
+                if (myInventory && !customerView) {
                     //open product edit screen
                     //Toast.makeText(context, "Product Edit screen is on its way!!", Toast.LENGTH_SHORT).show();
                     //@deprecated Intent editProductIntent = new Intent(context, ProductEditActivity.class);
@@ -229,6 +232,33 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         Parcelable wrappedRequest = Parcels.wrap(request);
         intent.putExtra("request", wrappedRequest);
         context.startService(intent);
+    }
+
+    public void increaseVarietyCount(int position, Long varietyId) {
+        ProductVariety variety = getProductVarietyFromProduct(position, varietyId);
+        if(variety!=null) {
+            Cart.increaseCount(variety, mItems.get(position).product.getName());
+        }
+    }
+
+    public void decreaseVarietyCount(int position, Long varietyId) {
+        ProductVariety variety = getProductVarietyFromProduct(position, varietyId);
+        if(variety!=null) {
+            Cart.decreaseCount(variety);
+        }
+    }
+
+    private ProductVariety getProductVarietyFromProduct(int position, Long varietyId) {
+        Product currentProduct = mItems.get(position).product;
+        List<ProductVariety> varieties = currentProduct.getVarieties();
+        if(varieties!=null) {
+            for (ProductVariety variety : varieties) {
+                if(variety.getId().equals(varietyId)) {
+                    return variety;
+                }
+            }
+        }
+        return null;
     }
 
     private void expandItemAtPosition(int position) {

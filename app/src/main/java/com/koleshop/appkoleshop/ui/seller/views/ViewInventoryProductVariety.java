@@ -30,6 +30,7 @@ public class ViewInventoryProductVariety extends RelativeLayout {
     private ProgressBar progressBarCheckbox;
     private LinearLayout clickArea1,clickArea2;
     private OnClickListener clickListenerArea1, clickListenerArea2;
+    private boolean customerView;
 
     public ViewInventoryProductVariety(Context context) {
         super(context);
@@ -46,9 +47,10 @@ public class ViewInventoryProductVariety extends RelativeLayout {
     }
 
     public ViewInventoryProductVariety(Context context, ProductVariety variety, boolean productCheckboxProgress,
-                                       OnClickListener productVarietyOnClickListener) {
+                                       OnClickListener productVarietyOnClickListener, boolean customerView) {
         this(context);
         this.variety = variety;
+        this.customerView = customerView;
         this.productCheckboxProgress = productCheckboxProgress;
         imageViewCheckbox.setOnClickListener(productVarietyOnClickListener);
         loadTheData();
