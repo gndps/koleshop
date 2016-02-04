@@ -83,6 +83,8 @@ public class Constants {
     public static final String ACTION_SWITCH_TO_WAREHOUSE = "com.koleshop.action_switch_to_warehouse";
     public static final String ACTION_SWITCH_BACK_TO_MY_SHOP = "com.koleshop.action_switch_back_to_myshop";
     public static final String ACTION_RELOAD_SETTINGS = "com.koleshop.action_reload_settings";
+    public static final String ACTION_EDIT_ADDRESS = "com.koleshop.action_edit_address";
+    public static final String ACTION_DELETE_ADDRESS = "com.koleshop.action_delete_address";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";

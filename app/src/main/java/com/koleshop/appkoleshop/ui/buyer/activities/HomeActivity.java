@@ -1,7 +1,9 @@
 package com.koleshop.appkoleshop.ui.buyer.activities;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.LocalBroadcastManager;
@@ -17,16 +20,18 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
+import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivity;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
@@ -39,213 +44,48 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.exceptions.RealmException;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements FragmentHomeActivity, NavigationView.OnNavigationItemSelectedListener {
 
-    private BroadcastReceiver homeActivityBroadcastReceiver;
     private ProgressDialog dialog;
-    private boolean loadedProductCategories, loadedBrands;
     private Context mContext;
     private DrawerLayout drawerLayout;
-    View content;
-    private String TAG = "HomeActivity";
-    private int FRAGMENT_HOME = 0x00;
-    private int FRAGMENT_MY_SHOP = 0x01;
-    private int FRAGMENT_WAREHOUSE = 0x02;
-    private int selectedFragment;
-    private String titleOnBackPressed;
+    private final String TAG = "HomeActivity";
+    private final String FRAGMENT_HOME_TAG = "home";
+    private final String FRAGMENT_NEARBY_SHOPS_TAG = "nearby_shops";
+    private final String FRAGMENT_NOT_IMPL = "not_impl";
+    private final String FRAGMENT_ADDRESSES_TAG = "addresses";
+    private String lastFragmentTag;
+    private boolean lastFragmentShowed, isLastFragmentSupportType;
+    NavigationView navigationView;
 
-    @BindString(R.string.navigation_drawer_nearby_shops) String titleNearbyShops;
-    @BindString(R.string.navigation_drawer_inventory) String titleWareHouse;
-    @BindString(R.string.navigation_drawer_home) String titleHome;
+    @BindString(R.string.navigation_drawer_nearby_shops)
+    String titleNearbyShops;
+    @BindString(R.string.navigation_drawer_inventory)
+    String titleWareHouse;
+    @BindString(R.string.navigation_drawer_home)
+    String titleHome;
+    @BindString(R.string.navigation_drawer_addresses)
+    String titleAddresses;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.koleshop.appkoleshop.R.layout.activity_home_buyer);
-        ButterKnife.bind(this);
-        content = findViewById(com.koleshop.appkoleshop.R.id.home_coordinatorlayout);
-        mContext = this;
-        setupToolbar();
-        setupDrawerLayout();
-        addInitialFragment();
+        setContentView(R.layout.activity_home_buyer);
+
         if (getIntent().getBooleanExtra("CLOSE_APPLICATION", false)) {
             finish();
         } else {
-            initializeBroadcastReceivers();
-            loadInitialData();
+            ButterKnife.bind(this);
+            mContext = this;
+            setupToolbar();
+            setupDrawerLayout();
         }
-        String registrationId = PreferenceUtils.getRegistrationId(mContext);
-        Log.d(TAG, "registrationId = " + registrationId);
-
-        DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
-
-        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
-        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-
-        Log.d(TAG, "width = " + dpWidth + "dp");
-        Log.d(TAG, "height = " + dpHeight + "dp");
-
-        //Toast.makeText(mContext, "width = " + dpWidth + "dp, height = " + dpHeight + "dp", Toast.LENGTH_SHORT).show();
-    }
-
-    private void setupToolbar() {
-        final Toolbar toolbar = (Toolbar) findViewById(com.koleshop.appkoleshop.R.id.app_bar);
-        toolbar.setTitle(titleHome);
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
-        CommonUtils.getActionBarTextView(toolbar).setTypeface(typeface);
-
-        setSupportActionBar(toolbar);
-        final ActionBar actionBar = getSupportActionBar();
-
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(com.koleshop.appkoleshop.R.drawable.ic_menu_white_24dp);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setElevation(8.0f);
-
-        }
-    }
-
-    private void setupDrawerLayout() {
-        drawerLayout = (DrawerLayout) findViewById(com.koleshop.appkoleshop.R.id.drawer_layout);
-        final NavigationView view = (NavigationView) findViewById(com.koleshop.appkoleshop.R.id.navigation_view);
-        view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.drawer_home:
-                        getSupportActionBar().setTitle(titleHome);
-                        DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
-                        Bundle bundl = new Bundle();
-                        bundl.putBoolean("buyerMode", true);
-                        dummyHomeFragment.setArguments(bundl);
-                        getFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, dummyHomeFragment).commit();
-                        menuItem.setChecked(true);
-                        drawerLayout.closeDrawers();
-                        selectedFragment = FRAGMENT_HOME;
-                        return true;
-                    case R.id.drawer_nearby_shops:
-                        //Products
-                        getSupportActionBar().setTitle(titleNearbyShops);
-                        NearbyShopsFragment nearbyShopsFragment= new NearbyShopsFragment();
-                        getFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, nearbyShopsFragment, "frag_my_shop").commit();
-                        menuItem.setChecked(true);
-                        drawerLayout.closeDrawers();
-                        selectedFragment = FRAGMENT_MY_SHOP;
-                        return true;
-                    case R.id.drawer_cart:
-                        //Cart
-                        Intent intentCart = new Intent(mContext, CartActivity.class);
-                        startActivity(intentCart);
-                        drawerLayout.closeDrawers();
-                        selectedFragment = FRAGMENT_MY_SHOP;
-                        return true;
-                    case R.id.drawer_inventory:
-                        //Drawer inventory
-                        getSupportActionBar().setTitle(titleWareHouse);
-                        InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
-                        getFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, inventoryCategoryFragment, "frag_ware_house").commit();
-                        //Snackbar.make(content, menuItem.getTitle() + " opened", Snackbar.LENGTH_LONG).show();
-                        menuItem.setChecked(true);
-                        drawerLayout.closeDrawers();
-                        selectedFragment = FRAGMENT_WAREHOUSE;
-                        return true;
-                    /*case R.id.drawer_add_edit:
-                        //Add/Edit Products
-                        //getSupportActionBar().setTitle("Inventory categories");
-                        menuItem.setChecked(true);
-                        drawerLayout.closeDrawers();
-                        //todo do some stuff
-                        Intent addEditProductIntent = new Intent(mContext, AddEditProductActivity.class);
-                        startActivity(addEditProductIntent);
-                        return true;*/
-                    case R.id.drawer_settings:
-                        //Settings
-                        menuItem.setChecked(true);
-                        drawerLayout.closeDrawers();
-                        //Intent intent3 = new Intent(mContext, BuyerSettingsActivity.class);
-                        //startActivity(intent3);
-                        return true;
-                    case R.id.drawer_login:
-                        //Log In  or Log out
-                        drawerLayout.closeDrawers();
-                        Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
-                        startActivity(intentLogin);
-                        return true;
-                    case R.id.drawer_logout:
-                        drawerLayout.closeDrawers();
-                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                        builder.setMessage("Are you sure ?")
-                                .setPositiveButton("LOG OUT", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_ID, "");
-                                        PreferenceUtils.setPreferences(mContext, Constants.KEY_SESSION_ID, "");
-                                        view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(true);
-                                        view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(false);
-                                    }
-                                })
-                                .setNegativeButton("CANCEL", null);
-                        builder.create().show();
-                        return false;
-                    /*case R.id.drawer_test:
-                        getSupportActionBar().setTitle("Testing cardview shit");
-                        ProductVarietyEditFragment fragment = new ProductVarietyEditFragment();
-                        Bundle bundl = new Bundle();
-                        bundl.putLong("categoryId", 120l);
-                        fragment.setArguments(bundl);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, fragment).commit();
-                        menuItem.setChecked(true);
-                        drawerLayout.closeDrawers();
-                        return true;*/
-                }
-
-                return true;
-            }
-        });
-
-        //setup login and logout buttons visibility
-        boolean loggedIn = PreferenceUtils.isUserLoggedIn(mContext);
-
-        if (loggedIn) {
-            view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(false);
-            view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(true);
-        } else {
-            view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(true);
-            view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(false);
-        }
-    }
-
-    private void addInitialFragment() {
-        DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
-        Bundle bundl = new Bundle();
-        bundl.putBoolean("buyerMode", true);
-        dummyHomeFragment.setArguments(bundl);
-        getFragmentManager().beginTransaction()
-                .replace(com.koleshop.appkoleshop.R.id.fragment_container, dummyHomeFragment).commit();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS));
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_FAILED));
-        //lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_MEASURING_UNITS_LOAD_SUCCESS));
-        //lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_MEASURING_UNITS_LOAD_FAILED));
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS));
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED));
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_TO_WAREHOUSE));
-        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP));
-
-    }
-
-    @Override
-    protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(homeActivityBroadcastReceiver);
-        super.onPause();
+    public boolean onNavigationItemSelected(MenuItem item) {
+        displayView(item);
+        return true;
     }
 
     @Override
@@ -273,167 +113,196 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(selectedFragment == FRAGMENT_WAREHOUSE) {
-            InventoryCategoryFragment inventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag("frag_my_shop");
-            if(inventoryCategoryFragment.isBackAllowed()) {
-                FragmentManager fragmentManager = getFragmentManager();
-                if (fragmentManager.getBackStackEntryCount() > 0) {
-                    fragmentManager.popBackStack();
-                    if (titleOnBackPressed != null && !titleOnBackPressed.isEmpty()) {
-                        getSupportActionBar().setTitle(titleNearbyShops);
-                        titleOnBackPressed = "";
-                    }
-                } else {
-                    super.onBackPressed();
-                }
-            }
-        } else if(selectedFragment == FRAGMENT_MY_SHOP) {
-            InventoryCategoryFragment myInventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag("frag_my_shop");
-            if(myInventoryCategoryFragment.isBackAllowed()) {
-                super.onBackPressed();
-            }
-        } else if(selectedFragment == FRAGMENT_HOME) {
+        if (lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
             super.onBackPressed();
         } else {
-            getSupportActionBar().setTitle(titleHome);
-            DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, dummyHomeFragment).commit();
-            drawerLayout.closeDrawers();
-            selectedFragment = FRAGMENT_HOME;
+            showHome();
         }
     }
 
-    private void initializeBroadcastReceivers() {
-        homeActivityBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS)) {
-                    loadedProductCategories = true;
-                    if (loadedBrands) {
-                        initialDataLoadingComplete();
-                    }
-                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_FAILED)) {
-                    dialog.dismiss();
-                    loadedProductCategories = false;
-                    if (!CommonUtils.isConnectedToInternet(context)) {
-                        showInternetConnectionPopup();
-                    } else {
-                        showRetryLoadingPopup();
-                    }
-                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS)) {
-                    loadedBrands = true;
-                    if (loadedProductCategories) {
-                        initialDataLoadingComplete();
-                    }
-                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED)) {
-                    dialog.dismiss();
-                    loadedBrands = false;
-                    if (!CommonUtils.isConnectedToInternet(context)) {
-                        showInternetConnectionPopup();
-                    } else {
-                        showRetryLoadingPopup();
-                    }
-                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_TO_WAREHOUSE)) {
+    private void setupToolbar() {
+        final Toolbar toolbar = (Toolbar) findViewById(com.koleshop.appkoleshop.R.id.app_bar);
+        toolbar.setTitle(titleHome);
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
+        CommonUtils.getActionBarTextView(toolbar).setTypeface(typeface);
 
-                    InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
-                    Bundle bundleMyInventory = new Bundle();
-                    bundleMyInventory.putBoolean("switchedFromMyShop", true);
-                    inventoryCategoryFragment.setArguments(bundleMyInventory);
+        setSupportActionBar(toolbar);
+        final ActionBar actionBar = getSupportActionBar();
 
-                    getSupportActionBar().setTitle(titleWareHouse);
-                    titleOnBackPressed = titleNearbyShops;
-                    selectedFragment = FRAGMENT_WAREHOUSE;
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(com.koleshop.appkoleshop.R.drawable.ic_menu_white_24dp);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setElevation(8.0f);
 
-                    android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
-                    ft.setCustomAnimations(
-                            R.animator.card_flip_right_in, R.animator.card_flip_right_out,
-                            R.animator.card_flip_left_in, R.animator.card_flip_left_out);
-                    ft.replace(R.id.fragment_container, inventoryCategoryFragment, "frag_ware_house");
-                    ft.addToBackStack(null);
-                    ft.commit();
-                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP)) {
-                    onBackPressed();
-                }
-            }
-        };
+        }
     }
 
-    /*private void setFragment(String fragmentName)
-    {
-        String[] navigationDrawerItems = getResources().getStringArray(R.array.navigation_drawer_array);
-        int navigationDrawerItemIndex = Arrays.asList(navigationDrawerItems).indexOf(fragmentName);
-        switch (navigationDrawerItemIndex){
-            case 0:
+    private void setupDrawerLayout() {
+        //initialize layout elements
+        drawerLayout = (DrawerLayout) findViewById(com.koleshop.appkoleshop.R.id.drawer_layout);
+        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        refreshLoginLogoutStates();
+        showHome();
+    }
+
+    private void showHome() {
+        displayView(navigationView.getMenu().findItem(R.id.drawer_home));
+    }
+
+    private void refreshLoginLogoutStates() {
+        //setup login and logout buttons visibility
+        boolean loggedIn = PreferenceUtils.isUserLoggedIn(mContext);
+        if (loggedIn) {
+            navigationView.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(false);
+            navigationView.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(true);
+        } else {
+            navigationView.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(true);
+            navigationView.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(false);
+        }
+    }
+
+    public void displayView(MenuItem item) {
+
+        int viewId = item.getItemId();
+
+        String title = getString(R.string.app_name);
+        boolean closeDrawers;
+        boolean setItemChecked;
+
+        switch (viewId) {
+
+            case R.id.drawer_home:
+                //dummy home fragment
+                DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
+                Bundle bundle = new Bundle();
+                bundle.putBoolean("buyerMode", true);
+                dummyHomeFragment.setArguments(bundle);
+                title = titleHome;
+                setItemChecked = true;
+                closeDrawers = true;
+                replaceFragment(dummyHomeFragment, FRAGMENT_HOME_TAG);
+                break;
+
+            case R.id.drawer_nearby_shops:
                 //Products
-                ProductListFragment productListFragment = new ProductListFragment();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, productListFragment).commit();
+                title = titleNearbyShops;
+                NearbyShopsFragment nearbyShopsFragment = new NearbyShopsFragment();
+                setItemChecked = true;
+                closeDrawers = true;
+                replaceFragment(nearbyShopsFragment, FRAGMENT_NEARBY_SHOPS_TAG);
                 break;
-            case 1:
-                //Log In  or Log out
-                boolean loggedIn = false;
-                if(!PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_ID).isEmpty()) {
-                    loggedIn = true;
-                }
 
-                if(loggedIn) {
-                    //clear user_id
-                    PreferenceUtils.setPreferences(this, Constants.KEY_USER_ID, "");
-                    LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-                    Intent broadcastIntent = new Intent(Constants.ACTION_LOG_OUT);
-                    broadcastManager.sendBroadcast(broadcastIntent);
-                } else {
-                    Intent intent = new Intent(mContext, VerifyPhoneNumberActivity.class);
-                    startActivity(intent);
-                }
-
-
+            case R.id.drawer_cart:
+                //Cart
+                Intent intentCart = new Intent(mContext, CartActivity.class);
+                startActivity(intentCart);
+                setItemChecked = true;
+                closeDrawers = true;
                 break;
-            case 2:
-                //Add/Edit Products
-                Intent intent2 = new Intent(this, AddEditProductActivity.class);
-                startActivity(intent2);
+
+            case R.id.drawer_addresses:
+                //Cart
+                title = titleAddresses;
+                AddressesFragment addressesFragment = AddressesFragment.newInstance(true, 1l);
+                setItemChecked = true;
+                closeDrawers = true;
+                replaceFragment(addressesFragment, FRAGMENT_ADDRESSES_TAG);
                 break;
-            case 3:
+
+
+            /*case R.id.drawer_inventory:
+                //Drawer inventory
+                title = titleWareHouse;
+                fragment = new InventoryCategoryFragment();
+                setItemChecked = true;
+                closeDrawers = true;
+                replaceFragment = true;
+                selectedFragment = FRAGMENT_WAREHOUSE;
+                break;*/
+
+            case R.id.drawer_settings:
                 //Settings
-                Intent intent3 = new Intent(this, ShopSettingsActivity.class);
-                startActivity(intent3);
+                setItemChecked = true;
+                closeDrawers = true;
+                NotImplementedFragment notImplementedFragment = new NotImplementedFragment();
+                replaceFragment(notImplementedFragment, FRAGMENT_NOT_IMPL);
+                //Intent intent3 = new Intent(mContext, BuyerSettingsActivity.class);
+                //startActivity(intent3);
                 break;
-            case 4:
-                ProductMasterListFragment productMasterListFragment = new ProductMasterListFragment();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, productMasterListFragment).commit();
+
+            case R.id.drawer_login:
+                //Log In  or Log out
+                closeDrawers = true;
+                setItemChecked = false;
+                Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
+                startActivity(intentLogin);
+                break;
+
+            case R.id.drawer_logout:
+                closeDrawers = true;
+                setItemChecked = false;
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setMessage("Are you sure ?")
+                        .setPositiveButton("LOG OUT", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_ID, "");
+                                PreferenceUtils.setPreferences(mContext, Constants.KEY_SESSION_ID, "");
+                                refreshLoginLogoutStates();
+                            }
+                        })
+                        .setNegativeButton("CANCEL", null);
+                builder.create().show();
+                break;
+            default:
+                closeDrawers = true;
+                setItemChecked = true;
+                NotImplementedFragment notImplementedFragment2 = new NotImplementedFragment();
+                replaceFragment(notImplementedFragment2, FRAGMENT_NOT_IMPL);
                 break;
         }
-    }*/
 
-    private String[] getNavigationDrawerArray() {
-        return getResources().getStringArray(com.koleshop.appkoleshop.R.array.navigation_drawer_array);
+        //set the toolbar title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(title);
+        }
+
+        if (closeDrawers) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+
+        item.setChecked(setItemChecked);
+
     }
 
-    private void loadInitialData() {
-        if (Constants.RESET_REALM) {
-            deleteRealmPreferences();
+    private void replaceFragment(Fragment fragment, String fragmentTag) {
+        if(lastFragmentShowed && isLastFragmentSupportType) {
+            android.support.v4.app.Fragment fr_v4 = getSupportFragmentManager().findFragmentByTag(lastFragmentTag);
+            if(fr_v4!=null) {
+                getSupportFragmentManager().beginTransaction().remove(fr_v4).commit();
+            }
         }
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment, fragmentTag)
+                .commit();
+        lastFragmentTag = fragmentTag;
+        lastFragmentShowed = true;
+        isLastFragmentSupportType = false;
+    }
 
-        //loadedProductCategories = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED);
-        loadedBrands = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED);
-        //loadedBrands = true;
-        loadedProductCategories = true;
-
-        if (!loadedProductCategories || !loadedBrands) {
-            //todo add some fun fact in loading screen
-            dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
+    private void replaceFragment(android.support.v4.app.Fragment fragment, String fragmentTag) {
+        if(lastFragmentShowed && !isLastFragmentSupportType) {
+            Fragment fr = getFragmentManager().findFragmentByTag(lastFragmentTag);
+            if(fr!=null) {
+                getFragmentManager().beginTransaction().remove(fr).commit();
+            }
         }
-
-        if (!loadedProductCategories) {
-            loadProductCategories();
-        }
-
-        if (!loadedBrands) {
-            loadBrands();
-        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment, fragmentTag)
+                .commit();
+        lastFragmentTag = fragmentTag;
+        lastFragmentShowed = true;
+        isLastFragmentSupportType = true;
     }
 
     private void deleteRealmPreferences() {
@@ -458,54 +327,19 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void loadProductCategories() {
-        Intent commonIntentService = new Intent(this, CommonIntentService.class);
-        commonIntentService.setAction(CommonIntentService.ACTION_LOAD_PRODUCT_CATEGORIES);
-        startService(commonIntentService);
-    }
-
-    private void loadBrands() {
-        Intent commonIntentService = new Intent(this, CommonIntentService.class);
-        commonIntentService.setAction(CommonIntentService.ACTION_LOAD_BRANDS);
-        startService(commonIntentService);
-    }
-
-    private void initialDataLoadingComplete() {
-        dialog.dismiss();
-        //TODO show tutorial if first time use
-    }
-
-    private void showInternetConnectionPopup() {
+    /*private void showInternetConnectionPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Device is not connected to internet. Try Again?")
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        builder.setMessage("Device is not connected to internet.")
+                .setPositiveButton("RETRY", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        loadInitialData();
                     }
                 })
                 .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        closeTheApplication();
                     }
                 });
         builder.create().show();
-    }
-
-    private void showRetryLoadingPopup() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Some problem occurred while loading. Try Again?")
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        loadInitialData();
-                    }
-                })
-                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        closeTheApplication();
-                    }
-                });
-        builder.create().show();
-    }
+    }*/
 
     private void closeTheApplication() {
         Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
@@ -514,4 +348,21 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    public void setElevation(int elevation) {
+        try {
+            getSupportActionBar().setElevation(elevation);
+        } catch (Exception e) {
+            Log.d(TAG, "elevation not set", e);
+        }
+    }
+
+    @Override
+    public void setTitle(String title) {
+        try {
+            getSupportActionBar().setTitle(title);
+        } catch (Exception e) {
+            Log.d(TAG, "title not set", e);
+        }
+    }
 }

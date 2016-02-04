@@ -7,7 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.seller.activities.HomeActivity;
+import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 
 public class GetStartedActivity extends Activity {
@@ -38,11 +41,24 @@ public class GetStartedActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * "Get Started" button pressed
+     * @param view
+     */
     public void getStarted(View view) {
         //TODO use different home screens for buyer and shopkeeper
-        Intent intent = new Intent(this, HomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        String sessionType = PreferenceUtils.getPreferences(this, Constants.KEY_USER_SESSION_TYPE);
+        if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
+            //seller session
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        } else if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_BUYER)) {
+            //buyer session
+            Intent intent = new Intent(this, com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
     }
 
 }

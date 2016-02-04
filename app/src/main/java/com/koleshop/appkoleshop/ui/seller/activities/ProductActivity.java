@@ -51,7 +51,6 @@ import com.koleshop.appkoleshop.ui.seller.fragments.productedit.ProductEditFragm
 import com.koleshop.appkoleshop.ui.seller.fragments.productedit.ProductVarietyEditFragment;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
-import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.services.ProductIntentService;
 import com.koleshop.appkoleshop.singletons.KoleshopSingleton;
 
@@ -67,10 +66,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmQuery;
-import io.realm.RealmResults;
 
 public class ProductActivity extends AppCompatActivity implements ProductVarietyEditFragment.InteractionListener, ProductEditFragment.InteractionListener {
 
@@ -214,7 +210,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
             //show dialog to save/discard changes
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mContext);
             builder.setMessage("Product modified. Save changes?")
-                    .setPositiveButton(R.string.save_changes, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             savedUsingBackButton = true;
                             if (validateProductBeforeSaving()) {
@@ -222,13 +218,13 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
                             }
                         }
                     })
-                    .setNegativeButton(R.string.dont_save_changes, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.dont_save, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ProductActivity.super.onBackPressed();
                         }
                     })
-                    .setNeutralButton(R.string.save_cancel, null);
+                    .setNeutralButton(R.string.cancel, null);
             builder.create().show();
         } else {
             //remove network request status from preferences

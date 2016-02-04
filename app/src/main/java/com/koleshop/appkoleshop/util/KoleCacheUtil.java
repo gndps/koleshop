@@ -313,36 +313,6 @@ public class KoleCacheUtil {
 
     }
 
-    public static List<InventoryCategory> getCachedSubcategories(boolean myInventory,
-                                                                 long parentCategoryId) {
-        String cacheKey;
-        int cacheTimeToLive;
-        if (myInventory) {
-            cacheKey = Constants.CACHE_MY_INVENTORY_SUBCATEGORIES + parentCategoryId;
-            cacheTimeToLive = Constants.TIME_TO_LIVE_MY_INV_SUBCAT;
-        } else {
-            cacheKey = Constants.CACHE_INVENTORY_SUBCATEGORIES + parentCategoryId;
-            cacheTimeToLive = Constants.TIME_TO_LIVE_INV_SUBCAT;
-        }
-        byte[] cachedSubcategoriesByteArray = KoleshopSingleton.getSharedInstance().getCachedGenericJsonByteArray(cacheKey, cacheTimeToLive);
-        if (cachedSubcategoriesByteArray != null && cachedSubcategoriesByteArray.length > 0) {
-            try {
-                GenericJsonListInventoryCategory genericJsonListInventoryCategory = SerializationUtil.getGenericJsonFromSerializable(cachedSubcategoriesByteArray, GenericJsonListInventoryCategory.class);
-                List<InventoryCategory> subcategories = genericJsonListInventoryCategory.getList();
-                if (subcategories != null && subcategories.size() > 0) {
-                    return subcategories;
-                } else {
-                    return null;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "some problem occurred in deserializing subcategories", e);
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
-
     private static Date getDateMinusDays(int days) {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());

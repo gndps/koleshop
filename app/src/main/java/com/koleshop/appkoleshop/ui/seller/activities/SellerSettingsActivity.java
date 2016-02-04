@@ -169,20 +169,20 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
             } else if(settingsModified) {
                 android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mContext);
                 builder.setMessage("Save the changed settings?")
-                        .setPositiveButton(R.string.save_changes, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 if (validateSettingsBeforeSaving()) {
                                     saveSettings();
                                 }
                             }
                         })
-                        .setNegativeButton(R.string.dont_save_changes, new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.dont_save, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 SellerSettingsActivity.super.onBackPressed();
                             }
                         })
-                        .setNeutralButton(R.string.save_cancel, null);
+                        .setNeutralButton(R.string.cancel, null);
                 builder.create().show();
             } else {
                 super.onBackPressed();

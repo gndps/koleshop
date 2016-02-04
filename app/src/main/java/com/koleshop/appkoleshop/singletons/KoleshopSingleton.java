@@ -5,9 +5,6 @@ import android.util.Log;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
-import com.vincentbrison.openlibraries.android.dualcache.lib.DualCache;
-import com.vincentbrison.openlibraries.android.dualcache.lib.DualCacheBuilder;
-import com.vincentbrison.openlibraries.android.dualcache.lib.SizeOf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,9 +30,6 @@ public class KoleshopSingleton {
     public Map<Long, Boolean> inventorySubcatRequestComplete;
     public Map<Long, List<InventoryProduct>> inventoryProducts;
     public Map<Long, Boolean> inventoryProductRequestComplete;
-    private DualCache<String> dualCache;
-    private DualCache<byte[]> dualCacheByteArray;
-    private DualCache<Date> dualCacheDate;
     private boolean reloadSubcategories;
     private List<Long> reloadProductsCategoryIds;
     private boolean reloadProducts;
@@ -140,106 +134,6 @@ public class KoleshopSingleton {
             return false;
         } else {
             return inventoryProductRequestComplete.get(categoryId);
-        }
-    }
-
-    public DualCache<String> getDualCacheString() {
-        if (dualCache == null) {
-            dualCache = new DualCacheBuilder<String>(Constants.CACHE_ID, Constants.APP_CACHE_VERSION, String.class)
-                    .useReferenceInRam(Constants.RAM_CACHE_SIZE, new SizeOf<String>() {
-                        @Override
-                        public int sizeOf(String object) {
-                            byte[] b = new byte[0];
-                            try {
-                                b = object.getBytes("UTF-8");
-                                return b.length;
-                            } catch (UnsupportedEncodingException e) {
-                                String archType = System.getProperty("os.arch");
-                                if(archType.contains("64")) {
-                                    return 36 + object.length() * 2;
-                                } else {
-                                    return 36 + object.length();
-                                }
-                            }
-                        }
-                    })
-                    .useDefaultSerializerInDisk(Constants.DISK_CACHE_SIZE, true);
-        }
-        return dualCache;
-    }
-
-    public DualCache<byte[]> getDualCacheByteArray() {
-        if (dualCacheByteArray == null) {
-            dualCacheByteArray = new DualCacheBuilder<byte[]>(Constants.CACHE_ID, Constants.APP_CACHE_VERSION, byte[].class)
-                    .useReferenceInRam(Constants.RAM_CACHE_SIZE, new SizeOf<byte[]>() {
-                        @Override
-                        public int sizeOf(byte[] object) {
-                            return object.length;
-                        }
-                    })
-                    .useDefaultSerializerInDisk(Constants.DISK_CACHE_SIZE, true);
-        }
-        return dualCacheByteArray;
-    }
-
-    public DualCache<Date> getDualCacheDate() {
-        if (dualCache == null) {
-            dualCacheDate = new DualCacheBuilder<Date>(Constants.CACHE_ID_DATE, Constants.APP_CACHE_VERSION, Date.class)
-                    .useReferenceInRam(Constants.RAM_CACHE_SIZE_DATE, new SizeOf<Date>() {
-                        @Override
-                        public int sizeOf(Date date) {
-                            byte[] b = new byte[0];
-                            try {
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                                oos.writeObject(date);
-                                oos.flush();
-                                byte[] buf = baos.toByteArray();
-                                return buf.length;
-                            } catch (IOException e) {
-                                Log.e("KolSingleton", "error in calculating date size for caching", e);
-                            }
-                            return sizeOf(date);
-                        }
-                    })
-                    .useDefaultSerializerInDisk(Constants.DISK_CACHE_SIZE_DATE, true);
-        }
-        return dualCacheDate;
-    }
-
-    public String getCachedGsonString(String key, int cacheExpireTimeInMinutes) {
-        Date cachingDate = getDualCacheDate().get(key);
-        if(cachingDate!=null) {
-            long expirationTime = TimeUnit.MILLISECONDS.convert(cacheExpireTimeInMinutes, TimeUnit.MINUTES);
-            long timeElapsedAfterCaching = new Date().getTime() - cachingDate.getTime();
-            if (timeElapsedAfterCaching >= expirationTime) {
-                //the cached data has expired
-                return null;
-            } else {
-                String cachedGsonString = getDualCacheString().get(key);
-                return cachedGsonString;
-            }
-        } else {
-            //result for this key was never cached or is cleared
-            return null;
-        }
-    }
-
-    public byte[] getCachedGenericJsonByteArray(String key, int cacheExpireTimeInMinutes) {
-        Date cachingDate = getDualCacheDate().get(key);
-        if(cachingDate!=null) {
-            long expirationTime = TimeUnit.MILLISECONDS.convert(cacheExpireTimeInMinutes, TimeUnit.MINUTES);
-            long timeElapsedAfterCaching = new Date().getTime() - cachingDate.getTime();
-            if (timeElapsedAfterCaching >= expirationTime) {
-                //the cached data has expired
-                return null;
-            } else {
-                byte[] cachedGenericJsonByteArray = getDualCacheByteArray().get(key);
-                return cachedGenericJsonByteArray;
-            }
-        } else {
-            //result for this key was never cached or is cleared
-            return null;
         }
     }
 

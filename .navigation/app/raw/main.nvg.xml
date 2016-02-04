@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<navigationModel
+  ns = "http://schemas.android.com?import=com.android.tools.idea.editors.navigation.model.*">
+  <locations  
+    class = "java.util.ArrayList">
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.common.activities.TestActivity"/>
+      <point      
+        x = "596"      
+        y = "128"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.common.activities.OrderDetailsActivity"/>
+      <point      
+        x = "572"      
+        y = "76"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity"/>
+      <point      
+        x = "632"      
+        y = "192"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.seller.activities.SellerOrdersActivity"/>
+      <point      
+        x = "520"      
+        y = "36"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.common.activities.MapsActivity"/>
+      <point      
+        x = "692"      
+        y = "272"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.common.activities.GetStartedActivity"/>
+      <point      
+        x = "748"      
+        y = "352"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.common.activities.VerifyOTPActivity"/>
+      <point      
+        x = "800"      
+        y = "400"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity"/>
+      <point      
+        x = "850"      
+        y = "450"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.buyer.activities.CartActivity"/>
+      <point      
+        x = "900"      
+        y = "500"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.common.activities.InitialActivity"/>
+      <point      
+        x = "950"      
+        y = "550"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.seller.activities.SellerSettingsActivity"/>
+      <point      
+        x = "1000"      
+        y = "600"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.seller.activities.ProductActivity"/>
+      <point      
+        x = "1050"      
+        y = "650"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.seller.activities.SelectSellerCategoryActivity"/>
+      <point      
+        x = "1100"      
+        y = "700"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.seller.activities.HomeActivity"/>
+      <point      
+        x = "1150"      
+        y = "750"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity"/>
+      <point      
+        x = "1200"      
+        y = "800"/>
+    </statePointEntry>
+  </locations>
+</navigationModel>

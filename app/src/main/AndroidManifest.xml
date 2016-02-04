@@ -127,7 +127,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.common.activities.VerifyOTPActivity"
-            android:label="@string/title_activity_verify_otp" />
+            android:label="@string/title_activity_verify_otp"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.seller.activities.SelectSellerCategoryActivity"
             android:label="@string/title_activity_select_seller_category"
@@ -172,7 +173,8 @@
 
         <service
             android:name=".services.DemoIntentService"
-            android:exported="false"></service>
+            android:exported="false" />
+
     </application>
 
 </manifest>

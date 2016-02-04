@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/met_address_dialog_nickname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nickname (eg. home or office)"
+        android:textColor="@color/primary_text"
+        android:maxLines="1"
+        android:capitalize="words"/>
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/met_address_dialog_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name"
+        android:maxLines="1"
+        android:capitalize="words"
+        android:textColor="@color/primary_text"/>
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/met_address_dialog_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="3"
+        android:capitalize="sentences"
+        android:hint="Address (without city)"
+        android:textColor="@color/primary_text"/>
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/met_address_dialog_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phone"
+        android:maxLines="1"
+        android:inputType="phone"
+        android:textColor="@color/primary_text"/>
+
+</LinearLayout>

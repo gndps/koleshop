@@ -1,0 +1,25 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context="com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment">
+
+    <ViewFlipper
+        android:id="@+id/vf_addresses"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.koleshop.appkoleshop.ui.common.recyclerview.FlingRecyclerView
+            android:id="@+id/rv_addresses"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ProgressBar
+            android:id="@+id/pb_addresses"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center" />
+
+    </ViewFlipper>
+
+</FrameLayout>

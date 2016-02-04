@@ -14,8 +14,8 @@
             android:layout_height="match_parent"
             android:layout_weight="3"
             android:background="@color/primary"
-            android:gravity="bottom"
             android:fontFamily="sans-serif-light"
+            android:gravity="bottom"
             android:minHeight="72dp"
             android:paddingLeft="72dp"
             android:shadowColor="@color/accent_material_dark"
@@ -40,27 +40,49 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textViewTitleOtp"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="72dp"
-                android:layout_marginRight="16dp"
-                android:fontFamily="sans-serif-light"
-                android:layout_marginTop="48dp"
-                android:text="Enter the code received"
-                android:textSize="20dp" />
+                android:layout_marginTop="36dp">
 
-            <TextView
-                android:id="@+id/textViewSubtitleOtp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="72dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="10dp"
-                android:fontFamily="sans-serif-light"
-                android:text="koleshop will detect the received text"
-                android:textSize="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textViewTitleOtp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="72dp"
+                        android:fontFamily="sans-serif-light"
+                        android:text="Enter the code received"
+                        android:textSize="20dp" />
+
+                    <TextView
+                        android:id="@+id/textViewSubtitleOtp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="72dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="sans-serif-light"
+                        android:text="koleshop will detect the received text"
+                        android:textSize="8dp" />
+
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/buttonResend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="16dp"
+                    android:onClick="resendCode"
+                    android:background="@drawable/ripple"
+                    android:src="@drawable/ic_action_refresh" />
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -71,15 +93,15 @@
                     android:id="@+id/input_layout_verification_code"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-light"
                     android:layout_marginLeft="72dp"
                     android:layout_marginRight="16dp"
                     android:layout_marginTop="36dp"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-light">
 
                     <EditText
                         android:id="@+id/editTextCodeVerify"
-                        android:layout_width="match_parent"
+                        android:layout_width="160dp"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-light"
                         android:hint="Enter code"
@@ -87,17 +109,6 @@
                         android:textSize="20dp" />
 
                 </android.support.design.widget.TextInputLayout>
-
-                <Button
-                    android:id="@+id/buttonResend"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="16dp"
-                    android:layout_marginTop="36dp"
-                    android:fontFamily="sans-serif-light"
-                    android:drawableLeft="@drawable/ic_action_refresh"
-                    android:onClick="resendCode"
-                    android:text="RESEND" />
 
             </LinearLayout>
 
@@ -122,9 +133,9 @@
                 android:id="@+id/bottom_separator"
                 android:layout_width="fill_parent"
                 android:layout_height="1px"
-                android:fontFamily="sans-serif-light"
                 android:layout_marginTop="36dp"
-                android:background="#55000000"></TextView>
+                android:background="#55000000"
+                android:fontFamily="sans-serif-light"></TextView>
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -135,8 +146,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
-                    android:fontFamily="sans-serif-light"
                     android:drawableLeft="@drawable/ic_action_back"
+                    android:fontFamily="sans-serif-light"
                     android:onClick="goBack"
                     android:text="" />
 
@@ -145,8 +156,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:fontFamily="sans-serif-light"
                     android:drawableRight="@drawable/ic_action_next"
+                    android:fontFamily="sans-serif-light"
                     android:onClick="verifyOtp"
                     android:text="NEXT" />
 

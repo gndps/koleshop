@@ -84,9 +84,9 @@
     <string name="not_online">Device not connected to internet</string>
     <string name="login_screen_heading">Koleshop Login</string>
 
-    <string name="save_changes">SAVE</string>
-    <string name="dont_save_changes">DONT SAVE</string>
-    <string name="save_cancel">CANCEL</string>
+    <string name="save">SAVE</string>
+    <string name="dont_save">DONT SAVE</string>
+    <string name="cancel">CANCEL</string>
     <string name="title_activity_seller_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -159,5 +159,7 @@
     <string name="home_delivery">Home Delivery</string>
     <string name="title_activity_maps">Select Location</string>
     <string name="title_shop_location">Set Shop Location</string>
+    <string name="default_address_nickname">Nickname not set</string>
+    <string name="ok">OK</string>
 
 </resources>

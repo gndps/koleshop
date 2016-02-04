@@ -107,9 +107,9 @@ public class CommonUtils {
     public static RealmConfiguration getRealmConfiguration(Context context) {
         RealmConfiguration config = new RealmConfiguration.Builder(context)
                 .name("kolshop.realm")
-                //.schemaVersion(42)
-                //.setModules(new MySchemaModule())
-                //.migration(new MyMigration())
+                        //.schemaVersion(42)
+                        //.setModules(new MySchemaModule())
+                        //.migration(new MyMigration())
                 .build();
         return config;
     }
@@ -125,7 +125,7 @@ public class CommonUtils {
 
     public static boolean isUserLoggedIn(Context context) {
         Long userId = getUserId(context);
-        if(userId > 0) {
+        if (userId > 0) {
             return true;
         } else {
             return false;
@@ -134,7 +134,7 @@ public class CommonUtils {
 
     public static void putToDualCache(String key, Object object) {
         @SuppressWarnings("unchecked")
-        Class<List<InventoryCategory>> cls = (Class<List<InventoryCategory>>)(Object)List.class;
+        Class<List<InventoryCategory>> cls = (Class<List<InventoryCategory>>) (Object) List.class;
         /*DualCache<List<InventoryCategory>> cache = new DualCacheBuilder<List<InventoryCategory>>(Constants.CACHE_ID, Constants.APP_CACHE_VERSION, cls)
                 .useReferenceInRam(5120, new SizeOfVehiculeForTesting())
                 .useDefaultSerializerInDisk(DISK_MAX_SIZE, true);*/
@@ -151,7 +151,7 @@ public class CommonUtils {
         try {
             Long userId = Long.parseLong(PreferenceUtils.getPreferences(context, Constants.KEY_USER_ID));
             return userId;
-        } catch(Exception e) {
+        } catch (Exception e) {
             return 0l;
         }
     }
@@ -179,12 +179,12 @@ public class CommonUtils {
     }
 
     public static String getPriceStringFromFloat(Float priceFloat) {
-        if(priceFloat!=null && priceFloat >= 0) {
+        if (priceFloat != null && priceFloat >= 0) {
             String formattedString = String.format("%.02f", priceFloat);
-            if(formattedString.endsWith(".00")) {
+            if (formattedString.endsWith(".00")) {
                 formattedString = String.format("%.0f", priceFloat);
             }
-            return ""+formattedString;
+            return "" + formattedString;
         } else {
             return "";
         }
@@ -192,7 +192,7 @@ public class CommonUtils {
 
     @Deprecated
     public static String getSettingsTimeFromDate(Date date) {
-        if(date!=null) {
+        if (date != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -209,7 +209,7 @@ public class CommonUtils {
 
     @Deprecated
     public static int getSettingsHourFromDate(Date date) {
-        if(date!=null) {
+        if (date != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -222,7 +222,7 @@ public class CommonUtils {
 
     @Deprecated
     public static int getSettingsMinutesFromDate(Date date) {
-        if(date!=null) {
+        if (date != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -243,7 +243,7 @@ public class CommonUtils {
 
     @Deprecated
     public static Date getDateFromDateFormat(String dateFormat, String dateString) {
-        if(dateFormat==null || dateString==null) {
+        if (dateFormat == null || dateString == null) {
             return null;
         }
         try {
@@ -257,7 +257,7 @@ public class CommonUtils {
     }
 
     public static String getTimeStringFromMinutes(int minutes) {
-        if(minutes >= 0) {
+        if (minutes >= 0) {
             String ampm;
             String hourString;
             String minutesString;
@@ -269,14 +269,14 @@ public class CommonUtils {
             } else {
                 ampm = "AM";
             }
-            if(h > 12) {
-                h = h-12;
+            if (h > 12) {
+                h = h - 12;
                 hourString = "" + h;
             }
-            if(h==0) {
+            if (h == 0) {
                 hourString = "" + 12;
             }
-            if(m == 0) {
+            if (m == 0) {
                 minutesString = "00";
             } else {
                 minutesString = "" + m;
@@ -313,7 +313,7 @@ public class CommonUtils {
         int month = calendar.get(Calendar.MONTH);
         int year = calendar.get(Calendar.YEAR);
 
-        if(dayToday == day && month == monthToday && year == yearToday) {
+        if (dayToday == day && month == monthToday && year == yearToday) {
             //it's todays date
             return "Today";
         } else {
@@ -326,6 +326,27 @@ public class CommonUtils {
         calendar.setTime(date);
         calendar.add(Calendar.SECOND, differenceInSeconds);
         return calendar.getTime();
+    }
+
+    public static String getReadableDistanceFromMetres(float distanceInMetres) {
+        String distance;
+        if (distanceInMetres > 1000) {
+            //show distance in kilometres
+            float distanceInKm = distanceInMetres / 1000.0f;
+            if (distanceInKm < 50) {
+                distance = String.format("%.1f", distanceInKm) + " km";
+            } else {
+                distance = String.format("%d", (int)distanceInKm) + " km";
+            }
+        } else {
+            distance = String.format("%.1f", distanceInMetres) + " m";
+        }
+        return distance;
+    }
+
+    public static void main(String[] args) {
+        String distance = getReadableDistanceFromMetres(123.32f);
+        System.out.print(distance);
     }
 
 }

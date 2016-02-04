@@ -44,6 +44,12 @@
         <item name="android:background">@color/veryLightGray</item>
     </style>
 
+    <style name="HorizontalDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">2dp</item>
+        <item name="android:background">@color/veryLightGray</item>
+    </style>
+
     <style name="NavigationDrawerStyle">
         <item name="android:fontFamily">sans-serif-light</item>
     </style>

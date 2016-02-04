@@ -95,6 +95,9 @@ public class InitialActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
     }
 
+    /**
+     * first method that run in InitialActivity
+     */
     private void thugLife() {
 
         //1. delete the network request statuses
@@ -116,6 +119,9 @@ public class InitialActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * second method that run in InitialActivity
+     */
     private void loadUserProfileIfLoggedIn() {
 
         String sessionType = PreferenceUtils.getPreferences(this, Constants.KEY_USER_SESSION_TYPE);

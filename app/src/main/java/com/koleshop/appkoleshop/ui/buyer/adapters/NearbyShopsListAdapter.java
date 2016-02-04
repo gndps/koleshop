@@ -30,7 +30,7 @@ public class NearbyShopsListAdapter extends RecyclerView.Adapter<NearbyShopsList
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_nearby_shops_item, parent, false);
         NearbyShopsListViewHolder nearbyShopsListViewHolder = new NearbyShopsListViewHolder(view, mContext);
-        return null;
+        return nearbyShopsListViewHolder;
     }
 
     @Override

@@ -17,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -27,7 +28,7 @@ import com.koleshop.appkoleshop.services.SessionIntentService;
 public class VerifyOTPActivity extends AppCompatActivity {
 
     EditText editTextCode;
-    Button buttonResend;
+    ImageButton buttonResend;
     String phone, sessionType, deviceId;
     private BroadcastReceiver verifyOtpBroadcastReceiver;
     Context mContext;
@@ -47,7 +48,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
         mContext = this;
 
         editTextCode = (EditText) findViewById(com.koleshop.appkoleshop.R.id.editTextCodeVerify);
-        buttonResend = (Button) findViewById(com.koleshop.appkoleshop.R.id.buttonResend);
+        buttonResend = (ImageButton) findViewById(com.koleshop.appkoleshop.R.id.buttonResend);
         textViewTitle = (TextView) findViewById(com.koleshop.appkoleshop.R.id.textViewTitleOtp);
         textViewSubtitle = (TextView) findViewById(com.koleshop.appkoleshop.R.id.textViewSubtitleOtp);
         frameLayoutBottomButtons = (FrameLayout) findViewById(com.koleshop.appkoleshop.R.id.frame_layout_bottom_buttons_verify_otp);

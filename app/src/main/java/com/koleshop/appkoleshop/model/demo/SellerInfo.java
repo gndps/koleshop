@@ -9,12 +9,12 @@ import org.parceler.Parcel;
 @Parcel
 public class SellerInfo {
 
-    private String name;
-    private String timings;
-    private boolean online;
-    private String imageUrl;
-    private Double gpsLong;
-    private Double gpsLat;
+    String name;
+    String timings;
+    boolean online;
+    String imageUrl;
+    Double gpsLong;
+    Double gpsLat;
 
     public SellerInfo() {
     }
