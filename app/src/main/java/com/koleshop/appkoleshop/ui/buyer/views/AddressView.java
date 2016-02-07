@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -157,16 +156,6 @@ public class AddressView extends CardView implements OnMapReadyCallback {
             }
         });
 
-        this.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!currentlySelected) {
-                    currentlySelected = true;
-                    refreshAddressHighlight();
-                }
-            }
-        });
-
         refreshAddressHighlight();
     }
 
@@ -193,19 +182,9 @@ public class AddressView extends CardView implements OnMapReadyCallback {
 
     private void refreshAddressHighlight() {
         if(currentlySelected) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                this.setElevation(0);
-            }
-            GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{Color.WHITE});
-            gd.setStroke(2, Color.BLUE);
-            this.setBackground(gd);
+            linearLayout.setBackgroundColor(AndroidCompatUtil.getColor(mContext, R.color.light_green_background));
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                this.setElevation(4);
-            }
-            GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{Color.WHITE});
-            gd.setStroke(0, Color.BLUE);
-            this.setBackground(gd);
+            linearLayout.setBackgroundColor(AndroidCompatUtil.getColor(mContext, R.color.offwhite));
         }
     }
 }

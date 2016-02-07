@@ -11,6 +11,7 @@
     <color name="accent_transparent">#4507A7C5</color>
     <color name="highlight">#868686</color>
     <color name="primary_text">#212121</color>
+    <color name="primary_text_grey">#4D4D4D</color>
     <color name="secondary_text">#727272</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
@@ -22,7 +23,7 @@
     <color name="white">#ffffff</color>
     <color name="default_background">#eaeaea</color>
     <color name="default_background_font">#B7B6B7</color>
-    <color name="offwhite">#FAFAFA</color>
+    <color name="offwhite">#F9F9F9</color>
     <color name="otherGreen">#5BB990</color>
     <color name="veryLightGray">#D5D5D5</color>
     <color name="black_semi_transparent">#B2000000</color>
@@ -31,5 +32,6 @@
     <color name="delivery_settings_stroke_color_no">#C1751F</color>
     <color name="delivery_settings_stroke_color_yes">#4C9211</color>
     <color name="cool_red">#E15252</color>
+    <color name="light_green_background">#F3FFEF</color>"
 
 </resources>

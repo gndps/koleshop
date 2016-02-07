@@ -147,7 +147,10 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     }
 
     private void showHome() {
-        displayView(navigationView.getMenu().findItem(R.id.drawer_home));
+        MenuItem item = navigationView.getMenu().findItem(R.id.drawer_home);
+        if(item!=null) {
+            displayView(navigationView.getMenu().findItem(R.id.drawer_home));
+        }
     }
 
     private void refreshLoginLogoutStates() {
@@ -163,6 +166,8 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     }
 
     public void displayView(MenuItem item) {
+
+        if(item==null)return;
 
         int viewId = item.getItemId();
 

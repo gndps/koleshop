@@ -36,7 +36,19 @@ public class AddressRvAdapter extends RecyclerView.Adapter<AddressRvViewHolder> 
     public AddressRvViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.view_address_tile, parent, false);
-        AddressRvViewHolder addressRvViewHolder = new AddressRvViewHolder(view, mContext);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        AddressRvViewHolder addressRvViewHolder = new AddressRvViewHolder(view, mContext, new AddressRvViewHolder.AddressItemClickListener() {
+            @Override
+            public void onAddressSelected(int position) {
+                Long selectedAddressId = addresses.get(position).getId();
+                setSelectedAddressId(selectedAddressId);
+            }
+        });
         return addressRvViewHolder;
     }
 
@@ -47,11 +59,16 @@ public class AddressRvAdapter extends RecyclerView.Adapter<AddressRvViewHolder> 
         if(address!=null && address.getId().equals(selectedAddressId)) {
             selected = true;
         }
-        holder.bindAddressData(address, selected, activateMaps);
+        holder.bindAddressData(address, selected, activateMaps, position);
     }
 
     @Override
     public int getItemCount() {
         return addresses!=null?addresses.size():0;
+    }
+
+    public void setSelectedAddressId(Long selectedAddressId) {
+        this.selectedAddressId = selectedAddressId;
+        notifyDataSetChanged();
     }
 }

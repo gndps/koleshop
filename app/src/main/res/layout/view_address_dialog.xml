@@ -1,42 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_address_dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif"
+        android:text="SET ADDRESS"
+        android:textColor="@color/primary_text_grey"
+        android:textSize="20dp"
+        android:textStyle="bold" />
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/met_address_dialog_nickname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nickname (eg. home or office)"
-        android:textColor="@color/primary_text"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:capitalize="words"
+        android:fontFamily="sans-serif"
+        android:hint="eg. home or office"
+        android:lines="1"
         android:maxLines="1"
-        android:capitalize="words"/>
+        android:singleLine="true"
+        android:textColor="@color/primary_text"
+        app:met_floatingLabel="normal"
+        app:met_floatingLabelAlwaysShown="true"
+        app:met_floatingLabelText="Nickname" />
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/met_address_dialog_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Name"
-        android:maxLines="1"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
         android:capitalize="words"
-        android:textColor="@color/primary_text"/>
+        android:fontFamily="sans-serif"
+        android:hint="eg. Salman Khan"
+        android:lines="1"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/primary_text"
+        app:met_floatingLabel="normal"
+        app:met_floatingLabelAlwaysShown="true"
+        app:met_floatingLabelText="Name" />
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/met_address_dialog_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="3"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
         android:capitalize="sentences"
-        android:hint="Address (without city)"
-        android:textColor="@color/primary_text"/>
+        android:fontFamily="sans-serif"
+        android:hint="address without city"
+        android:lines="3"
+        android:maxLines="3"
+        android:textColor="@color/primary_text"
+        app:met_floatingLabel="normal"
+        app:met_floatingLabelAlwaysShown="true"
+        app:met_floatingLabelText="Address" />
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/met_address_dialog_phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Phone"
-        android:maxLines="1"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:fontFamily="sans-serif"
+        android:hint="phone number"
         android:inputType="phone"
-        android:textColor="@color/primary_text"/>
+        android:lines="1"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/primary_text"
+        app:met_floatingLabel="normal"
+        app:met_floatingLabelAlwaysShown="true"
+        app:met_floatingLabelText="Phone" />
+
+    <LinearLayout
+        android:id="@+id/ll_vad_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_vad_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:text="CANCEL"
+            android:textColor="@color/primary_text_grey"/>
+
+        <Button
+            android:id="@+id/button_vad_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:text="DONE"
+            android:textColor="@color/accent"/>
+
+    </LinearLayout>
 
 </LinearLayout>

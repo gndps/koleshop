@@ -13,6 +13,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -21,6 +22,8 @@ import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.listeners.KolClickListener;
+import com.koleshop.appkoleshop.listeners.KolRecyclerTouchListener;
 import com.koleshop.appkoleshop.model.parcel.Address;
 import com.koleshop.appkoleshop.ui.buyer.adapters.AddressRvAdapter;
 import com.koleshop.appkoleshop.ui.common.recyclerview.FlingRecyclerView;
@@ -154,14 +157,18 @@ public class AddressesFragment extends Fragment {
         if (activateMapsOnAdapterCreated) {
             adapter.setActivateMaps(true);
         }
+        boolean enableSnappyFling;
         RecyclerView.LayoutManager lm;
         if (horizontalScroll) {
             lm = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+            enableSnappyFling = true;
         } else {
             lm = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
+            enableSnappyFling = false;
         }
         recyclerView.setLayoutManager(lm);
         recyclerView.setAdapter(adapter);
+        recyclerView.setSnappyFling(enableSnappyFling);
     }
 
     private List<Address> getDummyAddresses() {
