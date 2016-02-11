@@ -13,6 +13,8 @@ import com.koleshop.koleshopbackend.services.SessionService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Gundeep on 16/10/15.
@@ -20,6 +22,8 @@ import java.util.List;
 
 @Api(name = "inventoryEndpoint", version = "v1", namespace = @ApiNamespace(ownerDomain = "api.koleshop.com", ownerName = "koleshopserver", packagePath = "yolo"))
 public class InventoryEndpoint {
+
+    private static final Logger logger = Logger.getLogger(InventoryEndpoint.class.getName());
 
     @ApiMethod(name = "getCategories", httpMethod = ApiMethod.HttpMethod.POST, path="categories")
     public KoleResponse getCategories(@Named("userId") Long userId, @Named("sessionId") String sessionId, @Named("myInventory") boolean myInventory) {
@@ -111,6 +115,7 @@ public class InventoryEndpoint {
         //check userId and sessionId pair authenticity
         boolean authenticRequest = SessionService.verifyUserAuthenticity(userId, sessionId);
         if (!authenticRequest) {
+            logger.log(Level.INFO, "request not authentic");
             return null;
         }
 
@@ -118,14 +123,18 @@ public class InventoryEndpoint {
         KoleResponse response = new KoleResponse();
         boolean updated = false;
         try {
+            logger.log(Level.INFO, "will update product selection");
             updated = new InventoryService().updateProductSelection(userId, productVarietySelection);
         } catch (Exception e) {
+            logger.log(Level.INFO, "some exception while updating product selection", e);
             response.setData(e.getLocalizedMessage());
         }
         if (updated) {
+            logger.log(Level.INFO, "product selection was updated");
             response.setSuccess(true);
             response.setData("true");
         } else {
+            logger.log(Level.INFO, "product selection was NOT updated");
             response.setSuccess(false);
         }
         return response;

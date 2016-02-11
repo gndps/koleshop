@@ -115,7 +115,8 @@
 
         <activity
             android:name=".ui.seller.activities.HomeActivity"
-            android:label="@string/title_activity_home" />
+            android:label="@string/title_activity_home">
+        </activity>
 
         <service
             android:name=".services.CommonIntentService"

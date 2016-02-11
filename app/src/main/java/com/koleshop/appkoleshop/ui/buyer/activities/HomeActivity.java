@@ -2,49 +2,49 @@ package com.koleshop.appkoleshop.ui.buyer.activities;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
-import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
-import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivity;
+import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
+import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
+import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
-import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
-import com.koleshop.appkoleshop.services.CommonIntentService;
-import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryCategoryFragment;
+import com.mypopsy.widget.FloatingSearchView;
 
+import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import io.codetail.animation.SupportAnimator;
+import io.codetail.animation.ViewAnimationUtils;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.exceptions.RealmException;
 
-public class HomeActivity extends AppCompatActivity implements FragmentHomeActivity, NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends AppCompatActivity implements FragmentHomeActivityListener, NavigationView.OnNavigationItemSelectedListener {
 
     private ProgressDialog dialog;
     private Context mContext;
@@ -57,6 +57,8 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     private String lastFragmentTag;
     private boolean lastFragmentShowed, isLastFragmentSupportType;
     NavigationView navigationView;
+    private boolean backHandled;
+    private SupportAnimator animator;
 
     @BindString(R.string.navigation_drawer_nearby_shops)
     String titleNearbyShops;
@@ -66,6 +68,9 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     String titleHome;
     @BindString(R.string.navigation_drawer_addresses)
     String titleAddresses;
+    @Bind(R.id.floating_search_bar)
+    FloatingSearchView searchBar;
+    private boolean searchBarVisible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,9 +108,17 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         }
 
         switch (item.getItemId()) {
+
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+
+            case R.id.menu_item_search:
+                //open search overlay activity
+                View menuView = findViewById(R.id.menu_item_search);
+                revealSearchBar(menuView, true);
+                return true;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -113,10 +126,14 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
     @Override
     public void onBackPressed() {
-        if (lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
-            super.onBackPressed();
+        if (searchBarVisible) {
+            revealSearchBar(null, false);
         } else {
-            showHome();
+            if (backHandled || lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+                super.onBackPressed();
+            } else {
+                showHome();
+            }
         }
     }
 
@@ -148,8 +165,109 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
     private void showHome() {
         MenuItem item = navigationView.getMenu().findItem(R.id.drawer_home);
-        if(item!=null) {
+        if (item != null) {
             displayView(navigationView.getMenu().findItem(R.id.drawer_home));
+        }
+        setElevation(8);
+        setTitle(titleHome);
+    }
+
+    private void revealSearchBar(View view, final boolean reveal) {
+
+        int ANIMATION_DURATION = 350;
+
+        if (reveal) {
+            DisplayMetrics metrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            int width = metrics.widthPixels;
+
+            // get the center for the clipping circle
+            int[] location = new int[2];
+            view.getLocationOnScreen(location);
+            int cx = location[0] + 12;
+            int cy = location[1] + 12;
+
+            // get the final radius for the clipping circle
+            int dx = Math.max(cx, width - cx);
+            int dy = Math.max(cy, 56 - cy);
+            float finalRadius = (float) Math.hypot(dx, dy);
+
+            animator = ViewAnimationUtils.createCircularReveal(searchBar, cx, cy, 0, finalRadius);
+            animator.setInterpolator(new AccelerateDecelerateInterpolator());
+            animator.setDuration(ANIMATION_DURATION);
+            animator.removeAllListeners();
+            animator.addListener(new SupportAnimator.AnimatorListener() {
+                @Override
+                public void onAnimationStart() {
+                    searchBar.setVisibility(View.VISIBLE);
+                    searchBar.setActivated(true);
+                    configureSearchBar(true);
+                }
+
+                @Override
+                public void onAnimationEnd() {
+                }
+
+                @Override
+                public void onAnimationCancel() {
+
+                }
+
+                @Override
+                public void onAnimationRepeat() {
+
+                }
+            });
+        } else {
+            animator = animator.reverse();
+            animator.removeAllListeners();
+            animator.addListener(new SupportAnimator.AnimatorListener() {
+                @Override
+                public void onAnimationStart() {
+                    configureSearchBar(false);
+                }
+
+                @Override
+                public void onAnimationEnd() {
+                    searchBar.setActivated(false);
+                    searchBar.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onAnimationCancel() {
+
+                }
+
+                @Override
+                public void onAnimationRepeat() {
+
+                }
+            });
+        }
+        animator.start();
+        searchBarVisible = reveal;
+
+    }
+
+    private void configureSearchBar(boolean config) {
+        if(config) {
+            searchBar.setIcon(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_arrow_back_grey600_24dp));
+            searchBar.setOnSearchFocusChangedListener(new FloatingSearchView.OnSearchFocusChangedListener() {
+                @Override
+                public void onFocusChanged(boolean b) {
+                    revealSearchBar(null, false);
+                }
+            });
+            searchBar.setOnIconClickListener(new FloatingSearchView.OnIconClickListener() {
+                @Override
+                public void onNavigationClick() {
+                    onBackPressed();
+                }
+            });
+        } else {
+            searchBar.setOnSearchFocusChangedListener(null);
+            searchBar.setIcon(null);
+            searchBar.setOnIconClickListener(null);
         }
     }
 
@@ -167,7 +285,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
     public void displayView(MenuItem item) {
 
-        if(item==null)return;
+        if (item == null) return;
 
         int viewId = item.getItemId();
 
@@ -281,9 +399,9 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     }
 
     private void replaceFragment(Fragment fragment, String fragmentTag) {
-        if(lastFragmentShowed && isLastFragmentSupportType) {
+        if (lastFragmentShowed && isLastFragmentSupportType) {
             android.support.v4.app.Fragment fr_v4 = getSupportFragmentManager().findFragmentByTag(lastFragmentTag);
-            if(fr_v4!=null) {
+            if (fr_v4 != null) {
                 getSupportFragmentManager().beginTransaction().remove(fr_v4).commit();
             }
         }
@@ -296,9 +414,9 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     }
 
     private void replaceFragment(android.support.v4.app.Fragment fragment, String fragmentTag) {
-        if(lastFragmentShowed && !isLastFragmentSupportType) {
+        if (lastFragmentShowed && !isLastFragmentSupportType) {
             Fragment fr = getFragmentManager().findFragmentByTag(lastFragmentTag);
-            if(fr!=null) {
+            if (fr != null) {
                 getFragmentManager().beginTransaction().remove(fr).commit();
             }
         }
@@ -369,5 +487,10 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         } catch (Exception e) {
             Log.d(TAG, "title not set", e);
         }
+    }
+
+    @Override
+    public void setBackButtonHandledByFragment(boolean backHandled) {
+        this.backHandled = backHandled;
     }
 }

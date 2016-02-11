@@ -261,6 +261,7 @@ public class InventoryService {
                 preparedStatement.setLong(1, userId);
                 preparedStatement.setString(2, selectionProducts);
                 int update = preparedStatement.executeUpdate();
+                logger.log(Level.INFO, "updated selection products");
             }
 
             if(!deselectionProducts.isEmpty()) {
@@ -268,6 +269,7 @@ public class InventoryService {
                 preparedStatement.setLong(1, userId);
                 preparedStatement.setString(2, deselectionProducts);
                 int update = preparedStatement.executeUpdate();
+                logger.log(Level.INFO, "updated deselection products");
             }
 
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
@@ -277,6 +279,7 @@ public class InventoryService {
         } finally {
             DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
+        logger.log(Level.INFO, "updated product selection");
         return true;
     }
 }

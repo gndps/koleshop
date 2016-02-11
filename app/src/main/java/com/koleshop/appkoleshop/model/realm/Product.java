@@ -1,5 +1,7 @@
 package com.koleshop.appkoleshop.model.realm;
 
+import org.parceler.Parcel;
+
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +13,7 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Gundeep on 26/01/16.
  */
+
 public class Product extends RealmObject {
 
     @PrimaryKey

@@ -18,6 +18,8 @@
     <string name="title_activity_get_started">Get Started</string>
     <string name="title_activity_location">Map Location</string>
     <string name="action_search_address">Search Address</string>
+    <string name="action_search">Search</string>
+    <string name="action_cart">Cart</string>
 
     <string-array name="shop_settings_array">
         <item>shopname</item>
@@ -161,5 +163,6 @@
     <string name="title_shop_location">Set Shop Location</string>
     <string name="default_address_nickname">Nickname not set</string>
     <string name="ok">OK</string>
+    <string name="search_hint">Search Products</string>
 
 </resources>

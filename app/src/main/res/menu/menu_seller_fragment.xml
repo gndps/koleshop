@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_item_search"
+        android:checked="true"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/action_search"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_item_call"
+        android:checked="true"
+        android:orderInCategory="200"
+        android:icon="@drawable/ic_phone_white_24dp"
+        android:title="@string/action_search" />
+
+    <item
+        android:id="@+id/menu_item_star"
+        android:checked="true"
+        android:orderInCategory="300"
+        android:icon="@drawable/ic_star_white_24dp"
+        android:title="@string/action_search"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_item_cart"
+        android:checked="true"
+        android:orderInCategory="400"
+        android:icon="@drawable/ic_shopping_cart_white_24dp"
+        android:title="@string/action_cart"/>
+
+</menu>

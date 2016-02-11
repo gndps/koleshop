@@ -4,6 +4,7 @@ package com.koleshop.appkoleshop.ui.buyer.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.listeners.KolClickListener;
+import com.koleshop.appkoleshop.listeners.KolRecyclerTouchListener;
 import com.koleshop.appkoleshop.model.demo.SellerInfo;
 import com.koleshop.appkoleshop.ui.buyer.adapters.NearbyShopsListAdapter;
 
@@ -38,7 +41,6 @@ public class NearbyShopsListFragment extends Fragment {
     NearbyShopsListAdapter adapter;
     List<SellerInfo> sellers;
     Context mContext;
-
 
 
     public NearbyShopsListFragment() {
@@ -71,6 +73,7 @@ public class NearbyShopsListFragment extends Fragment {
         return view;
     }
 
+
     private void initializeFragment() {
         if(sellers!=null) {
             viewFlipper.setDisplayedChild(VIEW_RECYCLER_VIEW);
@@ -82,6 +85,18 @@ public class NearbyShopsListFragment extends Fragment {
             //set adapter
             adapter = new NearbyShopsListAdapter(sellers, mContext);
             recyclerView.setAdapter(adapter);
+
+            recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(mContext, recyclerView, new KolClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                    ((NearbyShopsFragment) getParentFragment()).openSeller(position);
+                }
+
+                @Override
+                public void onItemLongClick(View v, int position) {
+
+                }
+            }));
         } else {
             viewFlipper.setDisplayedChild(VIEW_ERROR_SCREEN);
         }

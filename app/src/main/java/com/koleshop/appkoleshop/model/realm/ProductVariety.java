@@ -10,8 +10,8 @@ public class ProductVariety extends RealmObject {
 
     @PrimaryKey
     private Long id;
-    private String quantity;
-    private float price;
+    private String quantity; //50 gm
+    private float price; //Rs. 100
     private String imageUrl;
     private boolean varietyValid;
     private boolean limitedStock;
