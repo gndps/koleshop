@@ -13,6 +13,18 @@ public class InventoryProductVariety {
     boolean valid; // valid
     boolean limitedStock;
 
+    public InventoryProductVariety() {
+    }
+
+    public InventoryProductVariety(Long id, String quantity, float price, String imageUrl, boolean valid, boolean limitedStock) {
+        this.id = id;
+        this.quantity = quantity;
+        this.price = price;
+        this.imageUrl = imageUrl;
+        this.valid = valid;
+        this.limitedStock = limitedStock;
+    }
+
     public Long getId() {
         return id;
     }

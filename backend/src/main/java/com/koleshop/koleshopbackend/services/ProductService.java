@@ -936,4 +936,8 @@ public class ProductService {
         }
         return false;
     }
+
+    public List<InventoryProductVariety> getOutOfStockItems(Long userId) {
+        return null;
+    }
 }

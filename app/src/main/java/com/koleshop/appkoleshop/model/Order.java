@@ -22,7 +22,7 @@ public class Order {
     String buyerName;
     Long buyerPhone;
     String buyerImageUrl;
-    OrderStatus status;
+    int status;
     List<OrderItem> list;
     float deliveryCharges;
     int orderType; // 0 for pickup, 1 for home delivery
@@ -34,7 +34,7 @@ public class Order {
     int minutesToDelivery; //how many minutes did the seller select when sending the order out for delivery
     float totalAmount;
 
-    public Order(Date deliveryTime, Long sellerId, String sellerName, Long sellerPhone, String sellerImageUrl, Long buyerId, String buyerName, Long buyerPhone, OrderStatus status, List<OrderItem> list, float deliveryCharges, int orderType, boolean asap, Date orderTime, String address, Date deliveryStartTime, int minutesToDelivery, float totalAmount) {
+    public Order(Date deliveryTime, Long sellerId, String sellerName, Long sellerPhone, String sellerImageUrl, Long buyerId, String buyerName, Long buyerPhone, int status, List<OrderItem> list, float deliveryCharges, int orderType, boolean asap, Date orderTime, String address, Date deliveryStartTime, int minutesToDelivery, float totalAmount) {
         this.deliveryTime = deliveryTime;
         this.sellerId = sellerId;
         this.sellerName = sellerName;
@@ -123,11 +123,11 @@ public class Order {
         this.buyerImageUrl = buyerImageUrl;
     }
 
-    public OrderStatus getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

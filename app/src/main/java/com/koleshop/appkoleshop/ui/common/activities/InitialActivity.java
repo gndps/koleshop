@@ -185,13 +185,26 @@ public class InitialActivity extends AppCompatActivity {
     public void goToNextScreen() {
         String token = PreferenceUtils.getPreferences(mContext, Constants.KEY_GOOGLE_API_TOKEN);
         if(token!=null && !token.isEmpty()) {
-            goToVerifyPhoneNumberScreen();
+            if(sessionType == Constants.SESSION_TYPE_SELLER) {
+                goToVerifyPhoneNumberScreen();
+            } else {
+                setLocationToStartShopping();
+            }
         } else {
             if (checkPlayServices()) {
                 pickUserAccount();
                 setProgressing(true);
             }
         }
+    }
+
+    private void setLocationToStartShopping() {
+        Intent mapsActivityIntent = new Intent(mContext, MapsActivity.class);
+        mapsActivityIntent.putExtra("twoButtonMode", false);
+        mapsActivityIntent.putExtra("title", getString(R.string.title_start_shopping));
+        mapsActivityIntent.putExtra("markerTitle", "Delivery location");
+        mapsActivityIntent.putExtra("actionButtonTitle", getString(R.string.title_start_shopping));
+        startActivity(mapsActivityIntent);
     }
 
     public void goToVerifyPhoneNumberScreen() {
@@ -290,7 +303,7 @@ public class InitialActivity extends AppCompatActivity {
                         }
                     });
 
-                    goToVerifyPhoneNumberScreen();
+                    goToNextScreen();
                 }
             } catch (IOException e) {
                 // The fetchToken() method handles Google-specific exceptions,

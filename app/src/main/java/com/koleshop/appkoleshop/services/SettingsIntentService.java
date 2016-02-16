@@ -306,6 +306,11 @@ public class SettingsIntentService extends IntentService {
                 listener.send(RESULT_CODE_SETTINGS_FETCH_SUCCESS, null);
             }
 
+        } else if(result!=null && !result.getSuccess()) {
+            NetworkUtils.setRequestStatusSuccess(context, uniqueRequestId);
+            if(listener != null) {
+                listener.send(RESULT_CODE_SETTINGS_FETCH_SUCCESS, null);
+            }
         } else {
             //fetching failed
             //update the network request status

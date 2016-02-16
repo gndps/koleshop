@@ -71,6 +71,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     @Bind(R.id.floating_search_bar)
     FloatingSearchView searchBar;
     private boolean searchBarVisible;
+    private boolean firstTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +81,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         if (getIntent().getBooleanExtra("CLOSE_APPLICATION", false)) {
             finish();
         } else {
+            firstTime = getIntent().getBooleanExtra("firstTime", false);
             ButterKnife.bind(this);
             mContext = this;
             setupToolbar();
@@ -160,16 +162,29 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
         refreshLoginLogoutStates();
-        showHome();
+        if(firstTime) {
+            showNearbyShops();
+        } else {
+            showHome();
+        }
     }
 
     private void showHome() {
         MenuItem item = navigationView.getMenu().findItem(R.id.drawer_home);
         if (item != null) {
-            displayView(navigationView.getMenu().findItem(R.id.drawer_home));
+            displayView(item);
         }
         setElevation(8);
         setTitle(titleHome);
+    }
+
+    private void showNearbyShops() {
+        MenuItem item = navigationView.getMenu().findItem(R.id.drawer_nearby_shops);
+        if (item != null) {
+            displayView(item);
+        }
+        setElevation(8);
+        setTitle(titleNearbyShops);
     }
 
     private void revealSearchBar(View view, final boolean reveal) {

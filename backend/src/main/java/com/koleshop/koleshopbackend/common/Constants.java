@@ -27,7 +27,7 @@ public class Constants {
 
 	public static String OTP_TIME_TO_LIVE = "5"; // 5 minutes
 
-    public static int USER_SESSION_TYPE_SELLER = 1;
+    public static int USER_SESSION_TYPE_SELLER = 1; //these constants are same in the mysql db
     public static int USER_SESSION_TYPE_BUYER = 2;
 
 	public static String GCM_NOTI_USER_INVENTORY_CREATED = "gcm_noti_user_inventory_created";

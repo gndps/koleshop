@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.ui.common.activities;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationManager;
@@ -39,7 +40,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -305,12 +308,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void sendResultToCallingActivity() {
-        Intent intent = new Intent();
-        intent.putExtra("gpsLat", gpsLat);
-        intent.putExtra("gpsLong", gpsLong);
-        setResult(RESULT_OK, intent);
-        //close this Activity...
-        finish();
+        if(getCallingActivity()!=null) {
+            Intent intent = new Intent();
+            intent.putExtra("gpsLat", gpsLat);
+            intent.putExtra("gpsLong", gpsLong);
+            setResult(RESULT_OK, intent);
+            //close this Activity...
+            finish();
+        } else {
+            //this is the case when a buyer is setting his location for the first time
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.putExtra("firstTime", true);
+            //save gps long/lat in shared preferences
+            SharedPreferences.Editor editor = PreferenceUtils.getSharedPreferencesEditor(this);
+            editor.putLong("gps_lat", Double.doubleToRawLongBits(gpsLat));
+            editor.putLong("gps_long", Double.doubleToRawLongBits(gpsLong));
+            editor.apply();
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
     }
 
     private void buildGoogleApiClient() {

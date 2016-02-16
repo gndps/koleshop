@@ -64,39 +64,47 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <FrameLayout
-                    android:id="@+id/fl_settings_container"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-                    <fragment
-                        android:id="@+id/frag_shop_settings"
-                        android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.ShopSettingsFragment"
+
+                    <FrameLayout
+                        android:id="@+id/fl_settings_container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="match_parent">
 
-                    <fragment
-                        android:id="@+id/frag_delivery_settings"
-                        android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.DeliverySettingsFragment"
+                        <fragment
+                            android:id="@+id/frag_shop_settings"
+                            android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.ShopSettingsFragment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                        <fragment
+                            android:id="@+id/frag_delivery_settings"
+                            android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.DeliverySettingsFragment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </FrameLayout>
+
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="match_parent"
+                        android:layout_gravity="bottom">
 
-                </FrameLayout>
+                        <include
+                            android:id="@+id/button_bar_back_next"
+                            layout="@layout/view_back_next_button"></include>
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
             </ScrollView>
 
         </ViewFlipper>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
-
-        <include
-            android:id="@+id/button_bar_back_next"
-            layout="@layout/view_back_next_button"></include>
 
     </LinearLayout>
 

@@ -488,6 +488,10 @@ public class SessionService {
     }
 
     public static boolean verifyUserAuthenticity(Long userId, String sessionId) {
+        return verifyUserAuthenticity(userId, sessionId, 0);
+    }
+
+    public static boolean verifyUserAuthenticity(Long userId, String sessionId, int requiredSessionType) {
 
         if(userId==null || sessionId==null || userId<1 || sessionId.isEmpty()) {
             return false;
@@ -499,11 +503,18 @@ public class SessionService {
 
         String query = "select valid from Session where user_id=? and id=?";
 
+        if(requiredSessionType>0) {
+            query += " and session_type=?";
+        }
+
         try {
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setLong(1, userId);
             preparedStatement.setString(2, sessionId);
+            if(requiredSessionType>0) {
+                preparedStatement.setInt(3, requiredSessionType);
+            }
             System.out.println(query);
             ResultSet rs = preparedStatement.executeQuery();
             if (rs != null && rs.first() && rs.getBoolean(1)) {

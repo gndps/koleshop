@@ -165,7 +165,6 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
         if(!setupMode) {
             if (showingDeliverySettings) {
                 toggleDeliveryFragmentVisibility(false, true);
-                showingDeliverySettings = false;
             } else if(settingsModified) {
                 android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mContext);
                 builder.setMessage("Save the changed settings?")
@@ -262,7 +261,6 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
             }
         });
         toggleDeliveryFragmentVisibility(false, false);
-
         loadHomeDeliverySettingsState(switchHomeDeliveryToggle.isChecked());
 
     }
@@ -306,6 +304,7 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
                     .commit();
             //toolbar.setTitle("Settings");
         }
+        showingDeliverySettings = visible;
     }
 
     private void loadHomeDeliverySettingsState(boolean enabled) {
@@ -320,7 +319,6 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
 
     public void goToDeliverySettings(View view) {
         toggleDeliveryFragmentVisibility(true, true);
-        showingDeliverySettings = true;
     }
 
     private SellerSettings getSettingsFromCache() {
@@ -417,7 +415,7 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
             Snackbar.make(toolbar, "Please set shop GPS Location", Snackbar.LENGTH_SHORT).setAction("action", null).show();
         }
 
-        if(!deliverySettingsFragment.validateData().isEmpty()) {
+        if(switchHomeDeliveryToggle.isChecked() && !deliverySettingsFragment.validateData().isEmpty()) {
             Snackbar.make(toolbar, deliverySettingsFragment.validateData(), Snackbar.LENGTH_SHORT).setAction("action", null).show();
             if(!setupMode) {
                 toggleDeliveryFragmentVisibility(true, false);

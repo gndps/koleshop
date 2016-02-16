@@ -2,39 +2,107 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
     tools:context=".ui.common.activities.GetStartedActivity">
 
-    <ImageView
-        android:id="@+id/imageViewShopLogo_Choose"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="50dp"
-        android:src="@drawable/koleshop_logo_old" />
+    <include layout="@layout/view_app_bar"
+        android:id="@+id/app_bar_ags"/>
 
-    <TextView
+    <ViewFlipper
+        android:id="@+id/vf_ags"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:fontFamily="sans-serif-light"
-        android:layout_below="@+id/imageViewShopLogo_Choose"
-        android:text="Congratulations! verification is complete"/>
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/buttonGetStarted"
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="12dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="6dp"
-        android:fontFamily="sans-serif-light"
-        android:clickable="true"
-        android:onClick="getStarted"
-        android:text="Get Started" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imageViewShopLogo_Choose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="50dp"
+                android:paddingLeft="50dp"
+                android:src="@drawable/ic_pinky_pipni" />
+
+            <TextView
+                android:id="@+id/tv_ags_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imageViewShopLogo_Choose"
+                android:layout_marginTop="48dp"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:text="Yippie!!\nYour shopkeeper account is active now" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+
+                <Button
+                    android:id="@+id/buttonGetStarted"
+                    style="@style/Base.Widget.AppCompat.Button.Borderless"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/accent"
+                    android:clickable="true"
+                    android:fontFamily="sans-serif"
+                    android:onClick="getStarted"
+                    android:text="SETUP MY SHOP"
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|center_vertical"
+                    android:layout_marginRight="16dp"
+                    android:src="@drawable/ic_arrow_forward_white_48dp"/>
+
+            </FrameLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageButton
+                style="@style/Widget.Design.FloatingActionButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="8dp"
+                android:elevation="8dp"
+                android:src="@drawable/ic_refresh_grey600_24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="Some problem occurred\nPlease refresh" />
+        </LinearLayout>
+
+    </ViewFlipper>
 
 
 </RelativeLayout>
