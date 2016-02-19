@@ -119,10 +119,18 @@ public class KoleshopCloudStorageService {
         return false;
     }
 
-    public static boolean uploadImage(ImageUploadRequest imageUploadRequest) {
+    public static boolean uploadProfilePicture(ImageUploadRequest imageUploadRequest) {
+        return uploadImage(imageUploadRequest, "profile/");
+    }
+
+    public static boolean uploadProductImage(ImageUploadRequest imageUploadRequest) {
+        return uploadImage(imageUploadRequest, "uploads/");
+    }
+
+    public static boolean uploadImage(ImageUploadRequest imageUploadRequest, String bucketUrl) {
 
         Storage storage = StorageOptions.defaultInstance().service();
-        BlobId blobId = BlobId.of("koleshop-bucket", "uploads/" + imageUploadRequest.getFileName());
+        BlobId blobId = BlobId.of("koleshop-bucket", bucketUrl + imageUploadRequest.getFileName());
         Blob blob = Blob.load(storage, blobId);
 
         if (blob == null) {

@@ -24,9 +24,11 @@ import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.ui.seller.activities.HomeActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.activities.SelectSellerCategoryActivity;
 import com.koleshop.appkoleshop.services.RegistrationIntentService;
@@ -129,9 +131,19 @@ public class InitialActivity extends AppCompatActivity {
             //seller session
             //if logged in
             if(CommonUtils.getUserId(mContext)!=null && CommonUtils.getUserId(mContext)>0) {
-                Intent intent = new Intent(this, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                //if settings setup is finished then open home
+                boolean settingsSetupFinished = PreferenceUtils.getPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED);
+                if(settingsSetupFinished) {
+                    //go to home activity
+                    Intent intent = new Intent(this, HomeActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } else {
+                    //go to get started activity
+                    Intent intent = new Intent(this, GetStartedActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
             } else {
                 goToNextScreen();
             }
@@ -201,7 +213,7 @@ public class InitialActivity extends AppCompatActivity {
     private void setLocationToStartShopping() {
         Intent mapsActivityIntent = new Intent(mContext, MapsActivity.class);
         mapsActivityIntent.putExtra("twoButtonMode", false);
-        mapsActivityIntent.putExtra("title", getString(R.string.title_start_shopping));
+        mapsActivityIntent.putExtra("title", getString(R.string.title_set_delivery_location));
         mapsActivityIntent.putExtra("markerTitle", "Delivery location");
         mapsActivityIntent.putExtra("actionButtonTitle", getString(R.string.title_start_shopping));
         startActivity(mapsActivityIntent);

@@ -54,6 +54,27 @@ public class ImageUtils {
 
     }
 
+    public static void uploadProfilePicture(Context context, String filepath, String filename, String imageRequestTag, boolean isHeaderImage) {
+
+        //get session type (buyer/seller)
+        String sessionType = PreferenceUtils.getPreferences(context, Constants.KEY_USER_SESSION_TYPE);
+        boolean userIsSeller = false;
+        if(sessionType.equals(Constants.SESSION_TYPE_SELLER)) {
+            userIsSeller = true;
+        }
+
+        //start profile picture image upload service
+        Intent uploadIntent = new Intent(context, CommonIntentService.class);
+        uploadIntent.setAction(Constants.ACTION_UPLOAD_PROFILE_IMAGE);
+        uploadIntent.putExtra("filepath", filepath);
+        uploadIntent.putExtra("filename", filename);
+        uploadIntent.putExtra("isHeaderImage", isHeaderImage);
+        uploadIntent.putExtra("userIsSeller", userIsSeller);
+        uploadIntent.putExtra("tag", imageRequestTag);
+        context.startService(uploadIntent);
+
+    }
+
     public static byte[] getByteArrayFromBitmap(Bitmap bitmap, int quality) {
         try {
             //Convert to byte array

@@ -84,6 +84,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-identity:8.4.0'
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.google.android.gms:play-services-location:8.4.0'
+    compile 'com.google.maps.android:android-maps-utils:0.4+'
     compile 'org.lucasr.dspec:dspec:0.1.1'
     compile 'com.yqritc:recyclerview-flexibledivider:1.1.0'
     compile 'com.github.traex.rippleeffect:library:1.2.3'

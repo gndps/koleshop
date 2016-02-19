@@ -31,7 +31,7 @@ public class InventoryEndpoint {
         KoleResponse response = new KoleResponse();
         List<InventoryCategory> list = null;
         try {
-            if (true||SessionService.verifyUserAuthenticity(userId, sessionId)) {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
                 list = new InventoryService().getCategories(myInventory, userId);
             }
         } catch (Exception e) {
@@ -53,7 +53,7 @@ public class InventoryEndpoint {
         KoleResponse response = new KoleResponse();
         List<InventoryCategory> list = null;
         try {
-            if (true||SessionService.verifyUserAuthenticity(userId, sessionId)) {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
                 list = new InventoryService().getSubcategories(categoryId, userId, myInventory);
             }
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class InventoryEndpoint {
         KoleResponse response = new KoleResponse();
         List<InventoryProduct> products = null;
         try {
-            if (true||SessionService.verifyUserAuthenticity(userId, sessionId)) {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
                 products = new InventoryService().getProductsForCategory(categoryId, userId, myInventory);
             }
         } catch (Exception e) {

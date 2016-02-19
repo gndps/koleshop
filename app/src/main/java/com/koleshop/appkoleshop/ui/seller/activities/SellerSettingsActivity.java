@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.ui.common.activities.MapsActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.fragments.settings.DeliverySettingsFragment;
 import com.koleshop.appkoleshop.ui.seller.fragments.settings.HomeDeliveryFragment;
@@ -117,11 +119,9 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
             }
 
             if(!setupMode) {
-                settings = getSettingsFromCache();
+                settings = KoleshopUtils.getSettingsFromCache(this);
             }
         }
-
-        //setupMode = true;
 
         if(settings!=null || setupMode) {
             loadSettingsIntoUi();
@@ -192,6 +192,7 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
                 changeGpsLocation(null);
             } else if(currentStep == 4) {
                 currentStep--;
+                buttonNext.setText("NEXT");
                 //load home delivery full screen fragment
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -321,19 +322,9 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
         toggleDeliveryFragmentVisibility(true, true);
     }
 
-    private SellerSettings getSettingsFromCache() {
-        String settingsString = PreferenceUtils.getPreferences(mContext, Constants.KEY_SELLER_SETTINGS);
-        if(settingsString!=null && !settingsString.isEmpty()) {
-            //load settings from cache
-            SellerSettings sellerSettings = new Gson().fromJson(settingsString, SellerSettings.class);
-            return sellerSettings;
-        } else {
-            return null;
-        }
-    }
-
     private void requestSettingsFromInternet() {
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_LOADING);
+        buttonBarBackNext.setVisibility(View.GONE);
         requestId = CommonUtils.randomString(6);
         SettingsIntentService.requestSellerSettings(this, requestId);
     }
@@ -356,6 +347,9 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
         if(setupMode) {
             //show back/next button
             buttonBarBackNext.setVisibility(View.VISIBLE);
+            if(currentStep == 1) {
+                buttonBack.setVisibility(View.GONE);
+            }
 
             if(homeDeliveryFragment==null) {
                 homeDeliveryFragment = HomeDeliveryFragment.newInstance();
@@ -404,22 +398,26 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
     }
 
     private boolean validateSettingsBeforeSaving() {
+        hideSoftKeyboard(this);
         if(!shopSettingsFragment.validateStep1().isEmpty()) {
-            Snackbar.make(toolbar, shopSettingsFragment.validateStep1(), Snackbar.LENGTH_SHORT).setAction("action", null).show();
+            Snackbar.make(toolbar, shopSettingsFragment.validateStep1(), Snackbar.LENGTH_LONG).setAction("action", null).show();
             if(!setupMode) {
                 toggleDeliveryFragmentVisibility(false, false);
             }
+            return false;
         }
 
         if(!shopSettingsFragment.validateGpsLocation()) {
-            Snackbar.make(toolbar, "Please set shop GPS Location", Snackbar.LENGTH_SHORT).setAction("action", null).show();
+            Snackbar.make(toolbar, "Please set shop GPS Location", Snackbar.LENGTH_LONG).setAction("action", null).show();
+            return false;
         }
 
         if(switchHomeDeliveryToggle.isChecked() && !deliverySettingsFragment.validateData().isEmpty()) {
-            Snackbar.make(toolbar, deliverySettingsFragment.validateData(), Snackbar.LENGTH_SHORT).setAction("action", null).show();
+            Snackbar.make(toolbar, deliverySettingsFragment.validateData(), Snackbar.LENGTH_LONG).setAction("action", null).show();
             if(!setupMode) {
                 toggleDeliveryFragmentVisibility(true, false);
             }
+            return false;
         }
         return true;
     }
@@ -620,7 +618,7 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
     @Override
     public void onSettingsFetchSuccess() {
         settingsModified = false;
-        settings = getSettingsFromCache();
+        settings = KoleshopUtils.getSettingsFromCache(this);
         loadSettingsIntoUi();
         settingsModified = false;
     }
@@ -628,6 +626,7 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
     @Override
     public void onSettingsFetchFailed() {
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_ERROR);
+        buttonBarBackNext.setVisibility(View.GONE);
     }
 
     @Override
@@ -668,6 +667,8 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
 
     public void nextButtonClicked(View view) {
 
+        hideSoftKeyboard(this);
+
         if(currentStep == 1) {
             String firstStepValidity = shopSettingsFragment.validateStep1();
             if(firstStepValidity.isEmpty()) {
@@ -690,6 +691,7 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
                 saveSettings();
             } else {
                 currentStep++;
+                buttonNext.setText("FINISH");
                 getSupportFragmentManager()
                         .beginTransaction()
                         .show(deliverySettingsFragment)
@@ -700,7 +702,6 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
 
         } else if(currentStep == 4) {
             //settings setup finished
-            buttonNext.setText("FINISH");
             String validityString = deliverySettingsFragment.validateData();
             if(validityString.isEmpty()) {
                 saveSettings();
@@ -728,7 +729,6 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
         homeDeliveryFragment.yesButtonClicked();
         homeDeliveryOptionSelected = true;
         nextButtonClicked(null);
-        buttonNext.setText("NEXT");
     }
 
     public void buttonHomeDeliverySettingsNoClicked(View view) {

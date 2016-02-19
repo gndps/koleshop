@@ -17,6 +17,15 @@
         <item name="android:textColorSecondary">@color/secondary_text_default_material_dark</item>
     </style>
 
+    <style name="BlackAppBarTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:actionBarStyle">@style/BlackActionBarTheme</item>
+    </style>
+
+    <style name="BlackActionBarTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="android:background">@color/pure_black</item>
+    </style>
+
     <style name="FullscreenTheme" parent="android:Theme.NoTitleBar">
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@null</item>
@@ -68,6 +77,22 @@
     <style name="menu_labels_style">
         <item name="android:background">@drawable/fab_label_background</item>
         <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Theme.HomeSwitchTheme" parent="Theme.AppCompat.Light">
+        <!-- colorPrimary is used for the default action bar background -->
+        <item name="colorPrimary">@color/white</item>
+
+        <!-- colorPrimaryDark is used for the status bar -->
+        <item name="colorPrimaryDark">@color/white</item>
+
+        <!-- colorAccent is used as the default value for colorControlActivated,
+             which is used to tint widgets -->
+        <item name="colorAccent">@color/white</item>
+
+        <!-- You can also set colorControlNormal, colorControlActivated
+             colorControlHighlight, and colorSwitchThumbNormal. -->
+
     </style>
 
 </resources>

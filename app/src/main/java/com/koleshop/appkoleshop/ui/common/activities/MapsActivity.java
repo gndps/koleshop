@@ -40,6 +40,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
@@ -321,8 +322,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             intent.putExtra("firstTime", true);
             //save gps long/lat in shared preferences
             SharedPreferences.Editor editor = PreferenceUtils.getSharedPreferencesEditor(this);
-            editor.putLong("gps_lat", Double.doubleToRawLongBits(gpsLat));
-            editor.putLong("gps_long", Double.doubleToRawLongBits(gpsLong));
+            editor.putLong(Constants.KEY_GPS_LAT, Double.doubleToRawLongBits(gpsLat));
+            editor.putLong(Constants.KEY_GPS_LONG, Double.doubleToRawLongBits(gpsLong));
             editor.apply();
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

@@ -134,12 +134,12 @@ public class PreferenceUtils {
 
     public static Double getGpsLong(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(Prefs.KOLE_PREFS, Context.MODE_PRIVATE);
-        return Double.longBitsToDouble(prefs.getLong("gps_long", Double.doubleToLongBits(0)));
+        return Double.longBitsToDouble(prefs.getLong(Constants.KEY_GPS_LONG, Double.doubleToLongBits(0)));
     }
 
     public static Double getGpsLat(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(Prefs.KOLE_PREFS, Context.MODE_PRIVATE);
-        return Double.longBitsToDouble(prefs.getLong("gps_lat", Double.doubleToLongBits(0)));
+        return Double.longBitsToDouble(prefs.getLong(Constants.KEY_GPS_LAT, Double.doubleToLongBits(0)));
     }
 
 }

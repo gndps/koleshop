@@ -44,5 +44,8 @@ public class Constants {
 	public static String ADDRESS_TYPE_CUSTOMER = "0";
 	public static String ADDRESS_TYPE_SELLER = "1";
 	public static String SELLER_ADDRESS_NICKNAME = "Seller Address";
+	public static final String NEARBY_SHOPS_DISTANCE = "10000";
+	public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
+	public static String PUBLIC_PROFILE_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/profile/";
 
 }

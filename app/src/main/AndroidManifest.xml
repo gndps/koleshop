@@ -115,8 +115,7 @@
 
         <activity
             android:name=".ui.seller.activities.HomeActivity"
-            android:label="@string/title_activity_home">
-        </activity>
+            android:label="@string/title_activity_home" />
 
         <service
             android:name=".services.CommonIntentService"
@@ -175,7 +174,17 @@
         <service
             android:name=".services.DemoIntentService"
             android:exported="false" />
+        <service
+            android:name=".services.SellerIntentService"
+            android:exported="false" />
 
+        <activity
+            android:name=".ui.common.activities.ChangePictureActivity"
+            android:theme="@style/BlackAppBarTheme" />
+
+        <service
+            android:name=".services.BuyerIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

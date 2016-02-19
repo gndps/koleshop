@@ -7,9 +7,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.koleshop.appkoleshop.R;
-import com.koleshop.appkoleshop.model.demo.SellerInfo;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.squareup.picasso.Picasso;
@@ -22,7 +21,7 @@ import butterknife.ButterKnife;
  */
 public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
 
-    SellerInfo sellerInfo;
+    SellerSettings sellerInfo;
     Context mContext;
 
     @Bind(R.id.iv_vnsi_avatar)
@@ -42,17 +41,17 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void bindData(SellerInfo sellerInfo) {
+    public void bindData(SellerSettings sellerInfo) {
         this.sellerInfo = sellerInfo;
         loadSellerInfoIntoUi();
     }
 
     private void loadSellerInfoIntoUi() {
         if (sellerInfo != null) {
-            textViewName.setText(sellerInfo.getName());
-            textViewTimings.setText(sellerInfo.getTimings());
+            textViewName.setText(sellerInfo.getAddress().getName());
+            //textViewTimings.setText(sellerInfo.getTimings());
             float[] results = new float[3];
-            Location.distanceBetween(30d, 76d, sellerInfo.getGpsLat(), sellerInfo.getGpsLong(), results);
+            Location.distanceBetween(30d, 76d, sellerInfo.getAddress().getGpsLat(), sellerInfo.getAddress().getGpsLong(), results);
 
             if (results != null && results.length > 0) {
                 String distance = CommonUtils.getReadableDistanceFromMetres(results[0]);
@@ -64,10 +63,12 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
                 Picasso.with(mContext)
                         .load(sellerInfo.getImageUrl())
                         .into(imageViewAvatar);
-            if (sellerInfo.isOnline()) {
-                imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_green_dot));
-            } else {
-                imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_grey_dot));
+            if (sellerInfo.isShopOpen()) {
+                imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_green_dot_24dp));
+            }/* else if (no delivery to your location || pickup only){
+                imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_orange_dot_24dp));
+            }*/ else{
+                imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_grey_dot_24dp));
             }
         }
     }

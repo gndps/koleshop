@@ -4,19 +4,19 @@ package com.koleshop.appkoleshop.ui.buyer.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.listeners.KolClickListener;
 import com.koleshop.appkoleshop.listeners.KolRecyclerTouchListener;
-import com.koleshop.appkoleshop.model.demo.SellerInfo;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.ui.buyer.adapters.NearbyShopsListAdapter;
 
 import org.parceler.Parcels;
@@ -32,6 +32,8 @@ public class NearbyShopsListFragment extends Fragment {
     RecyclerView recyclerView;
     @Bind(R.id.vf_fnsl)
     ViewFlipper viewFlipper;
+    @Bind(R.id.pb_fnsl)
+    ProgressBar progressBar;
 
     private static int VIEW_RECYCLER_VIEW = 0;
     private static int VIEW_ERROR_SCREEN = 1;
@@ -39,15 +41,19 @@ public class NearbyShopsListFragment extends Fragment {
     private static String TAG = "fns_list";
 
     NearbyShopsListAdapter adapter;
-    List<SellerInfo> sellers;
+    List<SellerSettings> sellers;
     Context mContext;
+    private int visibleItemCount;
+    private int totalItemCount;
+    private int pastVisibleItems;
+    private boolean loading = true;
 
 
     public NearbyShopsListFragment() {
         // Required empty public constructor
     }
 
-    public static NearbyShopsListFragment newInstance(List<SellerInfo> sellers) {
+    public static NearbyShopsListFragment newInstance(List<SellerSettings> sellers) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("sellers", Parcels.wrap(sellers));
         NearbyShopsListFragment nearbyShopsListFragment = new NearbyShopsListFragment();
@@ -79,7 +85,7 @@ public class NearbyShopsListFragment extends Fragment {
             viewFlipper.setDisplayedChild(VIEW_RECYCLER_VIEW);
 
             //rv layout manager
-            LinearLayoutManager mLayoutManager = new LinearLayoutManager(mContext);
+            final LinearLayoutManager mLayoutManager = new LinearLayoutManager(mContext);
             recyclerView.setLayoutManager(mLayoutManager);
 
             //set adapter
@@ -97,9 +103,38 @@ public class NearbyShopsListFragment extends Fragment {
 
                 }
             }));
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    if (dy > 0) //check for scroll down
+                    {
+                        visibleItemCount = mLayoutManager.getChildCount();
+                        totalItemCount = mLayoutManager.getItemCount();
+                        pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
+
+                        if (loading) {
+                            if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+                                loading = false;
+                                progressBar.setVisibility(View.VISIBLE);
+                                ((NearbyShopsFragment) getParentFragment()).requestMoreNearbyShopsFromInternet();
+                            }
+                        }
+                    }
+                }
+            });
         } else {
             viewFlipper.setDisplayedChild(VIEW_ERROR_SCREEN);
         }
     }
 
+    public void couldNotLoadMoreSellers() {
+        loading = true;
+        progressBar.setVisibility(View.GONE);
+    }
+
+    public void moreSellersFetched(List<SellerSettings> moreSellers) {
+        sellers.addAll(moreSellers);
+        adapter.notifyDataSetChanged();
+        progressBar.setVisibility(View.GONE);
+    }
 }

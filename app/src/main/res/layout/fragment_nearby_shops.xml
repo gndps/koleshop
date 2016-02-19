@@ -37,6 +37,42 @@
             android:layout_height="40dp"
             android:layout_gravity="center"/>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/iv_fns_no_shops"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_pinky_sad" />
+
+            <TextView
+                android:id="@+id/tv_ags_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/iv_fns_no_shops"
+                android:layout_marginTop="25dp"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:textColor="@color/primary_text"
+                android:text="No nearby shops found :/" />
+
+            <Button
+                android:id="@+id/button_refresh_nearby_shops"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/refresh"
+                android:textColor="@color/primary_text"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="16dp"
+                android:layout_centerHorizontal="true"/>
+
+        </RelativeLayout>
+
     </ViewFlipper>
 
 </FrameLayout>

@@ -59,7 +59,7 @@
             android:id="@+id/iv_vnsi_online"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:src="@drawable/ic_green_dot"/>
+            android:src="@drawable/ic_green_dot_24dp"/>
 
     </LinearLayout>
 

@@ -18,7 +18,8 @@
             android:id="@+id/pb_addresses"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            style="@android:style/Widget.ProgressBar.Large"/>
 
     </ViewFlipper>
 

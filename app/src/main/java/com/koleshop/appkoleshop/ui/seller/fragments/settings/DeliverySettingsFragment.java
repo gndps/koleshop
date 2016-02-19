@@ -124,13 +124,13 @@ public class DeliverySettingsFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                Long maxDelieryDistance = null;
+                Long maxDeliveryDistance = null;
                 try{
-                    maxDelieryDistance = Long.parseLong(s.toString());
+                    maxDeliveryDistance = Long.parseLong(s.toString());
                 } catch (Exception e){
                     //whatever
                 }
-                sellerSettings.setMaximumDeliveryDistance(maxDelieryDistance);
+                sellerSettings.setMaximumDeliveryDistance(maxDeliveryDistance);
                 mListener.settingsModified();
             }
         });

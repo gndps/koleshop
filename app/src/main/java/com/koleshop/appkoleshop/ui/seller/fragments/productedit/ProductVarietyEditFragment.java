@@ -177,7 +177,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                     String filename = intent.getStringExtra("filename");
                     if (tag != null && !tag.isEmpty() && filename != null && !filename.isEmpty() && tag.equalsIgnoreCase(variety.getTag())) {
                         NetworkUtils.setRequestStatusComplete(mContext, tag);
-                        String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
+                        String url = Constants.PUBLIC_PRODUCT_IMAGE_URL_PREFIX + filename;
                         variety.setShowImageProcessing(false);
                         variety.setImageUrl(url);
                         reloadImageViewAndProcessing();
@@ -306,7 +306,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                     variety.setShowImageProcessing(false);
                     String filename = variety.getImageFilename();
                     if (filename != null && !filename.isEmpty()) {
-                        String url = Constants.PUBLIC_IMAGE_URL_PREFIX + filename;
+                        String url = Constants.PUBLIC_PRODUCT_IMAGE_URL_PREFIX + filename;
                         variety.setImageUrl(url);
                     } else {
                         Log.d(TAG, "some problem while getting filename for tag");
@@ -360,7 +360,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
             String imageUrl = variety.getImageUrl();
             boolean validUrl = URLUtil.isValidUrl(imageUrl);
             if(!validUrl) {
-                imageUrl = Constants.PUBLIC_IMAGE_URL_PREFIX + imageUrl;
+                imageUrl = Constants.PUBLIC_PRODUCT_IMAGE_URL_PREFIX + imageUrl;
             } else {
                 Log.d(TAG, "url is valid");
             }

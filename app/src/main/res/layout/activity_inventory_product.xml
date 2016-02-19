@@ -60,7 +60,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            style="@style/Widget.AppCompat.ProgressBar"/>
+            style="@android:style/Widget.ProgressBar.Large"/>
 
         <!-- this is the error view -->
         <LinearLayout

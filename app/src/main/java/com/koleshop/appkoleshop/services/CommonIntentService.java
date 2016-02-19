@@ -113,6 +113,20 @@ public class CommonIntentService extends IntentService {
                 } else {
                     uploadImageToCloudStorage(filepath, filename, tag);
                 }
+
+                //upload profile image
+            } else if (Constants.ACTION_UPLOAD_PROFILE_IMAGE.equals(action)) {
+                String filename = intent.getStringExtra("filename");
+                String filepath = intent.getStringExtra("filepath");
+                String tag = intent.getStringExtra("tag");
+                boolean isHeaderImage = intent.getBooleanExtra("isHeaderImage", false);
+                boolean userIsSeller = intent.getBooleanExtra("userIsSeller", false);
+                if (filepath == null || filepath.isEmpty() || filename == null || filename.isEmpty() || tag == null || tag.isEmpty()) {
+                    Intent failedIntent = new Intent(Constants.ACTION_UPLOAD_IMAGE_FAILED);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(failedIntent);
+                } else {
+                    setUserProfilePicture(filepath, filename, tag, userIsSeller, isHeaderImage);
+                }
             }
         }
         realm.close();
@@ -241,10 +255,13 @@ public class CommonIntentService extends IntentService {
         }
 
         if (productCategories != null && productCategories.size() > 0) {
-
-            realm.beginTransaction();
-            realm.copyToRealm(proCats);
-            realm.commitTransaction();
+            try {
+                realm.beginTransaction();
+                realm.copyToRealm(proCats);
+                realm.commitTransaction();
+            } catch(Exception e) {
+                Log.e(TAG, "exception while copying product categories into realm", e);
+            }
             Log.d("SessionIntentService", "product categories fetched");
             Intent intent = new Intent(Constants.ACTION_PRODUCT_CATEGORIES_LOAD_SUCCESS);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -658,6 +675,85 @@ public class CommonIntentService extends IntentService {
             while (count < maxTries) {
                 try {
                     result = commonEndpoint.uploadImage(userId, sessionId, imageUploadRequest).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+        if (result == null || !result.getSuccess()) {
+            //result is null - upload failed
+            Log.e(TAG, "image uploading failed");
+            if (result != null && result.getData() != null) Log.e(TAG, (String) result.getData());
+            Intent intent = new Intent(Constants.ACTION_UPLOAD_IMAGE_FAILED);
+            intent.putExtra("tag", tag);
+            intent.putExtra("filename", filename);
+            //the following prefs will be deleted if this broadcast is received by the product_edit_activity
+            NetworkUtils.setRequestStatusFailed(context, tag);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        } else {
+            //image upload success
+            Intent intent = new Intent(Constants.ACTION_UPLOAD_IMAGE_SUCCESS);
+            intent.putExtra("tag", tag);
+            intent.putExtra("filename", filename);
+            //the following prefs will be deleted if this broadcast is received by the product_edit_activity
+            NetworkUtils.setRequestStatusSuccess(context, tag);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+    }
+
+    private void setUserProfilePicture(String filepath, String filename, String tag, boolean userIsSeller, boolean isHeaderImage) {
+        CommonEndpoint commonEndpoint = null;
+        CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        commonEndpoint = builder.build();
+
+
+        com.koleshop.api.commonEndpoint.model.KoleResponse result = null;
+        Context context = getApplicationContext();
+
+        try {
+            Long userId = PreferenceUtils.getUserId(context);
+            String sessionId = PreferenceUtils.getSessionId(context);
+            byte[] imageByteArray = ImageUtils.getImageByteArrayForUpload(filepath);
+            ImageUploadRequest imageUploadRequest = new ImageUploadRequest();
+            if (!filename.startsWith("IMG_") || !filename.endsWith("_" + userId + ".jpg") || !filename.endsWith("_" + userId + ".png")) {
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                String random6 = CommonUtils.randomString(6);
+                filename = "IMG" + "_" + timeStamp + "_" + random6 + "_" + userId + ".jpg";
+            }
+            imageUploadRequest.setFileName(filename);
+            if (filename.toLowerCase().endsWith(".png")) {
+                imageUploadRequest.setMimeType("image/png");
+            } else {
+                imageUploadRequest.setMimeType("image/jpeg");
+            }
+            String imageString = Base64.encodeToString(imageByteArray, Base64.DEFAULT);
+            imageUploadRequest.setImageData(imageString);
+
+            //following prefs are set because of a case...when image is uploading...but calling activity
+            //has stopped listening to broadcasts because of an incoming call
+            NetworkUtils.setRequestStatusProcessing(context, tag);
+
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = commonEndpoint.setUserProfileImage(userId, sessionId, userIsSeller, isHeaderImage, imageUploadRequest).execute();
                     count = maxTries;
                 } catch (Exception e) {
                     Log.e(TAG, "exception", e);

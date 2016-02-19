@@ -27,6 +27,7 @@ import com.koleshop.appkoleshop.constant.Prefs;
 import com.koleshop.appkoleshop.model.demo.Cart;
 import com.koleshop.appkoleshop.singletons.DemoSingleton;
 import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
+import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 public class MyGcmListenerService extends GcmListenerService {
@@ -90,6 +91,7 @@ public class MyGcmListenerService extends GcmListenerService {
                     Long savedSettingsMillis = sharedPreferences.getLong(Constants.KEY_SELLER_SETTINGS_MILLIS, 0);
                     if (updatedSettingsMillis > savedSettingsMillis) {
                         Log.d(TAG, "will update user settings");
+                        SettingsIntentService.refreshSellerSettings(this);
                         PreferenceUtils.setPreferences(mContext, Constants.KEY_SELLER_SETTINGS, "");
                         Intent intent = new Intent(Constants.ACTION_RELOAD_SETTINGS);
                         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);

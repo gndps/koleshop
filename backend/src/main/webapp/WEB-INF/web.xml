@@ -10,7 +10,9 @@
                 com.koleshop.koleshopbackend.endpoints.ProductEndpoint,
                 com.koleshop.koleshopbackend.endpoints.CommonEndpoint,
                 com.koleshop.koleshopbackend.endpoints.InventoryEndpoint,
-                com.koleshop.koleshopbackend.endpoints.BlobstoreEndpoint
+                com.koleshop.koleshopbackend.endpoints.BlobstoreEndpoint,
+                com.koleshop.koleshopbackend.endpoints.BuyerEndpoint,
+                com.koleshop.koleshopbackend.endpoints.SellerEndpoint
             </param-value>
         </init-param>
     </servlet>

@@ -1,15 +1,13 @@
 package com.koleshop.appkoleshop.ui.buyer.fragments;
 
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.Parcelable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -21,18 +19,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.google.gson.Gson;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.demo.SellerInfo;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.services.BuyerIntentService;
 import com.koleshop.appkoleshop.ui.buyer.adapters.NearbyShopsFragmentPagerAdapter;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
-import com.koleshop.appkoleshop.util.PreferenceUtils;
-import com.mypopsy.widget.FloatingSearchView;
 
-import java.util.ArrayList;
+import org.parceler.Parcels;
+
 import java.util.List;
 
 import butterknife.Bind;
@@ -49,6 +49,18 @@ public class NearbyShopsFragment extends Fragment {
     ViewFlipper viewFlipper;
     @BindString(R.string.navigation_drawer_nearby_shops)
     String titleNearbyShops;
+    @Bind(R.id.button_refresh_nearby_shops)
+    Button buttonRefresh;
+
+    boolean onlyHomeDeliveryShops;
+    boolean onlyOnlineShops;
+    int loadedShopsCount;
+    NearbyShopsFragmentPagerAdapter adapter;
+
+    private static final int VIEW_FLIPPER_TABS = 0;
+    private static final int VIEW_FLIPPER_PROCESSING = 1;
+    private static final int VIEW_FLIPPER_NO_SHOPS = 2;
+    private static final int LOAD_MORE_SHOPS_COUNT = 20;
 
     BroadcastReceiver mBroadcastReceiver;
     Context mContext;
@@ -81,7 +93,8 @@ public class NearbyShopsFragment extends Fragment {
         fragmentHomeActivityListener = (FragmentHomeActivityListener) getActivity();
         ButterKnife.bind(this, view);
         initializeBroadcastReceivers();
-        loadNearbySellersList();
+        initializeSomeStuffHere();
+        requestNearbyShopsFromInternet();
         return view;
     }
 
@@ -92,6 +105,16 @@ public class NearbyShopsFragment extends Fragment {
                 //open cart fragment
                 Toast.makeText(mContext, "open hte cart", Toast.LENGTH_SHORT).show();
                 return true;
+            case R.id.menu_item_only_home_delivery:
+                item.setChecked(!item.isChecked());
+                onlyHomeDeliveryShops = item.isChecked();
+                requestNearbyShopsFromInternet();
+                return true;
+            case R.id.menu_item_only_online_shops:
+                item.setChecked(!item.isChecked());
+                onlyOnlineShops = item.isChecked();
+                requestNearbyShopsFromInternet();
+                return true;
         }
         return false;
 
@@ -101,7 +124,8 @@ public class NearbyShopsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
-        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter("update_nearby_shops"));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NEARBY_SHOPS_RECEIVE_FAILED));
         fragmentHomeActivityListener.setBackButtonHandledByFragment(false);
         fragmentHomeActivityListener.setTitle(titleNearbyShops);
     }
@@ -116,58 +140,72 @@ public class NearbyShopsFragment extends Fragment {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equalsIgnoreCase("update_nearby_shops")) {
-                    //updateSellerInfoTile();
+                if (intent.getAction().equalsIgnoreCase(Constants.ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS)) {
+                    int offset = intent.getIntExtra("offset", 0);
+                    Parcelable parcelableSettings = intent.getParcelableExtra("nearbyShopsList");
+                    List<SellerSettings> sellers = Parcels.unwrap(parcelableSettings);
+                    if(offset==0) {
+                        if(sellers!=null && sellers.size()>0) {
+                            loadNearbyShopsList(sellers);
+                        }  else {
+                            //no sellers found at this location
+                            viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_SHOPS);
+                        }
+                    } else {
+                        if(sellers!=null && sellers.size()>0) {
+                            moreSellersLoaded(sellers);
+                        } else {
+                            couldNotLoadMoreSellers();
+                        }
+                    }
+                } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_NEARBY_SHOPS_RECEIVE_FAILED)) {
+                    int offset = intent.getIntExtra("offset", 0);
+                    if(offset==0) {
+                        //sellers loading failed
+                        viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_SHOPS);
+                    } else {
+                        couldNotLoadMoreSellers();
+                    }
                 }
             }
         };
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private void initializeViewPagerAndTabLayout(List<SellerInfo> sellers) {
+    private void initializeSomeStuffHere() {
+        buttonRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestNearbyShopsFromInternet();
+            }
+        });
+    }
+
+    private void loadNearbyShopsList(List<SellerSettings> sellers) {
         fragmentHomeActivityListener.setElevation(0);
-        viewFlipper.setDisplayedChild(0);//viewpager and tablayout
-        viewPager.setAdapter(new NearbyShopsFragmentPagerAdapter(getChildFragmentManager(), sellers));
+        viewFlipper.setDisplayedChild(VIEW_FLIPPER_TABS);//viewpager and tablayout
+        adapter = new NearbyShopsFragmentPagerAdapter(getChildFragmentManager(), sellers);
+        viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             tabLayout.setElevation(8);
         }
     }
 
-    private Drawable getDrawable(int resId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return getResources().getDrawable(resId, mContext.getTheme());
-        } else {
-            return getResources().getDrawable(resId);
-        }
+    private void moreSellersLoaded(List<SellerSettings> moreSellers) {
+        adapter.moreSellersFetched(moreSellers);
     }
 
-    private SellerInfo getSellerInfo(Context context) {
-        String nearbyShopsSettings = PreferenceUtils.getPreferences(context, "nearby_shops");
-        SellerInfo sellerInfo = new Gson().fromJson(nearbyShopsSettings, SellerInfo.class);
-        return sellerInfo;
+    private void couldNotLoadMoreSellers() {
+        adapter.couldNotLoadMoreSellers();
     }
 
-    private void loadNearbySellersList() {
-        viewFlipper.setDisplayedChild(1);//loading
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sellers = getSellersDummyData();
-                initializeViewPagerAndTabLayout(sellers);
-            }
-        }, 1000);
+    private void requestNearbyShopsFromInternet() {
+        viewFlipper.setDisplayedChild(VIEW_FLIPPER_PROCESSING);//loading
+        BuyerIntentService.getNearbyShops(mContext, onlyHomeDeliveryShops, onlyOnlineShops, LOAD_MORE_SHOPS_COUNT, 0);
     }
 
-    private List<SellerInfo> getSellersDummyData() {
-        List<SellerInfo> sellers = new ArrayList<>();
-        sellers.add(new SellerInfo("Jagdish General Store", "Delivery 7 am - 9 pm", true, "", 76.0d, 32.0d));
-        sellers.add(new SellerInfo("Gandhi New Store", "Delivery 7:30 am - 8:30 pm", true, "", 77.0d, 33.0d));
-        sellers.add(new SellerInfo("Funky store", "Delivery 7 am - 9:30 pm", true, "", 76.0d, 34.0d));
-        sellers.add(new SellerInfo("Some Store", "Delivery 6:30 am - 10 pm", false, "", 76.0d, 33.0d));
-        sellers.add(new SellerInfo("Cool Shop", "Delivery 10 am - 7 pm", true, "", 75.0d, 31.0d));
-        sellers.add(new SellerInfo("My Daily Needs", "Delivery 9 am - 7 pm", true, "", 75.0d, 32.0d));
-        return sellers;
+    public void requestMoreNearbyShopsFromInternet() {
+        //BuyerIntentService.getNearbyShops(mContext, onlyHomeDeliveryShops, onlyOnlineShops, LOAD_MORE_SHOPS_COUNT, sellers.size());
     }
 
     public void openSeller(int position) {

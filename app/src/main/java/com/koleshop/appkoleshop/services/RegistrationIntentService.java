@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -165,15 +166,17 @@ public class RegistrationIntentService extends IntentService {
 
                     String sessionId = PreferenceUtils.getSessionId(this);
                     Long userId = PreferenceUtils.getUserId(this);
-                    try {
-                        KoleResponse result = sessionApi.updateDeviceUser(sessionId, userId, oldRegistrationId, newRegistrationId).execute();
-                        if (result != null && result.getSuccess()) {
-                            //device id updated
-                            PreferenceUtils.setPreferencesFlag(this, Constants.FLAG_DEVICE_ID_SYNCED_TO_SERVER, true);
-                            keepRetrying = false;
+                    if(!TextUtils.isEmpty(sessionId) && userId>0) {
+                        try {
+                            KoleResponse result = sessionApi.updateDeviceUser(sessionId, userId, oldRegistrationId, newRegistrationId).execute();
+                            if (result != null && result.getSuccess()) {
+                                //device id updated
+                                PreferenceUtils.setPreferencesFlag(this, Constants.FLAG_DEVICE_ID_SYNCED_TO_SERVER, true);
+                                keepRetrying = false;
+                            }
+                        } catch (IOException e) {
+                            Log.e(TAG, "problem while updating device id", e);
                         }
-                    } catch (IOException e) {
-                        Log.e(TAG, "problem while updating device id", e);
                     }
                 }
             }

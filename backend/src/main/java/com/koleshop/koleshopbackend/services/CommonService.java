@@ -156,6 +156,7 @@ public class CommonService {
         Long maxDeliveryDistance = settings.getMaximumDeliveryDistance();
         Float minOrder = settings.getMinimumOrder();
         Float deliveryCharges = settings.getDeliveryCharges();
+        Float carryBagCharges = settings.getCarryBagCharges();
         int deliveryStartTime = settings.getDeliveryStartTime();
         int deliveryEndTime = settings.getDeliveryEndTime();
         logger.log(Level.INFO, "deliveryStartTime: " + deliveryStartTime);
@@ -182,7 +183,7 @@ public class CommonService {
         query = "update Address a join SellerSettings ss on a.id = ss.address_id and a.user_id = ss.user_id and ss.user_id=?" +
                 " set a.name=?, a.address=?, a.phone_number=?, a.country_code=?, a.nickname=?, a.gps_long=?, a.gps_lat=?," +
                 " ss.open_time=?, ss.close_time=?, ss.pickup_from_shop=?, ss.home_delivery=?, ss.max_delivery_distance=?," +
-                " ss.min_order=?, ss.delivery_charges=?, ss.delivery_start_time=?, ss.delivery_end_time=?" +
+                " ss.min_order=?, ss.delivery_charges=?, ss.carry_bag_charges=?, ss.delivery_start_time=?, ss.delivery_end_time=?" +
                 " where a.user_id=? and a.address_type='" + Constants.ADDRESS_TYPE_SELLER + "'";
 
         logger.log(Level.INFO, "query=" + query);
@@ -203,18 +204,20 @@ public class CommonService {
             preparedStatement.setInt(10, closeTime);
             preparedStatement.setBoolean(11, pickupFromShop);
             preparedStatement.setBoolean(12, homeDelivery);
-            preparedStatement.setLong(13, maxDeliveryDistance);
-            preparedStatement.setFloat(14, minOrder);
-            preparedStatement.setFloat(15, deliveryCharges);
-            preparedStatement.setInt(16, deliveryStartTime);
-            preparedStatement.setInt(17, deliveryEndTime);
-            preparedStatement.setLong(18, userId);
+            preparedStatement.setLong(13, maxDeliveryDistance==null?0l:maxDeliveryDistance);
+            preparedStatement.setFloat(14, minOrder==null?0f:minOrder);
+            preparedStatement.setFloat(15, deliveryCharges==null?0:deliveryCharges);
+            preparedStatement.setFloat(16, carryBagCharges==null?0:carryBagCharges);
+            preparedStatement.setInt(17, deliveryStartTime);
+            preparedStatement.setInt(18, deliveryEndTime);
+            preparedStatement.setLong(19, userId);
 
             logger.log(Level.INFO, "prepared statement = " + preparedStatement.toString());
 
             int update = preparedStatement.executeUpdate();
             if (update > 0) {
                 //settings updated
+                logger.log(Level.INFO, "prepare statement update executed");
                 response.setSuccess(true);
                 response.setData("settings_updated");
 
@@ -225,9 +228,9 @@ public class CommonService {
                         .addData("millis", ""+new Date().getTime())
                         .build();
                 GcmHelper.notifyUser(userId, gcmMessage, 2);
-                GcmHelper.notifyUser(9l, gcmMessage, 2);
             } else {
                 //settings update
+                logger.log(Level.INFO, "prepare statement update did not work...settings not updated");
                 response.setStatus("settings_not_updated");
                 response.setData(null);
             }
@@ -259,10 +262,12 @@ public class CommonService {
         String query;
 
         //get address and settings
-        query = "select a.id as address_id, ss.id as seller_settings_id, a.name, a.address, a.phone_number, a.country_code, a.nickname, a.gps_long, a.gps_lat," +
+        query = "select a.id as address_id, ss.id as seller_settings_id, ss.image_url, ss.header_image_url, ss.carry_bag_charges," +
+                " a.name, a.address, a.phone_number, a.country_code, a.nickname, a.gps_long, a.gps_lat," +
                 " ss.open_time, ss.close_time, ss.home_delivery, ss.max_delivery_distance," +
-                " ss.min_order, ss.delivery_charges, ss.delivery_start_time, ss.delivery_end_time" +
+                " ss.min_order, ss.delivery_charges, ss.carry_bag_charges, ss.delivery_start_time, ss.delivery_end_time, shop_open" +
                 " from Address a join SellerSettings ss on a.id = ss.address_id and a.user_id = ss.user_id and ss.user_id=?" +
+                " join SellerStatus seller_status on seller_status.seller_id=ss.user_id" +
                 " where a.address_type='" + Constants.ADDRESS_TYPE_SELLER + "'";
 
         try {
@@ -275,6 +280,8 @@ public class CommonService {
 
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
+                String imageUrl = rs.getString("image_url");
+                String headerImageUrl = rs.getString("header_image_url");
                 Long addressId = rs.getLong("address_id");
                 Long sellerSettingsId = rs.getLong("seller_settings_id");
                 String addressName = rs.getString("name");
@@ -290,12 +297,14 @@ public class CommonService {
                 Long maxDeliveryDistance = rs.getLong("max_delivery_distance");
                 Float minOrder = rs.getFloat("min_order");
                 Float deliveryCharges = rs.getFloat("delivery_charges");
+                Float carryBagCharges = rs.getFloat("carry_bag_charges");
                 int deliveryStartTime = rs.getInt("delivery_start_time");
                 int deliveryEndTime = rs.getInt("delivery_end_time");
+                boolean shopOpen = rs.getBoolean("shop_open");
 
                 Address address = new Address(addressId, userId, addressName, addressString, 1, phoneNumber, countryCode, nickname, gpsLongitude, gpsLatitude);
-                SellerSettings sellerSettings = new SellerSettings(sellerSettingsId, userId, address, openTime, closeTime, true, homeDelivery, maxDeliveryDistance,
-                        minOrder, deliveryCharges, deliveryStartTime, deliveryEndTime);
+                SellerSettings sellerSettings = new SellerSettings(sellerSettingsId, userId, imageUrl, headerImageUrl, address, openTime, closeTime, true, homeDelivery, maxDeliveryDistance,
+                        minOrder, deliveryCharges, carryBagCharges, deliveryStartTime, deliveryEndTime, shopOpen);
                 response.setSuccess(true);
                 response.setData(sellerSettings);
             }

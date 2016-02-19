@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.koleshop.appkoleshop.model.demo.SellerInfo;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsListFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsMapFragment;
 
@@ -15,9 +16,11 @@ import java.util.List;
  */
 public class NearbyShopsFragmentPagerAdapter extends FragmentPagerAdapter {
 
-    List<SellerInfo> sellers;
+    List<SellerSettings> sellers;
+    NearbyShopsListFragment listFragment;
+    NearbyShopsMapFragment mapFragment;
 
-    public NearbyShopsFragmentPagerAdapter(FragmentManager fm, List<SellerInfo> sellers) {
+    public NearbyShopsFragmentPagerAdapter(FragmentManager fm, List<SellerSettings> sellers) {
         super(fm);
         this.sellers = sellers;
     }
@@ -25,9 +28,11 @@ public class NearbyShopsFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if(position == 0) {
-            return NearbyShopsListFragment.newInstance(sellers);
+            listFragment = NearbyShopsListFragment.newInstance(sellers);
+            return listFragment;
         } else if (position ==1) {
-            return NearbyShopsMapFragment.newInstance(sellers);
+            mapFragment = NearbyShopsMapFragment.newInstance(sellers);
+            return mapFragment;
         } else {
             return null;
         }
@@ -45,5 +50,15 @@ public class NearbyShopsFragmentPagerAdapter extends FragmentPagerAdapter {
         } else {
             return "MAP";
         }
+    }
+
+    public void moreSellersFetched(List<SellerSettings> moreSellers) {
+        listFragment.moreSellersFetched(moreSellers);
+        mapFragment.moreSellersFetched(moreSellers);
+    }
+
+    public void couldNotLoadMoreSellers() {
+        listFragment.couldNotLoadMoreSellers();
+        mapFragment.couldNotLoadMoreSellers();
     }
 }

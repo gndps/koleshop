@@ -114,9 +114,12 @@ public class SessionService {
                     restCallResponse.setData("{userId:\"" + userId + "\",sessionId:\"" + sessionId + "\"}");
                     restCallResponse.setReason(null);
                     validateSession(sessionId);
+                    logger.log(Level.INFO, "will create shop settings if not exist");
                     if(sessionType == Constants.USER_SESSION_TYPE_SELLER) {
                         createAddressAndShopSettingsIfNotAlreadyExists(userId);
                         createUserInventoryFromGlobalInventory(userId);
+                    } else {
+                        createBuyerSettingsIfNotAlreadyExists(userId);
                     }
                 } else {
                     //otp verification failed
@@ -141,13 +144,14 @@ public class SessionService {
     private void createAddressAndShopSettingsIfNotAlreadyExists(Long userId) {
         Connection dbConnection;
         PreparedStatement preparedStatement;
-        Long addressId = null;
+        Long addressId = 0l;
         boolean alreadyExists = false;
 
         String query = "select id from Address where user_id=? and address_type='" + Constants.ADDRESS_TYPE_SELLER + "'";
 
         try {
             //check if address already exists
+            logger.log(Level.INFO, "creating address and shop settings");
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setLong(1, userId);
@@ -156,35 +160,95 @@ public class SessionService {
             if (rs != null && rs.first()) {
                 addressId = rs.getLong(1);
                 if(addressId!=null && addressId>0) {
+                    logger.log(Level.INFO, "address already exists");
                     alreadyExists = true;
-                } else {
-                    //insert shop address, if not already exists
-                    query = "insert into Address(user_id, address_type) values (?,'" + Constants.ADDRESS_TYPE_SELLER + "')";
-                    preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                    preparedStatement.setLong(1, userId);
-                    System.out.println(query);
-                    int executed = preparedStatement.executeUpdate();
-                    ResultSet rsSession = preparedStatement.getGeneratedKeys();
-                    if (executed > 0 && rsSession != null && rsSession.next()) {
-                        addressId = rsSession.getLong(1);
-                    } else {
-                        logger.severe("address not generated for userId " + userId);
-                    }
                 }
             }
 
-            if(!alreadyExists && addressId > 0) {
+            if(!alreadyExists) {
+                //insert shop address, if not already exists
+                logger.log(Level.INFO, "will insert shop address");
+                query = "insert into Address(user_id, address_type) values (?,'" + Constants.ADDRESS_TYPE_SELLER + "')";
+                preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setLong(1, userId);
+                logger.log(Level.INFO, "will execute query : " + preparedStatement.toString());
+                int executed = preparedStatement.executeUpdate();
+                ResultSet rsSession = preparedStatement.getGeneratedKeys();
+                logger.log(Level.INFO, "executing add address");
+                if (executed > 0 && rsSession != null && rsSession.next()) {
+                    logger.log(Level.INFO, "address was added to the db");
+                    addressId = rsSession.getLong(1);
+
+                    //insert the seller status
+                    query = "insert into SellerStatus(seller_id,shop_open) values (?,?)";
+                    preparedStatement = dbConnection.prepareStatement(query);
+                    preparedStatement.setLong(1, userId);
+                    preparedStatement.setBoolean(2, false);
+                    int addedStatus = preparedStatement.executeUpdate();
+                    if(addedStatus==0) {
+                        logger.severe("seller status not inserted for seller id = " + userId);
+                    }
+                } else {
+                    logger.severe("address not generated for userId " + userId);
+                }
+            }
+
+            if(!alreadyExists && addressId!=null && addressId > 0) {
+                logger.log(Level.INFO, "need to create seller settings");
                 //create seller settings
                 query = "insert into SellerSettings(user_id, address_id) values (?,?)";
                 preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 preparedStatement.setLong(1, userId);
-                System.out.println(query);
+                preparedStatement.setLong(2, addressId);
+                logger.log(Level.INFO, query);
                 int executed = preparedStatement.executeUpdate();
                 ResultSet rsSession = preparedStatement.getGeneratedKeys();
                 if (executed > 0 && rsSession != null && rsSession.next()) {
+                    logger.log(Level.INFO, "seller settings generated");
                     rsSession.getLong(1);
                 } else {
-                    logger.severe("settings not generated for userId " + userId);
+                    logger.severe("seller settings not generated for userId " + userId);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    private void createBuyerSettingsIfNotAlreadyExists(Long userId) {
+        Connection dbConnection;
+        PreparedStatement preparedStatement;
+        Long buyerSettingsId = 0l;
+        boolean alreadyExists = false;
+
+        String query = "select id from BuyerSettings where user_id=?";
+
+        try {
+            //check if settings already exists
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setLong(1, userId);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs != null && rs.first()) {
+                buyerSettingsId = rs.getLong(1);
+                if(buyerSettingsId!=null && buyerSettingsId>0) {
+                    logger.log(Level.INFO, "buyer settings already exists");
+                    alreadyExists = true;
+                }
+            }
+
+            if(!alreadyExists) {
+                //insert buyer settings
+                query = "insert into BuyerSettings(user_id) values (?)";
+                preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setLong(1, userId);
+                int executed = preparedStatement.executeUpdate();
+                ResultSet rsBuyerSettings = preparedStatement.getGeneratedKeys();
+                if (executed > 0 && rsBuyerSettings != null && rsBuyerSettings.next()) {
+                    buyerSettingsId = rsBuyerSettings.getLong(1);
+                } else {
+                    logger.severe("buyer settings not generated for userId " + userId);
                 }
             }
 
@@ -520,11 +584,13 @@ public class SessionService {
             if (rs != null && rs.first() && rs.getBoolean(1)) {
                 //valid session of user
                 userValid = true;
+                logger.log(Level.INFO, "authentic request from userId = " + userId);
+            } else {
+                logger.log(Level.INFO, "invalid request from userId = " + userId);
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        logger.log(Level.INFO, "authentic request from userId = " + userId);
         return userValid;
     }
 

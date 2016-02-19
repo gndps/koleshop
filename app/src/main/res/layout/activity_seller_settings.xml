@@ -19,11 +19,12 @@
         <ViewFlipper
             android:id="@+id/vf_seller_settings"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
 
             <!--dummy loading view-->
             <ProgressBar
-                style="@style/Widget.AppCompat.ProgressBar"
+                style="@android:style/Widget.ProgressBar.Large"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center" />
@@ -64,47 +65,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <LinearLayout
+                <FrameLayout
+                    android:id="@+id/fl_settings_container"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:layout_height="match_parent">
 
-
-                    <FrameLayout
-                        android:id="@+id/fl_settings_container"
+                    <fragment
+                        android:id="@+id/frag_shop_settings"
+                        android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.ShopSettingsFragment"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="wrap_content" />
 
-                        <fragment
-                            android:id="@+id/frag_shop_settings"
-                            android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.ShopSettingsFragment"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-
-                        <fragment
-                            android:id="@+id/frag_delivery_settings"
-                            android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.DeliverySettingsFragment"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-
-                    </FrameLayout>
-
-                    <LinearLayout
+                    <fragment
+                        android:id="@+id/frag_delivery_settings"
+                        android:name="com.koleshop.appkoleshop.ui.seller.fragments.settings.DeliverySettingsFragment"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="bottom">
+                        android:layout_height="wrap_content" />
 
-                        <include
-                            android:id="@+id/button_bar_back_next"
-                            layout="@layout/view_back_next_button"></include>
-
-                    </LinearLayout>
-
-                </LinearLayout>
+                </FrameLayout>
 
             </ScrollView>
 
         </ViewFlipper>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
+
+            <include
+                android:id="@+id/button_bar_back_next"
+                layout="@layout/view_back_next_button"></include>
+
+        </LinearLayout>
 
     </LinearLayout>
 

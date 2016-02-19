@@ -23,7 +23,7 @@ public class Constants {
     public static String SESSION_TYPE_BUYER = "2";
 
     public static String SERVER_URL = "https://koleshop-1.appspot.com/_ah/api/"; //production url
-    //public static String SERVER_URL = "10.0.3.2"; //local url
+    public static String LOCAL_SERVER_URL = "10.0.3.2:8080"; //local url
 
     // The authority for the sync adapter's content provider
     public static String AUTHORITY = "com.kolshop.kolshop.provider";
@@ -35,10 +35,11 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = true;
+    public static boolean RESET_REALM = false;
     public static boolean KOLE_CACHE_ALLOWED = true;
 
-    public static String PUBLIC_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
+    public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
+    public static String PUBLIC_PROFILE_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/profile/";
     public static String REQUEST_STATUS_PREFIX = "image_upload_status_";
     public static int IMAGE_UPLOAD_DIMENSIONS = 400;
 
@@ -76,6 +77,7 @@ public class Constants {
     public static final String ACTION_COLLAPSE_EXPANDED_PRODUCT = "com.koleshop.action_collapse_expanded_product" ;
     @Deprecated public static final String ACTION_CAPTURE_PRODUCT_VARIETY_PICTURE = "com.koleshop.action_take_product_variety_picture";
     public static final String ACTION_UPLOAD_IMAGE = "com.koleshop.action_upload_bitmap";
+    public static final String ACTION_UPLOAD_PROFILE_IMAGE = "com.koleshop.action_upload_profile_bitmap";
     public static final String ACTION_UPLOAD_IMAGE_SUCCESS = "com.koleshop.action_upload_bitmap_success";
     public static final String ACTION_UPLOAD_IMAGE_FAILED = "com.koleshop.action_upload_bitmap_failed";
     public static final String ACTION_PRODUCT_SAVE_SUCCESS = "com.koleshop.action_product_save_success";
@@ -86,6 +88,11 @@ public class Constants {
     public static final String ACTION_EDIT_ADDRESS = "com.koleshop.action_edit_address";
     public static final String ACTION_DELETE_ADDRESS = "com.koleshop.action_delete_address";
     public static final String ACTION_GET_SELLER_SETTINGS = "com.koleshop.action_edit_address";
+    public static final String ACTION_SHOP_STATUS_UPDATED_SUCCESS = "com.koleshop.action_shop_status_updated_success";
+    public static final String ACTION_SHOP_STATUS_UPDATED_FAILED = "com.koleshop.action_shop_status_updated_failed";
+    public static final String ACTION_REFRESH_SELLER_SETTINGS = "com.koleshop.action_refresh_seller_settings";
+    public static final String ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS = "com.koleshop.action_nearby_shops_receive_success";
+    public static final String ACTION_NEARBY_SHOPS_RECEIVE_FAILED = "com.koleshop.action_nearby_shops_receive_failed";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";
@@ -107,9 +114,12 @@ public class Constants {
     public static final String KEY_GOOGLE_API_TOKEN = "pref_google_api_token";
     public static final String KEY_SELLER_SETTINGS = "pref_seller_settings";
     public static final String KEY_SELLER_SETTINGS_MILLIS = "pref_seller_settings_millis";
+    public static final String KEY_GPS_LONG = "gps_long";
+    public static final String KEY_GPS_LAT = "gps_lat";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";
+    public static final String FLAG_SELLER_SETTINGS_SETUP_FINISHED = "flag_seller_settings_setup_finished";
     public static final String FLAG_BRANDS_LOADED = "brands_loaded";
     public static final String FLAG_LATEST_TOKEN_AVAILABLE = "latest_token_available";
     public static final String FLAG_DEVICE_ID_SYNCED_TO_SERVER = "device_id_synced_to_server";

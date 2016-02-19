@@ -1,6 +1,5 @@
 package com.koleshop.koleshopbackend.endpoints;
 
-import com.google.android.gcm.server.Message;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
@@ -15,13 +14,14 @@ import com.koleshop.koleshopbackend.db.models.ProductCategory;
 import com.koleshop.koleshopbackend.db.models.RestCallResponse;
 import com.koleshop.koleshopbackend.db.models.SellerSettings;
 import com.koleshop.koleshopbackend.db.models.deprecated.ProductVarietyAttributeMeasuringUnit;
-import com.koleshop.koleshopbackend.gcm.GcmHelper;
+import com.koleshop.koleshopbackend.services.BuyerService;
 import com.koleshop.koleshopbackend.services.CommonService;
 import com.koleshop.koleshopbackend.services.KoleshopCloudStorageService;
 import com.koleshop.koleshopbackend.services.ProductService;
+import com.koleshop.koleshopbackend.services.SellerService;
 import com.koleshop.koleshopbackend.services.SessionService;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,7 +100,7 @@ public class CommonEndpoint {
     @ApiMethod(name = "getAllProductCategories")
     public List<ProductCategory> getAllProductCategories(@Named("userId") Long userId, @Named("sessionId") String sessionId) {
         try {
-            if (true||SessionService.verifyUserAuthenticity(userId, sessionId)) {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
                 return new ProductService().getAllProductCategories();
             } else {
                 return null;
@@ -113,7 +113,7 @@ public class CommonEndpoint {
     @ApiMethod(name = "getAllBrands")
     public List<Brand> getAllBrands(@Named("userId") Long userId, @Named("sessionId") String sessionId) {
         try {
-            if (true||SessionService.verifyUserAuthenticity(userId, sessionId)) {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
                 return new ProductService().getAllBrands();
             } else {
                 return null;
@@ -129,10 +129,62 @@ public class CommonEndpoint {
         KoleResponse koleResponse = new KoleResponse();
         try {
             if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
-                boolean imageUploaded = KoleshopCloudStorageService.uploadImage(imageUploadRequest);
+                boolean imageUploaded = KoleshopCloudStorageService.uploadProductImage(imageUploadRequest);
                 if (imageUploaded) {
                     koleResponse.setSuccess(true);
                     koleResponse.setData("image uploaded");
+                } else {
+                    koleResponse.setSuccess(false);
+                    koleResponse.setData(null);
+                }
+            } else {
+                koleResponse.setSuccess(false);
+                koleResponse.setData(null);
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "problem while uploading image", e);
+            koleResponse.setSuccess(false);
+            koleResponse.setData(null);
+        }
+        return koleResponse;
+    }
+
+    @ApiMethod(name = "setUserProfileImage", httpMethod = ApiMethod.HttpMethod.POST)
+    public KoleResponse setUserProfileImage(@Named("userId") Long userId, @Named("sessionId") String sessionId, ImageUploadRequest imageUploadRequest,
+                                            @Named("userIsSeller") boolean userIsSeller, @Named("isHeaderImage") boolean isHeaderImage) {
+        KoleResponse koleResponse = new KoleResponse();
+        try {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
+                boolean imageUploaded = KoleshopCloudStorageService.uploadProfilePicture(imageUploadRequest);
+                if (imageUploaded) {
+                    //update the user profile picture url in the db
+                    String imageUrl = Constants.PUBLIC_PROFILE_IMAGE_URL_PREFIX + imageUploadRequest.getFileName();
+
+                    if(userIsSeller) {
+                        //if user is seller, update SellerSettings
+                        boolean updatedImageUrl = new SellerService().updateProfilePicture(userId, imageUrl, isHeaderImage);
+                        if(updatedImageUrl) {
+                            //image update is success
+                            koleResponse.setSuccess(true);
+                            koleResponse.setData("image uploaded and url updated");
+                        } else {
+                            //image updating failed
+                            koleResponse.setSuccess(false);
+                            koleResponse.setData(null);
+                        }
+                    } else {
+                        //if user is buyer, update BuyerSettings
+                        boolean updatedImageUrl = new BuyerService().updateProfilePicture(userId, imageUrl, isHeaderImage);
+                        if(updatedImageUrl) {
+                            //image update is success
+                            koleResponse.setSuccess(true);
+                            koleResponse.setData("image uploaded and url updated");
+                        } else {
+                            //image updating failed
+                            koleResponse.setSuccess(false);
+                            koleResponse.setData(null);
+                        }
+                    }
                 } else {
                     koleResponse.setSuccess(false);
                     koleResponse.setData(null);

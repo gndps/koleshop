@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
@@ -21,6 +22,7 @@ import com.koleshop.api.commonEndpoint.CommonEndpoint;
 import com.koleshop.api.commonEndpoint.model.KoleResponse;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.NetworkUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.parcel.Address;
@@ -87,6 +89,12 @@ public class SettingsIntentService extends IntentService {
         context.startService(intent);
     }
 
+    public static void refreshSellerSettings(Context context) {
+        Intent intent = new Intent(context, SettingsIntentService.class);
+        intent.setAction(ACTION_GET_SELLER_SETTINGS);
+        context.startService(intent);
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
@@ -108,6 +116,8 @@ public class SettingsIntentService extends IntentService {
                     ResultReceiver listener = intent.getParcelableExtra("settingsIntentServiceListener");
                     String requestId = intent.getStringExtra("requestId");
                     handleActionGetSettings(listener, requestId);
+                } else {
+                    handleActionGetSettings(null, null);
                 }
             }
         }
@@ -164,12 +174,13 @@ public class SettingsIntentService extends IntentService {
                     backendSettings.setUserId(userId);
                     backendSettings.setAddress(backendAddress);
                     backendSettings.setDeliveryCharges(sellerSettings.getDeliveryCharges());
+                    backendSettings.setCarryBagCharges(sellerSettings.getCarryBagCharges());
                     backendSettings.setDeliveryEndTime(sellerSettings.getDeliveryEndTime());
                     backendSettings.setDeliveryStartTime(sellerSettings.getDeliveryStartTime());
                     backendSettings.setHomeDelivery(sellerSettings.isHomeDelivery());
                     backendSettings.setMaximumDeliveryDistance(sellerSettings.getMaximumDeliveryDistance());
                     backendSettings.setMinimumOrder(sellerSettings.getMinimumOrder());
-                    backendSettings.setPickupFromShop(sellerSettings.isPickupFromShop());
+                    backendSettings.setPickupFromShop(true);
                     backendSettings.setShopCloseTime(sellerSettings.getShopCloseTime());
                     backendSettings.setShopOpenTime(sellerSettings.getShopOpenTime());
 
@@ -202,6 +213,8 @@ public class SettingsIntentService extends IntentService {
             if (listener != null) {
                 //call the success callback
                 listener.send(RESULT_CODE_SETTINGS_SAVE_SUCCESS, null);
+                Intent refreshSettingsBroadcastIntent = new Intent(Constants.ACTION_REFRESH_SELLER_SETTINGS);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(refreshSettingsBroadcastIntent);
             }
         } else {
             //saving failed
@@ -263,16 +276,20 @@ public class SettingsIntentService extends IntentService {
             SellerSettings sellerSettings = new SellerSettings();
             if (map != null) {
                 Address address = new Address();
+                sellerSettings.setImageUrl((String) map.get("imageUrl"));
+                sellerSettings.setHeaderImageUrl((String) map.get("headerImageUrl"));
                 sellerSettings.setId(Long.valueOf((String) map.get("id")));
                 sellerSettings.setPickupFromShop((Boolean) map.get("pickupFromShop"));
                 sellerSettings.setHomeDelivery((Boolean) map.get("homeDelivery"));
                 sellerSettings.setMinimumOrder(((BigDecimal) map.get("minimumOrder")).floatValue());
                 sellerSettings.setDeliveryCharges(((BigDecimal) map.get("deliveryCharges")).floatValue());
+                sellerSettings.setCarryBagCharges(((BigDecimal) map.get("carryBagCharges")).floatValue());
                 sellerSettings.setMaximumDeliveryDistance(Long.valueOf((String) map.get("maximumDeliveryDistance")));
                 sellerSettings.setDeliveryStartTime(((BigDecimal) map.get("deliveryStartTime")).intValue());
                 sellerSettings.setDeliveryEndTime(((BigDecimal) map.get("deliveryEndTime")).intValue());
                 sellerSettings.setShopOpenTime(((BigDecimal) map.get("shopOpenTime")).intValue());
                 sellerSettings.setShopCloseTime(((BigDecimal) map.get("shopCloseTime")).intValue());
+                sellerSettings.setShopOpen((Boolean) map.get("shopOpen"));
                 sellerSettings.setUserId(userId);
                 ArrayMap<String, Object> addressMap = (ArrayMap<String, Object>) map.get("address");
                 if (addressMap != null) {

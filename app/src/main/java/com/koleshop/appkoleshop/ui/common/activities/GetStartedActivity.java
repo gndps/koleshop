@@ -23,7 +23,9 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.services.SettingsIntentService;
 import com.koleshop.appkoleshop.ui.seller.activities.HomeActivity;
+import com.koleshop.appkoleshop.ui.seller.activities.SellerSettingsActivity;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import butterknife.Bind;
@@ -63,13 +65,6 @@ public class GetStartedActivity extends AppCompatActivity implements SettingsInt
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(com.koleshop.appkoleshop.R.menu.get_started, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -91,7 +86,7 @@ public class GetStartedActivity extends AppCompatActivity implements SettingsInt
         final ActionBar actionBar = getSupportActionBar();
 
         if (actionBar != null) {
-            actionBar.setIcon(R.drawable.koleshop_logo);
+            actionBar.setIcon(R.drawable.action_bar_logo);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setElevation(8.0f);
         }
@@ -110,9 +105,18 @@ public class GetStartedActivity extends AppCompatActivity implements SettingsInt
         String sessionType = PreferenceUtils.getPreferences(this, Constants.KEY_USER_SESSION_TYPE);
         if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
             //seller session
-            Intent intent = new Intent(this, HomeActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            if(!firstTimeUser) {
+                PreferenceUtils.setPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED, true);
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            } else {
+                PreferenceUtils.setPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED, false);
+                Intent intentSettings = new Intent(this, SellerSettingsActivity.class);
+                intentSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intentSettings.putExtra("setupMode", true);
+                startActivity(intentSettings);
+            }
         } else if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_BUYER)) {
             //buyer session
             Intent intent = new Intent(this, com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity.class);
@@ -133,7 +137,7 @@ public class GetStartedActivity extends AppCompatActivity implements SettingsInt
 
     @Override
     public void onSettingsFetchSuccess() {
-        settings = getSettingsFromCache();
+        settings = KoleshopUtils.getSettingsFromCache(this);
         if(settings!=null && settings.getAddress()!=null && !TextUtils.isEmpty(settings.getAddress().getName())) {
             //this is not a first time user
             firstTimeUser = false;
@@ -146,17 +150,6 @@ public class GetStartedActivity extends AppCompatActivity implements SettingsInt
     @Override
     public void onSettingsFetchFailed() {
         viewFlipper.setDisplayedChild(2);
-    }
-
-    private SellerSettings getSettingsFromCache() {
-        String settingsString = PreferenceUtils.getPreferences(this, Constants.KEY_SELLER_SETTINGS);
-        if(settingsString!=null && !settingsString.isEmpty()) {
-            //load settings from cache
-            SellerSettings sellerSettings = new Gson().fromJson(settingsString, SellerSettings.class);
-            return sellerSettings;
-        } else {
-            return null;
-        }
     }
 
     private void showAppropriateMessage() {

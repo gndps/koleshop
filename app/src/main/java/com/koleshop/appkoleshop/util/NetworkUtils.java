@@ -24,19 +24,27 @@ public class NetworkUtils {
     }
 
     public static void setRequestStatusProcessing(Context context, String requestId) {
-        PreferenceUtils.setPreferences(context, Constants.REQUEST_STATUS_PREFIX + requestId, REQUEST_STATUS_PROCESSING, Prefs.NETWORK_REQUEST_PREFS);
+        if(context!=null && requestId!=null) {
+            PreferenceUtils.setPreferences(context, Constants.REQUEST_STATUS_PREFIX + requestId, REQUEST_STATUS_PROCESSING, Prefs.NETWORK_REQUEST_PREFS);
+        }
     }
 
     public static void setRequestStatusSuccess(Context context, String requestId) {
-        PreferenceUtils.setPreferences(context, Constants.REQUEST_STATUS_PREFIX + requestId, REQUEST_STATUS_SUCCESS, Prefs.NETWORK_REQUEST_PREFS);
+        if(context!=null && requestId!=null) {
+            PreferenceUtils.setPreferences(context, Constants.REQUEST_STATUS_PREFIX + requestId, REQUEST_STATUS_SUCCESS, Prefs.NETWORK_REQUEST_PREFS);
+        }
     }
 
     public static void setRequestStatusFailed(Context context, String requestId) {
-        PreferenceUtils.setPreferences(context, Constants.REQUEST_STATUS_PREFIX + requestId, REQUEST_STATUS_FAILED, Prefs.NETWORK_REQUEST_PREFS);
+        if(context!=null && requestId!=null) {
+            PreferenceUtils.setPreferences(context, Constants.REQUEST_STATUS_PREFIX + requestId, REQUEST_STATUS_FAILED, Prefs.NETWORK_REQUEST_PREFS);
+        }
     }
 
     public static void setRequestStatusComplete(Context context, String requestId) {
-        PreferenceUtils.setPreferences(context, Constants.REQUEST_STATUS_PREFIX + requestId, null, Prefs.NETWORK_REQUEST_PREFS);
+        if(context!=null && requestId!=null) {
+            PreferenceUtils.setPreferences(context, Constants.REQUEST_STATUS_PREFIX + requestId, null, Prefs.NETWORK_REQUEST_PREFS);
+        }
     }
 
 }

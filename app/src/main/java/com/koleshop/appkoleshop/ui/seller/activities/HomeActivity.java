@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -18,22 +19,33 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryCategoryFragment;
+import com.squareup.picasso.Picasso;
 
+import org.parceler.Parcels;
+
+import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -53,10 +65,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private String lastFragmentTag;
     private boolean lastFragmentShowed, isLastFragmentSupportType;
     private NavigationView view;
+    private SellerSettings sellerSettings;
 
-    @BindString(R.string.navigation_drawer_products) String titleMyShop;
-    @BindString(R.string.navigation_drawer_inventory) String titleWareHouse;
-    @BindString(R.string.navigation_drawer_home) String titleHome;
+    @BindString(R.string.navigation_drawer_products)
+    String titleMyShop;
+    @BindString(R.string.navigation_drawer_inventory)
+    String titleWareHouse;
+    @BindString(R.string.navigation_drawer_home)
+    String titleHome;
+    @Bind(R.id.navigation_view)
+    NavigationView navigationView;
+    CircleImageView imageViewAvatar;
+    TextView textViewNavBarShopName;
+
+    String imageViewAvatarUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +107,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         int itemId = menuItem.getItemId();
 
-        String title = getString(R.string.app_name);
+        String title = "";
         boolean closeDrawers;
         boolean setItemChecked;
 
@@ -94,6 +116,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.drawer_home:
                 title = titleHome;
                 DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
+                if (sellerSettings != null) {
+                    Bundle bundle = new Bundle();
+                    Parcelable parcelableSettings = Parcels.wrap(sellerSettings);
+                    bundle.putParcelable("sellerSettings", parcelableSettings);
+                    dummyHomeFragment.setArguments(bundle);
+                }
                 replaceFragment(dummyHomeFragment, FRAGMENT_HOME_TAG);
                 setItemChecked = true;
                 closeDrawers = true;
@@ -133,6 +161,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 closeDrawers = true;
                 setItemChecked = false;
                 Intent intentSettings = new Intent(mContext, SellerSettingsActivity.class);
+                intentSettings.putExtra("setupMode", false);
                 startActivity(intentSettings);
                 break;
 
@@ -169,7 +198,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
 
         //set the toolbar title
-        if (getSupportActionBar() != null) {
+        if (getSupportActionBar() != null && !title.isEmpty()) {
             getSupportActionBar().setTitle(title);
         }
 
@@ -182,9 +211,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void replaceFragment(Fragment fragment, String fragmentTag) {
-        if(lastFragmentShowed && isLastFragmentSupportType) {
+        if (lastFragmentShowed && isLastFragmentSupportType) {
             android.support.v4.app.Fragment fr_v4 = getSupportFragmentManager().findFragmentByTag(lastFragmentTag);
-            if(fr_v4!=null) {
+            if (fr_v4 != null) {
                 getSupportFragmentManager().beginTransaction().remove(fr_v4).commit();
             }
         }
@@ -197,9 +226,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void replaceFragment(android.support.v4.app.Fragment fragment, String fragmentTag) {
-        if(lastFragmentShowed && !isLastFragmentSupportType) {
+        if (lastFragmentShowed && !isLastFragmentSupportType) {
             Fragment fr = getFragmentManager().findFragmentByTag(lastFragmentTag);
-            if(fr!=null) {
+            if (fr != null) {
                 getFragmentManager().beginTransaction().remove(fr).commit();
             }
         }
@@ -229,9 +258,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private void setupDrawerLayout() {
         drawerLayout = (DrawerLayout) findViewById(com.koleshop.appkoleshop.R.id.drawer_layout);
+        View headerView = navigationView.getHeaderView(0);
+        imageViewAvatar = (CircleImageView) headerView.findViewById(R.id.avatar_drawer);
+        textViewNavBarShopName = (TextView) headerView.findViewById(R.id.tv_drawer_header_title);
+        imageViewAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
+                startActivity(intentChangePicture);
+            }
+        });
         view = (NavigationView) findViewById(R.id.navigation_view);
         view.setNavigationItemSelectedListener(this);
         adjustLoginLogoutStates();
+        refreshSellerNameAndImage();
     }
 
     private void adjustLoginLogoutStates() {
@@ -263,7 +303,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_TO_WAREHOUSE));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP));
-
+        refreshSellerNameAndImage();
     }
 
     @Override
@@ -274,8 +314,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(com.koleshop.appkoleshop.R.menu.menu_home, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -297,9 +336,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        if(lastFragmentTag.equalsIgnoreCase(FRAGMENT_WAREHOUSE_TAG)) {
+        if (lastFragmentTag.equalsIgnoreCase(FRAGMENT_WAREHOUSE_TAG)) {
             InventoryCategoryFragment inventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag("frag_my_shop");
-            if(inventoryCategoryFragment.isBackAllowed()) {
+            if (inventoryCategoryFragment.isBackAllowed()) {
                 FragmentManager fragmentManager = getFragmentManager();
                 if (fragmentManager.getBackStackEntryCount() > 0) {
                     fragmentManager.popBackStack();
@@ -311,12 +350,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     showHome();
                 }
             }
-        } else if(lastFragmentTag.equalsIgnoreCase(FRAGMENT_MY_SHOP_TAG)) {
+        } else if (lastFragmentTag.equalsIgnoreCase(FRAGMENT_MY_SHOP_TAG)) {
             InventoryCategoryFragment myInventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag(FRAGMENT_MY_SHOP_TAG);
-            if(myInventoryCategoryFragment.isBackAllowed()) {
+            if (myInventoryCategoryFragment.isBackAllowed()) {
                 showHome();
             }
-        } else if(!lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+        } else if (!lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
             showHome();
         } else {
             super.onBackPressed();
@@ -474,7 +513,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         } finally {
             try {
                 Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Log.d(TAG, "Could not delete realm...must be open", e);
                 try {
                     Realm.getDefaultInstance().close();
@@ -496,6 +535,44 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Intent commonIntentService = new Intent(this, CommonIntentService.class);
         commonIntentService.setAction(CommonIntentService.ACTION_LOAD_BRANDS);
         startService(commonIntentService);
+    }
+
+    private void refreshSellerNameAndImage() {
+
+        //set home screen title to shop name
+        sellerSettings = KoleshopUtils.getSettingsFromCache(this);
+        if (sellerSettings != null) {
+            titleHome = sellerSettings.getAddress().getName();
+        } else {
+            titleHome = "My Shop";
+        }
+
+        //set nav bar header title
+        textViewNavBarShopName.setText(titleHome);
+
+        //set avatar image view
+        boolean refreshAvatar = false;
+        if (imageViewAvatarUrl == null && sellerSettings != null) {
+            imageViewAvatarUrl = sellerSettings.getImageUrl();
+            refreshAvatar = true;
+        } else if (sellerSettings != null && !TextUtils.isEmpty(sellerSettings.getImageUrl())
+                && !imageViewAvatarUrl.equalsIgnoreCase(sellerSettings.getImageUrl())) {
+            //there is a new image url and avatar should be refreshed
+            imageViewAvatarUrl = sellerSettings.getImageUrl();
+            refreshAvatar = true;
+        }
+
+        if (refreshAvatar) {
+            if (!TextUtils.isEmpty(imageViewAvatarUrl)) {
+                Picasso.with(mContext)
+                        .load(imageViewAvatarUrl)
+                        .fit().centerCrop()
+                        .into(imageViewAvatar);
+            } else {
+                imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
+            }
+        }
+
     }
 
     private void initialDataLoadingComplete() {

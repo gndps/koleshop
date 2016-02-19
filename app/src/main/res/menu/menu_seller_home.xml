@@ -2,6 +2,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.seller.activities.HomeActivity">
-    <!--item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" /-->
+    <item
+        android:id="@+id/menu_shop_switch"
+        android:title=""
+        app:actionLayout="@layout/layout_seller_home_menu"
+        app:showAsAction="always" />
 </menu>

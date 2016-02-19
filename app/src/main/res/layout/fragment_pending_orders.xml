@@ -11,7 +11,7 @@
         android:layout_gravity="center">
 
         <ProgressBar
-            style="@style/Widget.AppCompat.ProgressBar"
+            style="@android:style/Widget.ProgressBar.Large"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center" />

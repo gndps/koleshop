@@ -4,42 +4,58 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="172dp"
-    android:background="@drawable/drawer_header_pattern"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/status_bar_height"
+    android:layout_height="164dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/avatar"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_margin="@dimen/spacing_large"
-        android:elevation="0dp"
-        app:civ_border_color="@color/holo_light"
-        app:civ_border_width="1dp"
-        tools:src="@drawable/ic_user_profile" />
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/drawer_header_pattern" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/email"
-        android:layout_marginLeft="@dimen/spacing_large"
-        android:layout_marginStart="@dimen/spacing_large"
-        android:fontFamily="sans-serif-light"
-        android:text="My store name"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/spacing_large"
-        android:layout_marginLeft="@dimen/spacing_large"
-        android:layout_marginStart="@dimen/spacing_large"
-        android:fontFamily="sans-serif-light"
-        android:text="8585945716"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/avatar_drawer"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginLeft="@dimen/spacing_large"
+                android:elevation="0dp"
+                app:civ_border_color="@color/holo_light"
+                app:civ_border_width="1dp"
+                tools:src="@drawable/ic_user_profile" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/gradient"
+            android:gravity="bottom"
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_drawer_header_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_large"
+                android:layout_marginLeft="@dimen/spacing_large"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="16dp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

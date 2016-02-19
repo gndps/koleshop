@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Toast;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
@@ -59,6 +60,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     NavigationView navigationView;
     private boolean backHandled;
     private SupportAnimator animator;
+    private Toolbar toolbar;
 
     @BindString(R.string.navigation_drawer_nearby_shops)
     String titleNearbyShops;
@@ -97,7 +99,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(com.koleshop.appkoleshop.R.menu.menu_home, menu);
+        //getMenuInflater().inflate(com.koleshop.appkoleshop.R.menu.menu_seller_home, menu);
         return true;
     }
 
@@ -122,8 +124,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 return true;
 
         }
-
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     @Override
@@ -140,7 +141,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     }
 
     private void setupToolbar() {
-        final Toolbar toolbar = (Toolbar) findViewById(com.koleshop.appkoleshop.R.id.app_bar);
+        toolbar = (Toolbar) findViewById(R.id.app_bar);
         toolbar.setTitle(titleHome);
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
         CommonUtils.getActionBarTextView(toolbar).setTypeface(typeface);
@@ -508,4 +509,5 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     public void setBackButtonHandledByFragment(boolean backHandled) {
         this.backHandled = backHandled;
     }
+
 }

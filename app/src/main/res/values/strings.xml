@@ -166,5 +166,7 @@
     <string name="default_address_nickname">Nickname not set</string>
     <string name="ok">OK</string>
     <string name="search_hint">Search Products</string>
+    <string name="title_shop_picture">Shop Picture</string>
+    <string name="refresh">REFRESH</string>
 
 </resources>

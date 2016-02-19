@@ -1,6 +1,8 @@
 <resources>
 
     <color name="black_overlay">#66000000</color>
+    <color name="pure_black">#000000</color>
+    <color name="black">#191919</color>
     <color name="transparent">#00ffffff</color>
     <color name="holo_light">#fff3f3f3</color>
 
@@ -24,7 +26,8 @@
     <color name="default_background">#eaeaea</color>
     <color name="default_background_font">#B7B6B7</color>
     <color name="offwhite">#F9F9F9</color>
-    <color name="otherGreen">#5BB990</color>
+    <color name="otherGreen">#46B176</color>
+    <color name="otherGreenOld">#5BB990</color>
     <color name="veryLightGray">#D5D5D5</color>
     <color name="black_semi_transparent">#B2000000</color>
     <color name="indian_flag_saffron">#FF9933</color>
@@ -33,5 +36,7 @@
     <color name="delivery_settings_stroke_color_yes">#4C9211</color>
     <color name="cool_red">#E15252</color>
     <color name="light_green_background">#F3FFEF</color>"
+    <color name="gradient_start">#00F3FFEF</color>"
+    <color name="gradient_end">#77333333</color>"
 
 </resources>
