@@ -8,13 +8,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by Gundeep on 02/02/16.
@@ -25,7 +29,7 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
     Context mContext;
 
     @Bind(R.id.iv_vnsi_avatar)
-    ImageView imageViewAvatar;
+    CircleImageView imageViewAvatar;
     @Bind(R.id.iv_vnsi_online)
     ImageView imageViewOnline;
     @Bind(R.id.tv_vnsi_name)
@@ -48,28 +52,64 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
 
     private void loadSellerInfoIntoUi() {
         if (sellerInfo != null) {
-            textViewName.setText(sellerInfo.getAddress().getName());
-            //textViewTimings.setText(sellerInfo.getTimings());
-            float[] results = new float[3];
-            Location.distanceBetween(30d, 76d, sellerInfo.getAddress().getGpsLat(), sellerInfo.getAddress().getGpsLong(), results);
 
+            //01. SET SHOP NAME
+            textViewName.setText(sellerInfo.getAddress().getName());
+
+
+            //02. SET SHOP DISTANCE FROM USER
+            float[] results = new float[3];
+            Double userLat = PreferenceUtils.getGpsLat(mContext);
+            Double userLong = PreferenceUtils.getGpsLong(mContext);
+            Location.distanceBetween(userLat, userLong, sellerInfo.getAddress().getGpsLat(), sellerInfo.getAddress().getGpsLong(), results);
+            float userDistanceFromShopInMeters = results[0];
             if (results != null && results.length > 0) {
-                String distance = CommonUtils.getReadableDistanceFromMetres(results[0]);
+                String distance = CommonUtils.getReadableDistanceFromMetres(userDistanceFromShopInMeters);
                 textViewDistance.setText(distance);
             } else {
-                textViewDistance.setText("");
+                textViewDistance.setText("-");
             }
-            if (sellerInfo.getImageUrl() != null && !sellerInfo.getImageUrl().isEmpty())
+
+
+            //03. SET SHOP IMAGE
+            if (sellerInfo.getImageUrl() != null && !sellerInfo.getImageUrl().isEmpty()) {
+                String thumbnailImageUrl = sellerInfo.getImageUrl().replace("/profile/", "/profile_thumb/");
                 Picasso.with(mContext)
-                        .load(sellerInfo.getImageUrl())
+                        .load(thumbnailImageUrl)
                         .into(imageViewAvatar);
-            if (sellerInfo.isShopOpen()) {
-                imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_green_dot_24dp));
-            }/* else if (no delivery to your location || pickup only){
+            }
+
+
+            //04. SET SHOP OPEN STATUS and DELIVERY/PICKUP INFO
+            String deliveryPickupInfo;
+            if (sellerInfo.isHomeDelivery()) {
+                if ((sellerInfo.getMaximumDeliveryDistance() + Constants.DELIVERY_DISTANCE_APPROXIMATION_ERROR) >= userDistanceFromShopInMeters) {
+                    //home delivery is available to this location
+                    deliveryPickupInfo = KoleshopUtils.getDeliveryTimeStringFromOpenAndCloseTime(sellerInfo.getDeliveryStartTime(), sellerInfo.getDeliveryEndTime());
+                    if (KoleshopUtils.willSellerDeliverNow(sellerInfo.getDeliveryEndTime())) {
+                        //seller will delivery to the user - GREEN ICON
+                        imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_green_dot_24dp));
+                    } else {
+                        //seller will not delivery to user at this time - ORANGE ICON
+                        imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_orange_dot_24dp));
+                    }
+                } else {
+                    //seller don't delivery at this location - ORANGE ICON
+                    deliveryPickupInfo = "No delivery to your location";
+                    imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_orange_dot_24dp));
+                }
+            } else {
+                //only pickup available - ORANGE ICON
+                deliveryPickupInfo = "Pickup Only";
                 imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_orange_dot_24dp));
-            }*/ else{
+            }
+
+            textViewTimings.setText(deliveryPickupInfo);
+            if (!sellerInfo.isShopOpen()) {
+                //seller is offline - GREY ICON
                 imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_grey_dot_24dp));
             }
+
         }
     }
 

@@ -5,12 +5,11 @@
     android:paddingBottom="16dp"
     android:background="@drawable/ripple">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/iv_vnsi_avatar"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginLeft="16dp"
-        android:background="@color/otherGreen"
         android:layout_marginTop="16dp"/>
 
     <LinearLayout
@@ -34,7 +33,7 @@
             android:layout_height="wrap_content"
             android:textSize="12dp"
             android:textColor="@color/secondary_text"
-            android:text="Delivery 7:15 am - 9:30 pm"/>
+            android:text=" -- "/>
 
     </LinearLayout>
 

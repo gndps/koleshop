@@ -157,4 +157,7 @@ public class Constants {
     //Symbols
     public static final String INDIAN_RUPEE_SYMBOL = "\u20B9";
 
+    //Business logic constants
+    public static final int DELIVERY_DISTANCE_APPROXIMATION_ERROR = 100; // 100 meters
+
 }

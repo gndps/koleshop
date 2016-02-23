@@ -5,11 +5,16 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.services.storage.StorageScopes;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.images.Image;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.Transform;
 import com.google.gcloud.storage.Acl;
 import com.google.gcloud.storage.BlobInfo;
 import com.google.gcloud.storage.Bucket;
 import com.google.gson.Gson;
 import com.google.gson.internal.bind.TypeAdapters;
+import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.models.ImageUploadRequest;
 
 import java.io.IOException;
@@ -46,6 +51,7 @@ import java.util.logging.Logger;
 public class KoleshopCloudStorageService {
 
     private static Storage storageService;
+    private static final int IMAGE_THUMBNAIL_SIZE = 120;
 
     private static final Logger logger = Logger.getLogger(KoleshopCloudStorageService.class.getName());
 
@@ -120,17 +126,32 @@ public class KoleshopCloudStorageService {
     }
 
     public static boolean uploadProfilePicture(ImageUploadRequest imageUploadRequest) {
-        return uploadImage(imageUploadRequest, "profile/");
+        return uploadImage(imageUploadRequest, Constants.PUBLIC_PROFILE_IMAGE_FOLDER);
+    }
+
+    public static boolean uploadProfilePictureThumbnail(ImageUploadRequest imageUploadRequest) {
+        ImagesService imagesService = ImagesServiceFactory.getImagesService();
+
+        Image oldImage = ImagesServiceFactory.makeImage(imageUploadRequest.getImageData());
+        Transform resize = ImagesServiceFactory.makeResize(IMAGE_THUMBNAIL_SIZE, IMAGE_THUMBNAIL_SIZE);
+
+        Image newImage = imagesService.applyTransform(resize, oldImage);
+
+        byte[] thumbnailImageData = newImage.getImageData();
+
+        imageUploadRequest.setImageData(thumbnailImageData);
+        return uploadImage(imageUploadRequest, Constants.PUBLIC_PROFILE_IMAGE_THUMBNAIL_FOLDER);
+
     }
 
     public static boolean uploadProductImage(ImageUploadRequest imageUploadRequest) {
-        return uploadImage(imageUploadRequest, "uploads/");
+        return uploadImage(imageUploadRequest, Constants.PUBLIC_PRODUCT_IMAGE_FOLDER);
     }
 
     public static boolean uploadImage(ImageUploadRequest imageUploadRequest, String bucketUrl) {
 
         Storage storage = StorageOptions.defaultInstance().service();
-        BlobId blobId = BlobId.of("koleshop-bucket", bucketUrl + imageUploadRequest.getFileName());
+        BlobId blobId = BlobId.of(Constants.PUBLIC_IMAGES_BUCKET_NAME, bucketUrl + imageUploadRequest.getFileName());
         Blob blob = Blob.load(storage, blobId);
 
         if (blob == null) {

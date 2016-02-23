@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.koleshop.appkoleshop">
+    package="com.koleshop.appkoleshop" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -35,11 +35,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/koleshop_logo"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme.Base">
+        android:theme="@style/AppTheme.Base" >
         <activity
             android:name=".ui.common.activities.InitialActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -64,7 +64,7 @@
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 
@@ -74,7 +74,7 @@
 
         <service
             android:name=".services.MyGcmListenerService"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
@@ -84,15 +84,15 @@
             android:exported="false" />
         <service
             android:name=".services.MyInstanceIDListenerService"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
 
         <!-- SMS Receiver -->
-        <receiver android:name=".receiver.SmsReceiver">
-            <intent-filter android:priority="99999">
+        <receiver android:name=".receiver.SmsReceiver" >
+            <intent-filter android:priority="99999" >
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
@@ -184,7 +184,10 @@
 
         <service
             android:name=".services.BuyerIntentService"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".ui.buyer.activities.ShopActivity" >
+        </activity>
     </application>
 
 </manifest>

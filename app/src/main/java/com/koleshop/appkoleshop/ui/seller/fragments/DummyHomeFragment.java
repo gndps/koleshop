@@ -27,6 +27,7 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.services.SellerIntentService;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import org.parceler.Parcels;
 
@@ -83,27 +84,30 @@ public class DummyHomeFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(com.koleshop.appkoleshop.R.menu.menu_seller_home, menu);
-        LinearLayout switchLayout = (LinearLayout) menu.findItem(R.id.menu_shop_switch).getActionView();
-        switchOpenClose = (SwitchCompat) switchLayout.findViewById(R.id.switch_shop_open_close);
-        progressBarOpenClose = (ProgressBar) switchLayout.findViewById(R.id.progress_bar_shop_open_close);
-        if(sellerSettings!=null) {
-            switchOpenClose.setChecked(sellerSettings.isShopOpen());
-            if (!sellerSettings.isShopOpen()) {
-                switchOpenClose.setText("Close ");
-            }
-        }
-        switchOpenClose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
-                if (!dontSendToggleRequest) {
-                    setShopToggleProcessing(true, "");
-                    SellerIntentService.startActionToggleStatus(mContext, isChecked);
-                } else {
-                    dontSendToggleRequest = false;
+        String sessionType = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_SESSION_TYPE);
+        if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
+            inflater.inflate(com.koleshop.appkoleshop.R.menu.menu_seller_home, menu);
+            LinearLayout switchLayout = (LinearLayout) menu.findItem(R.id.menu_shop_switch).getActionView();
+            switchOpenClose = (SwitchCompat) switchLayout.findViewById(R.id.switch_shop_open_close);
+            progressBarOpenClose = (ProgressBar) switchLayout.findViewById(R.id.progress_bar_shop_open_close);
+            if (sellerSettings != null) {
+                switchOpenClose.setChecked(sellerSettings.isShopOpen());
+                if (!sellerSettings.isShopOpen()) {
+                    switchOpenClose.setText("Close ");
                 }
             }
-        });
+            switchOpenClose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+                    if (!dontSendToggleRequest) {
+                        setShopToggleProcessing(true, "");
+                        SellerIntentService.startActionToggleStatus(mContext, isChecked);
+                    } else {
+                        dontSendToggleRequest = false;
+                    }
+                }
+            });
+        }
     }
 
     @Override

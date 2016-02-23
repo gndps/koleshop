@@ -95,7 +95,7 @@ public class NearbyShopsListFragment extends Fragment {
             recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(mContext, recyclerView, new KolClickListener() {
                 @Override
                 public void onItemClick(View v, int position) {
-                    ((NearbyShopsFragment) getParentFragment()).openSeller(position);
+                    ((NearbyShopsFragment) getParentFragment()).openSeller(sellers.get(position));
                 }
 
                 @Override

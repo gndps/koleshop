@@ -137,8 +137,8 @@ public class ShopSettingsFragment extends Fragment {
                 materialEditTextShopName.setText(nameString);
                 materialEditTextShopPhone.setText(phoneString);
                 materialEditTextShopAddress.setText(addressString);
-                textViewOpenTime.setText(CommonUtils.getTimeStringFromMinutes(sellerSettings.getShopOpenTime()));
-                textViewCloseTime.setText(CommonUtils.getTimeStringFromMinutes(sellerSettings.getShopCloseTime()));
+                textViewOpenTime.setText(CommonUtils.getTimeStringFromMinutes(sellerSettings.getShopOpenTime(), false));
+                textViewCloseTime.setText(CommonUtils.getTimeStringFromMinutes(sellerSettings.getShopCloseTime(), false));
             }
         }
 

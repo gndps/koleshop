@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -65,7 +66,7 @@ public class NearbyShopsFragment extends Fragment {
     BroadcastReceiver mBroadcastReceiver;
     Context mContext;
     FragmentHomeActivityListener fragmentHomeActivityListener;
-    List<SellerInfo> sellers;
+    List<SellerSettings> sellers;
 
 
     public NearbyShopsFragment() {
@@ -144,23 +145,23 @@ public class NearbyShopsFragment extends Fragment {
                     int offset = intent.getIntExtra("offset", 0);
                     Parcelable parcelableSettings = intent.getParcelableExtra("nearbyShopsList");
                     List<SellerSettings> sellers = Parcels.unwrap(parcelableSettings);
-                    if(offset==0) {
-                        if(sellers!=null && sellers.size()>0) {
+                    if (offset == 0) {
+                        if (sellers != null && sellers.size() > 0) {
                             loadNearbyShopsList(sellers);
-                        }  else {
+                        } else {
                             //no sellers found at this location
                             viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_SHOPS);
                         }
                     } else {
-                        if(sellers!=null && sellers.size()>0) {
+                        if (sellers != null && sellers.size() > 0) {
                             moreSellersLoaded(sellers);
                         } else {
                             couldNotLoadMoreSellers();
                         }
                     }
-                } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_NEARBY_SHOPS_RECEIVE_FAILED)) {
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_NEARBY_SHOPS_RECEIVE_FAILED)) {
                     int offset = intent.getIntExtra("offset", 0);
-                    if(offset==0) {
+                    if (offset == 0) {
                         //sellers loading failed
                         viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_SHOPS);
                     } else {
@@ -183,6 +184,7 @@ public class NearbyShopsFragment extends Fragment {
     private void loadNearbyShopsList(List<SellerSettings> sellers) {
         fragmentHomeActivityListener.setElevation(0);
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_TABS);//viewpager and tablayout
+        this.sellers = sellers;
         adapter = new NearbyShopsFragmentPagerAdapter(getChildFragmentManager(), sellers);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
@@ -192,6 +194,7 @@ public class NearbyShopsFragment extends Fragment {
     }
 
     private void moreSellersLoaded(List<SellerSettings> moreSellers) {
+        sellers.addAll(moreSellers);
         adapter.moreSellersFetched(moreSellers);
     }
 
@@ -208,12 +211,13 @@ public class NearbyShopsFragment extends Fragment {
         //BuyerIntentService.getNearbyShops(mContext, onlyHomeDeliveryShops, onlyOnlineShops, LOAD_MORE_SHOPS_COUNT, sellers.size());
     }
 
-    public void openSeller(int position) {
+
+    public void openSeller(SellerSettings selectedSeller) {
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, new SellerFragment(), "sellerFragment");
         ft.addToBackStack(null);
         fragmentHomeActivityListener.setBackButtonHandledByFragment(true);
-        fragmentHomeActivityListener.setTitle(sellers.get(position).getName());
+        fragmentHomeActivityListener.setTitle(selectedSeller.getAddress().getName());
         fragmentHomeActivityListener.setElevation(8);
         ft.commit();
     }

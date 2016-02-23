@@ -1,5 +1,7 @@
 package com.koleshop.appkoleshop.ui.common.interfaces;
 
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+
 /**
  * Created by Gundeep on 03/02/16.
  */

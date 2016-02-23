@@ -256,7 +256,7 @@ public class CommonUtils {
         }
     }
 
-    public static String getTimeStringFromMinutes(int minutes) {
+    public static String getTimeStringFromMinutes(int minutes, boolean amPmLowerCase) {
         if (minutes >= 0) {
             String ampm;
             String hourString;
@@ -265,9 +265,17 @@ public class CommonUtils {
             int m = minutes % 60;
             hourString = "" + h;
             if (h > 11) {
-                ampm = "PM";
+                if(amPmLowerCase) {
+                    ampm = "pm";
+                } else {
+                    ampm = "PM";
+                }
             } else {
-                ampm = "AM";
+                if(amPmLowerCase) {
+                    ampm = "am";
+                } else {
+                    ampm = "AM";
+                }
             }
             if (h > 12) {
                 h = h - 12;
@@ -293,6 +301,17 @@ public class CommonUtils {
         totalMinutes += minutes;
         totalMinutes += 60 * hours;
         return totalMinutes;
+    }
+
+    public static Date getDateFromNumberOfMinutes(int numberOfMinutes) {
+        Date date = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, numberOfMinutes/60);
+        cal.set(Calendar.MINUTE, numberOfMinutes%60);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
     }
 
     public static String getDateStringInFormat(Date date, String format) {
@@ -339,7 +358,7 @@ public class CommonUtils {
                 distance = String.format("%d", (int)distanceInKm) + " km";
             }
         } else {
-            distance = String.format("%.1f", distanceInMetres) + " m";
+            distance = String.format("%.0f", distanceInMetres) + " m";
         }
         return distance;
     }

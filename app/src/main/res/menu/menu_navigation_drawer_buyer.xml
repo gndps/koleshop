@@ -73,7 +73,8 @@
 
     </group>
 
-    <group android:id="@+id/buyer_drawer_help"
+    <group
+        android:id="@+id/buyer_drawer_help"
         android:checkableBehavior="none">
         <item
             android:id="@+id/drawer_help"
@@ -81,7 +82,8 @@
             android:title="@string/navigation_drawer_help" />
     </group>
 
-    <group android:id="@+id/buyer_drawer_legal"
+    <group
+        android:id="@+id/buyer_drawer_legal"
         android:checkableBehavior="none">
         <item
             android:id="@+id/drawer_legal"

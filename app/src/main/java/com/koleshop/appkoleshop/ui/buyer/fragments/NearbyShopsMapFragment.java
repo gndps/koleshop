@@ -1,10 +1,20 @@
 package com.koleshop.appkoleshop.ui.buyer.fragments;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -16,27 +26,32 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.android.clustering.ClusterItem;
-import com.google.maps.android.clustering.ClusterManager;
-import com.koleshop.appkoleshop.model.demo.SellerInfo;
+import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import org.parceler.Parcels;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Gundeep on 03/02/16.
  */
-public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapReadyCallback {
+public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapReadyCallback,GoogleMap.OnInfoWindowClickListener {
 
     public GoogleMap mGoogleMap;
     List<SellerSettings> sellers;
-    List<Marker> markers;
+    Map<String, SellerSettings> markers;
+    Context mContext;
+    Marker userMarker;
+    Marker nearestShopMarker;
 
     // Declare a variable for the cluster manager.
-    ClusterManager<MyItem> mClusterManager;
+    //ClusterManager<MyItem> mClusterManager;
 
     private static String TAG = "fns_map";
 
@@ -54,64 +69,242 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+        mContext = getActivity();
         try {
             sellers = Parcels.unwrap(getArguments().getParcelable("sellers"));
         } catch (Exception e) {
             //some problem while accepting parcel
             Log.d(TAG, "problem in accepting sellers parcel", e);
         }
-        getMapAsync(this);
         return view;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mGoogleMap = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(mGoogleMap == null) {
+            getMapAsync(this);
+        }
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        //add markers
+        //00. initialize variables
         mGoogleMap = googleMap;
+        markers = new HashMap<>();
 
-        markers = new ArrayList<>();
-        for(SellerSettings seller : sellers) {
-            Marker marker = mGoogleMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(seller.getAddress().getGpsLat(), seller.getAddress().getGpsLong()))
-                    .title(seller.getAddress().getName())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                    .draggable(false)
-                    .alpha(0.8f));
-            markers.add(marker);
+
+        //01. add the seller markers
+        int index = 0;
+        for (SellerSettings seller : sellers) {
+            Marker marker = addTheSellerMarker(seller);
+            if (index == 0) {
+                nearestShopMarker = marker;
+            }
+            index++;
         }
 
+        //02. add the marker for delivery location
+        addTheUserMarker();
+
+
+        //03. setup google map
+        mGoogleMap.getUiSettings().setMapToolbarEnabled(true);
+        mGoogleMap.setMyLocationEnabled(true);
+        mGoogleMap.getUiSettings().setAllGesturesEnabled(true);
+        mGoogleMap.getUiSettings().setCompassEnabled(true);
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+        mGoogleMap.setOnInfoWindowClickListener(this);
+
+
+        //04. adjust camera to show all markers
+        adjustCameraToShowShopMarkers();
+
+        //set marker on click listener
+        /*mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                SellerSettings sellerSettings = markers.get(marker);
+                if(sellerSettings!=null) {
+                    ((NearbyShopsFragment) getParentFragment()).openSeller(sellerSettings);
+                }
+                //open the shop menu fragment
+                return true;
+            }
+        });*/
+    }
+
+    private void addTheUserMarker() {
+        if (markers != null && userMarker != null && markers.containsKey(userMarker)) {
+            markers.remove(userMarker);
+        }
+        Double deliveryLocationGpsLat = PreferenceUtils.getGpsLat(mContext);
+        Double deliveryLocationGpsLong = PreferenceUtils.getGpsLong(mContext);
+        Bitmap userMarkerBitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.ic_user_gps_marker);
+        Marker marker = mGoogleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(deliveryLocationGpsLat, deliveryLocationGpsLong))
+                .title("You are here")
+                        //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
+                .icon(BitmapDescriptorFactory.fromBitmap(userMarkerBitmap))
+                .draggable(false)
+                .alpha(0.95f));
+        //markers.put("userMarker", null);
+        userMarker = marker;
+    }
+
+    private Marker addTheSellerMarker(SellerSettings sellerSettings) {
+
+        if (sellerSettings != null) {
+
+            Bitmap sellerMarkerBitmap = null;
+            String deliveryPickupInfo;
+            String title;
+            String openOrClose;
+
+
+            //01 EXTRACT THE SELLER TITLE AND MARKER INFORMATION
+
+            //01.01 FIND SHOP TITLE
+            title = sellerSettings.getAddress().getName();
+
+            //01.02 GET SHOP DISTANCE FROM USER
+            float[] results = new float[3];
+            Double userLat = PreferenceUtils.getGpsLat(mContext);
+            Double userLong = PreferenceUtils.getGpsLong(mContext);
+            Location.distanceBetween(userLat, userLong, sellerSettings.getAddress().getGpsLat(), sellerSettings.getAddress().getGpsLong(), results);
+            float userDistanceFromShopInMeters = results[0];
+
+            //01.03 FIND DELIVERY / PICKUP INFORMATION AND CHOOSE IMAGE FOR MARKER
+            if (sellerSettings.isHomeDelivery()) {
+                if ((sellerSettings.getMaximumDeliveryDistance() + Constants.DELIVERY_DISTANCE_APPROXIMATION_ERROR) >= userDistanceFromShopInMeters) {
+                    //home delivery is available to this location
+                    deliveryPickupInfo = KoleshopUtils.getDeliveryTimeStringFromOpenAndCloseTime(sellerSettings.getDeliveryStartTime(), sellerSettings.getDeliveryEndTime());
+                    if (KoleshopUtils.willSellerDeliverNow(sellerSettings.getDeliveryEndTime())) {
+                        //seller will delivery to the user - ONLINE + DELIVERY
+                        sellerMarkerBitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                                R.drawable.ic_seller_online_delivery);
+                    } else {
+                        //seller will not delivery to user at this time - ONLINE + PICKUP
+                        sellerMarkerBitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                                R.drawable.ic_seller_online_pickup);
+                    }
+                } else {
+                    //seller don't delivery at this location - ORANGE ICON
+                    deliveryPickupInfo = "No delivery to your location";
+                    sellerMarkerBitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                            R.drawable.ic_seller_online_pickup);
+                }
+            } else {
+                //only pickup available - ORANGE ICON
+                deliveryPickupInfo = "Pickup Only";
+                sellerMarkerBitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                        R.drawable.ic_seller_online_pickup);
+            }
+
+            if (!sellerSettings.isShopOpen()) {
+                //seller is offline - GREY ICON
+                sellerMarkerBitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                        R.drawable.ic_seller_offline);
+                openOrClose = "Closed";
+            } else {
+                openOrClose = "Open";
+            }
+
+
+            //02 ADD THE SELLER MARKER TO GOOGLE MAP
+            Marker marker = mGoogleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(sellerSettings.getAddress().getGpsLat(), sellerSettings.getAddress().getGpsLong()))
+                    .title(title)
+                    .snippet(openOrClose + ", " + deliveryPickupInfo)
+                    .icon(BitmapDescriptorFactory.fromBitmap(sellerMarkerBitmap))
+                    .draggable(false)
+                    .alpha(0.95f));
+            String markerRecognizeString = marker.getTitle() + "" + marker.getSnippet();
+            markers.put(markerRecognizeString, sellerSettings);
+            return marker;
+
+        } else {
+            return null;
+        }
+
+    }
+
+    private void adjustCameraToShowShopMarkers() {
         //make position bounds
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (Marker marker : markers) {
-            builder.include(marker.getPosition());
-        }
+
+        builder.include(userMarker.getPosition());
+        builder.include(nearestShopMarker.getPosition());
+        /* Bounds for showing all shops
+        for (Marker markeru : markers.keySet()) {
+            builder.include(markeru.getPosition());
+        }*/
+
         LatLngBounds bounds = builder.build();
 
         //camera update
-        int padding = 200; // offset from edges of the map in pixels
+        int padding = 200; // offset from edges of the maep in pixels
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-        googleMap.animateCamera(cu);
-        setUpClusterer();
+        mGoogleMap.moveCamera(cu);
     }
 
     public void moreSellersFetched(List<SellerSettings> moreSellers) {
         sellers.addAll(moreSellers);
-        for(SellerSettings seller : moreSellers) {
-            Marker marker = mGoogleMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(seller.getAddress().getGpsLat(), seller.getAddress().getGpsLong()))
-                    .title(seller.getAddress().getName())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                    .draggable(false)
-                    .alpha(0.8f));
-            markers.add(marker);
+        for (SellerSettings seller : moreSellers) {
+            addTheSellerMarker(seller);
         }
     }
 
     public void couldNotLoadMoreSellers() {
     }
 
-    private void setUpClusterer() {
+    private void checkGpsEnabled() {
+        final LocationManager manager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+    }
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        String markerRecognizeString = marker.getTitle() + "" + marker.getSnippet();
+        SellerSettings seller = markers.get(markerRecognizeString);
+        if(seller!=null) {
+            ((NearbyShopsFragment) getParentFragment()).openSeller(seller);
+        } else {
+            Toast.makeText(mContext, "wtf", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /*private void setUpClusterer() {
 
         // Position the map.
         getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
@@ -156,6 +349,6 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
         public LatLng getPosition() {
             return mPosition;
         }
-    }
+    }*/
 
 }

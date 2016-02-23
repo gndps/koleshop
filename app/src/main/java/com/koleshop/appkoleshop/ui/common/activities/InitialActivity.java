@@ -149,9 +149,19 @@ public class InitialActivity extends AppCompatActivity {
             }
         } else if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_BUYER)) {
             //buyer session
-            Intent intent = new Intent(this, com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            boolean userLoggedIn = CommonUtils.getUserId(mContext)!=null && CommonUtils.getUserId(mContext)>0;
+            Double gpsLong = PreferenceUtils.getGpsLong(mContext);
+            Double gpsLat = PreferenceUtils.getGpsLat(mContext);
+            boolean deliveryLocationSelected = gpsLat!=null && gpsLong!=null && gpsLat>0 && gpsLong>0;
+            if(userLoggedIn || deliveryLocationSelected) {
+                Intent intent = new Intent(this, com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } else {
+                //user need to select the delivery location
+                goToNextScreen();
+            }
+
         } else {
             //let the user choose the session type
         }

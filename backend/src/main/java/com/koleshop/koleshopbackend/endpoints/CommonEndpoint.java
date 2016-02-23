@@ -21,7 +21,6 @@ import com.koleshop.koleshopbackend.services.ProductService;
 import com.koleshop.koleshopbackend.services.SellerService;
 import com.koleshop.koleshopbackend.services.SessionService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -156,9 +155,12 @@ public class CommonEndpoint {
         try {
             if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
                 boolean imageUploaded = KoleshopCloudStorageService.uploadProfilePicture(imageUploadRequest);
+                if(!isHeaderImage) {
+                    KoleshopCloudStorageService.uploadProfilePictureThumbnail(imageUploadRequest);
+                }
                 if (imageUploaded) {
                     //update the user profile picture url in the db
-                    String imageUrl = Constants.PUBLIC_PROFILE_IMAGE_URL_PREFIX + imageUploadRequest.getFileName();
+                    String imageUrl = Constants.PUBLIC_IMAGES_BUCKET_PREFIX + Constants.PUBLIC_PROFILE_IMAGE_FOLDER + imageUploadRequest.getFileName();
 
                     if(userIsSeller) {
                         //if user is seller, update SellerSettings

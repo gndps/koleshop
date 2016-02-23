@@ -89,8 +89,8 @@ public class DeliverySettingsFragment extends Fragment {
             }
             metMinOrder.setText(CommonUtils.getPriceStringFromFloat(sellerSettings.getMinimumOrder()));
             metDeliveryCharges.setText(CommonUtils.getPriceStringFromFloat(sellerSettings.getDeliveryCharges()));
-            tvDeliveryStartTime.setText(CommonUtils.getTimeStringFromMinutes(sellerSettings.getDeliveryStartTime()));
-            tvDeliveryEndTime.setText(CommonUtils.getTimeStringFromMinutes(sellerSettings.getDeliveryEndTime()));
+            tvDeliveryStartTime.setText(CommonUtils.getTimeStringFromMinutes(sellerSettings.getDeliveryStartTime(), false));
+            tvDeliveryEndTime.setText(CommonUtils.getTimeStringFromMinutes(sellerSettings.getDeliveryEndTime(), false));
         }
     }
 

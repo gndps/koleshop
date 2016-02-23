@@ -2,6 +2,7 @@ package com.koleshop.appkoleshop.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.TextUtils;
 import android.util.TypedValue;
 
 import com.amulyakhare.textdrawable.TextDrawable;
@@ -18,6 +19,7 @@ import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.singletons.KoleshopSingleton;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.realm.RealmList;
@@ -116,13 +118,28 @@ public class KoleshopUtils {
                 .width((int) px)  // width in px
                 .height((int) px) // height in px
                 .endConfig();
-        if(round) {
-            textDrawable = textDrawableBuilder.buildRound(name.substring(0, 1), color);
+        if (round) {
+            textDrawable = textDrawableBuilder.buildRound(name, color);
         } else {
-            textDrawable = textDrawableBuilder.buildRect(name.substring(0, 1), color);
+            textDrawable = textDrawableBuilder.buildRect(name, color);
         }
 
         return textDrawable;
     }
 
+    public static boolean willSellerDeliverNow(int sellerDeliveryEndTimeInMinutes) {
+        Date deliveryEndTime = CommonUtils.getDateFromNumberOfMinutes(sellerDeliveryEndTimeInMinutes);
+        Date timeNow = new Date();
+        return deliveryEndTime.after(timeNow);
+    }
+
+    public static String getDeliveryTimeStringFromOpenAndCloseTime(int deliveryStartTime, int deliveryEndTime) {
+        String startTime = CommonUtils.getTimeStringFromMinutes(deliveryStartTime, true);
+        String endTime = CommonUtils.getTimeStringFromMinutes(deliveryEndTime, true);
+        String deliveryTimeString = "-";
+        if (!TextUtils.isEmpty(startTime) && !TextUtils.isEmpty(endTime)) {
+            deliveryTimeString = "Delivery " + startTime + " to " + endTime;
+        }
+        return deliveryTimeString;
+    }
 }
