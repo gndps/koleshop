@@ -21,6 +21,7 @@ import android.widget.ViewFlipper;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.ui.seller.adapters.InventoryCategoryViewPagerAdapter;
 import com.koleshop.appkoleshop.constant.Constants;
@@ -56,6 +57,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     @Bind(R.id.fab_add_new_product)
     FloatingActionButton menuMultipleActions;
     Long selectedCategoryId;
+    SellerSettings sellerSettings;
 
 
     @Override
@@ -70,12 +72,14 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
             categoryTitle = extras.getString("categoryTitle");
             myInventory = extras.getBoolean("myInventory");
             customerView = extras.getBoolean("customerView");
+            sellerSettings = Parcels.unwrap(extras.getParcelable("sellerSettings"));
         } else if (savedInstanceState != null) {
             selectedPage = savedInstanceState.getInt("selectedPage");
             parentCategoryId = savedInstanceState.getLong("categoryId");
             categoryTitle = savedInstanceState.getString("categoryTitle");
             myInventory = savedInstanceState.getBoolean("myInventory");
             customerView = savedInstanceState.getBoolean("customerView");
+            sellerSettings = Parcels.unwrap(savedInstanceState.getParcelable("sellerSettings"));
         }
         initializeBroadcastReceivers();
         setupActivity();
@@ -102,6 +106,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         outState.putString("categoryTitle", categoryTitle);
         outState.putBoolean("myInventory", myInventory);
         outState.putBoolean("customerView", customerView);
+        outState.putParcelable("sellerSettings", Parcels.wrap(sellerSettings));
     }
 
     private void initializeBroadcastReceivers() {
@@ -155,11 +160,19 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     }
 
     private void fetchCategories() {
-        List<ProductCategory> list = KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, parentCategoryId);
+        List<ProductCategory> list = getCachedProductCategories();
         if (list != null && list.size() > 0 && Constants.KOLE_CACHE_ALLOWED) {
             loadCategories(list);
         } else {
             requestCategoriesFromInternet();
+        }
+    }
+
+    private List<ProductCategory> getCachedProductCategories() {
+        if(customerView) {
+            return KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, parentCategoryId, sellerSettings.getUserId());
+        } else {
+            return KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, parentCategoryId, 0l);
         }
     }
 
@@ -174,6 +187,10 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         serviceIntent.setAction(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES);
         serviceIntent.putExtra("categoryId", parentCategoryId);
         serviceIntent.putExtra("myInventory", myInventory);
+        serviceIntent.putExtra("customerView", customerView);
+        if(customerView) {
+            serviceIntent.putExtra("sellerId", sellerSettings.getUserId());
+        }
         startService(serviceIntent);
     }
 
@@ -197,7 +214,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         if (subcategories != null && subcategories.size() > 0) {
             categories = subcategories;
         } else {
-            categories = KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, parentCategoryId);
+            categories = getCachedProductCategories();
         }
         adapter.setInventoryCategories(categories);
         viewPager.setAdapter(adapter);
@@ -233,7 +250,9 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
             }
         });
         selectedCategoryId = categories.get(0).getId();
-        menuMultipleActions.setVisibility(View.VISIBLE);
+        if(!customerView) {
+            menuMultipleActions.setVisibility(View.VISIBLE);
+        }
     }
 
     private void failedLoadingCategories() {
@@ -297,7 +316,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
 
     @Override
     public void hideFloatingActionButton() {
-        if (menuMultipleActions.getVisibility() == View.VISIBLE) {
+        if (menuMultipleActions.getVisibility() == View.VISIBLE && !customerView) {
             menuMultipleActions.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.hide_to_bottom));
             menuMultipleActions.setVisibility(View.GONE);
         }
@@ -305,9 +324,13 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
 
     @Override
     public void showFloatingActionButton() {
-        if (menuMultipleActions.getVisibility() == View.GONE) {
+        if (menuMultipleActions.getVisibility() == View.GONE && !customerView) {
             menuMultipleActions.setVisibility(View.VISIBLE);
             menuMultipleActions.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.show_from_bottom));
         }
+    }
+
+    public SellerSettings getSellerSettings() {
+        return sellerSettings;
     }
 }

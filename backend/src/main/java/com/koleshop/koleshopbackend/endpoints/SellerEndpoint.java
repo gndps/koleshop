@@ -5,11 +5,13 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import com.koleshop.koleshopbackend.common.Constants;
+import com.koleshop.koleshopbackend.db.models.InventoryProduct;
 import com.koleshop.koleshopbackend.db.models.KoleResponse;
 import com.koleshop.koleshopbackend.db.models.SellerSettings;
 import com.koleshop.koleshopbackend.services.SellerService;
 import com.koleshop.koleshopbackend.services.SessionService;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -40,6 +42,29 @@ public class SellerEndpoint {
         if (shopStatusToggleComplete) {
             response.setSuccess(true);
             response.setData(shopStatusToggleComplete);
+        } else {
+            response.setSuccess(false);
+        }
+        return response;
+    }
+
+    @ApiMethod(name = "searchProducts", httpMethod = ApiMethod.HttpMethod.POST)
+    public KoleResponse searchProducts(@Named("sellerId") Long sellerId, @Named("sessionId") String sessionId,
+                                      @Named("searchQuery") String searchQuery, @Named("myInventory") boolean myInventory,
+                                       @Named("limit") int limit, @Named("offset") int offset) {
+
+        KoleResponse response = new KoleResponse();
+        List<InventoryProduct> searchResultProducts = null;
+        try {
+            if (SessionService.verifyUserAuthenticity(sellerId, sessionId, Constants.USER_SESSION_TYPE_SELLER)) {
+                searchResultProducts = new SellerService().searchProducts(sellerId, myInventory, searchQuery, limit, offset);
+            }
+        } catch (Exception e) {
+            response.setData(e.getLocalizedMessage());
+        }
+        if (searchResultProducts!=null) {
+            response.setSuccess(true);
+            response.setData(searchResultProducts);
         } else {
             response.setSuccess(false);
         }

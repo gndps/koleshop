@@ -20,6 +20,7 @@ import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.listeners.KolClickListener;
@@ -260,7 +261,7 @@ public class InventoryProductFragment extends Fragment {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                final List<Product> listOfProducts = KoleCacheUtil.getCachedProducts(myInventory, categoryId);
+                final List<Product> listOfProducts = KoleCacheUtil.getCachedProducts(myInventory, categoryId, getSellerIdFromParentActivity());
                 boolean cachedProductsAvailable = listOfProducts != null && listOfProducts.size() > 0 && Constants.KOLE_CACHE_ALLOWED;
 
                 if (cachedProductsAvailable && (!refreshProductsInsteadOfReloading || inventoryProductAdapter==null)) {
@@ -307,6 +308,10 @@ public class InventoryProductFragment extends Fragment {
         intent.setAction(Constants.ACTION_FETCH_INVENTORY_PRODUCTS);
         intent.putExtra("categoryId", categoryId);
         intent.putExtra("myInventory", myInventory);
+        intent.putExtra("customerView", customerView);
+        if(customerView) {
+            intent.putExtra("sellerId", getSellerIdFromParentActivity());
+        }
         mContext.startService(intent);
     }
 
@@ -329,7 +334,7 @@ public class InventoryProductFragment extends Fragment {
                 if (listOfProducts != null && listOfProducts.size() > 0) {
                     products = listOfProducts;
                 } else {
-                    products = KoleCacheUtil.getCachedProducts(myInventory, categoryId);
+                    products = KoleCacheUtil.getCachedProducts(myInventory, categoryId, getSellerIdFromParentActivity());
                 }
 
                 //set recycler view click listener
@@ -344,39 +349,41 @@ public class InventoryProductFragment extends Fragment {
                         //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
                     }
                 }));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-                        @Override
-                        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                            int dy = scrollY - oldScrollY;
-                            if(dy > 0 && !fabHidden) {
-                                mListener.hideFloatingActionButton();
-                                fabHidden = true;
-                                fabStateKnown = true;
-                            } else if(dy < 0 && (fabHidden || !fabStateKnown)) {
-                                mListener.showFloatingActionButton();
-                                fabHidden = false;
-                                fabStateKnown = true;
-                            }
+                if(!customerView) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+                            @Override
+                            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                                int dy = scrollY - oldScrollY;
+                                if (dy > 0 && !fabHidden) {
+                                    mListener.hideFloatingActionButton();
+                                    fabHidden = true;
+                                    fabStateKnown = true;
+                                } else if (dy < 0 && (fabHidden || !fabStateKnown)) {
+                                    mListener.showFloatingActionButton();
+                                    fabHidden = false;
+                                    fabStateKnown = true;
+                                }
 
-                        }
-                    });
-                } else {
-                    recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-                        @Override
-                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                            super.onScrolled(recyclerView, dx, dy);
-                            if(dy > 0 && !fabHidden) {
-                                mListener.hideFloatingActionButton();
-                                fabHidden = true;
-                                fabStateKnown = true;
-                            } else if(dy < 0 && (fabHidden || !fabStateKnown)) {
-                                mListener.showFloatingActionButton();
-                                fabHidden = false;
-                                fabStateKnown = true;
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                            @Override
+                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                super.onScrolled(recyclerView, dx, dy);
+                                if (dy > 0 && !fabHidden) {
+                                    mListener.hideFloatingActionButton();
+                                    fabHidden = true;
+                                    fabStateKnown = true;
+                                } else if (dy < 0 && (fabHidden || !fabStateKnown)) {
+                                    mListener.showFloatingActionButton();
+                                    fabHidden = false;
+                                    fabStateKnown = true;
+                                }
+                            }
+                        });
+                    }
                 }
                 //recyclerView.setVerticalScrollBarEnabled(true); //no need of scroll bar...google play doesn't have it
 
@@ -403,6 +410,18 @@ public class InventoryProductFragment extends Fragment {
     public interface InventoryProductFragmentInteractionListener {
         void hideFloatingActionButton();
         void showFloatingActionButton();
+    }
+
+    private Long getSellerIdFromParentActivity() {
+        Long sellerId = 0l;
+        try {
+            if(customerView) {
+                sellerId = ((InventoryProductActivity) getActivity()).getSellerSettings().getUserId();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "problem in getting seller settigs from InventoryProductActivity");
+        }
+        return sellerId;
     }
 
 }

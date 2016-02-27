@@ -23,11 +23,13 @@ public class EditProduct {
     List<EditProductVar> editProductVars;
     long categoryId;
     boolean isModified;
+    Long sellerId;
 
     public EditProduct() {
         this.id = 0l;
         this.name = "";
         this.brand = "";
+        this.sellerId = 0l;
     }
 
     public EditProduct(Long id, String name, String brand, List<EditProductVar> editProductVars) {
@@ -41,6 +43,7 @@ public class EditProduct {
         this.id = product.getId();
         this.name = product.getName();
         this.brand = product.getBrand();
+        this.sellerId = product.getSellerId();
         List<EditProductVar> vars = new ArrayList<>();
         for(ProductVariety var : product.getVarieties()) {
             EditProductVar editProductVar = new EditProductVar(var);
@@ -95,5 +98,13 @@ public class EditProduct {
 
     public void setIsModified(boolean isModified) {
         this.isModified = isModified;
+    }
+
+    public Long getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(Long sellerId) {
+        this.sellerId = sellerId;
     }
 }

@@ -21,7 +21,6 @@
             android:gravity="center">
 
             <ProgressBar
-                style="@android:style/Widget.ProgressBar.Large"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center" />
@@ -66,6 +65,30 @@
                 android:fontFamily="sans-serif-light"
                 android:layout_gravity="center"
                 android:text="Can't load inventory"
+                android:textColor="@color/default_background_font" />
+        </LinearLayout>
+
+        <!-- no products in my shop | view flipper child 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_pinky_embarrased" />
+
+            <TextView
+                android:id="@+id/tv_no_products_fic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="No products here\nPlease add products from warehouse to your shop"
                 android:textColor="@color/default_background_font" />
         </LinearLayout>
 

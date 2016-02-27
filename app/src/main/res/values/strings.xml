@@ -19,6 +19,7 @@
     <string name="title_activity_location">Map Location</string>
     <string name="action_search_address">Search Address</string>
     <string name="action_search">Search</string>
+    <string name="action_clear">clear</string>
     <string name="action_cart">Cart</string>
 
     <string-array name="shop_settings_array">

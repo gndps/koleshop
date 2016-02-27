@@ -18,12 +18,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
 import com.koleshop.appkoleshop.ui.seller.activities.ProductActivity;
@@ -38,6 +40,8 @@ import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.ui.seller.adapters.InventoryCategoryAdapter;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import org.parceler.Parcels;
@@ -58,8 +62,11 @@ public class InventoryCategoryFragment extends Fragment {
     private static final String TAG = "InventoryCategoryFrag";
     private boolean myInventory = false;
     private boolean customerView = false;
+    private SellerSettings sellerSettings;
     @Bind(R.id.multiple_actions)
     FloatingActionsMenu menuMultipleActions;
+    @Bind(R.id.tv_no_products_fic)
+    TextView textViewNoProducts;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,6 +77,10 @@ public class InventoryCategoryFragment extends Fragment {
         if (args != null) {
             myInventory = args.getBoolean("myInventory", false);
             customerView = args.getBoolean("customerView", false);
+            sellerSettings = Parcels.unwrap(args.getParcelable("sellerSettings"));
+            if (sellerSettings == null) {
+                sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
+            }
         }
         initializeBroadcastReceivers();
     }
@@ -99,6 +110,7 @@ public class InventoryCategoryFragment extends Fragment {
                     intent.putExtra("categoryId", inventoryCategoryAdapter.getInventoryCategoryId(position));
                     intent.putExtra("myInventory", myInventory);
                     intent.putExtra("customerView", customerView);
+                    intent.putExtra("sellerSettings", Parcels.wrap(sellerSettings));
                     String categoryName = inventoryCategoryAdapter.getInventoryCategoryName(position);
                     if (categoryName != null && !categoryName.isEmpty()) {
                         intent.putExtra("categoryTitle", categoryName);
@@ -143,7 +155,7 @@ public class InventoryCategoryFragment extends Fragment {
         return layout;
     }
 
-    @Override
+    /*@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_inventory_category_fragment, menu);
         super.onCreateOptionsMenu(menu, inflater);
@@ -156,7 +168,7 @@ public class InventoryCategoryFragment extends Fragment {
                 addNewProduct();
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
 
     @Override
@@ -166,6 +178,7 @@ public class InventoryCategoryFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED));
         lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED));
+        lbm.registerReceiver(mBroadcastReceiverInventoryCategoryFragment, new IntentFilter(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_EMPTY));
         loadInventoryCategories();
     }
 
@@ -183,6 +196,8 @@ public class InventoryCategoryFragment extends Fragment {
                     } else {
                         inventoryLoadFailed();
                     }
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_EMPTY)) {
+                    noProductsInInventory();
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_GCM_BROADCAST_INVENTORY_CREATED)) {
                     loadInventoryCategories();
                 }
@@ -212,7 +227,11 @@ public class InventoryCategoryFragment extends Fragment {
     }
 
     public List<ProductCategory> getCachedInventoryCategories() {
-        return KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, null);
+        if(customerView) {
+            return KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, null, sellerSettings.getUserId());
+        } else {
+            return KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, null, 0l);
+        }
     }
 
     public void loadInventoryCategoriesFromInternet() {
@@ -220,6 +239,10 @@ public class InventoryCategoryFragment extends Fragment {
         Intent commonIntent = new Intent(getActivity(), CommonIntentService.class);
         commonIntent.setAction(Constants.ACTION_FETCH_INVENTORY_CATEGORIES);
         commonIntent.putExtra("myInventory", myInventory);
+        commonIntent.putExtra("customerView", customerView);
+        if (customerView) {
+            commonIntent.putExtra("sellerId", sellerSettings.getUserId());
+        }
         getActivity().startService(commonIntent);
     }
 
@@ -241,11 +264,6 @@ public class InventoryCategoryFragment extends Fragment {
 
     private void inventoryLoadFailed() {
         viewFlipper.setDisplayedChild(2);
-
-        if (customerView) {
-            Toast.makeText(mContext, "Some problem in opening shop", Toast.LENGTH_LONG).show();
-            return;
-        }
 
         String title;
         if (myInventory) {
@@ -277,6 +295,16 @@ public class InventoryCategoryFragment extends Fragment {
                     })
                     .setNegativeButton("CANCEL", null)
                     .show();
+        }
+    }
+
+    private void noProductsInInventory() {
+        viewFlipper.setDisplayedChild(3);
+        if (customerView) {
+            String alertText = "No products found in this shop";
+            textViewNoProducts.setText(alertText);
+            Toast.makeText(mContext, alertText, Toast.LENGTH_SHORT).show();
+            return;
         }
     }
 

@@ -72,7 +72,6 @@
             android:layout_height="match_parent">
 
             <ProgressBar
-                style="@android:style/Widget.ProgressBar.Large"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center"

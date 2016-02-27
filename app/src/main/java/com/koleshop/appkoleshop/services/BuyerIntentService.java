@@ -143,10 +143,10 @@ public class BuyerIntentService extends IntentService {
                         sellerSettings.setShopOpenTime(((BigDecimal) map.get("shopOpenTime")).intValue());
                         sellerSettings.setShopCloseTime(((BigDecimal) map.get("shopCloseTime")).intValue());
                         sellerSettings.setShopOpen((Boolean) map.get("shopOpen"));
-                        sellerSettings.setUserId(userId);
+                        sellerSettings.setUserId(Long.valueOf((String) map.get("userId")));
                         ArrayMap<String, Object> addressMap = (ArrayMap<String, Object>) map.get("address");
                         if (addressMap != null) {
-                            address.setUserId(userId);
+                            address.setUserId(Long.valueOf((String) map.get("userId")));
                             address.setId(Long.valueOf((String) addressMap.get("id")));
                             address.setAddress((String) addressMap.get("address"));
                             address.setPhoneNumber(Long.valueOf((String) addressMap.get("phoneNumber")));

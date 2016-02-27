@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.model.realm;
 import java.util.Date;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -22,14 +23,18 @@ public class ProductCategory extends RealmObject {
     private Date myShopUpdateDate;
     private Date warehouseUpdateDate;
 
+    @Index
+    private Long sellerId;
+
     public ProductCategory() {
     }
 
-    public ProductCategory(long id, String name, String imageUrl, long parentCategoryId) {
+    public ProductCategory(long id, String name, String imageUrl, long parentCategoryId, Long sellerId) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
         this.parentCategoryId = parentCategoryId;
+        this.sellerId = sellerId;
     }
 
     public long getId() {
@@ -102,5 +107,13 @@ public class ProductCategory extends RealmObject {
 
     public void setSortOrder(int sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public Long getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(Long sellerId) {
+        this.sellerId = sellerId;
     }
 }

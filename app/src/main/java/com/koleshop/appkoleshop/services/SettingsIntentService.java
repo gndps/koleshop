@@ -22,6 +22,7 @@ import com.koleshop.api.commonEndpoint.CommonEndpoint;
 import com.koleshop.api.commonEndpoint.model.KoleResponse;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.util.CloudEndpointDataExtractionUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.NetworkUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
@@ -272,40 +273,7 @@ public class SettingsIntentService extends IntentService {
 
             //extract product list from result
             ArrayMap<String, Object> map = (ArrayMap<String, Object>) result.getData();
-            List<InventoryProduct> products = new ArrayList<>();
-            SellerSettings sellerSettings = new SellerSettings();
-            if (map != null) {
-                Address address = new Address();
-                sellerSettings.setImageUrl((String) map.get("imageUrl"));
-                sellerSettings.setHeaderImageUrl((String) map.get("headerImageUrl"));
-                sellerSettings.setId(Long.valueOf((String) map.get("id")));
-                sellerSettings.setPickupFromShop((Boolean) map.get("pickupFromShop"));
-                sellerSettings.setHomeDelivery((Boolean) map.get("homeDelivery"));
-                sellerSettings.setMinimumOrder(((BigDecimal) map.get("minimumOrder")).floatValue());
-                sellerSettings.setDeliveryCharges(((BigDecimal) map.get("deliveryCharges")).floatValue());
-                sellerSettings.setCarryBagCharges(((BigDecimal) map.get("carryBagCharges")).floatValue());
-                sellerSettings.setMaximumDeliveryDistance(Long.valueOf((String) map.get("maximumDeliveryDistance")));
-                sellerSettings.setDeliveryStartTime(((BigDecimal) map.get("deliveryStartTime")).intValue());
-                sellerSettings.setDeliveryEndTime(((BigDecimal) map.get("deliveryEndTime")).intValue());
-                sellerSettings.setShopOpenTime(((BigDecimal) map.get("shopOpenTime")).intValue());
-                sellerSettings.setShopCloseTime(((BigDecimal) map.get("shopCloseTime")).intValue());
-                sellerSettings.setShopOpen((Boolean) map.get("shopOpen"));
-                sellerSettings.setUserId(userId);
-                ArrayMap<String, Object> addressMap = (ArrayMap<String, Object>) map.get("address");
-                if (addressMap != null) {
-                    address.setUserId(userId);
-                    address.setId(Long.valueOf((String) addressMap.get("id")));
-                    address.setAddress((String) addressMap.get("address"));
-                    address.setPhoneNumber(Long.valueOf((String) addressMap.get("phoneNumber")));
-                    address.setName((String) addressMap.get("name"));
-                    address.setAddressType(((BigDecimal) addressMap.get("addressType")).intValue());
-                    address.setCountryCode(((BigDecimal) addressMap.get("countryCode")).intValue());
-                    address.setNickname((String) addressMap.get("nickname"));
-                    address.setGpsLong(((BigDecimal) addressMap.get("gpsLong")).doubleValue());
-                    address.setGpsLat(((BigDecimal) addressMap.get("gpsLat")).doubleValue());
-                    sellerSettings.setAddress(address);
-                }
-            }
+            SellerSettings sellerSettings = CloudEndpointDataExtractionUtil.getSellerSettings(map);
 
 
             //convert the result to string and save in preferences

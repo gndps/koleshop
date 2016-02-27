@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
@@ -76,9 +77,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     @Bind(R.id.navigation_view)
     NavigationView navigationView;
     CircleImageView imageViewAvatar;
+    ImageView imageViewHeader;
     TextView textViewNavBarShopName;
 
     String imageViewAvatarUrl;
+    String imageViewHeaderUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -260,11 +263,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = (DrawerLayout) findViewById(com.koleshop.appkoleshop.R.id.drawer_layout);
         View headerView = navigationView.getHeaderView(0);
         imageViewAvatar = (CircleImageView) headerView.findViewById(R.id.avatar_drawer);
+        imageViewHeader = (ImageView) headerView.findViewById(R.id.image_view_header_drawer);
         textViewNavBarShopName = (TextView) headerView.findViewById(R.id.tv_drawer_header_title);
         imageViewAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
+                startActivity(intentChangePicture);
+            }
+        });
+        imageViewHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
+                intentChangePicture.putExtra("isHeaderImage", true);
                 startActivity(intentChangePicture);
             }
         });
@@ -571,6 +583,32 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             } else {
                 imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
             }
+            refreshAvatar = false;
+        }
+
+
+        //set header image view
+        boolean refreshHeader = false;
+        if (imageViewHeaderUrl == null && sellerSettings != null) {
+            imageViewHeaderUrl = sellerSettings.getHeaderImageUrl();
+            refreshHeader = true;
+        } else if (sellerSettings != null && !TextUtils.isEmpty(sellerSettings.getHeaderImageUrl())
+                && !imageViewHeaderUrl.equalsIgnoreCase(sellerSettings.getHeaderImageUrl())) {
+            //there is a new image url and avatar should be refreshed
+            imageViewHeaderUrl = sellerSettings.getHeaderImageUrl();
+            refreshHeader = true;
+        }
+
+        if (refreshHeader) {
+            if (!TextUtils.isEmpty(imageViewHeaderUrl)) {
+                Picasso.with(mContext)
+                        .load(imageViewHeaderUrl)
+                        .fit().centerCrop()
+                        .into(imageViewHeader);
+            } else {
+                //imageViewHeader.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
+            }
+            refreshHeader = false;
         }
 
     }

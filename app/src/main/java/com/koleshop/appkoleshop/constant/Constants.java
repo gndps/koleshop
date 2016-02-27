@@ -64,6 +64,7 @@ public class Constants {
     public static final String ACTION_FETCH_INVENTORY_CATEGORIES = "com.koleshop.action_fetch_inventory_categories" ;
     public static final String ACTION_FETCH_INVENTORY_CATEGORIES_SUCCESS = "com.koleshop.action_fetch_inventory_categories_success" ;
     public static final String ACTION_FETCH_INVENTORY_CATEGORIES_FAILED = "com.koleshop.action_fetch_inventory_categories_failed" ;
+    public static final String ACTION_FETCH_INVENTORY_CATEGORIES_EMPTY = "com.koleshop.action_fetch_inventory_categories_empty" ;
     public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES = "com.koleshop.action_fetch_inventory_subcategories" ;
     public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES_SUCCESS = "com.koleshop.action_fetch_inventory_subcategories_success" ;
     public static final String ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED = "com.koleshop.action_fetch_inventory_subcategories_failed" ;
@@ -93,6 +94,9 @@ public class Constants {
     public static final String ACTION_REFRESH_SELLER_SETTINGS = "com.koleshop.action_refresh_seller_settings";
     public static final String ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS = "com.koleshop.action_nearby_shops_receive_success";
     public static final String ACTION_NEARBY_SHOPS_RECEIVE_FAILED = "com.koleshop.action_nearby_shops_receive_failed";
+    public static final String ACTION_SEARCH_RESULTS_FETCH_SUCCESS = "com.koleshop.action_search_results_fetch_success" ;
+    public static final String ACTION_SEARCH_RESULTS_FETCH_FAILED = "com.koleshop.action_search_results_fetch_failed" ;
+    public static final String ACTION_SEARCH_RESULTS_EMPTY = "com.koleshop.action_search_results_empty" ;
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";

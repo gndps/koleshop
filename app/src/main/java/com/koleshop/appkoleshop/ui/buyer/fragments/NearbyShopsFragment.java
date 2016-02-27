@@ -29,6 +29,7 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.demo.SellerInfo;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.services.BuyerIntentService;
+import com.koleshop.appkoleshop.ui.buyer.activities.ShopActivity;
 import com.koleshop.appkoleshop.ui.buyer.adapters.NearbyShopsFragmentPagerAdapter;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
 
@@ -95,7 +96,6 @@ public class NearbyShopsFragment extends Fragment {
         ButterKnife.bind(this, view);
         initializeBroadcastReceivers();
         initializeSomeStuffHere();
-        requestNearbyShopsFromInternet();
         return view;
     }
 
@@ -129,6 +129,7 @@ public class NearbyShopsFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NEARBY_SHOPS_RECEIVE_FAILED));
         fragmentHomeActivityListener.setBackButtonHandledByFragment(false);
         fragmentHomeActivityListener.setTitle(titleNearbyShops);
+        requestNearbyShopsFromInternet();
     }
 
     @Override
@@ -213,13 +214,17 @@ public class NearbyShopsFragment extends Fragment {
 
 
     public void openSeller(SellerSettings selectedSeller) {
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment_container, new SellerFragment(), "sellerFragment");
-        ft.addToBackStack(null);
-        fragmentHomeActivityListener.setBackButtonHandledByFragment(true);
-        fragmentHomeActivityListener.setTitle(selectedSeller.getAddress().getName());
-        fragmentHomeActivityListener.setElevation(8);
-        ft.commit();
+        Intent sellerIntent = new Intent(mContext, ShopActivity.class);
+        Parcelable parcelableSettings = Parcels.wrap(selectedSeller);
+        sellerIntent.putExtra("sellerSettings", parcelableSettings);
+        startActivity(sellerIntent);
+        //final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        //ft.replace(R.id.fragment_container, new SellerFragment(), "sellerFragment");
+        //ft.addToBackStack(null);
+        //fragmentHomeActivityListener.setBackButtonHandledByFragment(true);
+        //fragmentHomeActivityListener.setTitle(selectedSeller.getAddress().getName());
+        //fragmentHomeActivityListener.setElevation(8);
+        //ft.commit();
     }
 
 

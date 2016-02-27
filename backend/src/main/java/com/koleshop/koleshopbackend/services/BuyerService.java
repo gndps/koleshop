@@ -4,8 +4,11 @@ import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
 import com.koleshop.koleshopbackend.db.models.Address;
 import com.koleshop.koleshopbackend.db.models.InventoryCategory;
+import com.koleshop.koleshopbackend.db.models.InventoryProduct;
+import com.koleshop.koleshopbackend.db.models.SellerSearchResults;
 import com.koleshop.koleshopbackend.db.models.SellerSettings;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
+import com.koleshop.koleshopbackend.utils.Reversed;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -83,7 +86,7 @@ public class BuyerService {
 
             int index = 0;
 
-            while(rs.next()) {
+            while (rs.next()) {
                 logger.info("extracting shop " + index);
                 String imageUrl = rs.getString("image_url");
                 String headerImageUrl = rs.getString("header_image_url");
@@ -112,7 +115,7 @@ public class BuyerService {
                 SellerSettings sellerSettings = new SellerSettings(sellerSettingsId, sellerId, imageUrl, headerImageUrl, address, openTime, closeTime, true, homeDelivery, maxDeliveryDistance,
                         minOrder, deliveryCharges, carryBagCharges, deliveryStartTime, deliveryEndTime, shopOpen);
                 listOfNearbyShops.add(sellerSettings);
-                index ++;
+                index++;
             }
 
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
@@ -130,7 +133,7 @@ public class BuyerService {
         Connection dbConnection;
         PreparedStatement preparedStatement = null;
         String query;
-        if(headerImage) {
+        if (headerImage) {
             query = "update BuyerSettings set header_image_url=? where user_id=?";
         } else {
             query = "update BuyerSettings set image_url=? where user_id=?";
@@ -142,18 +145,65 @@ public class BuyerService {
             preparedStatement.setString(1, imageUrl);
             preparedStatement.setLong(2, userId);
             int update = preparedStatement.executeUpdate();
-            if(update>0) {
+            if (update > 0) {
                 updated = true;
             } else {
                 updated = false;
             }
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "exception in updating buyer image " + (headerImage?"header ":"") + "url for user_id = " + userId, e);
+            logger.log(Level.SEVERE, "exception in updating buyer image " + (headerImage ? "header " : "") + "url for user_id = " + userId, e);
         } finally {
             DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
         return updated;
+    }
+
+    public List<SellerSearchResults> searchProductsMultipleSellers(Long customerId, Double customerGpsLat, Double customerGpsLong
+            , boolean homeDeliveryOnly, boolean openShopsOnly, int limit, int offset, String searchQuery) {
+
+        List<SellerSearchResults> searchResults;
+
+        //01. find nearby shops with limit  = 4 x searchResultLimit;
+        List<SellerSettings> nearbySellers = getNearbyShops(customerId, customerGpsLat, customerGpsLong, homeDeliveryOnly, openShopsOnly, limit * 4, offset);
+
+        logger.log(Level.INFO, "---" + nearbySellers.size() + " nearby sellers found ---");
+        for (SellerSettings sellerSettings : nearbySellers) {
+            logger.log(Level.INFO, "sellerSettings for " + sellerSettings.getAddress().getName());
+        }
+
+        //02. get search results from all of these sellers
+        searchResults = new ArrayList<>();
+        if (nearbySellers != null && nearbySellers.size() > 0) {
+            SellerSearchResults result;
+            int searchResultsAdded = offset;
+            int currentLoopCount = 0;
+            for (SellerSettings sellerSettings : nearbySellers) {
+                if (searchResultsAdded == limit + offset) {
+                    break;
+                }
+                result = new SellerSearchResults();
+                logger.log(Level.INFO, "searching products for " + sellerSettings.getAddress().getName());
+                List<InventoryProduct> products = searchProducts(sellerSettings.getUserId(), 1000, 0, searchQuery);
+                logger.log(Level.INFO, "found " + products.size() + " products for " + sellerSettings.getAddress().getName());
+                if (products != null && products.size() > 0) {
+                    if (currentLoopCount++ >= searchResultsAdded) {
+                        result.setProducts(products);
+                        result.setSellerSettings(sellerSettings);
+                        result.setTotalSearchResultsCount(products.size());
+                        searchResults.add(result);
+                        searchResultsAdded++;
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        }
+        return searchResults;
+    }
+
+    public List<InventoryProduct> searchProducts(Long sellerId, int limit, int offset, String searchQuery) {
+        return new SellerService().searchProducts(sellerId, true, searchQuery, limit, offset);
     }
 
 }

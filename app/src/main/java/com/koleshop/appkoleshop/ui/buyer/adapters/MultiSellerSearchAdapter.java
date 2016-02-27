@@ -1,5 +1,6 @@
 package com.koleshop.appkoleshop.ui.buyer.adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,15 +18,17 @@ import java.util.List;
 public class MultiSellerSearchAdapter extends RecyclerView.Adapter<MultiSellerSearchViewHolder> {
 
     List<SellerSearchResults> results;
+    Context mContext;
 
-    public MultiSellerSearchAdapter(List<SellerSearchResults> results) {
+    public MultiSellerSearchAdapter(Context context, List<SellerSearchResults> results) {
+        this.mContext = context;
         this.results = results;
     }
 
     @Override
     public MultiSellerSearchViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_multi_seller_search_tile, parent, false);
-        MultiSellerSearchViewHolder viewHolder = new MultiSellerSearchViewHolder(view);
+        MultiSellerSearchViewHolder viewHolder = new MultiSellerSearchViewHolder(mContext , view);
         return viewHolder;
     }
 

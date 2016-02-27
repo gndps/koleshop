@@ -8,6 +8,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
+        android:id="@+id/image_view_header_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
@@ -40,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/gradient"
+            android:background="@drawable/gradient_bottom_dark"
             android:gravity="bottom"
             android:layout_gravity="bottom"
             android:orientation="vertical">

@@ -8,6 +8,7 @@ import java.util.List;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -25,10 +26,13 @@ public class Product extends RealmObject {
     private Date updateDateMyShop;
     private Date updateDateWareHouse;
 
+    @Index
+    private Long sellerId;
+
     public Product() {
     }
 
-    public Product(Long id, String brand, String name, RealmList<ProductVariety> varieties, Long categoryId, Date updateDateMyShop, Date updateDateWareHouse) {
+    public Product(Long id, String brand, String name, RealmList<ProductVariety> varieties, Long categoryId, Date updateDateMyShop, Date updateDateWareHouse, Long sellerId) {
         this.id = id;
         this.brand = brand;
         this.name = name;
@@ -36,6 +40,7 @@ public class Product extends RealmObject {
         this.categoryId = categoryId;
         this.updateDateMyShop = updateDateMyShop;
         this.updateDateWareHouse = updateDateWareHouse;
+        this.sellerId = sellerId;
     }
 
     public String getBrand() {
@@ -92,5 +97,13 @@ public class Product extends RealmObject {
 
     public void setUpdateDateWareHouse(Date updateDateWareHouse) {
         this.updateDateWareHouse = updateDateWareHouse;
+    }
+
+    public Long getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(Long sellerId) {
+        this.sellerId = sellerId;
     }
 }

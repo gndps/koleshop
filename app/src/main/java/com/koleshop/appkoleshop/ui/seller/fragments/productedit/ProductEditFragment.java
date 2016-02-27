@@ -167,7 +167,7 @@ public class ProductEditFragment extends Fragment {
         List<String> categoriesList = new ArrayList<>();
 
         for (ProductCategory pc : productCategories) {
-            parentCategories.add(new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentCategoryId()));
+            parentCategories.add(new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentCategoryId(), 0l));
             categoriesList.add(pc.getName());
         }
 
@@ -229,7 +229,7 @@ public class ProductEditFragment extends Fragment {
         List<String> subcategoriesList = new ArrayList<>();
 
         for (ProductCategory pc : productCategories) {
-            subCategories.add(new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentCategoryId()));
+            subCategories.add(new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentCategoryId(), 0l));
             subcategoriesList.add(pc.getName());
         }
 

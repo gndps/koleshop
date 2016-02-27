@@ -13,25 +13,25 @@ import java.util.List;
 @Parcel
 public class SellerSearchResults {
 
-    SellerInfo sellerInfo;
+    SellerSettings sellerSettings;
     int totalSearchResultsCount;
     List<EditProduct> products;
 
     public SellerSearchResults() {
     }
 
-    public SellerSearchResults(SellerInfo sellerInfo, int totalSearchResultsCount, List<EditProduct> products) {
-        this.sellerInfo = sellerInfo;
+    public SellerSearchResults(SellerSettings sellerSettings, int totalSearchResultsCount, List<EditProduct> products) {
+        this.sellerSettings = sellerSettings;
         this.totalSearchResultsCount = totalSearchResultsCount;
         this.products = products;
     }
 
-    public SellerInfo getSellerInfo() {
-        return sellerInfo;
+    public SellerSettings getSellerSettings() {
+        return sellerSettings;
     }
 
-    public void setSellerInfo(SellerInfo sellerInfo) {
-        this.sellerInfo = sellerInfo;
+    public void setSellerSettings(SellerSettings sellerSettings) {
+        this.sellerSettings = sellerSettings;
     }
 
     public int getTotalSearchResultsCount() {

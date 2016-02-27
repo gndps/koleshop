@@ -1,10 +1,17 @@
 package com.koleshop.koleshopbackend.services;
 
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.db.models.InventoryProduct;
+import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
+import com.koleshop.koleshopbackend.utils.CommonUtils;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +33,7 @@ public class SellerService {
             preparedStatement.setBoolean(1, open);
             preparedStatement.setLong(2, sellerId);
             int update = preparedStatement.executeUpdate();
-            if(update>0) {
+            if (update > 0) {
                 updated = true;
             } else {
                 updated = false;
@@ -44,7 +51,7 @@ public class SellerService {
         Connection dbConnection;
         PreparedStatement preparedStatement = null;
         String query;
-        if(headerImage) {
+        if (headerImage) {
             query = "update SellerSettings set header_image_url=? where user_id=?";
         } else {
             query = "update SellerSettings set image_url=? where user_id=?";
@@ -56,18 +63,135 @@ public class SellerService {
             preparedStatement.setString(1, imageUrl);
             preparedStatement.setLong(2, sellerId);
             int update = preparedStatement.executeUpdate();
-            if(update>0) {
+            if (update > 0) {
                 updated = true;
             } else {
                 updated = false;
             }
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "exception in updating seller image " + (headerImage?"header ":"") + "url for seller_id = " + sellerId, e);
+            logger.log(Level.SEVERE, "exception in updating seller image " + (headerImage ? "header " : "") + "url for seller_id = " + sellerId, e);
         } finally {
             DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
         return updated;
+    }
+
+    public List<InventoryProduct> searchProducts(Long sellerId, boolean myInventory, String searchQuery, int limit, int offset) {
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        String[] splitSearchQuery = searchQuery.split(" ");
+
+        //todo optimize these queries and make them smart
+        String newQuery;
+        if (myInventory) {
+            newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,'1' as selected" +
+                    " from Product p join ProductVariety pv" +
+                    " on p.id = pv.product_id and pv.valid='1'" +
+                    " join Brand b on b.id = p.brand_id" +
+                    " where p.valid=1 and p.user_id=? and ( ";
+
+            int loopCount = 0;
+            for (String str : splitSearchQuery) {
+                newQuery += "(p.name like ? or b.name like ?)";
+                if (loopCount < splitSearchQuery.length - 1) {
+                    newQuery += " and ";
+                }
+                loopCount++;
+            }
+            newQuery += " )" +
+                    " order by brand asc, p.name asc, price asc limit ? offset ?;";
+
+        } else {
+            newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,pv.valid as selected" +
+                    " from Product p join ProductVariety pv" +
+                    " on p.id = pv.product_id" +
+                    " join Brand b on b.id = p.brand_id" +
+                    " where p.valid=1 and p.user_id=? and ( ";
+
+            int loopCount = 0;
+            for (String str : splitSearchQuery) {
+                newQuery += "(p.name like ? or b.name like ?)";
+                if (loopCount < splitSearchQuery.length - 1) {
+                    newQuery += " and ";
+                }
+                loopCount++;
+            }
+            newQuery += ") order by brand asc, p.name asc, price asc limit ? offset ?;";
+        }
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(newQuery);
+
+            preparedStatement.setLong(1, sellerId);
+            int index = 2;
+            for (String str : splitSearchQuery) {
+                preparedStatement.setString(index++, "%" + str + "%");
+                preparedStatement.setString(index++, "%" + str + "%");
+            }
+
+            preparedStatement.setInt(index++, limit);
+            preparedStatement.setInt(index++, offset);
+
+            logger.log(Level.INFO, "query=" + preparedStatement.toString());
+
+            ResultSet rs = preparedStatement.executeQuery();
+            List<InventoryProduct> result = new ArrayList<>();
+            List<InventoryProductVariety> inventoryProductVarieties = new ArrayList<>();
+            InventoryProduct currentInventoryProduct = null;
+
+            while (rs.next()) {
+                if (currentInventoryProduct != null && rs.getLong(1) == currentInventoryProduct.getId()) {
+                    //use the existing currentInventoryProduct
+                } else {
+                    //save the inventory product from previous iteration
+                    if (currentInventoryProduct != null) {
+                        //---------------------------------------> place 88
+                        currentInventoryProduct.setVarieties(inventoryProductVarieties);
+                        result.add(currentInventoryProduct);
+                    }
+                    //clean old data
+                    currentInventoryProduct = new InventoryProduct();
+                    inventoryProductVarieties = new ArrayList<>();
+                    //extract inventory product data
+                    currentInventoryProduct.setId(rs.getLong("id"));
+                    currentInventoryProduct.setName(rs.getString("name"));
+                    currentInventoryProduct.setBrand(rs.getString("brand"));
+                    /*this shit is deprecated for now
+                    currentInventoryProduct.setDescription(rs.getString("description"));
+                    currentInventoryProduct.setAdditionalInfo(rs.getString("info"));
+                    currentInventoryProduct.setSpecialDescription(rs.getString("special_desc"));
+                    currentInventoryProduct.setPrivateToUser(rs.getBoolean("private"));
+                    currentInventoryProduct.setSelectedByUser(rs.getBoolean("p_selected"));*/
+                }
+
+                //extract inventory product variety data
+                InventoryProductVariety inventoryProductVariety = new InventoryProductVariety();
+                inventoryProductVariety.setId(rs.getLong("pvar_id"));
+                inventoryProductVariety.setQuantity(rs.getString("quantity"));
+                inventoryProductVariety.setPrice(rs.getFloat("price"));
+                inventoryProductVariety.setImageUrl(rs.getString("image"));
+                inventoryProductVariety.setLimitedStock(rs.getBoolean("limited_stock"));
+                inventoryProductVariety.setValid(rs.getBoolean("selected"));
+                inventoryProductVarieties.add(inventoryProductVariety);
+            }
+
+            //after the last iteration, control will not go to place 88, so add the last product manually
+            if (currentInventoryProduct != null) {
+                currentInventoryProduct.setVarieties(inventoryProductVarieties);
+                result.add(currentInventoryProduct);
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+
+            return result;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            return null;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
     }
 
 }

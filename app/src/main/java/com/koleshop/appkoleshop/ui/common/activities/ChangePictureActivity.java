@@ -84,9 +84,9 @@ public class ChangePictureActivity extends AppCompatActivity {
         setupToolbar();
         setupImageView();
         initializeBroadcastReceiver();
-        if(savedInstanceState!=null) {
+        if (savedInstanceState != null) {
             isHeaderImage = savedInstanceState.getBoolean("isHeaderImage");
-        } else if(getIntent()!=null && getIntent().getExtras()!=null) {
+        } else if (getIntent() != null && getIntent().getExtras() != null) {
             isHeaderImage = getIntent().getExtras().getBoolean("isHeaderImage");
         }
     }
@@ -186,7 +186,7 @@ public class ChangePictureActivity extends AppCompatActivity {
         int dpWidth = size.x;
         int dpHeight = size.y;
         int dpSmallDimension;
-        if(dpHeight > dpWidth) {
+        if (dpHeight > dpWidth) {
             dpSmallDimension = dpWidth;
         } else {
             dpSmallDimension = dpHeight;
@@ -201,10 +201,18 @@ public class ChangePictureActivity extends AppCompatActivity {
     }
 
     private void refreshImage() {
-        if(TextUtils.isEmpty(imageUrl)) {
+        if (TextUtils.isEmpty(imageUrl)) {
             SellerSettings sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
-            if (sellerSettings != null && !TextUtils.isEmpty(sellerSettings.getImageUrl())) {
-                imageUrl = sellerSettings.getImageUrl();
+            if (sellerSettings != null
+                    &&
+                    ((!TextUtils.isEmpty(sellerSettings.getImageUrl()) && !isHeaderImage)
+                            ||
+                            (!TextUtils.isEmpty(sellerSettings.getHeaderImageUrl()) && isHeaderImage))) {
+                if (isHeaderImage) {
+                    imageUrl = sellerSettings.getHeaderImageUrl();
+                } else {
+                    imageUrl = sellerSettings.getImageUrl();
+                }
             }
             if (TextUtils.isEmpty(imageUrl)) {
                 progressBar.setVisibility(View.GONE);

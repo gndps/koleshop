@@ -87,7 +87,6 @@
 
         <ProgressBar
             android:id="@+id/pb_inventory_product"
-            style="@android:style/Widget.ProgressBar.Large"
             android:layout_width="88dp"
             android:layout_height="match_parent"
             android:padding="16dp"

@@ -17,6 +17,7 @@ import com.koleshop.api.commonEndpoint.model.ImageUploadRequest;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
+import com.koleshop.appkoleshop.util.CloudEndpointDataExtractionUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.ImageUtils;
 import com.koleshop.appkoleshop.util.NetworkUtils;
@@ -71,14 +72,18 @@ public class CommonIntentService extends IntentService {
                 //inventory categories
             } else if (Constants.ACTION_FETCH_INVENTORY_CATEGORIES.equals(action)) {
                 boolean myInventory = intent.getBooleanExtra("myInventory", false);
-                fetchInventoryCategories(myInventory);
+                boolean customerView = intent.getBooleanExtra("customerView", false);
+                Long sellerId = intent.getLongExtra("sellerId", 0);
+                fetchInventoryCategories(myInventory, customerView, sellerId);
 
                 //inventory subcategories
             } else if (Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES.equals(action)) {
                 Long categoryId = intent.getLongExtra("categoryId", 0L);
                 boolean myInventory = intent.getBooleanExtra("myInventory", false);
+                boolean customerView = intent.getBooleanExtra("customerView", false);
+                Long sellerId = intent.getLongExtra("sellerId", 0);
                 if (categoryId > 0L) {
-                    fetchInventorySubcategories(categoryId, myInventory);
+                    fetchInventorySubcategories(categoryId, myInventory, customerView, sellerId);
                 } else {
                     //broadcast failure
                     Intent intent2 = new Intent(Constants.ACTION_FETCH_INVENTORY_SUBCATEGORIES_FAILED);
@@ -88,9 +93,11 @@ public class CommonIntentService extends IntentService {
                 //inventory products
             } else if (Constants.ACTION_FETCH_INVENTORY_PRODUCTS.equals(action)) {
                 Long categoryId = intent.getLongExtra("categoryId", 0L);
+                boolean customerView = intent.getBooleanExtra("customerView", false);
+                Long sellerId = intent.getLongExtra("sellerId", 0);
                 boolean myInventory = intent.getBooleanExtra("myInventory", false);
                 if (categoryId > 0L) {
-                    fetchInventoryProductsForCategoryAndUser(categoryId, myInventory);
+                    fetchInventoryProductsForCategoryAndUser(categoryId, myInventory, customerView, sellerId);
                 } else {
                     //broadcast failure
                     Intent intent2 = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED);
@@ -250,7 +257,7 @@ public class CommonIntentService extends IntentService {
         List<ProductCategory> proCats = new ArrayList<>();
 
         for (com.koleshop.api.commonEndpoint.model.ProductCategory pc : productCategories) {
-            ProductCategory productCategory = new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentProductCategoryId());
+            ProductCategory productCategory = new ProductCategory(pc.getId(), pc.getName(), pc.getImageUrl(), pc.getParentProductCategoryId(), 0l);
             proCats.add(productCategory);
         }
 
@@ -273,7 +280,7 @@ public class CommonIntentService extends IntentService {
         }
     }
 
-    public void fetchInventoryCategories(boolean myInventory) {
+    public void fetchInventoryCategories(boolean myInventory, boolean customerView, Long sellerId) {
         InventoryEndpoint inventoryEndpoint = null;
         InventoryEndpoint.Builder builder = new InventoryEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -294,13 +301,16 @@ public class CommonIntentService extends IntentService {
         Context context = getApplicationContext();
         Long userId = PreferenceUtils.getUserId(context);
         String sessionId = PreferenceUtils.getSessionId(context);
+        if(sessionId.isEmpty()) {
+            sessionId = " "; //not empty
+        }
 
         //if result fails, then retry 3 times before showing error
         int count = 0;
         int maxTries = 3;
         while (count < maxTries) {
             try {
-                result = inventoryEndpoint.getCategories(myInventory, sessionId, userId).execute();
+                result = inventoryEndpoint.getCategories(customerView, myInventory, sellerId, sessionId, userId).execute();
                 count = maxTries;
             } catch (Exception e) {
                 Log.e(TAG, "exception", e);
@@ -325,6 +335,7 @@ public class CommonIntentService extends IntentService {
                     if (map != null) {
                         ProductCategory cat = new ProductCategory();
                         cat.setId(Long.valueOf((String) map.get("id")));
+                        cat.setSellerId(sellerId);
                         cat.setName((String) map.get("name"));
                         cat.setDesc((String) map.get("desc"));
                         cat.setImageUrl((String) map.get("imageUrl"));
@@ -353,15 +364,19 @@ public class CommonIntentService extends IntentService {
                     Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 }
+            } else if (cats!=null) {
+                Log.d(TAG, "fetch inventory categories empty");
+                Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_EMPTY);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             } else {
-                Log.d(TAG, "inventory cateogires fetch failed");
+                Log.d(TAG, "inventory categories fetch failed");
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             }
         }
     }
 
-    public void fetchInventorySubcategories(Long categoryId, boolean myInventory) {
+    public void fetchInventorySubcategories(Long categoryId, boolean myInventory, boolean customerView, Long sellerId) {
         InventoryEndpoint inventoryEndpoint = null;
         InventoryEndpoint.Builder builder = new InventoryEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -383,11 +398,14 @@ public class CommonIntentService extends IntentService {
             Context context = getApplicationContext();
             Long userId = PreferenceUtils.getUserId(context);
             String sessionId = PreferenceUtils.getSessionId(context);
+            if(sessionId.isEmpty()) {
+                sessionId = "something";
+            }
             int count = 0;
             int maxTries = 3;
             while (count < maxTries) {
                 try {
-                    result = inventoryEndpoint.getSubcategories(userId, sessionId, categoryId, myInventory).execute();
+                    result = inventoryEndpoint.getSubcategories(userId, sessionId, categoryId, myInventory, customerView, sellerId).execute();
                     count = maxTries;
                 } catch (Exception e) {
                     Log.e(TAG, "exception", e);
@@ -413,6 +431,7 @@ public class CommonIntentService extends IntentService {
                 if (map != null) {
                     ProductCategory cat = new ProductCategory();
                     cat.setId(Long.valueOf((String) map.get("id")));
+                    cat.setSellerId(sellerId);
                     cat.setName((String) map.get("name"));
                     cat.setSortOrder(((BigDecimal) map.get("sortOrder")).intValue());
                     cat.setAddedToMyShop(myInventory);
@@ -450,7 +469,7 @@ public class CommonIntentService extends IntentService {
 
     }
 
-    public void fetchInventoryProductsForCategoryAndUser(Long categoryId, boolean myInventory) {
+    public void fetchInventoryProductsForCategoryAndUser(Long categoryId, boolean myInventory, boolean customerView, Long sellerId) {
         InventoryEndpoint inventoryEndpoint = null;
         InventoryEndpoint.Builder builder = new InventoryEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -476,7 +495,7 @@ public class CommonIntentService extends IntentService {
             int maxTries = 3;
             while (count < maxTries) {
                 try {
-                    result = inventoryEndpoint.getProductsForCategoryAndUser(categoryId, myInventory, sessionId, userId).execute();
+                    result = inventoryEndpoint.getProductsForCategoryAndUser(categoryId, customerView, myInventory, sellerId, sessionId, userId).execute();
                     count = maxTries;
                 } catch (Exception e) {
                     Log.e(TAG, "exception", e);
@@ -503,43 +522,7 @@ public class CommonIntentService extends IntentService {
         List<Product> products;
 
         //1. parse the response
-        products = new ArrayList<>();
-        if (list != null) {
-            for (ArrayMap<String, Object> map : list)
-                if (map != null) {
-                    Product prod = new Product();
-                    prod.setId(Long.valueOf((String) map.get("id")));
-                    prod.setName((String) map.get("name"));
-                    //prod.setDescription((String) map.get("description"));
-                    prod.setBrand((String) map.get("brand"));
-                    prod.setCategoryId(categoryId);
-                    if (myInventory) {
-                        prod.setUpdateDateMyShop(new Date());
-                    } else {
-                        prod.setUpdateDateWareHouse(new Date());
-                    }
-                    //prod.setAdditionalInfo((String) map.get("additionalInfo"));
-                    //prod.setAdditionalInfo((String) map.get("specialDescription"));
-                    //prod.setPrivateToUser(Boolean.valueOf((Boolean) map.get("privateToUser")));
-                    //prod.setSelectedByUser(Boolean.valueOf((Boolean) map.get("selectedByUser")));
-                    ArrayList<ArrayMap<String, Object>> varieties = (ArrayList<ArrayMap<String, Object>>) map.get("varieties");
-                    List<ProductVariety> productVarieties = new ArrayList<>();
-                    for (ArrayMap<String, Object> variety : varieties) {
-                        ProductVariety proVar = new ProductVariety();
-                        proVar.setId(Long.valueOf((String) variety.get("id")));
-                        proVar.setQuantity((String) variety.get("quantity"));
-                        proVar.setPrice(((BigDecimal) variety.get("price")).floatValue());
-                        proVar.setImageUrl((String) variety.get("imageUrl"));
-                        //proVar.setVegNonVeg((String) variety.get("vegNonVeg"));
-                        proVar.setVarietyValid((Boolean) variety.get("valid"));
-                        proVar.setLimitedStock((Boolean) variety.get("limitedStock"));
-                        productVarieties.add(proVar);
-                    }
-
-                    prod.setVarieties(new RealmList<>(productVarieties.toArray(new ProductVariety[productVarieties.size()])));
-                    products.add(prod);
-                }
-        }
+        products = CloudEndpointDataExtractionUtil.getProductsList(list, sellerId, categoryId, myInventory);
 
         //2. Cache the parsed response and broadcast success
         if (products != null && products.size() > 0) {

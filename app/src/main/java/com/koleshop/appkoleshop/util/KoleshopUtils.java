@@ -119,9 +119,9 @@ public class KoleshopUtils {
                 .height((int) px) // height in px
                 .endConfig();
         if (round) {
-            textDrawable = textDrawableBuilder.buildRound(name, color);
+            textDrawable = textDrawableBuilder.buildRound(name.substring(0,1), color);
         } else {
-            textDrawable = textDrawableBuilder.buildRect(name, color);
+            textDrawable = textDrawableBuilder.buildRect(name.substring(0,1), color);
         }
 
         return textDrawable;

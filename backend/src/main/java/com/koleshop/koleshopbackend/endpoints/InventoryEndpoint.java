@@ -4,6 +4,7 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
+import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.models.InventoryCategory;
 import com.koleshop.koleshopbackend.db.models.InventoryProduct;
 import com.koleshop.koleshopbackend.db.models.KoleResponse;
@@ -25,14 +26,19 @@ public class InventoryEndpoint {
 
     private static final Logger logger = Logger.getLogger(InventoryEndpoint.class.getName());
 
-    @ApiMethod(name = "getCategories", httpMethod = ApiMethod.HttpMethod.POST, path="categories")
-    public KoleResponse getCategories(@Named("userId") Long userId, @Named("sessionId") String sessionId, @Named("myInventory") boolean myInventory) {
+    @ApiMethod(name = "getCategories", httpMethod = ApiMethod.HttpMethod.POST, path = "categories")
+    public KoleResponse getCategories(@Named("userId") Long userId, @Named("sessionId") String sessionId, @Named("myInventory") boolean myInventory
+            , @Named("customerView") boolean customerView, @Named("sellerId") Long sellerId) {
 
         KoleResponse response = new KoleResponse();
         List<InventoryCategory> list = null;
         try {
-            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
-                list = new InventoryService().getCategories(myInventory, userId);
+            if (!customerView) {
+                if (SessionService.verifyUserAuthenticity(userId, sessionId, Constants.USER_SESSION_TYPE_SELLER)) {
+                    list = new InventoryService().getCategories(myInventory, userId);
+                }
+            } else {
+                list = new InventoryService().getCategories(true, sellerId);
             }
         } catch (Exception e) {
             response.setData(e.getLocalizedMessage());
@@ -48,13 +54,18 @@ public class InventoryEndpoint {
 
     @ApiMethod(name = "getSubcategories", httpMethod = ApiMethod.HttpMethod.POST)
     public KoleResponse getSubcategories(@Named("userId") Long userId, @Named("sessionId") String sessionId,
-                                         @Named("categoryId") Long categoryId, @Named("myInventory") boolean myInventory) {
+                                         @Named("categoryId") Long categoryId, @Named("myInventory") boolean myInventory
+            , @Named("customerView") boolean customerView, @Named("sellerId") Long sellerId) {
 
         KoleResponse response = new KoleResponse();
         List<InventoryCategory> list = null;
         try {
-            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
-                list = new InventoryService().getSubcategories(categoryId, userId, myInventory);
+            if (!customerView) {
+                if (SessionService.verifyUserAuthenticity(userId, sessionId, Constants.USER_SESSION_TYPE_SELLER)) {
+                    list = new InventoryService().getSubcategories(categoryId, userId, myInventory);
+                }
+            } else {
+                list = new InventoryService().getSubcategories(categoryId, sellerId, true);
             }
         } catch (Exception e) {
             response.setData(e.getLocalizedMessage());
@@ -70,13 +81,18 @@ public class InventoryEndpoint {
 
     @ApiMethod(name = "getProductsForCategoryAndUser", httpMethod = ApiMethod.HttpMethod.POST, path = "user")
     public KoleResponse getProductsForCategoryAndUser(@Named("userId") Long userId, @Named("sessionId") String sessionId,
-                                                      @Named("categoryId") Long categoryId, @Named("myInventory") boolean myInventory) {
+                                                      @Named("categoryId") Long categoryId, @Named("myInventory") boolean myInventory
+            , @Named("customerView") boolean customerView, @Named("sellerId") Long sellerId) {
 
         KoleResponse response = new KoleResponse();
         List<InventoryProduct> products = null;
         try {
-            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
-                products = new InventoryService().getProductsForCategory(categoryId, userId, myInventory);
+            if (!customerView) {
+                if (SessionService.verifyUserAuthenticity(userId, sessionId, Constants.USER_SESSION_TYPE_SELLER)) {
+                    products = new InventoryService().getProductsForCategory(categoryId, userId, myInventory);
+                }
+            } else {
+                products = new InventoryService().getProductsForCategory(categoryId, sellerId, true);
             }
         } catch (Exception e) {
             response.setData(e.getLocalizedMessage());
@@ -110,7 +126,7 @@ public class InventoryEndpoint {
     }
 
     @ApiMethod(name = "updateProductSelection", httpMethod = ApiMethod.HttpMethod.POST, path = "product")
-    public KoleResponse updateProductSelection(@Named("userId") Long userId,  @Named("sessionId") String sessionId, ProductVarietySelection productVarietySelection) {
+    public KoleResponse updateProductSelection(@Named("userId") Long userId, @Named("sessionId") String sessionId, ProductVarietySelection productVarietySelection) {
 
         //check userId and sessionId pair authenticity
         boolean authenticRequest = SessionService.verifyUserAuthenticity(userId, sessionId);

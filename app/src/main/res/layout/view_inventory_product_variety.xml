@@ -74,7 +74,6 @@
 
             <ProgressBar
                 android:id="@+id/pb_inventory_product_variety"
-                style="@android:style/Widget.ProgressBar.Large"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:clickable="false"

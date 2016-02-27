@@ -15,6 +15,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -59,7 +61,6 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     private boolean lastFragmentShowed, isLastFragmentSupportType;
     NavigationView navigationView;
     private boolean backHandled;
-    private SupportAnimator animator;
     private Toolbar toolbar;
 
     @BindString(R.string.navigation_drawer_nearby_shops)
@@ -70,9 +71,6 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     String titleHome;
     @BindString(R.string.navigation_drawer_addresses)
     String titleAddresses;
-    @Bind(R.id.floating_search_bar)
-    FloatingSearchView searchBar;
-    private boolean searchBarVisible;
     private boolean firstTime;
 
     @Override
@@ -86,6 +84,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             firstTime = getIntent().getBooleanExtra("firstTime", false);
             ButterKnife.bind(this);
             mContext = this;
+            deleteRealmPreferences();
             setupToolbar();
             setupDrawerLayout();
         }
@@ -120,7 +119,11 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             case R.id.menu_item_search:
                 //open search overlay activity
                 View menuView = findViewById(R.id.menu_item_search);
-                revealSearchBar(menuView, true);
+                //revealSearchBar(menuView, true);
+                Intent intent = new Intent(mContext, MultiSellerSearchActivity.class);
+                intent.putExtra("multiSellerSearch", true);
+                intent.putExtra("customerView", true);
+                startActivity(intent);
                 return true;
 
         }
@@ -129,14 +132,10 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
     @Override
     public void onBackPressed() {
-        if (searchBarVisible) {
-            revealSearchBar(null, false);
+        if (backHandled || lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+            super.onBackPressed();
         } else {
-            if (backHandled || lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
-                super.onBackPressed();
-            } else {
-                showHome();
-            }
+            showHome();
         }
     }
 
@@ -163,7 +162,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
         refreshLoginLogoutStates();
-        if(firstTime) {
+        if (firstTime) {
             showNearbyShops();
         } else {
             showHome();
@@ -188,7 +187,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         setTitle(titleNearbyShops);
     }
 
-    private void revealSearchBar(View view, final boolean reveal) {
+    /*private void revealSearchBar(View view, final boolean reveal) {
 
         int ANIMATION_DURATION = 350;
 
@@ -196,6 +195,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             DisplayMetrics metrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(metrics);
             int width = metrics.widthPixels;
+            int height = metrics.heightPixels;
 
             // get the center for the clipping circle
             int[] location = new int[2];
@@ -205,7 +205,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
             // get the final radius for the clipping circle
             int dx = Math.max(cx, width - cx);
-            int dy = Math.max(cy, 56 - cy);
+            int dy = Math.max(cy, height - cy);
             float finalRadius = (float) Math.hypot(dx, dy);
 
             animator = ViewAnimationUtils.createCircularReveal(searchBar, cx, cy, 0, finalRadius);
@@ -280,12 +280,38 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                     onBackPressed();
                 }
             });
+            searchBar.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    //get search suggestions from internet and history
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+            searchBar.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
+                @Override
+                public void onSearchAction(CharSequence charSequence) {
+                    Intent intent = new Intent(mContext, MultiSellerSearchActivity.class);
+                    intent.putExtra("searchQuery", searchBar.getText());
+                    intent.putExtra("multiSellerSearch", true);
+                    intent.putExtra("customerView", true);
+                    startActivity(intent);
+                }
+            });
         } else {
             searchBar.setOnSearchFocusChangedListener(null);
             searchBar.setIcon(null);
             searchBar.setOnIconClickListener(null);
         }
-    }
+    }*/
 
     private void refreshLoginLogoutStates() {
         //setup login and logout buttons visibility

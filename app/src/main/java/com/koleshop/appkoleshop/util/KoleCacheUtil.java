@@ -65,7 +65,7 @@ public class KoleCacheUtil {
                 boolean myShop = false;
                 try {
                     myShop = products.get(0).getVarieties().get(0).isVarietyValid();
-                    alreadyCachedProducts = getAllCachedProducts(products.get(0).getCategoryId());
+                    alreadyCachedProducts = getAllCachedProducts(products.get(0).getCategoryId(), products.get(0).getSellerId());
                 } catch (Exception e) {
                     //problem in getting already cached products
                 }
@@ -119,12 +119,13 @@ public class KoleCacheUtil {
         }
     }
 
-    public static List<Product> getCachedProducts(boolean myInventory, Long categoryId) {
+    public static List<Product> getCachedProducts(boolean myInventory, Long categoryId, Long sellerId) {
         Realm realm = Realm.getDefaultInstance();
         RealmQuery<Product> query = realm.where(Product.class);
 
         //1. query realm objects and sort by BrandName, ProductName
         RealmResults<Product> realmProducts = query.equalTo("categoryId", categoryId)
+                .equalTo("sellerId", sellerId)
                 .greaterThanOrEqualTo(myInventory ? "updateDateMyShop" : "updateDateWareHouse", CommonUtils.getDate(new Date(), -1 * Constants.TIME_TO_LIVE_PRODUCT_CACHE))
                 .findAllSorted("brand", Sort.ASCENDING, "name", Sort.ASCENDING);
 
@@ -160,12 +161,13 @@ public class KoleCacheUtil {
         return products;
     }
 
-    public static List<Product> getAllCachedProducts(Long categoryId) {
+    public static List<Product> getAllCachedProducts(Long categoryId, Long sellerId) {
         Realm realm = Realm.getDefaultInstance();
         RealmQuery<Product> query = realm.where(Product.class);
 
         //1. query realm objects and sort by BrandName, ProductName
         RealmResults<Product> realmProducts = query.equalTo("categoryId", categoryId)
+                .equalTo("sellerId", sellerId)
                 .beginGroup()
                 .greaterThanOrEqualTo("updateDateMyShop", CommonUtils.getDate(new Date(), -1 * Constants.TIME_TO_LIVE_PRODUCT_CACHE))
                 .or()
@@ -180,12 +182,14 @@ public class KoleCacheUtil {
 
     public static void addUpdateProductInRealmCache(EditProduct editProduct) {
         //product is added to cache only when it's in my shop....it is called only after a product save success
+        //it can't be called from customer view
 
         //01 GET EXISTING PRODUCT WITH SAME ID
         Realm realm = Realm.getDefaultInstance();
         RealmQuery<Product> query = realm.where(Product.class);
         Product existingProduct = query.equalTo("id", editProduct.getId()).findFirst();
         Product product = KoleshopUtils.getProductFromEditProduct(editProduct);
+        product.setSellerId(0l);
 
         Date updateDateMyShop = null;
         Date updateDateWareHouse = null;
@@ -197,7 +201,7 @@ public class KoleCacheUtil {
             updateDateWareHouse = existingProduct.getUpdateDateWareHouse();
         } else {
             //else if there are other products in this category, copy their 'update time stamps' and set them to this product as well and then save the product (NEW PRODUCT ADDED)
-            List<Product> products = getCachedProducts(true, editProduct.getCategoryId());
+            List<Product> products = getCachedProducts(true, editProduct.getCategoryId(), 0l);
             if (products != null && products.size() > 0 && products.get(0) != null && products.get(0).getId() > 0) {
                 updateDateMyShop = products.get(0).getUpdateDateMyShop();
                 updateDateWareHouse = products.get(0).getUpdateDateWareHouse();
@@ -233,7 +237,7 @@ public class KoleCacheUtil {
             //01 PERSIST OLD COMPLEMENTARY UPDATE DATE
             boolean myInventory = cats.get(0).isAddedToMyShop();
             Long parentCategoryId = cats.get(0).getParentCategoryId();
-            List<ProductCategory> cachedProductCategories = getAllCachedProductCategoriesFromRealm(parentCategoryId);
+            List<ProductCategory> cachedProductCategories = getAllCachedProductCategoriesFromRealm(parentCategoryId, cats.get(0).getSellerId());
             if (cachedProductCategories != null && cachedProductCategories.size() > 0) {
                 for (ProductCategory category : cachedProductCategories) {
                     for (ProductCategory cat : cats) {
@@ -263,7 +267,7 @@ public class KoleCacheUtil {
     }
 
     public static List<ProductCategory> getCachedProductCategoriesFromRealm(
-            boolean myInventory, Long parentCategoryId) {
+            boolean myInventory, Long parentCategoryId, Long sellerId) {
 
         Realm realm = Realm.getDefaultInstance();
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
@@ -277,6 +281,7 @@ public class KoleCacheUtil {
         }
 
         RealmResults<ProductCategory> productCategories = query.equalTo("parentCategoryId", parentCategoryId)
+                .equalTo("sellerId", sellerId)
                 .greaterThanOrEqualTo(myInventory ? "myShopUpdateDate" : "warehouseUpdateDate", CommonUtils.getDate(new Date(), -1 * Constants.TIME_TO_LIVE_CATEGORY_CACHE))
                 .findAllSorted("sortOrder", Sort.ASCENDING);
 
@@ -288,7 +293,7 @@ public class KoleCacheUtil {
 
     }
 
-    public static List<ProductCategory> getAllCachedProductCategoriesFromRealm(Long parentCategoryId) {
+    public static List<ProductCategory> getAllCachedProductCategoriesFromRealm(Long parentCategoryId, Long sellerId) {
 
         Realm realm = Realm.getDefaultInstance();
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
@@ -298,6 +303,7 @@ public class KoleCacheUtil {
         }
 
         RealmResults<ProductCategory> productCategories = query.equalTo("parentCategoryId", parentCategoryId)
+                .equalTo("sellerId", sellerId)
                 .beginGroup()
                 .greaterThanOrEqualTo("myShopUpdateDate", CommonUtils.getDate(new Date(), -1 * Constants.TIME_TO_LIVE_CATEGORY_CACHE))
                 .or()
@@ -326,6 +332,7 @@ public class KoleCacheUtil {
         RealmQuery<Product> query = realm.where(Product.class);
 
         RealmResults<Product> products = query.equalTo("categoryId", categoryId)
+                .equalTo("sellerId", 0)
                 .findAll();
 
         if (products != null && products.size() > 0) {
@@ -355,6 +362,7 @@ public class KoleCacheUtil {
 
         RealmResults<ProductCategory> productCategories = query
                 .equalTo("parentCategoryId", parentCategoryId)
+                .equalTo("sellerId", 0)
                 .findAll();
 
         if (productCategories != null && productCategories.size() > 0) {
