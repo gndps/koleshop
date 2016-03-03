@@ -189,8 +189,15 @@
         <activity
             android:name=".ui.buyer.activities.ShopActivity"
             android:theme="@style/TransparentAppTheme" />
-        <activity android:name=".ui.buyer.activities.MultiSellerSearchActivity"
-            android:theme="@style/CustomSearchActivityTheme"/>
+        <activity
+            android:name=".ui.buyer.activities.ProductDetailsSlidingActivity"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Sliding.Light" />
+        <activity
+            android:name=".ui.buyer.activities.SearchActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/CustomSearchActivityTheme"
+            android:windowSoftInputMode="stateVisible" />
 
         <service
             android:name=".services.SearchIntentService"

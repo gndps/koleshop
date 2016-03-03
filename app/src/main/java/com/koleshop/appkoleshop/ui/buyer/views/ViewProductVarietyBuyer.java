@@ -4,16 +4,15 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
-import com.koleshop.appkoleshop.model.demo.Cart;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
+import com.koleshop.appkoleshop.util.CartUtils;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -22,6 +21,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ViewProductVarietyBuyer extends RelativeLayout {
 
+    private SellerSettings sellerSettings;
     private ProductVariety variety;
     private LayoutInflater inflater;
     private View v;
@@ -48,12 +48,13 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
         buttonMinus = (Button) v.findViewById(R.id.button_vpvb_minus);
     }
 
-    public ViewProductVarietyBuyer(Context context, ProductVariety variety, boolean customerView, boolean showTitle, String title) {
+    public ViewProductVarietyBuyer(Context context, ProductVariety variety, boolean customerView, boolean showTitle, String title, SellerSettings sellerSettings) {
         this(context);
         this.variety = variety;
         this.customerView = customerView;
         this.showTitle = showTitle;
         this.title = title;
+        this.sellerSettings = sellerSettings;
         loadTheData();
     }
 
@@ -68,7 +69,7 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
             price = price.substring(0, price.length()-2);
         }
         textViewPrice.setText(price);
-        int cartCount = Cart.getCountOfVariety(variety);
+        int cartCount = CartUtils.getCountOfVariety(variety, sellerSettings);
         textViewCount.setText(cartCount + "");
     }
 

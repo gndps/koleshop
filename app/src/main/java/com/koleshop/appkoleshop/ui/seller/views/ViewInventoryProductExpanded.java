@@ -11,20 +11,26 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.ui.buyer.views.ViewProductVarietyBuyer;
+import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by Gundeep on 17/11/15.
  */
 public class ViewInventoryProductExpanded extends RelativeLayout implements View.OnClickListener {
 
+    private SellerSettings sellerSettings;
     private LayoutInflater inflater;
     private Context mContext;
     private Product product;
@@ -35,14 +41,21 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
     Long categoryId;
     int positionInParent;
     boolean customerView;
+    private boolean multiSellerSearchViewMode;
+    private int settingsPosition;
 
-    public ViewInventoryProductExpanded(Context context, View view, boolean customerView) {
+    public ViewInventoryProductExpanded(Context context, View view, boolean customerView, SellerSettings sellerSettings) {
         super(context);
         this.mContext = context;
         this.customerView = customerView;
+        this.sellerSettings = sellerSettings;
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         //inflate title view and variety containers
+        if (view == null) {
+            view = inflate(getContext(), R.layout.item_rv_inventory_product_expanded, null);
+            addView(view);
+        }
         this.view = view;
         textViewProductTitle = (TextView) view.findViewById(com.koleshop.appkoleshop.R.id.tv_title_inventory_product_expanded);
         textViewProductTitle.setOnClickListener(this);
@@ -58,7 +71,7 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
         varietyViews = new ArrayList<>();
         container.removeAllViews();
         for (ProductVariety var : varieties) {
-            if(!customerView) {
+            if (!customerView) {
                 ViewInventoryProductVariety viewInventoryProductVariety = new ViewInventoryProductVariety(mContext, var, checkboxesProgress.get(var.getId()), null, customerView);
                 final Long varietyId = var.getId();
                 final boolean varietySelected = var.isVarietyValid();
@@ -72,7 +85,7 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
                 varietyViews.add(viewInventoryProductVariety);
                 container.addView(viewInventoryProductVariety);
             } else {
-                ViewProductVarietyBuyer viewProductVarietyBuyer = new ViewProductVarietyBuyer(mContext, var, customerView, false, product.getName());
+                ViewProductVarietyBuyer viewProductVarietyBuyer = new ViewProductVarietyBuyer(mContext, var, customerView, false, product.getName(), sellerSettings);
                 final Long varietyId = var.getId();
                 viewProductVarietyBuyer.setClickListenerArea1(this);
                 viewProductVarietyBuyer.setPlusButtonClickListener(new OnClickListener() {
@@ -97,6 +110,11 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
 
     }
 
+    public void setSettingsPositionInMultiSellerSearchViewMode(int settingsPosition) {
+        this.settingsPosition = settingsPosition;
+        this.multiSellerSearchViewMode = true;
+    }
+
     private void requestProductSelection(Long varietyId, boolean varietySelected) {
         Intent intentInternal = new Intent(Constants.ACTION_NOTIFY_PRODUCT_SELECTION_VARIETY_TO_PARENT);
         intentInternal.putExtra("varietyId", varietyId);
@@ -111,6 +129,9 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
         intentInternal.putExtra("varietyId", varietyId);
         intentInternal.putExtra("position", positionInParent);
         intentInternal.putExtra("requestCategoryId", categoryId);
+        if(multiSellerSearchViewMode) {
+            intentInternal.putExtra("settingsPosition", settingsPosition);
+        }
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentInternal);
     }
 
@@ -119,16 +140,23 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
         intentInternal.putExtra("varietyId", varietyId);
         intentInternal.putExtra("position", positionInParent);
         intentInternal.putExtra("requestCategoryId", categoryId);
+        if(multiSellerSearchViewMode) {
+            intentInternal.putExtra("settingsPosition", settingsPosition);
+        }
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentInternal);
     }
 
     @Override
     public void onClick(View v) {
-        if(positionInParent>0) {
-            Intent collapseProductIntent = new Intent(Constants.ACTION_COLLAPSE_EXPANDED_PRODUCT);
+        Intent collapseProductIntent = new Intent(Constants.ACTION_COLLAPSE_EXPANDED_PRODUCT);
+        if (multiSellerSearchViewMode) {
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(collapseProductIntent);
+        } else {
             collapseProductIntent.putExtra("position", positionInParent);
             collapseProductIntent.putExtra("categoryId", categoryId);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(collapseProductIntent);
+            if (positionInParent > 0) {
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(collapseProductIntent);
+            }
         }
     }
 }

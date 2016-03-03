@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.koleshop.appkoleshop.R;
-import com.koleshop.appkoleshop.model.demo.SellerInfo;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.ui.buyer.viewholders.NearbyShopsListViewHolder;
 

@@ -27,6 +27,7 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
+import com.koleshop.appkoleshop.ui.buyer.activities.SearchActivity;
 import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
 import com.koleshop.appkoleshop.ui.seller.activities.ProductActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
@@ -78,9 +79,13 @@ public class InventoryCategoryFragment extends Fragment {
             myInventory = args.getBoolean("myInventory", false);
             customerView = args.getBoolean("customerView", false);
             sellerSettings = Parcels.unwrap(args.getParcelable("sellerSettings"));
-            if (sellerSettings == null) {
-                sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
-            }
+        }
+        if (sellerSettings == null) {
+            sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
+        }
+        if(customerView) {
+            setHasOptionsMenu(false);
+            //because this is handled in ShopActivity menu
         }
         initializeBroadcastReceivers();
     }
@@ -155,7 +160,7 @@ public class InventoryCategoryFragment extends Fragment {
         return layout;
     }
 
-    /*@Override
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_inventory_category_fragment, menu);
         super.onCreateOptionsMenu(menu, inflater);
@@ -164,11 +169,12 @@ public class InventoryCategoryFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_add_product:
-                addNewProduct();
+            case R.id.menu_item_search:
+                Intent searchIntent = SearchActivity.newMyShopSearch(mContext, myInventory, sellerSettings.getUserId(), "My Shop");
+                startActivity(searchIntent);
         }
         return super.onOptionsItemSelected(item);
-    }*/
+    }
 
 
     @Override

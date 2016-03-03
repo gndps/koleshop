@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -20,18 +19,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
-import com.koleshop.appkoleshop.model.demo.SellerInfo;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.services.BuyerIntentService;
 import com.koleshop.appkoleshop.ui.buyer.activities.ShopActivity;
 import com.koleshop.appkoleshop.ui.buyer.adapters.NearbyShopsFragmentPagerAdapter;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
+import com.koleshop.appkoleshop.util.CommonUtils;
 
 import org.parceler.Parcels;
 
@@ -53,6 +51,8 @@ public class NearbyShopsFragment extends Fragment {
     String titleNearbyShops;
     @Bind(R.id.button_refresh_nearby_shops)
     Button buttonRefresh;
+    @Bind(R.id.button_retry_nearby_shops)
+    Button buttonRetry;
 
     boolean onlyHomeDeliveryShops;
     boolean onlyOnlineShops;
@@ -62,12 +62,15 @@ public class NearbyShopsFragment extends Fragment {
     private static final int VIEW_FLIPPER_TABS = 0;
     private static final int VIEW_FLIPPER_PROCESSING = 1;
     private static final int VIEW_FLIPPER_NO_SHOPS = 2;
+    private static final int VIEW_FLIPPER_NO_INTERNET = 3;
     private static final int LOAD_MORE_SHOPS_COUNT = 20;
 
     BroadcastReceiver mBroadcastReceiver;
     Context mContext;
     FragmentHomeActivityListener fragmentHomeActivityListener;
     List<SellerSettings> sellers;
+
+    boolean loading;
 
 
     public NearbyShopsFragment() {
@@ -96,6 +99,7 @@ public class NearbyShopsFragment extends Fragment {
         ButterKnife.bind(this, view);
         initializeBroadcastReceivers();
         initializeSomeStuffHere();
+        loading = true;
         return view;
     }
 
@@ -129,7 +133,9 @@ public class NearbyShopsFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NEARBY_SHOPS_RECEIVE_FAILED));
         fragmentHomeActivityListener.setBackButtonHandledByFragment(false);
         fragmentHomeActivityListener.setTitle(titleNearbyShops);
-        requestNearbyShopsFromInternet();
+        if (loading) {
+            requestNearbyShopsFromInternet();
+        }
     }
 
     @Override
@@ -143,6 +149,7 @@ public class NearbyShopsFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS)) {
+                    loading = false;
                     int offset = intent.getIntExtra("offset", 0);
                     Parcelable parcelableSettings = intent.getParcelableExtra("nearbyShopsList");
                     List<SellerSettings> sellers = Parcels.unwrap(parcelableSettings);
@@ -161,6 +168,7 @@ public class NearbyShopsFragment extends Fragment {
                         }
                     }
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_NEARBY_SHOPS_RECEIVE_FAILED)) {
+                    loading = false;
                     int offset = intent.getIntExtra("offset", 0);
                     if (offset == 0) {
                         //sellers loading failed
@@ -175,6 +183,12 @@ public class NearbyShopsFragment extends Fragment {
 
     private void initializeSomeStuffHere() {
         buttonRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestNearbyShopsFromInternet();
+            }
+        });
+        buttonRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 requestNearbyShopsFromInternet();
@@ -204,8 +218,13 @@ public class NearbyShopsFragment extends Fragment {
     }
 
     private void requestNearbyShopsFromInternet() {
-        viewFlipper.setDisplayedChild(VIEW_FLIPPER_PROCESSING);//loading
-        BuyerIntentService.getNearbyShops(mContext, onlyHomeDeliveryShops, onlyOnlineShops, LOAD_MORE_SHOPS_COUNT, 0);
+        if (!CommonUtils.isConnectedToInternet(mContext)) {
+            viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_INTERNET);
+        } else {
+            viewFlipper.setDisplayedChild(VIEW_FLIPPER_PROCESSING);//loading
+            loading = true;
+            BuyerIntentService.getNearbyShops(mContext, onlyHomeDeliveryShops, onlyOnlineShops, LOAD_MORE_SHOPS_COUNT, 0);
+        }
     }
 
     public void requestMoreNearbyShopsFromInternet() {

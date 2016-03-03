@@ -1,13 +1,140 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_frame_layout_fss"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/default_background"
     tools:context="com.koleshop.appkoleshop.ui.common.fragments.SingleSellerFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ViewFlipper
+        android:id="@+id/vf_fss"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+
+        <!-- progress bar (loading) | view flipper child 0 -->
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/default_background"
+            android:clickable="true"
+            android:elevation="2dp"
+            android:focusable="true"
+            app:cardCornerRadius="2dp">
+
+            <ProgressBar
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center" />
+
+        </android.support.v7.widget.CardView>
+
+
+        <!-- multi seller search result list | view flipper child 1 -->
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_single_seller_search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@color/transparent"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp"
+                android:paddingTop="72dp"
+                android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
+
+            <ProgressBar
+                android:id="@+id/pb_fragment_single_seller"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_alignParentBottom="true"
+                android:indeterminate="true"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:indeterminateTintMode="src_in"
+                android:indeterminateTint="@color/primary"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+
+        <!-- no internet connection | view flipper child 2 -->
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/default_background"
+            android:clickable="true"
+            android:elevation="2dp"
+            android:focusable="true"
+            app:cardCornerRadius="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/image_cloud_disconnect" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Please check internet connection"
+                    android:textColor="@color/default_background_font" />
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+
+        <!-- no search results found | view flipper child 3 -->
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/default_background"
+            android:clickable="true"
+            android:elevation="2dp"
+            android:focusable="true"
+            app:cardCornerRadius="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_nilu_worried" />
+
+                <TextView
+                    android:id="@+id/tv_problem_in_single_seller_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
+                    android:text="@string/no_search_results_found"
+                    android:textColor="@color/primary_text_grey" />
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+
+    </ViewFlipper>
 
 </FrameLayout>

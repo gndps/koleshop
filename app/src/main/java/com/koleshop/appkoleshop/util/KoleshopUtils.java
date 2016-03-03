@@ -77,19 +77,34 @@ public class KoleshopUtils {
         product.setId(editProduct.getId());
         product.setName(editProduct.getName());
         product.setBrand(editProduct.getBrand());
+        product.setCategoryId(editProduct.getCategoryId());
         List<ProductVariety> vars = new ArrayList<>();
         for (EditProductVar var : editProduct.getEditProductVars()) {
-            ProductVariety variety = new ProductVariety();
-            variety.setId(var.getId());
-            variety.setQuantity(var.getQuantity());
-            variety.setImageUrl(var.getImageUrl());
-            variety.setLimitedStock(var.getLimitedStock());
-            variety.setPrice(var.getPrice());
-            variety.setVarietyValid(var.isValid());
+            ProductVariety variety = getProductVarietyFromEditProductVar(var);
             vars.add(variety);
         }
         product.setVarieties(new RealmList<>(vars.toArray(new ProductVariety[vars.size()])));
         return product;
+    }
+
+    public static ProductVariety getProductVarietyFromEditProductVar(EditProductVar var) {
+        ProductVariety variety = new ProductVariety();
+        variety.setId(var.getId());
+        variety.setQuantity(var.getQuantity());
+        variety.setImageUrl(var.getImageUrl());
+        variety.setLimitedStock(var.getLimitedStock());
+        variety.setPrice(var.getPrice());
+        variety.setVarietyValid(var.isValid());
+        return variety;
+    }
+
+    public static List<Product> getProductListFromEditProductList(List<EditProduct> editProducts) {
+        List<Product> products = new ArrayList<>();
+        for(EditProduct editProduct : editProducts) {
+            Product product = getProductFromEditProduct(editProduct);
+            products.add(product);
+        }
+        return products;
     }
 
     public static SellerSettings getSettingsFromCache(Context context) {
@@ -119,9 +134,9 @@ public class KoleshopUtils {
                 .height((int) px) // height in px
                 .endConfig();
         if (round) {
-            textDrawable = textDrawableBuilder.buildRound(name.substring(0,1), color);
+            textDrawable = textDrawableBuilder.buildRound(name.substring(0,1).toUpperCase(), color);
         } else {
-            textDrawable = textDrawableBuilder.buildRect(name.substring(0,1), color);
+            textDrawable = textDrawableBuilder.buildRect(name.substring(0,1).toUpperCase(), color);
         }
 
         return textDrawable;
@@ -141,5 +156,21 @@ public class KoleshopUtils {
             deliveryTimeString = "Delivery " + startTime + " to " + endTime;
         }
         return deliveryTimeString;
+    }
+
+    public static boolean isStarred(ProductVariety productVariety) {
+        return false;
+    }
+
+    public static ProductVariety getProductVarietyFromProduct(Product currentProduct, Long varietyId) {
+        List<ProductVariety> varieties = currentProduct.getVarieties();
+        if (varieties != null) {
+            for (ProductVariety variety : varieties) {
+                if (variety.getId().equals(varietyId)) {
+                    return variety;
+                }
+            }
+        }
+        return null;
     }
 }

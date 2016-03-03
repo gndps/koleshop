@@ -69,7 +69,7 @@ public class BuyerEndpoint {
     }
 
     @ApiMethod(name = "searchProducts", httpMethod = ApiMethod.HttpMethod.POST)
-    public KoleResponse searchProducts(@Nullable @Named("sellerId") Long sellerId, @Named("limit") int limit
+    public KoleResponse searchProducts(@Named("sellerId") Long sellerId, @Named("limit") int limit
             , @Named("offset") int offset, @Named("searchQuery") String searchQuery) {
 
         KoleResponse response = new KoleResponse();

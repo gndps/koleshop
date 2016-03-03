@@ -30,6 +30,7 @@ public class KoleCacheUtil {
 
     public static boolean cacheProductsListInRealm(List<Product> products, boolean containsOldComplementaryDate, boolean updateCategories) {
         //complementary date is : if this is the case of MyShop, then Warehouse update date is complementary...otherwise MyShopUpdate date is complementary
+        Realm realm = Realm.getDefaultInstance();
         try {
 
             //01 UPDATE THE CATEGORIES CACHE
@@ -45,9 +46,8 @@ public class KoleCacheUtil {
                     }
                 }
 
-                Realm realm = Realm.getDefaultInstance();
                 RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
-                List<ProductCategory> productCategories = query.equalTo("id", products.get(0).getId()).findAll();
+                List<ProductCategory> productCategories = query.equalTo("id", products.get(0).getCategoryId()).findAll();
                 if (productCategories!=null && productCategories.size()>0 && productCategories.get(0)!=null) {
                     ProductCategory productCategory = productCategories.get(0);
                     productCategory.setAddedToMyShop(categoryExistsInMyShop);
@@ -90,31 +90,32 @@ public class KoleCacheUtil {
                     }
 
                     //02.2.2 update the products in realm cache
-                    Realm realm = Realm.getDefaultInstance();
                     realm.beginTransaction();
                     realm.copyToRealmOrUpdate(products);
                     realm.commitTransaction();
+                    realm.close();
                     return true;
                 } else {
                     //else add the products to cache
-                    Realm realm = Realm.getDefaultInstance();
                     realm.beginTransaction();
                     realm.copyToRealmOrUpdate(products);
                     realm.commitTransaction();
+                    realm.close();
                     return true;
                 }
 
             } else {
                 //else update the products to cache
-                Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
                 realm.copyToRealmOrUpdate(products);
                 realm.commitTransaction();
+                realm.close();
                 return true;
 
             }
         } catch (Exception e) {
             Log.e(TAG, "some exception while saving the products in cache", e);
+            realm.close();
             return false;
         }
     }
@@ -157,7 +158,7 @@ public class KoleCacheUtil {
                 }
             }
         }
-
+        realm.close();
         return products;
     }
 
@@ -176,7 +177,7 @@ public class KoleCacheUtil {
                 .findAllSorted("brand", Sort.ASCENDING, "name", Sort.ASCENDING);
 
         List<Product> products = realm.copyFromRealm(realmProducts);
-
+        realm.close();
         return products;
     }
 
@@ -228,6 +229,8 @@ public class KoleCacheUtil {
             realm.commitTransaction();
         }
 
+        realm.close();
+
     }
 
     public static boolean cacheCategoriesInRealm(List<ProductCategory> cats) {
@@ -258,6 +261,7 @@ public class KoleCacheUtil {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(cats);
             realm.commitTransaction();
+            realm.close();
             return true;
         } catch (Exception e) {
             Log.e(TAG, "exception while caching categories", e);
@@ -286,9 +290,12 @@ public class KoleCacheUtil {
                 .findAllSorted("sortOrder", Sort.ASCENDING);
 
         if (productCategories.size() == 0) {
+            realm.close();
             return null;
         } else {
-            return realm.copyFromRealm(productCategories);
+            List<ProductCategory> categories = realm.copyFromRealm(productCategories);
+            realm.close();
+            return categories;
         }
 
     }
@@ -312,9 +319,12 @@ public class KoleCacheUtil {
                 .findAllSorted("sortOrder", Sort.ASCENDING);
 
         if (productCategories.size() == 0) {
+            realm.close();
             return null;
         } else {
-            return realm.copyFromRealm(productCategories);
+            List<ProductCategory> categories = realm.copyFromRealm(productCategories);
+            realm.close();
+            return categories;
         }
 
     }
@@ -348,6 +358,7 @@ public class KoleCacheUtil {
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(products);
         realm.commitTransaction();
+        realm.close();
 
     }
 
@@ -374,6 +385,7 @@ public class KoleCacheUtil {
                 }
             }
         }
+        realm.close();
 
     }
 }

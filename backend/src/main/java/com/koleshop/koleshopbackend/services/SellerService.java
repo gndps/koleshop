@@ -83,9 +83,14 @@ public class SellerService {
         String[] splitSearchQuery = searchQuery.split(" ");
 
         //todo optimize these queries and make them smart
-        String newQuery;
+        String limitedSearchQuery;
+
+        //========================
+        //01. SELECT ALL PRODUCTS
+        //========================
+        String selectAllProductsQuery;
         if (myInventory) {
-            newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,'1' as selected" +
+            selectAllProductsQuery = "select p.id,p.name,p.category_id,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,'1' as selected" +
                     " from Product p join ProductVariety pv" +
                     " on p.id = pv.product_id and pv.valid='1'" +
                     " join Brand b on b.id = p.brand_id" +
@@ -93,17 +98,17 @@ public class SellerService {
 
             int loopCount = 0;
             for (String str : splitSearchQuery) {
-                newQuery += "(p.name like ? or b.name like ?)";
+                selectAllProductsQuery += "(p.name like ? or p.name like ? or b.name like ? or b.name like ?)";
                 if (loopCount < splitSearchQuery.length - 1) {
-                    newQuery += " and ";
+                    selectAllProductsQuery += " and ";
                 }
                 loopCount++;
             }
-            newQuery += " )" +
-                    " order by brand asc, p.name asc, price asc limit ? offset ?;";
+            selectAllProductsQuery += " )" +
+                    " order by brand asc, p.name asc, price asc";
 
         } else {
-            newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,pv.valid as selected" +
+            selectAllProductsQuery = "select p.id,p.name,p.category_id,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,pv.valid as selected" +
                     " from Product p join ProductVariety pv" +
                     " on p.id = pv.product_id" +
                     " join Brand b on b.id = p.brand_id" +
@@ -111,24 +116,41 @@ public class SellerService {
 
             int loopCount = 0;
             for (String str : splitSearchQuery) {
-                newQuery += "(p.name like ? or b.name like ?)";
+                selectAllProductsQuery += "(p.name like ? or p.name like ? or b.name like ? or b.name like ?)";
                 if (loopCount < splitSearchQuery.length - 1) {
-                    newQuery += " and ";
+                    selectAllProductsQuery += " and ";
                 }
                 loopCount++;
             }
-            newQuery += ") order by brand asc, p.name asc, price asc limit ? offset ?;";
+            selectAllProductsQuery += ") order by brand asc, p.name asc, price asc";
         }
+
+        //=======================
+        //02. LIMIT THE PRODUCTS
+        //=======================
+        limitedSearchQuery = "select p.id,p.name,p.category_id,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,pv.valid as selected " +
+                " from Product p join ProductVariety pv on p.id = pv.product_id " +
+                (myInventory?"and pv.valid='1' ":"") +
+                " join Brand b on b.id = p.brand_id " +
+                " where p.user_id=? and p.id in ( " +
+                " select * from ( " +
+                " select distinct(id) from ( " +
+                selectAllProductsQuery +
+                " ) ps limit ? offset ?) psTemp) order by brand asc, p.name asc, price asc ;";
+
 
         try {
             dbConnection = DatabaseConnection.getConnection();
-            preparedStatement = dbConnection.prepareStatement(newQuery);
+            preparedStatement = dbConnection.prepareStatement(limitedSearchQuery);
 
-            preparedStatement.setLong(1, sellerId);
-            int index = 2;
+            int index = 1;
+            preparedStatement.setLong(index++, sellerId);
+            preparedStatement.setLong(index++, sellerId);
             for (String str : splitSearchQuery) {
-                preparedStatement.setString(index++, "%" + str + "%");
-                preparedStatement.setString(index++, "%" + str + "%");
+                preparedStatement.setString(index++, str + "%");
+                preparedStatement.setString(index++, "% " + str + "%");
+                preparedStatement.setString(index++, str + "%");
+                preparedStatement.setString(index++, "% " + str + "%");
             }
 
             preparedStatement.setInt(index++, limit);
@@ -158,6 +180,7 @@ public class SellerService {
                     currentInventoryProduct.setId(rs.getLong("id"));
                     currentInventoryProduct.setName(rs.getString("name"));
                     currentInventoryProduct.setBrand(rs.getString("brand"));
+                    currentInventoryProduct.setCategoryId(rs.getLong("category_id"));
                     /*this shit is deprecated for now
                     currentInventoryProduct.setDescription(rs.getString("description"));
                     currentInventoryProduct.setAdditionalInfo(rs.getString("info"));

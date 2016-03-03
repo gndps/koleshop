@@ -11,22 +11,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.koleshop.appkoleshop.model.demo.Cart;
-import com.koleshop.appkoleshop.model.realm.Product;
-import com.koleshop.appkoleshop.model.realm.ProductVariety;
-import com.koleshop.appkoleshop.ui.seller.activities.ProductActivity;
 import com.koleshop.appkoleshop.constant.Constants;
-import com.koleshop.appkoleshop.util.CommonUtils;
-import com.koleshop.appkoleshop.util.KoleCacheUtil;
-import com.koleshop.appkoleshop.util.RealmUtils;
 import com.koleshop.appkoleshop.listeners.InventoryProductClickListener;
 import com.koleshop.appkoleshop.model.ProductSelectionRequest;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.Product;
+import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.services.CommonIntentService;
+import com.koleshop.appkoleshop.ui.buyer.activities.ProductDetailsSlidingActivity;
+import com.koleshop.appkoleshop.ui.seller.activities.ProductActivity;
 import com.koleshop.appkoleshop.ui.seller.viewholders.InventoryProductViewHolder;
+import com.koleshop.appkoleshop.util.CartUtils;
+import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleCacheUtil;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.ProductUtil;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
 import com.tonicartos.superslim.GridSLM;
 import com.tonicartos.superslim.LayoutManager;
 import com.tonicartos.superslim.LinearSLM;
@@ -60,6 +60,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     long categoryId;
     boolean myInventory;
     boolean customerView;
+    private SellerSettings sellerSettings;
 
 
     public InventoryProductAdapter(Context context, long categoryId, boolean myInventory, boolean customerView) {
@@ -96,6 +97,10 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         //notifyDataSetChanged();
     }
 
+    public void setSellerSettings(SellerSettings sellerSettings) {
+        this.sellerSettings = sellerSettings;
+    }
+
     //Item viewholder methods
 
     @Override
@@ -113,7 +118,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                     .inflate(com.koleshop.appkoleshop.R.layout.item_rv_inventory_product_expanded, parent, false);
         }
 
-        InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType, context, myInventory, customerView);
+        InventoryProductViewHolder holder = new InventoryProductViewHolder(view, viewType, context, myInventory, customerView, sellerSettings);
         Log.d(TAG, "on create view holder of type=" + viewType);
         return holder;
     }
@@ -144,7 +149,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
                     editProductIntent.putExtra("product", parcelableProduct);
                     context.startActivity(editProductIntent);
                 } else if (!mItems.get(position).isHeader) {
-                    //if the item is not a header, then expand the item
+                    //if the item is not a header, then
                     if (expandedItemPosition != position) {
                         expandItemAtPosition(position);
                     } else if (expandedItemPosition == position) {
@@ -235,30 +240,22 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     }
 
     public void increaseVarietyCount(int position, Long varietyId) {
-        ProductVariety variety = getProductVarietyFromProduct(position, varietyId);
-        if(variety!=null) {
-            Cart.increaseCount(variety, mItems.get(position).product.getName());
+        ProductVariety variety = getProductVarietyFromProductIndex(position, varietyId);
+        if (variety != null) {
+            CartUtils.increaseCount(variety, sellerSettings);
         }
     }
 
     public void decreaseVarietyCount(int position, Long varietyId) {
-        ProductVariety variety = getProductVarietyFromProduct(position, varietyId);
-        if(variety!=null) {
-            Cart.decreaseCount(variety);
+        ProductVariety variety = getProductVarietyFromProductIndex(position, varietyId);
+        if (variety != null) {
+            CartUtils.decreaseCount(variety, sellerSettings);
         }
     }
 
-    private ProductVariety getProductVarietyFromProduct(int position, Long varietyId) {
+    private ProductVariety getProductVarietyFromProductIndex(int position, Long varietyId) {
         Product currentProduct = mItems.get(position).product;
-        List<ProductVariety> varieties = currentProduct.getVarieties();
-        if(varieties!=null) {
-            for (ProductVariety variety : varieties) {
-                if(variety.getId().equals(varietyId)) {
-                    return variety;
-                }
-            }
-        }
-        return null;
+        return KoleshopUtils.getProductVarietyFromProduct(currentProduct, varietyId);
     }
 
     private void expandItemAtPosition(int position) {

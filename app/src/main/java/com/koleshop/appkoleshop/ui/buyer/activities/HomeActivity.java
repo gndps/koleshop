@@ -8,22 +8,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Toast;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
@@ -33,16 +27,11 @@ import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
 import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
-import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
-import com.mypopsy.widget.FloatingSearchView;
 
-import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
-import io.codetail.animation.SupportAnimator;
-import io.codetail.animation.ViewAnimationUtils;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.exceptions.RealmException;
@@ -120,10 +109,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 //open search overlay activity
                 View menuView = findViewById(R.id.menu_item_search);
                 //revealSearchBar(menuView, true);
-                Intent intent = new Intent(mContext, MultiSellerSearchActivity.class);
-                intent.putExtra("multiSellerSearch", true);
-                intent.putExtra("customerView", true);
-                startActivity(intent);
+                startActivity(SearchActivity.newMultiSellerSearch(mContext));
                 return true;
 
         }
@@ -475,20 +461,24 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED, false);
         PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED, false);
         try {
-            Realm.getDefaultInstance().close();
-        } catch (Exception e) {
-            //dont give a damn
-        }
-        try {
-            Realm r = Realm.getDefaultInstance();
-            r.close();
-            if (r != null) {
+            try {
+                Realm.getDefaultInstance().close();
+            } catch (Exception e) {
+                //dont give a damn
+            }
+            try {
+                Realm r = Realm.getDefaultInstance();
+                r.close();
+                if (r != null) {
+                    Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+                }
+            } catch (RealmException e) {
+                Log.e(TAG, "realm exception", e);
+            } finally {
                 Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
             }
-        } catch (RealmException e) {
-            Log.e(TAG, "realm exception", e);
-        } finally {
-            Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+        } catch (Exception e) {
+            Log.wtf(TAG, "realm exception woh", e);
         }
     }
 

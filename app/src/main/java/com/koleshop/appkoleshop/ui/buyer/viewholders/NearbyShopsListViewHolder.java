@@ -14,6 +14,7 @@ import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
@@ -74,9 +75,23 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
             //03. SET SHOP IMAGE
             if (sellerInfo.getImageUrl() != null && !sellerInfo.getImageUrl().isEmpty()) {
                 String thumbnailImageUrl = sellerInfo.getImageUrl().replace("/profile/", "/profile_thumb/");
+                final String sellerName = sellerInfo.getAddress().getName();
                 Picasso.with(mContext)
                         .load(thumbnailImageUrl)
-                        .into(imageViewAvatar);
+                        .placeholder(KoleshopUtils.getTextDrawable(mContext, sellerName, 40, true))
+                        .into(imageViewAvatar, new Callback() {
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError() {
+                                imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, sellerName, 40, true));
+                            }
+                        });
+            } else {
+                imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, sellerInfo.getAddress().getName(), 40, true));
             }
 
 

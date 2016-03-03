@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -11,50 +10,15 @@
     android:background="@color/default_background"
     tools:context=".ui.buyer.activities.CartActivity">
 
-    <android.support.v7.widget.CardView
+    <include
+        android:id="@+id/appbar_cart_activity"
+        layout="@layout/view_app_bar" />
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:id="@+id/rv_cart_activity"
         android:layout_width="match_parent"
-        app:cardCornerRadius="2dp"
-        android:elevation="2dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:layout_height="wrap_content">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_cart_store_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Gandhi Daily Needs Store"
-                android:textColor="@color/primary_text"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:textSize="20sp" />
-
-            <LinearLayout
-                android:id="@+id/ll_cart_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"></LinearLayout>
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginLeft="36dp"
-                android:layout_marginRight="36dp"
-                android:background="@color/accent"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:text="ORDER"
-                android:textColor="@color/white"
-                android:onClick="order"/>
-
-        </LinearLayout>
-
-    </android.support.v7.widget.CardView>
+        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

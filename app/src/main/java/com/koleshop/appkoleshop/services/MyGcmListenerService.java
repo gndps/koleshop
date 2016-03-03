@@ -20,14 +20,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
-import com.google.gson.Gson;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.constant.Prefs;
-import com.koleshop.appkoleshop.model.demo.Cart;
-import com.koleshop.appkoleshop.singletons.DemoSingleton;
 import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
-import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 public class MyGcmListenerService extends GcmListenerService {
@@ -100,7 +96,7 @@ public class MyGcmListenerService extends GcmListenerService {
                         Log.d(TAG, "no need to update user settings");
                     }
                     break;
-                case GCM_DEMO_MESSAGE:
+                /*case GCM_DEMO_MESSAGE:
                     String messageType = data.getString("messageType", "");
                     if (!messageType.isEmpty()) {
                         switch (messageType) {
@@ -110,7 +106,7 @@ public class MyGcmListenerService extends GcmListenerService {
                                 try {
                                     String jsonOrder = data.getString("jsonData");
                                     Cart cart = new Gson().fromJson(jsonOrder, Cart.class);
-                                    DemoSingleton.getSharedInstance().setCart(cart);
+                                    CartsSingleton.getSharedInstance().setCart(cart);
                                 } catch (Exception e) {
 
                                 }
@@ -118,6 +114,9 @@ public class MyGcmListenerService extends GcmListenerService {
                                 break;
                         }
                     }
+                    break;*/
+                default:
+                    break;
             }
         } else {
             Handler handler = new Handler(Looper.getMainLooper());

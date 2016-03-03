@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp"
-    android:layout_marginBottom="4dp"
     android:layout_marginTop="4dp"
     android:elevation="2dp"
     app:cardCornerRadius="2dp">
@@ -13,7 +13,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/white">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -24,65 +25,86 @@
                 android:id="@+id/civ_avatar_msst"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 android:layout_marginLeft="16dp"
-                android:background="@color/otherGreen"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginTop="16dp" />
+
+            <ImageView
+                android:id="@+id/iv_status_msst"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginLeft="44dp"
+                android:layout_marginTop="44dp"
+                android:src="@drawable/ic_green_dot_24dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tv_title_msst"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="72dp"
-                    android:textColor="@color/white"
+                    android:fontFamily="sans-serif"
                     android:text="Jagga Funky Store"
-                    android:textSize="14dp" />
+                    android:textColor="@color/white"
+                    android:textSize="16dp" />
 
                 <TextView
                     android:id="@+id/tv_subtitle_msst"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
                     android:layout_marginLeft="72dp"
+                    android:fontFamily="sans-serif"
                     android:text="Sector 23"
-                    android:textSize="12dp"/>
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tv_distance_msst"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="16dp"
-                android:text="110 m"
-                android:textColor="@color/white"
-                android:textSize="12dp" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_distance_msst"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="-"
+                    android:textColor="@color/white"
+                    android:textSize="13dp" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 
-        <!--fragment that have search results will be added here-->
+        <LinearLayout
+            android:id="@+id/ll_search_results_vmsst"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"></LinearLayout>
 
         <Button
             android:id="@+id/button_more_results_msst"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14dp"
-            android:text="23 search results"
             android:layout_gravity="right"
-            android:layout_marginTop="8dp"
             android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
             android:drawablePadding="8dp"
+            android:drawableRight="@drawable/ic_arrow_forward_accent_24dp"
+            android:text="23 search results"
             android:textColor="@color/accent"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:drawableRight="@drawable/ic_arrow_forward_accent_24dp"/>
+            android:textSize="14dp" />
 
     </LinearLayout>
 

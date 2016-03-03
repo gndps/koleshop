@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.listeners.InventoryProductClickListener;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.util.ProductUtil;
@@ -55,12 +56,14 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     private boolean myInventory;
     private boolean customerView;
     private View verticalDivider;
+    private SellerSettings sellerSettings;
 
-    public InventoryProductViewHolder(View view, int viewType, Context context, boolean myInventory, boolean customerView) {
+    public InventoryProductViewHolder(View view, int viewType, Context context, boolean myInventory, boolean customerView, SellerSettings sellerSettings) {
         super(view);
         mContext = context;
         this.myInventory = myInventory;
         this.customerView = customerView;
+        this.sellerSettings = sellerSettings;
         if(viewType == VIEW_TYPE_HEADER) {
             textViewTitleProductMasterList = (TextView) view.findViewById(R.id.tv_list_header);
         } else if(viewType == VIEW_TYPE_CONTENT) {
@@ -83,7 +86,7 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
                 verticalDivider.setVisibility(View.GONE);
             }
         } else {
-            viewInventoryProductExpanded = new ViewInventoryProductExpanded(context, view, customerView);
+            viewInventoryProductExpanded = new ViewInventoryProductExpanded(context, view, customerView, sellerSettings);
         }
     }
 
@@ -221,10 +224,16 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
                     price = price.substring(0, price.length()-2);
                 }
                 String desc = ipv.getQuantity() + " - " + price;
-                if(ipv.isVarietyValid()) {
-                    desc += " ✓";
-                } else {
-                    desc += " ✗";
+                if(!customerView && !myInventory) {
+                    if (ipv.isVarietyValid()) {
+                        desc += " ✓";
+                    } else {
+                        desc += " ✗";
+                    }
+                } else if(customerView && myInventory){
+                    if (ipv.isVarietyValid() && !ipv.isLimitedStock()) {
+                        desc += " (OUT OF STOCK)";
+                    }
                 }
                 if(first) {
                     description += desc;

@@ -44,6 +44,7 @@ public class EditProduct {
         this.name = product.getName();
         this.brand = product.getBrand();
         this.sellerId = product.getSellerId();
+        this.categoryId = product.getCategoryId();
         List<EditProductVar> vars = new ArrayList<>();
         for(ProductVariety var : product.getVarieties()) {
             EditProductVar editProductVar = new EditProductVar(var);

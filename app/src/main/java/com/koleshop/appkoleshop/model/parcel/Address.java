@@ -2,23 +2,27 @@ package com.koleshop.appkoleshop.model.parcel;
 
 import org.parceler.Parcel;
 
+import io.realm.RealmObject;
+
 /**
  * Created by gundeepsingh on 29/08/14.
  */
 
-@Parcel
-public class Address {
+@Parcel(//implementations = {AddressRealmProxy.class},
+        value = Parcel.Serialization.BEAN,
+        analyze = {Address.class})
+public class Address extends RealmObject {
 
-    Long id;
-    Long userId;
-    String name;
-    String address;
-    int addressType;
-    Long phoneNumber;
-    int countryCode;
-    String nickname;
-    Double gpsLong;
-    Double gpsLat;
+    private Long id;
+    private Long userId;
+    private String name;
+    private String address;
+    private int addressType;
+    private Long phoneNumber;
+    private int countryCode;
+    private String nickname;
+    private Double gpsLong;
+    private Double gpsLat;
 
     public Address() {
 

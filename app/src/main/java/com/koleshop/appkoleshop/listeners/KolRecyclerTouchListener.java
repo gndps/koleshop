@@ -32,7 +32,8 @@ public class KolRecyclerTouchListener implements RecyclerView.OnItemTouchListene
                 View child = rv.findChildViewUnder(e.getX(), e.getY());
                 if(child!=null && clickListener!=null)
                 {
-                    clickListener.onItemLongClick(child, rv.getChildPosition(child));
+                    RecyclerView.ViewHolder holder = rv.getChildViewHolder(child);
+                    clickListener.onItemLongClick(child, holder.getAdapterPosition());
                 }
                 super.onLongPress(e);
             }
@@ -47,7 +48,8 @@ public class KolRecyclerTouchListener implements RecyclerView.OnItemTouchListene
     boolean gestureDetected = gestureDetector.onTouchEvent(e);
     if(child!=null && rv!=null && gestureDetected)
     {
-        clickListener.onItemClick(child, rv.getChildPosition(child));
+        RecyclerView.ViewHolder holder = rv.getChildViewHolder(child);
+        clickListener.onItemClick(child, holder.getAdapterPosition());
     }
     return false;
 }

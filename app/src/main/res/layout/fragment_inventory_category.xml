@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
                 android:layout_gravity="center"
-                android:text="Can't load inventory"
+                android:text="Problem in loading"
                 android:textColor="@color/default_background_font" />
         </LinearLayout>
 

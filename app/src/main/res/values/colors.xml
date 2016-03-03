@@ -4,17 +4,22 @@
     <color name="pure_black">#000000</color>
     <color name="black">#191919</color>
     <color name="transparent">#00ffffff</color>
+    <color name="transparent_search_window">#22000000</color>
     <color name="holo_light">#fff3f3f3</color>
 
-    <color name="primary">#4CAF50</color>
-    <color name="primary_dark">#388E3C</color>
+    <color name="primary_old">#4CAF50</color>
+    <color name="primary_dark_old">#388E3C</color>
+    <color name="primary">#46B176</color>
+    <color name="primary_dark">#168146</color>
     <color name="primary_light">#C8E6C9</color>
-    <color name="accent">#07A7C5</color>
+    <color name="accent_old">#07A7C5</color>
+    <color name="accent">#9870B3</color>
     <color name="accent_transparent">#4507A7C5</color>
     <color name="highlight">#868686</color>
     <color name="primary_text">#212121</color>
     <color name="primary_text_grey">#4D4D4D</color>
     <color name="secondary_text">#727272</color>
+    <color name="hint_text">#929292</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
     <color name="blue">#3030ff</color>
@@ -26,7 +31,7 @@
     <color name="default_background">#eaeaea</color>
     <color name="default_background_font">#B7B6B7</color>
     <color name="offwhite">#F9F9F9</color>
-    <color name="otherGreen">#46B176</color>
+    <color name="otherGreen">#57BB8A</color>
     <color name="otherGreenOld">#5BB990</color>
     <color name="veryLightGray">#D5D5D5</color>
     <color name="black_semi_transparent">#B2000000</color>
@@ -38,5 +43,6 @@
     <color name="light_green_background">#F3FFEF</color>"
     <color name="gradient_start">#00F3FFEF</color>"
     <color name="gradient_end">#77333333</color>"
+    <color name="text_grey_on_yellow">#838383 </color>
 
 </resources>

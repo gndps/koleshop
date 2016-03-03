@@ -252,9 +252,13 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
         LatLngBounds bounds = builder.build();
 
         //camera update
-        int padding = 200; // offset from edges of the maep in pixels
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-        mGoogleMap.moveCamera(cu);
+        int padding = 120; // offset from edges of the maep in pixels
+        try {
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            mGoogleMap.moveCamera(cu);
+        } catch (Exception e) {
+            Log.e(TAG, "exception while creating map for nearby shops", e);
+        }
     }
 
     public void moreSellersFetched(List<SellerSettings> moreSellers) {

@@ -1,6 +1,5 @@
 package com.koleshop.appkoleshop.util;
 
-import com.koleshop.appkoleshop.model.demo.Cart;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 
 import java.util.Random;

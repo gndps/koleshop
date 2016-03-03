@@ -16,10 +16,12 @@ public class RealmUtils {
         Realm realm = Realm.getDefaultInstance();
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class)
                 .equalTo("id", categoryId);
-        ProductCategory category = query.findFirst();
+        ProductCategory category = realm.copyFromRealm(query.findFirst());
         if (category != null && category.getParentCategoryId() > 0l) {
+            realm.close();
             return category.getParentCategoryId();
         } else {
+            realm.close();
             return null;
         }
     }

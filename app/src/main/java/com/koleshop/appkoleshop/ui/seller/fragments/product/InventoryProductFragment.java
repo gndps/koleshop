@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
 import com.koleshop.appkoleshop.util.CommonUtils;
@@ -65,6 +66,7 @@ public class InventoryProductFragment extends Fragment {
     InventoryProductFragmentInteractionListener mListener;
     private boolean fabHidden;
     private boolean fabStateKnown;
+    private boolean searchMode;
 
     public InventoryProductFragment() {
         // Required empty public constructor
@@ -77,9 +79,11 @@ public class InventoryProductFragment extends Fragment {
         if (bundle != null) {
             myInventory = bundle.getBoolean("myInventory", false);
             customerView = bundle.getBoolean("customerView", false);
+            searchMode = bundle.getBoolean("searchMode", false);
         } else if(savedInstanceState!=null) {
             myInventory = savedInstanceState.getBoolean("myInventory", false);
-            customerView = savedInstanceState.getBoolean("customerView", false);
+            customerView = bundle.getBoolean("customerView", false);
+            searchMode = bundle.getBoolean("searchMode", false);
         }
         mContext = getActivity();
         refreshProductsInsteadOfReloading = false;
@@ -116,6 +120,7 @@ public class InventoryProductFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putBoolean("myInventory", myInventory);
         outState.putBoolean("customerView", customerView);
+        outState.putBoolean("searchMode", searchMode);
     }
 
     @Override
@@ -242,6 +247,7 @@ public class InventoryProductFragment extends Fragment {
         lbm.unregisterReceiver(mBroadcastReceiverInventoryProductFragment);
         if(updateCacheOnPause) {
             inventoryProductAdapter.updateProductsCache();
+            updateCacheOnPause = false;
         }
     }
 
@@ -292,6 +298,10 @@ public class InventoryProductFragment extends Fragment {
                     }
                 } else if (cachedProductsAvailable && refreshProductsInsteadOfReloading && inventoryProductAdapter!=null) {
                     inventoryProductAdapter.setProductsList(listOfProducts);
+                    if(customerView) {
+                        //seller settings are required only when add to cart is needed
+                        inventoryProductAdapter.setSellerSettings(mListener.getSellerSettings());
+                    }
                     inventoryProductAdapter.notifyItemRangeChanged(0, inventoryProductAdapter.getItemCount());
                 } else {
                     fetchProductsFromInternet();
@@ -390,6 +400,10 @@ public class InventoryProductFragment extends Fragment {
 
                 if (products != null && products.size()>0) {
                     inventoryProductAdapter.setProductsList(products);
+                    if(customerView) {
+                        //seller settings are required only when add to cart is needed
+                        inventoryProductAdapter.setSellerSettings(mListener.getSellerSettings());
+                    }
                     //Log.d(TAG, "will set view flipper 2 for category id =" + categoryId);
                     viewFlipper.setDisplayedChild(VF_RECYCLER_VIEW);
                 } else {
@@ -410,6 +424,7 @@ public class InventoryProductFragment extends Fragment {
     public interface InventoryProductFragmentInteractionListener {
         void hideFloatingActionButton();
         void showFloatingActionButton();
+        SellerSettings getSellerSettings();
     }
 
     private Long getSellerIdFromParentActivity() {

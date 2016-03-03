@@ -1,7 +1,5 @@
 package com.koleshop.appkoleshop.model.parcel;
 
-import com.koleshop.appkoleshop.model.demo.SellerInfo;
-
 import org.parceler.Parcel;
 
 import java.util.List;

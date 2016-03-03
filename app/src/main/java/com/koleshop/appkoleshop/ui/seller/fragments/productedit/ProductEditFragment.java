@@ -72,7 +72,7 @@ public class ProductEditFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
                 if (product != null) {
-                    if(!product.getBrand().equalsIgnoreCase(s.toString())) {
+                    if (!product.getBrand().equalsIgnoreCase(s.toString())) {
                         mListener.productModified(true);
                     }
                     product.setBrand(s.toString());
@@ -101,8 +101,10 @@ public class ProductEditFragment extends Fragment {
                 }
             }
         });
+        realm = Realm.getDefaultInstance();
         loadBrands();
         loadCategories();
+        realm.close();
         loadAndBindSpinners();
         return v;
     }
@@ -140,7 +142,6 @@ public class ProductEditFragment extends Fragment {
     }
 
     private void loadBrands() {
-        realm = Realm.getDefaultInstance();
         RealmQuery<Brand> brandRealmQuery = realm.where(Brand.class);
 
         final RealmResults<Brand> brandRealmResults = brandRealmQuery.findAllSorted("name");
@@ -156,8 +157,6 @@ public class ProductEditFragment extends Fragment {
     }
 
     public void loadCategories() {
-
-        realm = Realm.getDefaultInstance();
 
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
         query.equalTo("parentCategoryId", 0l);

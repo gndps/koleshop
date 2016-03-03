@@ -35,7 +35,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = false;
+    public static boolean RESET_REALM = true;
     public static boolean KOLE_CACHE_ALLOWED = true;
 
     public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
@@ -97,6 +97,7 @@ public class Constants {
     public static final String ACTION_SEARCH_RESULTS_FETCH_SUCCESS = "com.koleshop.action_search_results_fetch_success" ;
     public static final String ACTION_SEARCH_RESULTS_FETCH_FAILED = "com.koleshop.action_search_results_fetch_failed" ;
     public static final String ACTION_SEARCH_RESULTS_EMPTY = "com.koleshop.action_search_results_empty" ;
+    public static final String ACTION_OPEN_SINGLE_SELLER_RESULTS = "com.koleshop.action_open_single_seller_results" ;
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";
@@ -139,27 +140,16 @@ public class Constants {
     public static final int DISK_CACHE_SIZE_DATE = 3 * 1024 * 1024; //15 mb
 
 
-    //DualCache keys and expiration time
     //global inventory cache constants
-    public static final String CACHE_INVENTORY_CATEGORIES = "cache_inventory_categories";
-    public static final int TIME_TO_LIVE_CATEGORY_CACHE = 5; //cache_inventory_categories will expire in 5 minutes
-    public static final String CACHE_INVENTORY_SUBCATEGORIES = "cache_inventory_subcategories_"; //this key will be extended by the parent category id
-    public static final int TIME_TO_LIVE_INV_SUBCAT = 5; //cache_inventory_subcategories_x will expire in 5 minutes
-    public static final String CACHE_INVENTORY_PRODUCTS = "cache_inventory_products_"; //this key will be extended by the category id
-    public static final int TIME_TO_LIVE_PRODUCT_CACHE = 5; //product realm cache will expire in 5 minutes
-    //my inventory cache constants
-    public static final String CACHE_MY_INVENTORY_CATEGORIES = "cache_my_inventory_categories";
-    public static final int TIME_TO_LIVE_MY_INV_CAT = 5; //cache_my_inventory_categories will expire in 5 minutes
-    public static final String CACHE_MY_INVENTORY_SUBCATEGORIES = "cache_my_inventory_subcategories_"; //this key will be extended by the parent category id
-    public static final int TIME_TO_LIVE_MY_INV_SUBCAT = 5; //cache_my_inventory_subcategories_x will expire in 5 minutes
-    public static final String CACHE_MY_INVENTORY_PRODUCTS = "cache_my_inventory_products_"; //this key will be extended by the category id
-    public static final int TIME_TO_LIVE_MY_INV_PRODUCT = 5; //cache_my_inventory_subcategories_x will expire in 5 minutes
+    public static final int TIME_TO_LIVE_CATEGORY_CACHE = 20; //cache_inventory_categories will expire in 20 seconds
+    public static final int TIME_TO_LIVE_PRODUCT_CACHE = 5; //product realm cache will expire in 5 seconds
 
     //server client response statuses other than success and failure
     public static final String STATUS_KOLE_RESPONSE_CREATING_INVENTORY = "status_kole_response_creating_inventory";
 
     //Symbols
     public static final String INDIAN_RUPEE_SYMBOL = "\u20B9";
+    public static final String PEACE_SYMBOL = "\u262E";
 
     //Business logic constants
     public static final int DELIVERY_DISTANCE_APPROXIMATION_ERROR = 100; // 100 meters

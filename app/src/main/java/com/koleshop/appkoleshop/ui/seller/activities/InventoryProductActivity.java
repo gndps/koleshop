@@ -12,6 +12,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
@@ -23,6 +26,7 @@ import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
+import com.koleshop.appkoleshop.ui.buyer.activities.SearchActivity;
 import com.koleshop.appkoleshop.ui.seller.adapters.InventoryCategoryViewPagerAdapter;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.CommonUtils;
@@ -109,6 +113,27 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         outState.putParcelable("sellerSettings", Parcels.wrap(sellerSettings));
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_inventory_category_fragment, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_search:
+                Intent searchIntent;
+                if (customerView) {
+                    searchIntent = SearchActivity.newSingleSellerSearch(mContext, sellerSettings);
+                } else {
+                    searchIntent = SearchActivity.newMyShopSearch(mContext, myInventory, sellerSettings.getUserId(), "My Shop");
+                }
+                startActivity(searchIntent);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void initializeBroadcastReceivers() {
         inventoryProductBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -169,7 +194,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     }
 
     private List<ProductCategory> getCachedProductCategories() {
-        if(customerView) {
+        if (customerView) {
             return KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, parentCategoryId, sellerSettings.getUserId());
         } else {
             return KoleCacheUtil.getCachedProductCategoriesFromRealm(myInventory, parentCategoryId, 0l);
@@ -188,7 +213,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         serviceIntent.putExtra("categoryId", parentCategoryId);
         serviceIntent.putExtra("myInventory", myInventory);
         serviceIntent.putExtra("customerView", customerView);
-        if(customerView) {
+        if (customerView) {
             serviceIntent.putExtra("sellerId", sellerSettings.getUserId());
         }
         startService(serviceIntent);
@@ -228,10 +253,12 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
                 selectedPage = position;
                 selectedCategoryId = categories.get(position).getId();
                 Long leftCategoryId = null, rightCategoryId = null;
-                if (position - 1 >= 0) {
+                if (position >= 1) {
+                    //left category id exists
                     leftCategoryId = categories.get(position - 1).getId();
                 }
-                if (position + 1 < categories.size()) {
+                if (position < categories.size() - 1) {
+                    //this is not the last fragment...so right category id exists
                     rightCategoryId = categories.get(position + 1).getId();
                 }
                 List<Long> listOfCategoriesWhoseFragmentsAreLoaded = new ArrayList<>();
@@ -250,7 +277,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
             }
         });
         selectedCategoryId = categories.get(0).getId();
-        if(!customerView) {
+        if (!customerView) {
             menuMultipleActions.setVisibility(View.VISIBLE);
         }
     }
@@ -285,7 +312,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     }
 
     private void initFabMenu() {
-        if(customerView) {
+        if (customerView) {
             menuMultipleActions.setVisibility(View.GONE);
         } else {
             menuMultipleActions.setOnClickListener(new View.OnClickListener() {
@@ -330,6 +357,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         }
     }
 
+    @Override
     public SellerSettings getSellerSettings() {
         return sellerSettings;
     }

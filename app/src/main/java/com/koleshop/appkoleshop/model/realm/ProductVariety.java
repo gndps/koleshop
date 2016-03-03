@@ -1,11 +1,17 @@
 package com.koleshop.appkoleshop.model.realm;
 
+import org.parceler.Parcel;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Gundeep on 26/01/16.
  */
+
+@Parcel(//implementations = {SellerSettingsRealmProxy.class},
+        value = Parcel.Serialization.BEAN,
+        analyze = {ProductVariety.class})
 public class ProductVariety extends RealmObject {
 
     @PrimaryKey

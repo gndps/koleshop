@@ -59,8 +59,7 @@
         <ProgressBar
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_gravity="center"
-            style="@android:style/Widget.ProgressBar.Large"/>
+            android:layout_gravity="center"/>
 
         <!-- this is the error view -->
         <LinearLayout
@@ -80,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:fontFamily="sans-serif-light"
-                android:text="Can't load inventory"
+                android:text="Problem in loading"
                 android:textColor="@color/default_background_font" />
 
             <Button

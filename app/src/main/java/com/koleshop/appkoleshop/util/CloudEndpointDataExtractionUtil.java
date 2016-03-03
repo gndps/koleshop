@@ -110,7 +110,7 @@ public class CloudEndpointDataExtractionUtil {
                     prod.setName((String) map.get("name"));
                     //prod.setDescription((String) map.get("description"));
                     prod.setBrand((String) map.get("brand"));
-                    //prod.setCategoryId(categoryId);
+                    prod.setCategoryId(Long.valueOf((String) map.get("categoryId")));
                     //prod.setAdditionalInfo((String) map.get("additionalInfo"));
                     //prod.setAdditionalInfo((String) map.get("specialDescription"));
                     //prod.setPrivateToUser(Boolean.valueOf((Boolean) map.get("privateToUser")));

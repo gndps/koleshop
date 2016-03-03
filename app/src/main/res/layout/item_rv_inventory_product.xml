@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/root_layout_irip"
     android:background="@color/offwhite">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -14,17 +15,17 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="88dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:orientation="horizontal">
 
         <LinearLayout
             android:id="@+id/ll_inventory_product_click_area_1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingTop="16dp"
             android:orientation="vertical"
-            android:paddingBottom="8dp"
             android:paddingLeft="72dp">
 
             <TextView

@@ -11,6 +11,7 @@ public class InventoryProduct {
     String name;
     //String description;
     String brand;
+    Long categoryId;
     //String additionalInfo;
     //String specialDescription;
     //boolean privateToUser;
@@ -87,5 +88,13 @@ public class InventoryProduct {
 
     public void setVarieties(List<InventoryProductVariety> varieties) {
         this.varieties = varieties;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 }

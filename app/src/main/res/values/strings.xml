@@ -169,5 +169,7 @@
     <string name="search_hint">Search Products</string>
     <string name="title_shop_picture">Shop Picture</string>
     <string name="refresh">REFRESH</string>
+    <string name="no_search_results_found">No search results found</string>
+    <string name="some_problem_occurred">Some problem occurred</string>
 
 </resources>

@@ -4,29 +4,33 @@ import org.parceler.Parcel;
 
 import java.util.Date;
 
+import io.realm.RealmObject;
+
 /**
  * Created by Gundeep on 14/01/16.
  */
 
-@Parcel
-public class SellerSettings {
+@Parcel(//implementations = {SellerSettingsRealmProxy.class},
+        value = Parcel.Serialization.BEAN,
+        analyze = {SellerSettings.class})
+public class SellerSettings extends RealmObject{
 
-    Long id;
-    Long userId;
-    String imageUrl;
-    String headerImageUrl;
-    Address address;
-    int shopOpenTime;
-    int shopCloseTime;
-    boolean pickupFromShop;
-    boolean homeDelivery;
-    Long maximumDeliveryDistance;
-    Float minimumOrder;
-    Float deliveryCharges;
-    Float carryBagCharges;
-    int deliveryStartTime;
-    int deliveryEndTime;
-    boolean shopOpen;
+    private Long id;
+    private Long userId;
+    private String imageUrl;
+    private String headerImageUrl;
+    private Address address;
+    private int shopOpenTime;
+    private int shopCloseTime;
+    private boolean pickupFromShop;
+    private boolean homeDelivery;
+    private Long maximumDeliveryDistance;
+    private Float minimumOrder;
+    private Float deliveryCharges;
+    private Float carryBagCharges;
+    private int deliveryStartTime;
+    private int deliveryEndTime;
+    private boolean shopOpen;
 
     public SellerSettings() {
     }

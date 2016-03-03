@@ -35,7 +35,7 @@ public class ProductEndpoint {
     }
 
     @ApiMethod(name = "saveProduct")
-    public KoleResponse saveProduct(InventoryProduct product, @Named("userId") Long userId, @Named("sessionId") String sessionId, @Named("categoryId") Long categoryId) {
+    public KoleResponse saveProduct(InventoryProduct product, @Named("userId") Long userId, @Named("sessionId") String sessionId, @Named("productCategoryId") Long categoryId) {
         KoleResponse koleResponse = new KoleResponse();
 
         try {

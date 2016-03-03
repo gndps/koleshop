@@ -60,8 +60,10 @@ public class ViewProductEdit extends CardView {
 
         this.product = product;
         this.categoryIdProduct = categoryIdProduct;
+        realm = Realm.getDefaultInstance();
         setupViews();
         loadCategories();
+        realm.close();
         loadAndBindSpinners();
         selectCategory(this.categoryIdProduct);
     }
@@ -82,7 +84,6 @@ public class ViewProductEdit extends CardView {
     }
 
     private void loadBrands() {
-        Realm realm = Realm.getDefaultInstance();
         RealmQuery<Brand> brandRealmQuery = realm.where(Brand.class);
 
         final RealmResults<Brand> brandRealmResults = brandRealmQuery.findAllSorted("name");
@@ -94,8 +95,6 @@ public class ViewProductEdit extends CardView {
     }
 
     public void loadCategories() {
-
-        realm = Realm.getDefaultInstance();
 
         RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
         query.equalTo("parentCategoryId", 0l);

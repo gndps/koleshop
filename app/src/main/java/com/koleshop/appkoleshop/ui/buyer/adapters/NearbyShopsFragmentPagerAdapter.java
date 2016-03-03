@@ -4,7 +4,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.koleshop.appkoleshop.model.demo.SellerInfo;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsListFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsMapFragment;
