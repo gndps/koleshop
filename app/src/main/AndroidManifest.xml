@@ -170,6 +170,7 @@
             android:taskAffinity=""
             android:theme="@style/Theme.Sliding.Light" />
         <activity android:name=".ui.buyer.activities.CartActivity" />
+        <activity android:name=".ui.buyer.activities.PlaceOrderActivity" />
 
         <service
             android:name=".services.DemoIntentService"

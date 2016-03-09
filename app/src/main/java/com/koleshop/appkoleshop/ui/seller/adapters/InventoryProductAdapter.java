@@ -240,9 +240,11 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
     }
 
     public void increaseVarietyCount(int position, Long varietyId) {
+        Product product = mItems.get(position).product;
+        String title = product.getBrand() + " - " + product.getName();
         ProductVariety variety = getProductVarietyFromProductIndex(position, varietyId);
         if (variety != null) {
-            CartUtils.increaseCount(variety, sellerSettings);
+            CartUtils.increaseCount(title, variety, sellerSettings);
         }
     }
 

@@ -14,15 +14,24 @@ import io.realm.RealmObject;
         value = Parcel.Serialization.BEAN,
         analyze = {ProductVarietyCount.class})
 public class ProductVarietyCount extends RealmObject {
+    private String title;
     private ProductVariety productVariety;
     private int cartCount;
 
     public ProductVarietyCount() {
     }
 
-    public ProductVarietyCount(ProductVariety productVariety, int cartCount) {
+    public ProductVarietyCount(String title, ProductVariety productVariety, int cartCount) {
         this.productVariety = productVariety;
         this.cartCount = cartCount;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public ProductVariety getProductVariety() {

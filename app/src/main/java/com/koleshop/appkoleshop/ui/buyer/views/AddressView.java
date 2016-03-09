@@ -1,10 +1,9 @@
 package com.koleshop.appkoleshop.ui.buyer.views;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.CardView;
@@ -28,8 +27,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
-import com.koleshop.appkoleshop.model.parcel.Address;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
 
@@ -60,24 +61,25 @@ public class AddressView extends CardView implements OnMapReadyCallback {
     LinearLayout linearLayout;
 
     Context mContext;
-    Address address;
+    BuyerAddress address;
     GoogleMap mGoogleMap;
-    boolean currentlySelected;
     boolean activateMaps;
     View view;
+    AddressViewListener mListener;
+
     private static final String TAG = "AddressView";
 
     public AddressView(Context context) {
         super(context);
     }
 
-    public AddressView(Context context, Address address, boolean currentlySelected, View view, boolean activateMaps) {
+    public AddressView(Context context, BuyerAddress address, View view, boolean activateMaps, AddressViewListener listener) {
         this(context);
         this.mContext = context;
         this.address = address;
-        this.currentlySelected = currentlySelected;
         this.view = view;
         this.activateMaps = activateMaps;
+        this.mListener = listener;
         ButterKnife.bind(this, view);
         loadAddressDataIntoUi();
     }
@@ -118,7 +120,9 @@ public class AddressView extends CardView implements OnMapReadyCallback {
         //set address
         String addressString  = !TextUtils.isEmpty(address.getName())?address.getName()+"\n":"";
         addressString += !TextUtils.isEmpty(address.getAddress())?address.getAddress()+"\n":"";
-        addressString += !TextUtils.isEmpty(address.getPhoneNumber()+"")?"Ph. " + address.getPhoneNumber():"";
+        if(address.getPhoneNumber()!=null && address.getPhoneNumber()>100000) {
+            addressString += !TextUtils.isEmpty(address.getPhoneNumber() + "") ? "Ph. " + address.getPhoneNumber() : "";
+        }
         if(!TextUtils.isEmpty(addressString)) {
             textViewAddress.setText(addressString);
             textViewAddress.setVisibility(VISIBLE);
@@ -149,10 +153,15 @@ public class AddressView extends CardView implements OnMapReadyCallback {
         buttonDelete.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent addressEditIntent = new Intent(Constants.ACTION_EDIT_ADDRESS);
-                Parcelable parcelableAddress = Parcels.wrap(address);
-                addressEditIntent.putExtra("address", parcelableAddress);
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(addressEditIntent);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setMessage("Are you sure to delete?")
+                        .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                mListener.deleteAddress(address);
+                            }
+                        })
+                        .setNegativeButton("CANCEL", null);
+                builder.create().show();
             }
         });
 
@@ -176,15 +185,19 @@ public class AddressView extends CardView implements OnMapReadyCallback {
         mGoogleMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
         .draggable(false)
         .position(latlng));
-        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(latlng, 16.0f);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(latlng, 14.0f);
         mGoogleMap.moveCamera(cu);
     }
 
     private void refreshAddressHighlight() {
-        if(currentlySelected) {
-            linearLayout.setBackgroundColor(AndroidCompatUtil.getColor(mContext, R.color.light_green_background));
+        if(address.isDefaultAddress()) {
+            linearLayout.setBackground(AndroidCompatUtil.getDrawable(mContext, R.drawable.address_fragment_selected));
         } else {
             linearLayout.setBackgroundColor(AndroidCompatUtil.getColor(mContext, R.color.offwhite));
         }
+    }
+
+    public interface AddressViewListener {
+        void deleteAddress(BuyerAddress address);
     }
 }

@@ -2,8 +2,6 @@ package com.koleshop.appkoleshop.ui.buyer.fragments;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -18,6 +16,7 @@ import android.widget.Button;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.Address;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.parceler.Parcels;
@@ -27,10 +26,10 @@ import org.parceler.Parcels;
  */
 public class AddressDialogFragment extends DialogFragment {
 
-    Address address;
+    BuyerAddress address;
     private final int REQUEST_CODE = 1;
 
-    public static AddressDialogFragment create(Address address) {
+    public static AddressDialogFragment create(BuyerAddress address) {
         AddressDialogFragment addressDialogFragment = new AddressDialogFragment();
         Bundle bundle = new Bundle();
         Parcelable addressParcelable = Parcels.wrap(address);
@@ -61,7 +60,9 @@ public class AddressDialogFragment extends DialogFragment {
         metNickName.setText(address.getNickname());
         metName.setText(address.getName());
         metAddress.setText(address.getAddress());
-        metPhone.setText(address.getPhoneNumber()+"");
+        if(address.getPhoneNumber()!=null) {
+            metPhone.setText(address.getPhoneNumber() + "");
+        }
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
@@ -74,16 +75,19 @@ public class AddressDialogFragment extends DialogFragment {
                     metName.setError("Please enter a name");
                 } else if (TextUtils.isEmpty(metAddress.getText())) {
                     metAddress.setError("Please enter an address");
-                } else if (TextUtils.isEmpty(metPhone.getText())) {
-                    metPhone.setError("Please enter a phone");
+                } else if (TextUtils.isEmpty(metPhone.getText()) || metPhone.getText().length()<=5) {
+                    metPhone.setError("Please enter a valid phone");
                 } else {
                     try {
                         Intent data = new Intent();
                         data.putExtra("id", address.getId());
                         data.putExtra("nickname", metNickName.getText().toString());
                         data.putExtra("name", metName.getText().toString());
-                        data.putExtra("address", metAddress.getText().toString());
+                        String addressString = metAddress.getText().toString();
+                        data.putExtra("addressString", addressString);
                         data.putExtra("phoneNumber", Long.parseLong(metPhone.getText().toString()));
+                        data.putExtra("gpsLong", address.getGpsLong());
+                        data.putExtra("gpsLat", address.getGpsLat());
                         getTargetFragment().onActivityResult(REQUEST_CODE, Activity.RESULT_OK, data);
                         dialog.cancel();
                     } catch (Exception e) {

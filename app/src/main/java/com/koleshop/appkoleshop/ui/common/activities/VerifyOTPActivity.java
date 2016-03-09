@@ -38,6 +38,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
     FrameLayout frameLayoutBottomButtons;
     TextView textViewTitle, textViewSubtitle;
     static String TAG = "VerifyOtpActivity";
+    boolean finishOnVerify;
 
     //todo add sms receivers
 
@@ -57,6 +58,11 @@ public class VerifyOTPActivity extends AppCompatActivity {
 
         initializeBroadcastReceivers();
         //addTextListener();
+        if(savedInstanceState!=null) {
+            finishOnVerify = savedInstanceState.getBoolean("finishOnVerify");
+        } else if(getIntent()!=null && getIntent().getExtras()!=null) {
+            finishOnVerify = getIntent().getExtras().getBoolean("finishOnVerify");
+        }
     }
 
     @Override
@@ -72,6 +78,12 @@ public class VerifyOTPActivity extends AppCompatActivity {
         phone = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_PHONE_NUMBER);
         sessionType = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_SESSION_TYPE);
         deviceId = PreferenceUtils.getRegistrationId(mContext);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("finishOnVerify", finishOnVerify);
     }
 
     private void initializeBroadcastReceivers() {
@@ -92,10 +104,14 @@ public class VerifyOTPActivity extends AppCompatActivity {
                             .setPositiveButton("Ok", null)
                             .show();
                 } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_VERIFY_OTP_SUCCESS)) {
-                    stopProcessing();
-                    Intent intent1 = new Intent(mContext, GetStartedActivity.class);
-                    intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent1);
+                    if(finishOnVerify) {
+                        finish();
+                    } else {
+                        stopProcessing();
+                        Intent intent1 = new Intent(mContext, GetStartedActivity.class);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent1);
+                    }
                 } else if(intent.getAction().equalsIgnoreCase(Constants.ACTION_VERIFY_OTP_FAILED)) {
                     stopProcessing();
                     new AlertDialog.Builder(mContext)

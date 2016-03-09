@@ -9,11 +9,13 @@ import android.view.ViewGroup;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.SellerSearchResults;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.ui.buyer.viewholders.MultiSellerSearchViewHolder;
 import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import java.util.List;
 
@@ -22,17 +24,19 @@ import java.util.List;
  */
 public class MultiSellerSearchAdapter extends RecyclerView.Adapter<MultiSellerSearchViewHolder> {
 
+    private final BuyerAddress defaultBuyerAddress;
     List<SellerSearchResults> results;
     Context mContext;
     int expandedProductPosition;
     int expandedSettingsPosition;
     int oldExpandedSettingsPosition;
 
-    public MultiSellerSearchAdapter(Context context, List<SellerSearchResults> results) {
+    public MultiSellerSearchAdapter(Context context, List<SellerSearchResults> results, BuyerAddress buyerAddress) {
         this.mContext = context;
         this.results = results;
         this.expandedProductPosition = -1;
         this.expandedSettingsPosition = -1;
+        this.defaultBuyerAddress = buyerAddress;
     }
 
     @Override
@@ -48,7 +52,7 @@ public class MultiSellerSearchAdapter extends RecyclerView.Adapter<MultiSellerSe
         if (position == expandedSettingsPosition) {
             expandProduct = true;
         }
-        holder.bindData(results.get(position), expandProduct, position, expandedProductPosition);
+        holder.bindData(results.get(position), expandProduct, position, expandedProductPosition, defaultBuyerAddress);
     }
 
     @Override
@@ -74,8 +78,9 @@ public class MultiSellerSearchAdapter extends RecyclerView.Adapter<MultiSellerSe
     public void increaseVarietyCount(int settingsPosition, int position, Long varietyId) {
         if(results!=null) {
             ProductVariety productVariety = getProductVariety(settingsPosition, position, varietyId);
+            String title = getProductVarietyCountTitle(settingsPosition, position);
             if(productVariety!=null) {
-                CartUtils.increaseCount(productVariety, results.get(settingsPosition).getSellerSettings());
+                CartUtils.increaseCount(title, productVariety, results.get(settingsPosition).getSellerSettings());
                 notifyItemChanged(settingsPosition);
             }
         }
@@ -97,6 +102,16 @@ public class MultiSellerSearchAdapter extends RecyclerView.Adapter<MultiSellerSe
             Product currentProduct = KoleshopUtils.getProductFromEditProduct(editProduct);
             ProductVariety productVariety = KoleshopUtils.getProductVarietyFromProduct(currentProduct, varietyId);
             return productVariety;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String getProductVarietyCountTitle(int settingsPosition, int position) {
+        try {
+            EditProduct editProduct = results.get(settingsPosition).getProducts().get(position);
+            Product currentProduct = KoleshopUtils.getProductFromEditProduct(editProduct);
+            return currentProduct.getBrand() + " - " + currentProduct.getName();
         } catch (Exception e) {
             return null;
         }

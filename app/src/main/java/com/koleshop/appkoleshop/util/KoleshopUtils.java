@@ -2,6 +2,7 @@ package com.koleshop.appkoleshop.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.TypedValue;
 
@@ -137,6 +138,32 @@ public class KoleshopUtils {
             textDrawable = textDrawableBuilder.buildRound(name.substring(0,1).toUpperCase(), color);
         } else {
             textDrawable = textDrawableBuilder.buildRect(name.substring(0,1).toUpperCase(), color);
+        }
+
+        return textDrawable;
+    }
+
+    public static TextDrawable getTextDrawable(Context context, String name, int widthInDp, boolean round, int color,int textColor) {
+        Resources r = context.getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, widthInDp, r.getDisplayMetrics());
+        ColorGenerator generator = ColorGenerator.MATERIAL;
+        if(color==-1)
+        {
+            color = generator.getColor(name);
+        }
+
+        TextDrawable textDrawable;
+        TextDrawable.IShapeBuilder textDrawableBuilder = TextDrawable.builder()
+                .beginConfig()
+                .width((int) px)  // width in px
+                .height((int) px) // height in px
+                .useFont(Typeface.SANS_SERIF)
+                .textColor(textColor)
+                .endConfig();
+        if(round) {
+            textDrawable = textDrawableBuilder.buildRound(name, color);
+        } else {
+            textDrawable = textDrawableBuilder.buildRect(name, color);
         }
 
         return textDrawable;

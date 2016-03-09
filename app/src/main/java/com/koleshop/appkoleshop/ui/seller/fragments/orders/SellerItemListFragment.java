@@ -26,15 +26,15 @@ public class SellerItemListFragment extends Fragment {
     RecyclerView recyclerView;
     @Bind(R.id.button_fsil_check_all)
     Button buttonCheckAll;
-    @Bind(R.id.tv_fsil_total)
+    @Bind(R.id.tv_bill_details_total)
     TextView textViewTotal;
-    @Bind(R.id.tv_fsil_not_available)
+    @Bind(R.id.tv_bill_details_not_available)
     TextView textViewNotAvailable;
-    @Bind(R.id.tv_fsil_delivery_charges)
+    @Bind(R.id.tv_bill_details_delivery_charges)
     TextView textViewDeliveryCharges;
-    @Bind(R.id.tv_fsil_carry_bag_charges)
+    @Bind(R.id.tv_bill_details_carry_bag_charges)
     TextView textViewCarryBagCharges;
-    @Bind(R.id.tv_fsil_amount_payable)
+    @Bind(R.id.tv_bill_details_amount_payable)
     TextView textViewAmountPayable;
 
     Context mContext;

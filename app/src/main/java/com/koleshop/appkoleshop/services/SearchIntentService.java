@@ -20,11 +20,13 @@ import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.koleshop.appkoleshop.model.parcel.SellerSearchResults;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.util.CloudEndpointDataExtractionUtil;
 import com.koleshop.appkoleshop.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
 
@@ -128,8 +130,9 @@ public class SearchIntentService extends IntentService {
             Context context = getApplicationContext();
             //Long userId = PreferenceUtils.getUserId(context);
             //String sessionId = PreferenceUtils.getSessionId(context);
-            Double gpsLong = PreferenceUtils.getGpsLong(context);
-            Double gpsLat = PreferenceUtils.getGpsLat(context);
+            BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
+            Double gpsLong = buyerAddress.getGpsLong();
+            Double gpsLat = buyerAddress.getGpsLat();
             int count = 0;
             int maxTries = 3;
             while (count < maxTries) {

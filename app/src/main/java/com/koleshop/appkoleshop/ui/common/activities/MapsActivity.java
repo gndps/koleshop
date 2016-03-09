@@ -44,6 +44,7 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -321,10 +322,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Intent intent = new Intent(this, HomeActivity.class);
             intent.putExtra("firstTime", true);
             //save gps long/lat in shared preferences
-            SharedPreferences.Editor editor = PreferenceUtils.getSharedPreferencesEditor(this);
+            RealmUtils.createBuyerAddress(gpsLong, gpsLat, true);
+            /*SharedPreferences.Editor editor = PreferenceUtils.getSharedPreferencesEditor(this);
             editor.putLong(Constants.KEY_GPS_LAT, Double.doubleToRawLongBits(gpsLat));
             editor.putLong(Constants.KEY_GPS_LONG, Double.doubleToRawLongBits(gpsLong));
-            editor.apply();
+            editor.apply();*/
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }

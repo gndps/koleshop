@@ -139,6 +139,10 @@ public class CommonService {
         }
     }
 
+    public KoleResponse getAddresses(Long userId) {
+        return null;
+    }
+
     public KoleResponse updateSellerSettings(Long userId, SellerSettings settings) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;

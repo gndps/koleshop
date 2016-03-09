@@ -17,6 +17,7 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.listeners.KolClickListener;
 import com.koleshop.appkoleshop.listeners.KolRecyclerTouchListener;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.buyer.adapters.NearbyShopsListAdapter;
 
 import org.parceler.Parcels;
@@ -47,15 +48,17 @@ public class NearbyShopsListFragment extends Fragment {
     private int totalItemCount;
     private int pastVisibleItems;
     private boolean loading = true;
+    private BuyerAddress buyerAddress;
 
 
     public NearbyShopsListFragment() {
         // Required empty public constructor
     }
 
-    public static NearbyShopsListFragment newInstance(List<SellerSettings> sellers) {
+    public static NearbyShopsListFragment newInstance(List<SellerSettings> sellers, BuyerAddress buyerAddress) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("sellers", Parcels.wrap(sellers));
+        bundle.putParcelable("buyerAddress", Parcels.wrap(buyerAddress));
         NearbyShopsListFragment nearbyShopsListFragment = new NearbyShopsListFragment();
         nearbyShopsListFragment.setArguments(bundle);
         return nearbyShopsListFragment;
@@ -69,6 +72,7 @@ public class NearbyShopsListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_nearby_shops_list, container, false);
         try {
             sellers = Parcels.unwrap(getArguments().getParcelable("sellers"));
+            buyerAddress = Parcels.unwrap(getArguments().getParcelable("buyerAddress"));
         } catch (Exception e) {
             //some problem while accepting parcel
             Log.d(TAG,"problem in accepting sellers parcel", e);
@@ -89,7 +93,7 @@ public class NearbyShopsListFragment extends Fragment {
             recyclerView.setLayoutManager(mLayoutManager);
 
             //set adapter
-            adapter = new NearbyShopsListAdapter(sellers, mContext);
+            adapter = new NearbyShopsListAdapter(sellers, mContext, buyerAddress);
             recyclerView.setAdapter(adapter);
 
             recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(mContext, recyclerView, new KolClickListener() {

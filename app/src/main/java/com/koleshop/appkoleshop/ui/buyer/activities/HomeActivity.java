@@ -73,9 +73,12 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             firstTime = getIntent().getBooleanExtra("firstTime", false);
             ButterKnife.bind(this);
             mContext = this;
-            deleteRealmPreferences();
             setupToolbar();
-            setupDrawerLayout();
+            boolean showHome = true;
+            if(savedInstanceState!=null && savedInstanceState.getBoolean("createdOnce")) {
+                showHome = false;
+            }
+            setupDrawerLayout(showHome);
         }
     }
 
@@ -112,6 +115,11 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 startActivity(SearchActivity.newMultiSellerSearch(mContext));
                 return true;
 
+            case R.id.menu_item_cart:
+                if (item != null) {
+                    displayView(item);
+                }
+
         }
         return false;
     }
@@ -123,6 +131,18 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         } else {
             showHome();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshLoginLogoutStates();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("createdOnce", true);
     }
 
     private void setupToolbar() {
@@ -142,15 +162,14 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         }
     }
 
-    private void setupDrawerLayout() {
+    private void setupDrawerLayout(boolean showHome) {
         //initialize layout elements
         drawerLayout = (DrawerLayout) findViewById(com.koleshop.appkoleshop.R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
-        refreshLoginLogoutStates();
         if (firstTime) {
             showNearbyShops();
-        } else {
+        } else if(showHome) {
             showHome();
         }
     }
@@ -355,7 +374,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             case R.id.drawer_addresses:
                 //Cart
                 title = titleAddresses;
-                AddressesFragment addressesFragment = AddressesFragment.newInstance(true, 1l);
+                AddressesFragment addressesFragment = AddressesFragment.newInstance(false, false);
                 setItemChecked = true;
                 closeDrawers = true;
                 replaceFragment(addressesFragment, FRAGMENT_ADDRESSES_TAG);
@@ -454,32 +473,6 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         lastFragmentTag = fragmentTag;
         lastFragmentShowed = true;
         isLastFragmentSupportType = true;
-    }
-
-    private void deleteRealmPreferences() {
-        //CommonUtils.closeRealm(mContext);
-        PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED, false);
-        PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED, false);
-        try {
-            try {
-                Realm.getDefaultInstance().close();
-            } catch (Exception e) {
-                //dont give a damn
-            }
-            try {
-                Realm r = Realm.getDefaultInstance();
-                r.close();
-                if (r != null) {
-                    Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
-                }
-            } catch (RealmException e) {
-                Log.e(TAG, "realm exception", e);
-            } finally {
-                Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
-            }
-        } catch (Exception e) {
-            Log.wtf(TAG, "realm exception woh", e);
-        }
     }
 
     /*private void showInternetConnectionPopup() {

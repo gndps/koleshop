@@ -22,9 +22,11 @@ import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.Address;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.util.NetworkUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
 
@@ -95,10 +97,16 @@ public class BuyerIntentService extends IntentService {
 
         Context context = getApplicationContext();
 
-        Long userId = PreferenceUtils.getUserId(context);
-        String sessionId = PreferenceUtils.getSessionId(context);
-        Double gpsLong = PreferenceUtils.getGpsLong(context);
-        Double gpsLat = PreferenceUtils.getGpsLat(context);
+        //Long userId = PreferenceUtils.getUserId(context);
+        //String sessionId = PreferenceUtils.getSessionId(context);
+        BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
+        if(buyerAddress==null) {
+            Intent noAddressIntent = new Intent(Constants.ACTION_NO_ADDRESS_SELECTED);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(noAddressIntent);
+            return;
+        }
+        Double gpsLong = buyerAddress.getGpsLong();
+        Double gpsLat = buyerAddress.getGpsLat();
 
 
         KoleResponse result = null;
@@ -168,7 +176,9 @@ public class BuyerIntentService extends IntentService {
             if(sellerSettingsList!=null && sellerSettingsList.size()>0) {
                 //nearby shops received successfully - now parcel with the broadcast
                 Parcelable parcelableListOfNearbyShops = Parcels.wrap(sellerSettingsList);
+                Parcelable parcelableBuyerAddress = Parcels.wrap(buyerAddress);
                 intentNearbyShops.putExtra("nearbyShopsList", parcelableListOfNearbyShops);
+                intentNearbyShops.putExtra("buyerAddress", parcelableBuyerAddress);
             }
 
             intentNearbyShops.putExtra("offset", offset);

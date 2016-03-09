@@ -58,7 +58,7 @@
                 android:fontFamily="sans-serif-light"
                 android:gravity="center"
                 android:textColor="@color/primary_text"
-                android:text="No nearby shops found :/" />
+                android:text="@string/no_nearby_shops" />
 
             <Button
                 android:id="@+id/button_refresh_nearby_shops"
@@ -104,6 +104,29 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="16dp"
                 android:layout_centerHorizontal="true"/>
+
+        </LinearLayout>
+
+        <!-- no address selected | view flipper child 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_pinky_sad" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:layout_gravity="center"
+                android:text="Please select a address to see nearby shops"
+                android:textColor="@color/default_background_font" />
 
         </LinearLayout>
 

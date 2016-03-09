@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -190,6 +191,14 @@ public class CommonUtils {
         }
     }
 
+    public static String getPriceStringFromFloat(Float priceFloat, boolean rupeeSymbol) {
+        if(rupeeSymbol) {
+            return Constants.INDIAN_RUPEE_SYMBOL + " " + getPriceStringFromFloat(priceFloat);
+        } else {
+            return getPriceStringFromFloat(priceFloat);
+        }
+    }
+
     @Deprecated
     public static String getSettingsTimeFromDate(Date date) {
         if (date != null) {
@@ -363,9 +372,32 @@ public class CommonUtils {
         return distance;
     }
 
-    public static void main(String[] args) {
-        String distance = getReadableDistanceFromMetres(123.32f);
-        System.out.print(distance);
+    public static float getScreenWidth(Context context) {
+
+
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        return dpWidth;
+
+    }
+
+    public static float getScreenWidthInPixels(Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return displayMetrics.widthPixels;
+    }
+
+    public static float getScreenHeight(Context context) {
+
+
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        return dpHeight;
+
+    }
+
+    public static float getScreenHeightInPixels(Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return displayMetrics.heightPixels;
     }
 
 }

@@ -8,17 +8,18 @@ import android.widget.ImageButton;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.Address;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.buyer.views.AddressView;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 
 /**
  * Created by Gundeep on 04/02/16.
  */
-public class AddressRvViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class AddressRvViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, AddressView.AddressViewListener {
 
     AddressView addressView;
     Context mContext;
-    Address address;
+    BuyerAddress address;
     View view;
     AddressItemClickListener mListener;
     int position;
@@ -32,10 +33,10 @@ public class AddressRvViewHolder extends RecyclerView.ViewHolder implements View
         view.setOnClickListener(this);
     }
 
-    public void bindAddressData(Address address, boolean currentlySelected, boolean activateMaps, int position) {
+    public void bindAddressData(BuyerAddress address, boolean activateMaps, int position) {
         this.address = address;
         this.position = position;
-        addressView = new AddressView(mContext, address, currentlySelected, view, activateMaps);
+        addressView = new AddressView(mContext, address, view, activateMaps, this);
     }
 
     @Override
@@ -45,8 +46,14 @@ public class AddressRvViewHolder extends RecyclerView.ViewHolder implements View
         }
     }
 
+    @Override
+    public void deleteAddress(BuyerAddress address) {
+        mListener.onAddressDeleted(position);
+    }
+
     public interface AddressItemClickListener {
         void onAddressSelected(int position);
+        void onAddressDeleted(int position);
     }
 
 

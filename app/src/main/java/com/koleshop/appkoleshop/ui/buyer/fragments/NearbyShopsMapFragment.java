@@ -29,8 +29,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
 
@@ -49,6 +51,7 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
     Context mContext;
     Marker userMarker;
     Marker nearestShopMarker;
+    BuyerAddress buyerAddress;
 
     // Declare a variable for the cluster manager.
     //ClusterManager<MyItem> mClusterManager;
@@ -56,9 +59,10 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
     private static String TAG = "fns_map";
 
 
-    public static NearbyShopsMapFragment newInstance(List<SellerSettings> sellers) {
+    public static NearbyShopsMapFragment newInstance(List<SellerSettings> sellers, BuyerAddress buyerAddress) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("sellers", Parcels.wrap(sellers));
+        bundle.putParcelable("buyerAddress", Parcels.wrap(buyerAddress));
         NearbyShopsMapFragment nearbyShopsMapFragment = new NearbyShopsMapFragment();
         nearbyShopsMapFragment.setArguments(bundle);
         return nearbyShopsMapFragment;
@@ -72,6 +76,7 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
         mContext = getActivity();
         try {
             sellers = Parcels.unwrap(getArguments().getParcelable("sellers"));
+            buyerAddress = Parcels.unwrap(getArguments().getParcelable("buyerAddress"));
         } catch (Exception e) {
             //some problem while accepting parcel
             Log.d(TAG, "problem in accepting sellers parcel", e);
@@ -146,8 +151,8 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
         if (markers != null && userMarker != null && markers.containsKey(userMarker)) {
             markers.remove(userMarker);
         }
-        Double deliveryLocationGpsLat = PreferenceUtils.getGpsLat(mContext);
-        Double deliveryLocationGpsLong = PreferenceUtils.getGpsLong(mContext);
+        Double deliveryLocationGpsLat = buyerAddress.getGpsLat();
+        Double deliveryLocationGpsLong = buyerAddress.getGpsLong();
         Bitmap userMarkerBitmap = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.ic_user_gps_marker);
         Marker marker = mGoogleMap.addMarker(new MarkerOptions()
@@ -178,8 +183,8 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
 
             //01.02 GET SHOP DISTANCE FROM USER
             float[] results = new float[3];
-            Double userLat = PreferenceUtils.getGpsLat(mContext);
-            Double userLong = PreferenceUtils.getGpsLong(mContext);
+            Double userLat = buyerAddress.getGpsLat();
+            Double userLong = buyerAddress.getGpsLong();
             Location.distanceBetween(userLat, userLong, sellerSettings.getAddress().getGpsLat(), sellerSettings.getAddress().getGpsLong(), results);
             float userDistanceFromShopInMeters = results[0];
 

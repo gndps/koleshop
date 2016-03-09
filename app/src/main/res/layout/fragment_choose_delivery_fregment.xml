@@ -1,0 +1,197 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:tag="delivery_time_fragment_tag"
+    tools:context=".DeliveryOptions">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title_bar_delivery_time_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/accent"
+                android:gravity="left"
+                android:padding="8dp"
+                android:text="2. DELIVERY TIME"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <ViewFlipper
+                    android:id="@+id/view_flipper_asap_section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:id="@+id/asap_linear_layout"
+                        android:orientation="vertical">
+
+                        <com.andexert.library.RippleView
+                            android:id="@+id/ripple_effect_asap_button"
+                            rv_centered="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="8dp"
+                            app:rv_rippleDuration="200">
+
+                            <ImageButton
+                                android:id="@+id/asap_button"
+                                android:layout_width="160dp"
+                                android:layout_height="1920dp"
+                                android:layout_alignParentTop="true"
+                                android:background="@drawable/shape_asap_button"
+                                android:paddingBottom="16dp"
+                                android:paddingLeft="16dp"
+                                android:paddingRight="16dp"
+                                android:paddingTop="16dp"
+                                android:scaleType="centerInside" />
+
+                        </com.andexert.library.RippleView>
+
+                        <TextView
+                            android:id="@+id/asap_textview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="30dp"
+                            android:layout_marginBottom="8dp"
+                            android:layout_marginRight="12dp"
+                            android:gravity="center"
+                            android:text=" As soon \n as \n possible"
+                            android:textSize="20dp" />
+                    </LinearLayout>
+
+                    <com.andexert.library.RippleView
+
+                        android:id="@+id/ripple_for_today_button"
+                        rv_centered="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="8dp"
+                        app:rv_rippleDuration="200">
+
+                        <ImageButton
+                            android:id="@+id/today_button"
+                            android:layout_width="160dp"
+                            android:layout_height="192dp"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"
+                            android:background="@drawable/shape_asap_button"
+                            android:foregroundGravity="center_horizontal"
+                            android:paddingBottom="16dp"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:paddingTop="16dp"
+                            android:scaleType="centerInside" />
+                    </com.andexert.library.RippleView>
+
+
+                </ViewFlipper>
+
+                <ViewFlipper
+                    android:id="@+id/view_flipper_choose_delivery_section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/choose_delivery_layout"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <com.andexert.library.RippleView
+                            android:id="@+id/ripple_effect_choose_delivery_time_button"
+                            rv_centered="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="8dp"
+                            app:rv_rippleDuration="200">
+
+                            <ImageButton
+                                android:id="@+id/choose_delivery_time_button"
+                                android:layout_width="160dp"
+                                android:layout_height="192dp"
+                                android:layout_alignParentTop="true"
+                                android:background="@drawable/shape_choose_delivery_button"
+                                android:paddingBottom="16dp"
+                                android:paddingLeft="16dp"
+                                android:paddingRight="16dp"
+                                android:paddingTop="16dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_clock_hands" />
+                        </com.andexert.library.RippleView>
+
+
+                        <TextView
+                            android:id="@+id/choose_deliver_time_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="30dp"
+                            android:layout_marginRight="12dp"
+                            android:gravity="center_horizontal"
+                            android:text="  Choose  \n delivery \ntime"
+                            android:textSize="20dp" />
+                    </LinearLayout>
+
+                    <com.andexert.library.RippleView
+                        android:id="@+id/ripple_for_tomorrow_button"
+                        rv_centered="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="8dp"
+                        app:rv_rippleDuration="200">
+
+                        <ImageButton
+                            android:id="@+id/tomorrow_button"
+                            android:layout_width="160dp"
+                            android:layout_height="192dp"
+                            android:layout_alignParentTop="true"
+
+                            android:background="@drawable/shape_choose_delivery_button"
+                            android:paddingBottom="16dp"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:paddingTop="16dp"
+                            android:scaleType="center" />
+                    </com.andexert.library.RippleView>
+
+
+                </ViewFlipper>
+            </LinearLayout>
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

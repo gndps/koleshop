@@ -9,4 +9,8 @@
         <attr name="metaButtonBarButtonStyle" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="ItemCountView">
+        <attr name="showZeroCount" format="boolean" />
+    </declare-styleable>
+
 </resources>

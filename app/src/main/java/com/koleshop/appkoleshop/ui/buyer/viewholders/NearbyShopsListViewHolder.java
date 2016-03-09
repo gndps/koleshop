@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
@@ -28,6 +29,7 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
 
     SellerSettings sellerInfo;
     Context mContext;
+    private BuyerAddress buyerAddress;
 
     @Bind(R.id.iv_vnsi_avatar)
     CircleImageView imageViewAvatar;
@@ -40,9 +42,10 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
     @Bind(R.id.tv_vnsi_distance)
     TextView textViewDistance;
 
-    public NearbyShopsListViewHolder(View itemView, Context context) {
+    public NearbyShopsListViewHolder(View itemView, Context context, BuyerAddress buyerAddress) {
         super(itemView);
         this.mContext = context;
+        this.buyerAddress = buyerAddress;
         ButterKnife.bind(this, itemView);
     }
 
@@ -60,8 +63,8 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
 
             //02. SET SHOP DISTANCE FROM USER
             float[] results = new float[3];
-            Double userLat = PreferenceUtils.getGpsLat(mContext);
-            Double userLong = PreferenceUtils.getGpsLong(mContext);
+            Double userLat = buyerAddress.getGpsLat();
+            Double userLong = buyerAddress.getGpsLong();
             Location.distanceBetween(userLat, userLong, sellerInfo.getAddress().getGpsLat(), sellerInfo.getAddress().getGpsLong(), results);
             float userDistanceFromShopInMeters = results[0];
             if (results != null && results.length > 0) {

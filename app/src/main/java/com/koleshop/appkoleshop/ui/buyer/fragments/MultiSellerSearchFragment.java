@@ -24,10 +24,12 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.listeners.SearchActivityListener;
 import com.koleshop.appkoleshop.model.parcel.SellerSearchResults;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.services.SearchIntentService;
 import com.koleshop.appkoleshop.ui.buyer.activities.SearchActivity;
 import com.koleshop.appkoleshop.ui.buyer.adapters.MultiSellerSearchAdapter;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
 
@@ -60,6 +62,7 @@ public class MultiSellerSearchFragment extends Fragment {
     private static final int VIEW_FLIPPER_CHILD_RECYCLER_VIEW = 1;
     private static final int VIEW_FLIPPER_CHILD_INTERNET_PROBLEM = 2;
     private static final int VIEW_FLIPPER_CHILD_NO_RESULTS = 3;
+    private static final int VIEW_FLIPPER_NO_ADDRESS_SELECTED = 4;
 
     private Context mContext;
     private List<SellerSearchResults> results;
@@ -113,7 +116,12 @@ public class MultiSellerSearchFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_multi_seller_search, container, false);
         ButterKnife.bind(this, view);
         if (results != null) {
-            adapter = new MultiSellerSearchAdapter(mContext, results);
+            BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
+            if(buyerAddress!=null) {
+                adapter = new MultiSellerSearchAdapter(mContext, results, buyerAddress);
+            } else {
+                viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_ADDRESS_SELECTED);
+            }
         } else {
             searchQuery = getArguments().getString(ARG_SEARCH_QUERY);
             viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_LOADING);
@@ -207,10 +215,15 @@ public class MultiSellerSearchFragment extends Fragment {
 
     private void loadTheResultsIntoUi() {
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
-        adapter = new MultiSellerSearchAdapter(mContext, results);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_RECYCLER_VIEW);
+        BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
+        if(buyerAddress!=null) {
+            adapter = new MultiSellerSearchAdapter(mContext, results, buyerAddress);
+            recyclerView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_RECYCLER_VIEW);
+        } else {
+            viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_ADDRESS_SELECTED);
+        }
     }
 
     private void getSearchResultsFromInternet() {

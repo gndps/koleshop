@@ -62,7 +62,7 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
     }
 
     public Long getInventoryCategoryId(int position) {
-        if(categories!=null) {
+        if(categories!=null && categories.size()>0) {
             ProductCategory cat = categories.get(position);
             if(cat!=null) {
                 return cat.getId();

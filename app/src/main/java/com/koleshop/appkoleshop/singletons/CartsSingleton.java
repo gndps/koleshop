@@ -1,7 +1,10 @@
 package com.koleshop.appkoleshop.singletons;
 
+import android.util.Log;
+
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Cart;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +20,7 @@ public class CartsSingleton {
     public static CartsSingleton sharedInstance = null;
 
     private List<Cart> carts;
+    private String TAG = "CartsSingleton";
 
     public static CartsSingleton getSharedInstance() {
         if (sharedInstance == null) {
@@ -36,11 +40,18 @@ public class CartsSingleton {
         return carts;
     }
 
+    public List<Cart> getCarts() {
+        loadCartsFromRealm();
+        return carts;
+    }
+
+
+
     public Cart getCart(SellerSettings sellerSettings) {
 
         Cart sellerCart = null;
 
-        loadCarts_fromRealm_toSingleton_ifNeeded();
+        loadCartsFromRealm();
 
         for(Cart singleCart : carts) {
             if(singleCart!=null && singleCart.getSellerSettings()!=null && singleCart.getSellerSettings().getUserId().equals(sellerSettings.getUserId())) {
@@ -57,7 +68,7 @@ public class CartsSingleton {
         return sellerCart;
     }
 
-    public void loadCarts_fromRealm_toSingleton_ifNeeded() {
+    public void loadCartsFromRealm() {
         if(carts==null) {
             carts = getCartsFromRealm();
             if(carts==null) {
@@ -66,4 +77,13 @@ public class CartsSingleton {
         }
     }
 
+    public void removeCart(Cart cart) {
+        if(carts!=null) {
+            carts.remove(cart);
+        }
+    }
+
+    public void setCarts(List<Cart> carts) {
+        this.carts = carts;
+    }
 }

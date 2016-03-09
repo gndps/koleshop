@@ -1,7 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context="com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment">
 
     <ViewFlipper
@@ -10,6 +10,9 @@
         android:layout_height="match_parent">
 
         <com.koleshop.appkoleshop.ui.common.recyclerview.FlingRecyclerView
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false"
             android:id="@+id/rv_addresses"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -20,6 +23,42 @@
             android:layout_height="40dp"
             android:layout_gravity="center" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_pinky_embarrased" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="sans-serif-light"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="No addresses found\nPlease add a address"
+                android:textColor="@color/default_background_font" />
+
+        </LinearLayout>
+
     </ViewFlipper>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_fragment_addresses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:elevation="8dp"
+        android:src="@drawable/ic_add_white_24dp"
+        android:background="@color/accent"/>
 
 </FrameLayout>

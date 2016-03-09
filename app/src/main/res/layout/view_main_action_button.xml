@@ -12,6 +12,7 @@
         android:textSize="28sp"
         android:layout_gravity="center"
         android:textColor="@color/white"
+        android:fontFamily="sans-serif-light"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:text="DONE"
         android:onClick="mainActionButtonClicked"/>

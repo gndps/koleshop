@@ -3,10 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@color/default_background"
     tools:context=".ui.buyer.activities.CartActivity">
 
@@ -14,11 +10,54 @@
         android:id="@+id/appbar_cart_activity"
         layout="@layout/view_app_bar" />
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:id="@+id/rv_cart_activity"
+    <ViewFlipper
+        android:id="@+id/vf_cart_activity"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+        android:layout_height="match_parent">
+
+        <!-- no items in the cart | view flipper child 0 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_pinky_embarrased" />
+
+            <TextView
+                android:id="@+id/tv_no_items_in_cart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:text="No items in the cart\n\nYou can add items from shops"
+                android:textColor="@color/default_background_font" />
+        </LinearLayout>
+
+        <!--carts list | view flipper child 1-->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="56dp">
+
+            <LinearLayout
+                android:id="@+id/ll_activity_cart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/appbar_cart_activity"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:orientation="vertical"></LinearLayout>
+
+        </ScrollView>
+
+    </ViewFlipper>
 
 </RelativeLayout>

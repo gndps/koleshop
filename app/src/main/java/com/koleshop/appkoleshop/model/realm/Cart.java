@@ -1,7 +1,14 @@
 package com.koleshop.appkoleshop.model.realm;
 
+import com.koleshop.appkoleshop.helpers.ProductVarietyCountListParcelConverter;
 import com.koleshop.appkoleshop.model.cart.ProductVarietyCount;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+
+import org.parceler.Parcel;
+import org.parceler.ParcelProperty;
+import org.parceler.ParcelPropertyConverter;
+import org.parceler.Parcels;
+import org.parceler.converter.CollectionParcelConverter;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -10,6 +17,9 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Gundeep on 02/03/16.
  */
+@Parcel(//implementations = {ProductVarietyCountRealmProxy.class},
+        value = Parcel.Serialization.BEAN,
+        analyze = {Cart.class})
 public class Cart extends RealmObject {
 
     @PrimaryKey
@@ -52,7 +62,10 @@ public class Cart extends RealmObject {
         return productVarietyCountList;
     }
 
+    @ParcelProperty("productVarietyCountList")
+    @ParcelPropertyConverter(ProductVarietyCountListParcelConverter.class)
     public void setProductVarietyCountList(RealmList<ProductVarietyCount> productVarietyCountList) {
         this.productVarietyCountList = productVarietyCountList;
     }
+
 }

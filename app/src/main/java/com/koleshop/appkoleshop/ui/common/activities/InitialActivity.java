@@ -25,6 +25,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.seller.activities.HomeActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.CommonUtils;
@@ -32,11 +33,13 @@ import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.activities.SelectSellerCategoryActivity;
 import com.koleshop.appkoleshop.services.RegistrationIntentService;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 
 public class InitialActivity extends AppCompatActivity {
 
@@ -55,9 +58,12 @@ public class InitialActivity extends AppCompatActivity {
     String mEmail; // Received from newChooseAccountIntent(); passed to getToken()
     Context mContext;
 
-    @Bind(R.id.btn_sell_initial) ImageButton btnSell;
-    @Bind(R.id.btn_buy_initial) ImageButton btnBuy;
-    @Bind(R.id.pb_initial_activity) ProgressBar progressBar;
+    @Bind(R.id.btn_sell_initial)
+    ImageButton btnSell;
+    @Bind(R.id.btn_buy_initial)
+    ImageButton btnBuy;
+    @Bind(R.id.pb_initial_activity)
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +120,7 @@ public class InitialActivity extends AppCompatActivity {
 
         //2. update the token on the server if needed
         boolean deviceIdSyncedToServer = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_DEVICE_ID_SYNCED_TO_SERVER);
-        if(!deviceIdSyncedToServer) {
+        if (!deviceIdSyncedToServer) {
             Intent tokenRefreshIntent = new Intent(mContext, RegistrationIntentService.class);
             tokenRefreshIntent.setAction(RegistrationIntentService.REGISTRATION_INTENT_SERVICE_ACTION_UPDATE_TOKEN_ON_SERVER);
             startService(tokenRefreshIntent);
@@ -130,10 +136,10 @@ public class InitialActivity extends AppCompatActivity {
         if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
             //seller session
             //if logged in
-            if(CommonUtils.getUserId(mContext)!=null && CommonUtils.getUserId(mContext)>0) {
+            if (CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0) {
                 //if settings setup is finished then open home
                 boolean settingsSetupFinished = PreferenceUtils.getPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED);
-                if(settingsSetupFinished) {
+                if (settingsSetupFinished) {
                     //go to home activity
                     Intent intent = new Intent(this, HomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -149,11 +155,14 @@ public class InitialActivity extends AppCompatActivity {
             }
         } else if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_BUYER)) {
             //buyer session
-            boolean userLoggedIn = CommonUtils.getUserId(mContext)!=null && CommonUtils.getUserId(mContext)>0;
-            Double gpsLong = PreferenceUtils.getGpsLong(mContext);
-            Double gpsLat = PreferenceUtils.getGpsLat(mContext);
-            boolean deliveryLocationSelected = gpsLat!=null && gpsLong!=null && gpsLat>0 && gpsLong>0;
-            if(userLoggedIn || deliveryLocationSelected) {
+            boolean userLoggedIn = CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0;
+            if(Constants.RESET_REALM) {
+                RealmUtils.resetRealm(mContext);
+            }
+            BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
+            boolean deliveryLocationSelected = buyerAddress != null;
+            //if(userLoggedIn || deliveryLocationSelected) {
+            if (deliveryLocationSelected) {
                 Intent intent = new Intent(this, com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -199,15 +208,15 @@ public class InitialActivity extends AppCompatActivity {
     }
 
     private void setProgressing(boolean progressing) {
-        progressBar.setVisibility(progressing?View.VISIBLE:View.GONE);
+        progressBar.setVisibility(progressing ? View.VISIBLE : View.GONE);
         btnBuy.setEnabled(!progressing);
         btnSell.setEnabled(!progressing);
     }
 
     public void goToNextScreen() {
         String token = PreferenceUtils.getPreferences(mContext, Constants.KEY_GOOGLE_API_TOKEN);
-        if(token!=null && !token.isEmpty()) {
-            if(sessionType == Constants.SESSION_TYPE_SELLER) {
+        if (token != null && !token.isEmpty()) {
+            if (sessionType == Constants.SESSION_TYPE_SELLER) {
                 goToVerifyPhoneNumberScreen();
             } else {
                 setLocationToStartShopping();
@@ -231,7 +240,7 @@ public class InitialActivity extends AppCompatActivity {
 
     public void goToVerifyPhoneNumberScreen() {
         Intent intent = new Intent(this, VerifyPhoneNumberActivity.class);
-        if(sessionType == Constants.SESSION_TYPE_BUYER) {
+        if (sessionType == Constants.SESSION_TYPE_BUYER) {
             intent.putExtra(Constants.KEY_SKIP_ALLOWED, true);
         }
         startActivity(intent);

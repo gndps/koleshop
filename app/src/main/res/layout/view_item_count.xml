@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ViewFlipper
+        android:id="@+id/vf_item_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingRight="16dp">
+
+            <Button
+                android:id="@+id/button_minus_item_count"
+                style="@style/Widget.Design.FloatingActionButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:layout_marginRight="4dp"
+                android:text="-" />
+
+            <TextView
+                android:id="@+id/tv_count_item_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:text="1"
+                android:textColor="@color/primary_text" />
+
+            <Button
+                android:id="@+id/button_plus_item_count"
+                style="@style/Widget.Design.FloatingActionButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:layout_marginLeft="4dp"
+                android:text="+" />
+
+        </LinearLayout>
+
+        <TextView
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OUT OF STOCK"
+            android:textColor="@color/disabled_text" />
+
+        <Button
+            android:id="@+id/button_add_to_cart_view_item_count"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ADD TO CART"
+            android:textColor="@color/accent" />
+
+    </ViewFlipper>
+
+</LinearLayout>

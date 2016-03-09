@@ -16,6 +16,7 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.SellerSearchResults;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.buyer.views.SingleProductInMultiSellerSearchView;
 import com.koleshop.appkoleshop.ui.seller.views.ViewInventoryProductExpanded;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
@@ -54,6 +55,7 @@ public class MultiSellerSearchViewHolder extends RecyclerView.ViewHolder {
 
     Context mContext;
     int settingsPosition;
+    BuyerAddress defaultUserAddress;
 
 
     private SellerSearchResults results;
@@ -64,9 +66,10 @@ public class MultiSellerSearchViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void bindData(SellerSearchResults results, boolean expandProduct, int settingsPosition, int expandedProductPosition) {
+    public void bindData(SellerSearchResults results, boolean expandProduct, int settingsPosition, int expandedProductPosition, BuyerAddress defaultUserAddress) {
         this.results = results;
         this.settingsPosition = settingsPosition;
+        this.defaultUserAddress = defaultUserAddress;
         loadSellerInfoIntoUi();
         loadProductsIntoUi(expandProduct, expandedProductPosition);
         int size = results.getProducts().size();
@@ -93,8 +96,8 @@ public class MultiSellerSearchViewHolder extends RecyclerView.ViewHolder {
 
             //02. SET SHOP DISTANCE FROM USER
             float[] results = new float[3];
-            Double userLat = PreferenceUtils.getGpsLat(mContext);
-            Double userLong = PreferenceUtils.getGpsLong(mContext);
+            Double userLat = defaultUserAddress.getGpsLat();
+            Double userLong = defaultUserAddress.getGpsLong();
             Location.distanceBetween(userLat, userLong, sellerInfo.getAddress().getGpsLat(), sellerInfo.getAddress().getGpsLong(), results);
             float userDistanceFromShopInMeters = results[0];
             if (results != null && results.length > 0) {

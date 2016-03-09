@@ -163,6 +163,7 @@
     <string name="title_activity_maps">Select Location</string>
     <string name="title_shop_location">Set Shop Location</string>
     <string name="title_set_delivery_location">Set Delivery Location</string>
+    <string name="title_add_new_address">Add new address</string>
     <string name="title_start_shopping">START SHOPPING</string>
     <string name="default_address_nickname">Nickname not set</string>
     <string name="ok">OK</string>
@@ -171,5 +172,8 @@
     <string name="refresh">REFRESH</string>
     <string name="no_search_results_found">No search results found</string>
     <string name="some_problem_occurred">Some problem occurred</string>
+    <string name="no_nearby_shops">No nearby shops are using Koleshop\nBtw any shopkeeper can download and start using it</string>
+    <string name="place_order">PLACE ORDER</string>
+    <string name="title_place_order">Place Order</string>
 
 </resources>

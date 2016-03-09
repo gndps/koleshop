@@ -27,9 +27,11 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryCategoryFragment;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -179,8 +181,9 @@ public class ShopActivity extends AppCompatActivity {
         String openOrClosed = "";
 
         float[] results = new float[3];
-        Double userLat = PreferenceUtils.getGpsLat(mContext);
-        Double userLong = PreferenceUtils.getGpsLong(mContext);
+        BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
+        Double userLat = buyerAddress.getGpsLat();
+        Double userLong = buyerAddress.getGpsLong();
         Location.distanceBetween(userLat, userLong, sellerSettings.getAddress().getGpsLat(), sellerSettings.getAddress().getGpsLong(), results);
         float userDistanceFromShopInMeters = results[0];
         if (results != null && results.length > 0) {

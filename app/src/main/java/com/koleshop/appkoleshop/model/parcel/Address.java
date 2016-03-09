@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.model.parcel;
 import org.parceler.Parcel;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by gundeepsingh on 29/08/14.
@@ -14,6 +15,7 @@ import io.realm.RealmObject;
 public class Address extends RealmObject {
 
     private Long id;
+    @PrimaryKey
     private Long userId;
     private String name;
     private String address;

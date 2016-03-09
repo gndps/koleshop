@@ -25,7 +25,9 @@ import android.widget.ViewFlipper;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.services.BuyerIntentService;
+import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
 import com.koleshop.appkoleshop.ui.buyer.activities.ShopActivity;
 import com.koleshop.appkoleshop.ui.buyer.adapters.NearbyShopsFragmentPagerAdapter;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
@@ -63,6 +65,8 @@ public class NearbyShopsFragment extends Fragment {
     private static final int VIEW_FLIPPER_PROCESSING = 1;
     private static final int VIEW_FLIPPER_NO_SHOPS = 2;
     private static final int VIEW_FLIPPER_NO_INTERNET = 3;
+    private static final int VIEW_FLIPPER_NO_ADDRESS_SELECTED = 4;
+
     private static final int LOAD_MORE_SHOPS_COUNT = 20;
 
     BroadcastReceiver mBroadcastReceiver;
@@ -107,9 +111,8 @@ public class NearbyShopsFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_cart:
-                //open cart fragment
-                Toast.makeText(mContext, "open hte cart", Toast.LENGTH_SHORT).show();
-                return true;
+                //open cart fragment...handled in home activity
+                return false;
             case R.id.menu_item_only_home_delivery:
                 item.setChecked(!item.isChecked());
                 onlyHomeDeliveryShops = item.isChecked();
@@ -131,6 +134,7 @@ public class NearbyShopsFragment extends Fragment {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NEARBY_SHOPS_RECEIVE_FAILED));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NO_ADDRESS_SELECTED));
         fragmentHomeActivityListener.setBackButtonHandledByFragment(false);
         fragmentHomeActivityListener.setTitle(titleNearbyShops);
         if (loading) {
@@ -152,10 +156,12 @@ public class NearbyShopsFragment extends Fragment {
                     loading = false;
                     int offset = intent.getIntExtra("offset", 0);
                     Parcelable parcelableSettings = intent.getParcelableExtra("nearbyShopsList");
+                    Parcelable parcelableBuyerAddress = intent.getParcelableExtra("buyerAddress");
                     List<SellerSettings> sellers = Parcels.unwrap(parcelableSettings);
+                    BuyerAddress buyerAddress = Parcels.unwrap(parcelableBuyerAddress);
                     if (offset == 0) {
                         if (sellers != null && sellers.size() > 0) {
-                            loadNearbyShopsList(sellers);
+                            loadNearbyShopsList(sellers, buyerAddress);
                         } else {
                             //no sellers found at this location
                             viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_SHOPS);
@@ -176,6 +182,9 @@ public class NearbyShopsFragment extends Fragment {
                     } else {
                         couldNotLoadMoreSellers();
                     }
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_NO_ADDRESS_SELECTED)) {
+                    loading = false;
+                    viewFlipper.setDisplayedChild(VIEW_FLIPPER_NO_ADDRESS_SELECTED);
                 }
             }
         };
@@ -196,11 +205,11 @@ public class NearbyShopsFragment extends Fragment {
         });
     }
 
-    private void loadNearbyShopsList(List<SellerSettings> sellers) {
+    private void loadNearbyShopsList(List<SellerSettings> sellers, BuyerAddress buyerAddress) {
         fragmentHomeActivityListener.setElevation(0);
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_TABS);//viewpager and tablayout
         this.sellers = sellers;
-        adapter = new NearbyShopsFragmentPagerAdapter(getChildFragmentManager(), sellers);
+        adapter = new NearbyShopsFragmentPagerAdapter(getChildFragmentManager(), sellers, buyerAddress);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

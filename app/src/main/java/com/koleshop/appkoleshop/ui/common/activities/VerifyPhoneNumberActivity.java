@@ -46,6 +46,7 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
     Button buttonBack, buttonNextSkip;
     boolean skipAllowed;
     private BroadcastReceiver verifyActivityBroadcastReceiver;
+    boolean finishOnVerify;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,25 +65,42 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
 
         initializeBroadcastReceivers();
         addTextListener();
+        if(savedInstanceState!=null) {
+            finishOnVerify = savedInstanceState.getBoolean("finishOnVerify");
+        } else if(getIntent()!=null && getIntent().getExtras()!=null) {
+            finishOnVerify = getIntent().getExtras().getBoolean("finishOnVerify");
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
-        lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_REQUEST_OTP_SUCCESS));
-        lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_REQUEST_OTP_FAILED));
-        lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_GCM_REGISTRATION_COMPLETE));
-        lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_GCM_REGISTRATION_FAILED));
 
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            skipAllowed = bundle.getBoolean(Constants.KEY_SKIP_ALLOWED);
+        if(finishOnVerify && PreferenceUtils.getUserId(mContext)>0l)
+        {
+            finish();
+        } else {
+            LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
+            lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_REQUEST_OTP_SUCCESS));
+            lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_REQUEST_OTP_FAILED));
+            lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_GCM_REGISTRATION_COMPLETE));
+            lbm.registerReceiver(verifyActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_GCM_REGISTRATION_FAILED));
+
+            Bundle bundle = getIntent().getExtras();
+            if (bundle != null) {
+                skipAllowed = bundle.getBoolean(Constants.KEY_SKIP_ALLOWED);
+            }
+            sessionType = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_SESSION_TYPE);
+            if (skipAllowed) {
+                buttonNextSkip.setText("SKIP");
+            }
         }
-        sessionType = PreferenceUtils.getPreferences(mContext, Constants.KEY_USER_SESSION_TYPE);
-        if (skipAllowed) {
-            buttonNextSkip.setText("SKIP");
-        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("finishOnVerify", finishOnVerify);
     }
 
     private void initializeBroadcastReceivers() {
@@ -93,6 +111,9 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
                     stopProcessing();
                     PreferenceUtils.setPreferencesFlag(context, Constants.FLAG_DEVICE_ID_SYNCED_TO_SERVER, true);
                     Intent intent2 = new Intent(mContext, VerifyOTPActivity.class);
+                    if(finishOnVerify) {
+                        intent2.putExtra("finishOnVerify", finishOnVerify);
+                    }
                     startActivity(intent2);
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REQUEST_OTP_FAILED)) {
                     stopProcessing();

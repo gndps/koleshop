@@ -5,6 +5,7 @@ import org.parceler.Parcel;
 import java.util.Date;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Gundeep on 14/01/16.
@@ -16,6 +17,8 @@ import io.realm.RealmObject;
 public class SellerSettings extends RealmObject{
 
     private Long id;
+
+    @PrimaryKey
     private Long userId;
     private String imageUrl;
     private String headerImageUrl;

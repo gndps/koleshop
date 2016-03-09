@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.buyer.viewholders.NearbyShopsListViewHolder;
 
 import java.util.List;
@@ -19,17 +20,19 @@ public class NearbyShopsListAdapter extends RecyclerView.Adapter<NearbyShopsList
 
     List<SellerSettings> nearbySellers;
     Context mContext;
+    private BuyerAddress buyerAddress;
 
-    public NearbyShopsListAdapter(List<SellerSettings> nearbySellers, Context mContext) {
+    public NearbyShopsListAdapter(List<SellerSettings> nearbySellers, Context mContext, BuyerAddress buyerAddress) {
         this.nearbySellers = nearbySellers;
         this.mContext = mContext;
+        this.buyerAddress = buyerAddress;
     }
 
     @Override
     public NearbyShopsListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_nearby_shops_item, parent, false);
-        NearbyShopsListViewHolder nearbyShopsListViewHolder = new NearbyShopsListViewHolder(view, mContext);
+        NearbyShopsListViewHolder nearbyShopsListViewHolder = new NearbyShopsListViewHolder(view, mContext, buyerAddress);
         return nearbyShopsListViewHolder;
     }
 

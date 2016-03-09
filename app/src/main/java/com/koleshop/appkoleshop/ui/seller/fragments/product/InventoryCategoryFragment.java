@@ -261,6 +261,7 @@ public class InventoryCategoryFragment extends Fragment {
         }
         if (listOfInventoryCategories != null) {
             inventoryCategoryAdapter.setData(listOfInventoryCategories);
+            inventoryCategoryAdapter.notifyDataSetChanged();
             viewFlipper.setDisplayedChild(1);
         } else {
             inventoryLoadFailed();

@@ -65,7 +65,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
         textViewName.setText(order.getBuyerName());
 
         //3. set bill amount
-        textViewPrice.setText(Constants.INDIAN_RUPEE_SYMBOL + " " + CommonUtils.getPriceStringFromFloat(order.getTotalAmount()));
+        textViewPrice.setText(CommonUtils.getPriceStringFromFloat(order.getTotalAmount(), true));
 
         //4. set delivery details
         boolean pickup = false;

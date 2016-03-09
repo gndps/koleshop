@@ -48,6 +48,19 @@ public class CommonEndpoint {
         }
     }
 
+    /*@ApiMethod(name = "getAddresses")
+    public KoleResponse getAddresses(@Named("sessionId") String sessionId, @Named("userId") Long userId) {
+        try {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId, Constants.USER_SESSION_TYPE_BUYER)) {
+                return new CommonService().getAddresses(userId);
+            } else {
+                return KoleResponse.failedResponse();
+            }
+        } catch (Exception e) {
+            return KoleResponse.failedResponse();
+        }
+    }*/
+
     @ApiMethod(name = "updateSellerSettings")
     public KoleResponse updateSellerSettings(@Named("sessionId") String sessionId,
                                              SellerSettings settings) {

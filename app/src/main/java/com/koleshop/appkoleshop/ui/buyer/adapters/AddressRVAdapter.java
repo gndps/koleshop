@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.Address;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.buyer.viewholders.AddressRvViewHolder;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import java.util.List;
 
@@ -18,14 +20,14 @@ import java.util.List;
 public class AddressRvAdapter extends RecyclerView.Adapter<AddressRvViewHolder> {
 
     Context mContext;
-    List<Address> addresses;
-    Long selectedAddressId;
+    List<BuyerAddress> addresses;
     boolean activateMaps;
+    AddressesRvAdapterListener mListener;
 
-    public AddressRvAdapter(Context context, List<Address> addresses, Long selectedAddressId) {
+    public AddressRvAdapter(Context context, List<BuyerAddress> addresses, AddressesRvAdapterListener listener) {
         mContext = context;
         this.addresses = addresses;
-        this.selectedAddressId = selectedAddressId;
+        this.mListener = listener;
     }
 
     public void setActivateMaps(boolean activateMaps) {
@@ -45,8 +47,18 @@ public class AddressRvAdapter extends RecyclerView.Adapter<AddressRvViewHolder> 
         AddressRvViewHolder addressRvViewHolder = new AddressRvViewHolder(view, mContext, new AddressRvViewHolder.AddressItemClickListener() {
             @Override
             public void onAddressSelected(int position) {
-                Long selectedAddressId = addresses.get(position).getId();
-                setSelectedAddressId(selectedAddressId);
+                BuyerAddress selectedAddress = addresses.get(position);
+                selectedAddress.setDefaultAddress(true);
+                RealmUtils.setAddressAsSelected(selectedAddress);
+                addresses = RealmUtils.getBuyerAddresses();
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public void onAddressDeleted(int position) {
+                BuyerAddress deletedAddress = addresses.get(position);
+                RealmUtils.deleteBuyerAddress(deletedAddress);
+                mListener.refreshAddresses();
             }
         });
         return addressRvViewHolder;
@@ -54,12 +66,8 @@ public class AddressRvAdapter extends RecyclerView.Adapter<AddressRvViewHolder> 
 
     @Override
     public void onBindViewHolder(AddressRvViewHolder holder, int position) {
-        Address address = addresses.get(position);
-        boolean selected = false;
-        if(address!=null && address.getId().equals(selectedAddressId)) {
-            selected = true;
-        }
-        holder.bindAddressData(address, selected, activateMaps, position);
+        BuyerAddress address = addresses.get(position);
+        holder.bindAddressData(address, activateMaps, position);
     }
 
     @Override
@@ -67,8 +75,8 @@ public class AddressRvAdapter extends RecyclerView.Adapter<AddressRvViewHolder> 
         return addresses!=null?addresses.size():0;
     }
 
-    public void setSelectedAddressId(Long selectedAddressId) {
-        this.selectedAddressId = selectedAddressId;
-        notifyDataSetChanged();
+    public interface AddressesRvAdapterListener {
+        void refreshAddresses();
     }
+
 }

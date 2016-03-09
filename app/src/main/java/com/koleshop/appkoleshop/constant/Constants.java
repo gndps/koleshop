@@ -22,6 +22,12 @@ public class Constants {
     public static String SESSION_TYPE_SELLER = "1";
     public static String SESSION_TYPE_BUYER = "2";
 
+    public static int ADDRESS_TYPE_SELLER = 0;
+    public static int ADDRESS_TYPE_BUYER = 1;
+
+    public static int ORDER_OPTION_DELIVERY = 0;
+    public static int ORDER_OPTION_PICKUP = 1;
+
     public static String SERVER_URL = "https://koleshop-1.appspot.com/_ah/api/"; //production url
     public static String LOCAL_SERVER_URL = "10.0.3.2:8080"; //local url
 
@@ -35,7 +41,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = true;
+    public static boolean RESET_REALM = false;
     public static boolean KOLE_CACHE_ALLOWED = true;
 
     public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
@@ -94,10 +100,12 @@ public class Constants {
     public static final String ACTION_REFRESH_SELLER_SETTINGS = "com.koleshop.action_refresh_seller_settings";
     public static final String ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS = "com.koleshop.action_nearby_shops_receive_success";
     public static final String ACTION_NEARBY_SHOPS_RECEIVE_FAILED = "com.koleshop.action_nearby_shops_receive_failed";
+    public static final String ACTION_NO_ADDRESS_SELECTED = "com.koleshop.action_no_address_selected";
     public static final String ACTION_SEARCH_RESULTS_FETCH_SUCCESS = "com.koleshop.action_search_results_fetch_success" ;
     public static final String ACTION_SEARCH_RESULTS_FETCH_FAILED = "com.koleshop.action_search_results_fetch_failed" ;
     public static final String ACTION_SEARCH_RESULTS_EMPTY = "com.koleshop.action_search_results_empty" ;
     public static final String ACTION_OPEN_SINGLE_SELLER_RESULTS = "com.koleshop.action_open_single_seller_results" ;
+    public static final String ACTION_REFRESH_CARTS = "com.koleshop.action_refresh_carts" ;
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";
@@ -119,8 +127,6 @@ public class Constants {
     public static final String KEY_GOOGLE_API_TOKEN = "pref_google_api_token";
     public static final String KEY_SELLER_SETTINGS = "pref_seller_settings";
     public static final String KEY_SELLER_SETTINGS_MILLIS = "pref_seller_settings_millis";
-    public static final String KEY_GPS_LONG = "gps_long";
-    public static final String KEY_GPS_LAT = "gps_lat";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";
@@ -153,5 +159,6 @@ public class Constants {
 
     //Business logic constants
     public static final int DELIVERY_DISTANCE_APPROXIMATION_ERROR = 100; // 100 meters
+    public static final int DEFAULT_COUNTRY_CODE = 91;
 
 }

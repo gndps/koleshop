@@ -39,6 +39,7 @@ import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryCategoryFragment;
+import com.koleshop.appkoleshop.util.RealmUtils;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
@@ -509,32 +510,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         //CommonUtils.closeRealm(mContext);
         PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED, false);
         PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED, false);
-        try {
-            Realm.getDefaultInstance().close();
-        } catch (Exception e) {
-            //dont give a damn
-        }
-        try {
-            Realm r = Realm.getDefaultInstance();
-            r.close();
-            if (r != null) {
-                Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "realm exception", e);
-        } finally {
-            try {
-                Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
-            } catch (Exception e) {
-                Log.d(TAG, "Could not delete realm...must be open", e);
-                try {
-                    Realm.getDefaultInstance().close();
-                    Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
-                } catch (Exception e2) {
-                    Log.d(TAG, "Could not close or delete realm", e2);
-                }
-            }
-        }
     }
 
     private void loadProductCategories() {
