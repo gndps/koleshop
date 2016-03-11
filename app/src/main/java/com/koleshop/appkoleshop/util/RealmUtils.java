@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.model.realm.Cart;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
@@ -23,6 +24,8 @@ import io.realm.RealmResults;
  * Created by Gundeep on 25/07/15.
  */
 public class RealmUtils {
+
+    private static BuyerSettings buyerSettings;
 
     public static Long getParentCategoryIdForCategoryId(Long categoryId) {
         Realm realm = Realm.getDefaultInstance();
@@ -106,14 +109,15 @@ public class RealmUtils {
         //deselect all
         RealmQuery<BuyerAddress> query = realm.where(BuyerAddress.class);
         RealmResults<BuyerAddress> addresses = query.findAll();
+        boolean clearAllCarts = false;
         realm.beginTransaction();
         for (int i = 0; i < addresses.size(); i++) {
             BuyerAddress buyerAddress = addresses.get(i);
             if (buyerAddress != null) {
                 if (buyerAddress.getGpsLat().equals(selectedBuyerAddress.getGpsLat()) && buyerAddress.getGpsLong().equals(selectedBuyerAddress.getGpsLong())) {
-                    if(!buyerAddress.isDefaultAddress()) {
+                    if (!buyerAddress.isDefaultAddress()) {
                         buyerAddress.setDefaultAddress(true);
-                        CartUtils.clearAllCarts();
+                        clearAllCarts = true;
                     }
                 } else {
                     buyerAddress.setDefaultAddress(false);
@@ -121,6 +125,9 @@ public class RealmUtils {
             }
         }
         realm.commitTransaction();
+        if(clearAllCarts) {
+            CartUtils.clearAllCarts();
+        }
         realm.close();
     }
 
@@ -144,7 +151,7 @@ public class RealmUtils {
         }
         realm.commitTransaction();
         realm.close();
-        if(clearCart) {
+        if (clearCart) {
             CartUtils.clearAllCarts();
         }
 
@@ -173,5 +180,16 @@ public class RealmUtils {
         } catch (Exception e) {
             Log.e(TAG, "Could not close or delete realm", e);
         }
+    }
+
+    public static BuyerSettings getBuyerSettings() {
+        Realm realm = Realm.getDefaultInstance();
+        RealmQuery<BuyerSettings> realmQuery = realm.where(BuyerSettings.class);
+        BuyerSettings settingsRealm = realmQuery.findFirst();
+        if (settingsRealm != null) {
+            BuyerSettings buyerSettings = realm.copyFromRealm(settingsRealm);
+            return buyerSettings;
+        }
+        return null;
     }
 }

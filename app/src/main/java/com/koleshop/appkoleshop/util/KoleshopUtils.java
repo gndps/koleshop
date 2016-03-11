@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.koleshop.api.productEndpoint.model.InventoryProductVariety;
 import com.koleshop.api.productEndpoint.model.InventoryProduct;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.cart.ProductVarietyCount;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
@@ -199,5 +200,13 @@ public class KoleshopUtils {
             }
         }
         return null;
+    }
+
+    public static Float getItemsTotalPrice(List<ProductVarietyCount> productVarietyCounts) {
+        Float total = 0f;
+        for (ProductVarietyCount productVarietyCount : productVarietyCounts) {
+            total += productVarietyCount.getCartCount() * productVarietyCount.getProductVariety().getPrice();
+        }
+        return total;
     }
 }

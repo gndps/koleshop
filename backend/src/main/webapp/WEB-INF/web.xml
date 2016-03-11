@@ -12,7 +12,8 @@
                 com.koleshop.koleshopbackend.endpoints.InventoryEndpoint,
                 com.koleshop.koleshopbackend.endpoints.BlobstoreEndpoint,
                 com.koleshop.koleshopbackend.endpoints.BuyerEndpoint,
-                com.koleshop.koleshopbackend.endpoints.SellerEndpoint
+                com.koleshop.koleshopbackend.endpoints.SellerEndpoint,
+                com.koleshop.koleshopbackend.endpoints.OrderEndpoint
             </param-value>
         </init-param>
     </servlet>

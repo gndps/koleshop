@@ -3,6 +3,7 @@ package com.koleshop.koleshopbackend.services;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
 import com.koleshop.koleshopbackend.db.models.Address;
+import com.koleshop.koleshopbackend.db.models.BuyerSettings;
 import com.koleshop.koleshopbackend.db.models.InventoryCategory;
 import com.koleshop.koleshopbackend.db.models.InventoryProduct;
 import com.koleshop.koleshopbackend.db.models.SellerSearchResults;
@@ -13,6 +14,7 @@ import com.koleshop.koleshopbackend.utils.Reversed;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -159,6 +161,35 @@ public class BuyerService {
         return updated;
     }
 
+    public boolean updateBuyerSettings(BuyerSettings buyerSettings) {
+        Connection dbConnection;
+        PreparedStatement preparedStatement = null;
+        String query;
+        query = "update BuyerSettings set name=?, image_url=?, header_image_url=? where user_id=?";
+        dbConnection = DatabaseConnection.getConnection();
+        boolean updated = false;
+        try {
+            preparedStatement = dbConnection.prepareStatement(query);
+            int index = 1;
+            preparedStatement.setString(index++, buyerSettings.getName());
+            preparedStatement.setString(index++, buyerSettings.getImageUrl());
+            preparedStatement.setString(index++, buyerSettings.getHeaderImageUrl());
+            preparedStatement.setLong(index++, buyerSettings.getUserId());
+            int update = preparedStatement.executeUpdate();
+            if (update > 0) {
+                updated = true;
+            } else {
+                updated = false;
+            }
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "exception in updating buyer settings for user_id = " + buyerSettings.getUserId(), e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+        return updated;
+    }
+
     public List<SellerSearchResults> searchProductsMultipleSellers(Long customerId, Double customerGpsLat, Double customerGpsLong
             , boolean homeDeliveryOnly, boolean openShopsOnly, int limit, int offset, String searchQuery) {
 
@@ -205,5 +236,4 @@ public class BuyerService {
     public List<InventoryProduct> searchProducts(Long sellerId, int limit, int offset, String searchQuery) {
         return new SellerService().searchProducts(sellerId, true, searchQuery, limit, offset);
     }
-
 }

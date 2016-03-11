@@ -12,6 +12,7 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.listeners.KolClickListener;
 import com.koleshop.appkoleshop.model.Order;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.squareup.picasso.Picasso;
 
@@ -53,59 +54,63 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
 
     public void bindData(Order order) {
         this.order = order;
-        if(order==null) {
+        if (order == null || order.getBuyerSettings() == null) {
             return;
         }
 
+        BuyerSettings buyerSettings = order.getBuyerSettings();
+
         //1. load image view
-        if(order.getBuyerImageUrl()!=null && !order.getBuyerImageUrl().isEmpty()) {
+
+        String buyerImageUrl = buyerSettings.getImageUrl();
+        if (buyerImageUrl != null && !buyerImageUrl.isEmpty()) {
             Picasso.with(mContext)
-                    .load(order.getSellerImageUrl())
+                    .load(buyerImageUrl)
                     .into(imageViewAvatar);
         }
 
         //2. set buyer name
-        textViewName.setText(order.getBuyerName());
+        textViewName.setText(buyerSettings.getName());
 
         //3. set delivery address in case of home delivery
         boolean pickup = false;
-        if(order.getOrderType()==1) {
+        if (order.isHomeDelivery()) {
             //home delivery
-            textViewAddress.setText(order.getAddress());
+            textViewAddress.setText(order.getAddress().getName() + "\n" + order.getAddress().getAddress() + "\nPh. " + order.getAddress().getPhoneNumber());
         } else {
             //pickup...address textview should be empty in this case
             pickup = true;
         }
 
         //4. set bill amount
-        textViewPrice.setText(CommonUtils.getPriceStringFromFloat(order.getTotalAmount(), true));
+        textViewPrice.setText(CommonUtils.getPriceStringFromFloat(order.getAmountPayable(), true));
 
         //5. set delivery timings
         String time = "";
-        if(order.isAsap()) {
+        if (order.isAsap()) {
             time = "ASAP";
         } else {
             //get today or tomorrow here
             String day = "";
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
-            int dateToday =  cal.get(Calendar.DAY_OF_MONTH);
-            Date orderDeliveryTime = order.getDeliveryTime();
+            int dateToday = cal.get(Calendar.DAY_OF_MONTH);
+            Date orderDeliveryTime = order.getRequestedDeliveryTime();
             cal.setTime(orderDeliveryTime);
-            int orderDate =  cal.get(Calendar.DAY_OF_MONTH);
-            if(orderDate == dateToday) {
+            int orderDate = cal.get(Calendar.DAY_OF_MONTH);
+            if (orderDate == dateToday) {
                 day = "";
             } else {
                 day = "Tomorrow ";
             }
 
-            time = day + CommonUtils.getDateStringInFormat(order.getDeliveryTime(), "h:mm a");
-            if(time.endsWith(":0")) {
-                time = day + CommonUtils.getDateStringInFormat(order.getDeliveryTime(), "h a");
+            time = day + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), "h:mm a");
+            if (time.endsWith(":0")) {
+                time = day + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), "h a");
             }
 
             //append pickup if applicable
-            if(pickup) {
+            if (pickup) {
                 time += " Pickup";
             }
         }

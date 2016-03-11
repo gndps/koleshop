@@ -5,25 +5,35 @@ package com.koleshop.koleshopbackend.db.models;
  */
 public class OrderItem {
 
-    InventoryProductVariety variety;
-    String name;
-    String brand;
-    float price;
-    String quantity;
-    int orderCount;
-    int availableCount;
+    private Long productVarietyId;
+    private String name;
+    private String brand;
+    private String quantity;
+    private float pricePerUnit;
+    private String imageUrl;
+    private int orderCount;
+    private int availableCount;
 
     public OrderItem() {
     }
 
-    public OrderItem(InventoryProductVariety variety, String name, String brand, float price, String quantity, int orderCount, int availableCount) {
+    public OrderItem(Long productVarietyId, String name, String brand, String quantity, float pricePerUnit, String imageUrl, int orderCount, int availableCount) {
+        this.productVarietyId = productVarietyId;
         this.name = name;
         this.brand = brand;
-        this.variety = variety;
-        this.price = price;
         this.quantity = quantity;
+        this.pricePerUnit = pricePerUnit;
+        this.imageUrl = imageUrl;
         this.orderCount = orderCount;
         this.availableCount = availableCount;
+    }
+
+    public Long getProductVarietyId() {
+        return productVarietyId;
+    }
+
+    public void setProductVarietyId(Long productVarietyId) {
+        this.productVarietyId = productVarietyId;
     }
 
     public String getName() {
@@ -42,28 +52,28 @@ public class OrderItem {
         this.brand = brand;
     }
 
-    public InventoryProductVariety getVariety() {
-        return variety;
-    }
-
-    public void setVariety(InventoryProductVariety variety) {
-        this.variety = variety;
-    }
-
-    public float getPrice() {
-        return price;
-    }
-
-    public void setPrice(float price) {
-        this.price = price;
-    }
-
     public String getQuantity() {
         return quantity;
     }
 
     public void setQuantity(String quantity) {
         this.quantity = quantity;
+    }
+
+    public float getPricePerUnit() {
+        return pricePerUnit;
+    }
+
+    public void setPricePerUnit(float pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public int getOrderCount() {

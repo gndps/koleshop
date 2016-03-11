@@ -22,11 +22,8 @@ public class Constants {
     public static String SESSION_TYPE_SELLER = "1";
     public static String SESSION_TYPE_BUYER = "2";
 
-    public static int ADDRESS_TYPE_SELLER = 0;
-    public static int ADDRESS_TYPE_BUYER = 1;
-
-    public static int ORDER_OPTION_DELIVERY = 0;
-    public static int ORDER_OPTION_PICKUP = 1;
+    public static int ADDRESS_TYPE_BUYER = 0;
+    public static int ADDRESS_TYPE_SELLER = 1;
 
     public static String SERVER_URL = "https://koleshop-1.appspot.com/_ah/api/"; //production url
     public static String LOCAL_SERVER_URL = "10.0.3.2:8080"; //local url
@@ -41,7 +38,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = false;
+    public static boolean RESET_REALM = true;
     public static boolean KOLE_CACHE_ALLOWED = true;
 
     public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";

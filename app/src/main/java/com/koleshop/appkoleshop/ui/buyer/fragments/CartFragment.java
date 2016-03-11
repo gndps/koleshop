@@ -24,6 +24,7 @@ import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
 import com.koleshop.appkoleshop.ui.buyer.activities.PlaceOrderActivity;
 import com.koleshop.appkoleshop.ui.buyer.adapters.CartFragmentAdapter;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 
 import org.parceler.Parcels;
 
@@ -129,7 +130,7 @@ public class CartFragment extends Fragment implements CartFragmentAdapter.CartFr
 
     @Override
     public void updateBill() {
-        Float itemsTotalPrice = getItemsTotalPrice();
+        Float itemsTotalPrice = KoleshopUtils.getItemsTotalPrice(cart.getProductVarietyCountList());
         Float deliveryCharges = 0f;
         if (itemsTotalPrice < sellerSettings.getMinimumOrder()) {
             deliveryCharges = sellerSettings.getDeliveryCharges();
@@ -139,13 +140,5 @@ public class CartFragment extends Fragment implements CartFragmentAdapter.CartFr
         textViewDeliveryCharges.setText(CommonUtils.getPriceStringFromFloat(deliveryCharges, true));
         textViewBillTotal.setText(CommonUtils.getPriceStringFromFloat(itemsTotalPrice, true));
         textViewAmountPayable.setText(CommonUtils.getPriceStringFromFloat(totalBill, true));
-    }
-
-    private Float getItemsTotalPrice() {
-        Float total = 0f;
-        for (ProductVarietyCount productVarietyCount : cart.getProductVarietyCountList()) {
-            total += productVarietyCount.getCartCount() * productVarietyCount.getProductVariety().getPrice();
-        }
-        return total;
     }
 }

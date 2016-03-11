@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.ui.seller.viewholders;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.Order;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.squareup.picasso.Picasso;
 
@@ -50,26 +52,29 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
 
     public void bindData(Order order) {
         this.order = order;
-        if(order==null) {
+        if(order==null || order.getBuyerSettings()==null) {
             return;
         }
 
+        BuyerSettings buyerSettings = order.getBuyerSettings();
+        String buyerImageUrl = buyerSettings.getImageUrl();
+
         //1. load image view
-        if(order.getBuyerImageUrl()!=null && !order.getBuyerImageUrl().isEmpty()) {
+        if(!TextUtils.isEmpty(buyerImageUrl)) {
             Picasso.with(mContext)
-                    .load(order.getSellerImageUrl())
+                    .load(buyerImageUrl)
                     .into(imageViewAvatar);
         }
 
         //2. set buyer name
-        textViewName.setText(order.getBuyerName());
+        textViewName.setText(buyerSettings.getName());
 
         //3. set bill amount
-        textViewPrice.setText(CommonUtils.getPriceStringFromFloat(order.getTotalAmount(), true));
+        textViewPrice.setText(CommonUtils.getPriceStringFromFloat(order.getAmountPayable(), true));
 
         //4. set delivery details
         boolean pickup = false;
-        if(order.getOrderType()==0) {
+        if(order.isHomeDelivery()) {
             pickup = true;
         }
         String time = "";
@@ -81,7 +86,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
             int dateToday =  cal.get(Calendar.DAY_OF_MONTH);
-            Date orderDeliveryTime = order.getDeliveryTime();
+            Date orderDeliveryTime = order.getRequestedDeliveryTime();
             cal.setTime(orderDeliveryTime);
             int orderDate =  cal.get(Calendar.DAY_OF_MONTH);
             if(orderDate == dateToday) {
@@ -90,9 +95,9 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                 day = "Tomorrow ";
             }
 
-            time = day + CommonUtils.getDateStringInFormat(order.getDeliveryTime(), "h:mm a");
+            time = day + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), "h:mm a");
             if(time.endsWith(":00")) {
-                time = day + CommonUtils.getDateStringInFormat(order.getDeliveryTime(), "h a");
+                time = day + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), "h a");
             }
 
             //append pickup if applicable

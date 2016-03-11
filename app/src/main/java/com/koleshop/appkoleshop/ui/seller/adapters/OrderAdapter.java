@@ -112,7 +112,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderViewHolder> {
             int headerCount = 0;
             int sectionFirstPosition = 0;
             for (int i = 0; i < ordersList.size(); i++) {
-                String header = CommonUtils.getDayCommonName(ordersList.get(i).getDeliveryTime());
+                String header = CommonUtils.getDayCommonName(ordersList.get(i).getRequestedDeliveryTime());
                 if (!TextUtils.equals(lastHeader, header)) {
                     // Insert new header view and update section data.
                     sectionFirstPosition = i + headerCount;

@@ -1,6 +1,13 @@
 package com.koleshop.koleshopbackend.utils;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
+import java.util.TimeZone;
 
 /**
  * Created by Gundeep on 30/09/15.
@@ -26,6 +33,47 @@ public class CommonUtils {
         for (int i = 0; i < len-1; i++)
             sb.append(DIGITS.charAt(rnd.nextInt(DIGITS.length())));
         return Integer.parseInt(sb.toString().trim());
+    }
+
+    public static String getDateTimeDdMmYy(String timezoneString) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeZone(TimeZone.getTimeZone("IST"));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
+        TimeZone istTimeZone = TimeZone.getTimeZone(timezoneString);
+        Date d = new Date();
+        sdf.setTimeZone(istTimeZone);
+        String strtime = sdf.format(d);
+        return strtime;
+    }
+
+    public static Date getDate(Date date, int addMinutes, int addHours) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.MINUTE, addMinutes);
+        cal.add(Calendar.HOUR, addHours);
+        return cal.getTime();
+    }
+
+    public static String getDigestedString(String digString) {
+        try {
+            byte[] bytesOfMessage = new byte[0];
+            try {
+                bytesOfMessage = digString.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            MessageDigest md = null;
+            try {
+                md = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+            byte[] thedigest = md.digest(bytesOfMessage);
+            return thedigest.toString();
+        } catch (Exception e) {
+            return randomString(3);
+        }
     }
 
 }

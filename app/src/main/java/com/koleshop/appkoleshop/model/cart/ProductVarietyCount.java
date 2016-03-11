@@ -22,6 +22,7 @@ public class ProductVarietyCount extends RealmObject {
     }
 
     public ProductVarietyCount(String title, ProductVariety productVariety, int cartCount) {
+        this.title = title;
         this.productVariety = productVariety;
         this.cartCount = cartCount;
     }

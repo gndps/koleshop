@@ -18,6 +18,7 @@ public class Constants {
 	//String web_secret_key = "nIBgWk7djMkenJ8lVh0N6LnK";
 
 	public static int COUNTRY_CODE = 91;
+	public static String TIME_ZONE_STRING_INDIA = "Asia/Kolkata";
 
 	//public static String SERVER_DOMAIN_NAME = "koleshop.com";
 	//public static String SERVER_OWNER_NAME = "koleshopserver";
@@ -56,5 +57,8 @@ public class Constants {
 	public static String PUBLIC_PRODUCT_IMAGE_FOLDER = "uploads/";
 	public static String PUBLIC_PROFILE_IMAGE_FOLDER = "profile/";
 	public static String PUBLIC_PROFILE_IMAGE_THUMBNAIL_FOLDER = "profile_thumb/";
+
+	public static int ADDRESS_TYPE_BUYER_INT = 0;
+	public static int ADDRESS_TYPE_SELLER_INT = 1;
 
 }

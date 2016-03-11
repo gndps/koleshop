@@ -5,11 +5,15 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.config.Nullable;
+import com.koleshop.koleshopbackend.common.Constants;
+import com.koleshop.koleshopbackend.db.models.Address;
 import com.koleshop.koleshopbackend.db.models.InventoryProduct;
 import com.koleshop.koleshopbackend.db.models.KoleResponse;
 import com.koleshop.koleshopbackend.db.models.SellerSearchResults;
 import com.koleshop.koleshopbackend.db.models.SellerSettings;
 import com.koleshop.koleshopbackend.services.BuyerService;
+import com.koleshop.koleshopbackend.services.CommonService;
+import com.koleshop.koleshopbackend.services.SessionService;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -85,6 +89,32 @@ public class BuyerEndpoint {
         } else {
             response.setSuccess(false);
         }
+        return response;
+    }
+
+    @ApiMethod(name = "saveBuyerAddress", httpMethod = ApiMethod.HttpMethod.POST)
+    public KoleResponse saveBuyerAddress(@Nullable @Named("customerId") Long customerId, @Nullable @Named("sessionId") String sessionId,
+                                       Address address) {
+
+        KoleResponse response = new KoleResponse();
+        Address savedAddress = null;
+        try {
+            if (SessionService.verifyUserAuthenticity(customerId, sessionId, Constants.USER_SESSION_TYPE_BUYER)) {
+                //savedAddress = new BuyerService().saveBuyerAddress(customerId, address);
+            } else {
+                return KoleResponse.failedResponse();
+            }
+        } catch (Exception e) {
+            response.setData(e.getLocalizedMessage());
+        }
+        if(savedAddress!=null && savedAddress.getId()>0) {
+            response.setData(savedAddress);
+            response.setSuccess(true);
+        } else {
+            response.setData(null);
+            response.setSuccess(false);
+        }
+
         return response;
     }
 

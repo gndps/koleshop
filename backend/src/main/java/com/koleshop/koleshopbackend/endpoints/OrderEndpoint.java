@@ -19,13 +19,13 @@ import java.util.List;
 @Api(name = "orderEndpoint", version = "v1", namespace = @ApiNamespace(ownerDomain = "api.koleshop.com", ownerName = "koleshopserver"))
 public class OrderEndpoint {
 
-    @ApiMethod(name = "createNewOrder", httpMethod = ApiMethod.HttpMethod.POST)
-    public KoleResponse createNewOrder(@Named("userId") Long userId, @Named("sessionId") String sessionId, Order order) {
+    @ApiMethod(name = "createNewOrder", httpMethod = ApiMethod.HttpMethod.POST, path = "create")
+    public KoleResponse createNewOrder(@Named("sessionId") String sessionId, Order order, @Named("hours") int hours, @Named("minutes") int minutes) {
 
         KoleResponse response = new KoleResponse();
         try {
-            if (SessionService.verifyUserAuthenticity(userId, sessionId, Constants.USER_SESSION_TYPE_BUYER)) {
-                order = new OrderService().createNewOrder(order);
+            if (SessionService.verifyUserAuthenticity(order.getBuyerSettings().getUserId(), sessionId, Constants.USER_SESSION_TYPE_BUYER)) {
+                order = new OrderService().createNewOrder(order, minutes, hours);
             }
         } catch (Exception e) {
             response.setData(e.getLocalizedMessage());
@@ -39,12 +39,12 @@ public class OrderEndpoint {
         return response;
     }
 
-    @ApiMethod(name = "updateOrder", httpMethod = ApiMethod.HttpMethod.POST)
-    public KoleResponse updateOrder(@Named("userId") Long userId, @Named("sessionId") String sessionId, Order order) {
+    @ApiMethod(name = "updateOrder", httpMethod = ApiMethod.HttpMethod.POST, path = "update")
+    public KoleResponse updateOrder(@Named("sessionId") String sessionId, Order order) {
 
         KoleResponse response = new KoleResponse();
         try {
-            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
+            if (SessionService.verifyUserAuthenticity(order.getBuyerSettings().getUserId(), sessionId)) {
                 order = new OrderService().updateOrder(order);
             }
         } catch (Exception e) {

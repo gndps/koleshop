@@ -3,7 +3,6 @@ package com.koleshop.appkoleshop.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -13,19 +12,13 @@ import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.util.ArrayMap;
-import com.google.gson.Gson;
 import com.koleshop.api.buyerEndpoint.BuyerEndpoint;
 import com.koleshop.api.buyerEndpoint.model.KoleResponse;
-import com.koleshop.api.commonEndpoint.CommonEndpoint;
-import com.koleshop.api.yolo.inventoryEndpoint.InventoryEndpoint;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.model.parcel.Address;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
-import com.koleshop.appkoleshop.model.realm.ProductCategory;
-import com.koleshop.appkoleshop.util.NetworkUtils;
-import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
@@ -33,21 +26,31 @@ import org.parceler.Parcels;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class BuyerIntentService extends IntentService {
 
     private static final String ACTION_GET_NEARBY_SHOPS = "com.koleshop.appkoleshop.services.action.get_nearby_shops";
+    private static final String ACTION_CREATE_NEW_ORDER = "com.koleshop.appkoleshop.services.action.create_new_order";
 
 //    @Named("customerId") Long customerId, @Named("sessionId") String sessionId,
 //    @Named("gpsLong") Double gpsLong, @Named("gpsLat") Double gpsLat, @Named("homeDeliveryOnly") boolean homeDeliveryOnly,
 //    @Named("openShopsOnly") boolean openShopsOnly, @Named("limit") int limit, @Named("offset") int offset
 
+    //extras for getNearbyShops
     private static final String EXTRA_HOME_DELIVERY_ONLY = "com.koleshop.appkoleshop.services.extra.home_delivery_only";
     private static final String EXTRA_OPEN_SHOPS_ONLY = "com.koleshop.appkoleshop.services.extra.open_shops_only";
     private static final String EXTRA_LIMIT = "com.koleshop.appkoleshop.services.extra.limit";
     private static final String EXTRA_OFFSET = "com.koleshop.appkoleshop.services.extra.offset";
+
+    //extras for createNewOrder
+    private static final String EXTRA_ORDER = "com.koleshop.appkoleshop.services.extra.order";
+    private static final String EXTRA_DELIVERY_HOUR = "com.koleshop.appkoleshop.services.extra.delivery_hour";
+    private static final String EXTRA_DELIVERY_MINUTE = "com.koleshop.appkoleshop.services.extra.delivery_minute";
+
+    //extras for saveAddress
+    private static final String EXTRA_DELIVERY_ADDRESS = "com.koleshop.appkoleshop.services.extra.delivery_address";
+
     private static String TAG = "BuyerIntentService";
 
     public BuyerIntentService() {
@@ -64,6 +67,17 @@ public class BuyerIntentService extends IntentService {
         context.startService(intent);
     }
 
+    public static void createNewOrder(Context context, Order order, int deliveryHour, int deliveryMinute) {
+        Intent intent = new Intent(context, BuyerIntentService.class);
+        intent.setAction(ACTION_CREATE_NEW_ORDER);
+        intent.putExtra(EXTRA_ORDER, Parcels.wrap(order));
+        if(!order.isAsap()) {
+            intent.putExtra(EXTRA_DELIVERY_HOUR, deliveryHour);
+            intent.putExtra(EXTRA_DELIVERY_MINUTE, deliveryMinute);
+        }
+        context.startService(intent);
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
@@ -74,6 +88,17 @@ public class BuyerIntentService extends IntentService {
                 final int limit = intent.getIntExtra(EXTRA_LIMIT, 0);
                 final int offset = intent.getIntExtra(EXTRA_OFFSET, 0);
                 getNearbyShopsFromInternet(homeDeliveryOnly, openShopsOnly, limit, offset);
+            } else if (ACTION_CREATE_NEW_ORDER.equals(action)) {
+                Parcelable parcelableOrder = intent.getParcelableExtra(EXTRA_ORDER);
+                Order order = Parcels.unwrap(parcelableOrder);
+                Parcelable parcelableDeliveryAddress = intent.getParcelableExtra(EXTRA_DELIVERY_ADDRESS);
+                int deliveryHour = 0;
+                int deliveryMinute = 0;
+                if(order!=null && !order.isAsap()) {
+                    deliveryHour = intent.getIntExtra(EXTRA_DELIVERY_HOUR, 0);
+                    deliveryMinute = intent.getIntExtra(EXTRA_DELIVERY_MINUTE, 0);
+                }
+                createNewOrder(order, deliveryHour, deliveryMinute);
             }
         }
     }
@@ -191,5 +216,45 @@ public class BuyerIntentService extends IntentService {
             intentNearbyShops.putExtra("offset", offset);
             LocalBroadcastManager.getInstance(context).sendBroadcast(intentNearbyShops);
         }
+    }
+
+    private void createNewOrder(Order order, int deliveryHour, int deliveryMinute) {
+        BuyerEndpoint endpoint = null;
+        BuyerEndpoint.Builder builder = new BuyerEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        endpoint = builder.build();
+
+        Context context = getApplicationContext();
+
+        //Long userId = PreferenceUtils.getUserId(context);
+        //String sessionId = PreferenceUtils.getSessionId(context);
+
+        KoleResponse result = null;
+        try {
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    //result = endpoint.getNearbyShops(gpsLong, gpsLat, homeDeliveryOnly, openShopsOnly, limit, offset).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+
     }
 }

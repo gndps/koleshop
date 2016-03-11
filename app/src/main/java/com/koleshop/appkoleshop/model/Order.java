@@ -1,6 +1,8 @@
 package com.koleshop.appkoleshop.model;
 
-import com.koleshop.appkoleshop.constant.OrderStatus;
+import com.koleshop.appkoleshop.model.parcel.Address;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 
 import org.parceler.Parcel;
 
@@ -14,113 +16,90 @@ import java.util.List;
 @Parcel
 public class Order {
 
-    Long sellerId;
-    String sellerName;
-    Long sellerPhone;
-    String sellerImageUrl;
-    Long buyerId;
-    String buyerName;
-    Long buyerPhone;
-    String buyerImageUrl;
+    Long id;
+    String orderNumber;
+    SellerSettings sellerSettings;
+    BuyerSettings buyerSettings;
+    Address address;
     int status;
-    List<OrderItem> list;
+    List<OrderItem> orderItems;
     float deliveryCharges;
-    int orderType; // 0 for pickup, 1 for home delivery
+    float carryBagCharges;
+    float totalAmount;
+    float amountPayable;
+    float notAvailableAmount;
+    boolean homeDelivery;
     boolean asap;
     Date orderTime;
-    Date deliveryTime;
-    String address;
+    Date requestedDeliveryTime;
+    Date actualDeliveryTime;
     Date deliveryStartTime;
     int minutesToDelivery; //how many minutes did the seller select when sending the order out for delivery
-    float totalAmount;
 
-    public Order(Date deliveryTime, Long sellerId, String sellerName, Long sellerPhone, String sellerImageUrl, Long buyerId, String buyerName, Long buyerPhone, int status, List<OrderItem> list, float deliveryCharges, int orderType, boolean asap, Date orderTime, String address, Date deliveryStartTime, int minutesToDelivery, float totalAmount) {
-        this.deliveryTime = deliveryTime;
-        this.sellerId = sellerId;
-        this.sellerName = sellerName;
-        this.sellerPhone = sellerPhone;
-        this.sellerImageUrl = sellerImageUrl;
-        this.buyerId = buyerId;
-        this.buyerName = buyerName;
-        this.buyerPhone = buyerPhone;
-        this.buyerImageUrl = buyerImageUrl;
-        this.status = status;
-        this.list = list;
-        this.deliveryCharges = deliveryCharges;
-        this.orderType = orderType;
-        this.asap = asap;
-        this.orderTime = orderTime;
-        this.address = address;
-        this.deliveryStartTime = deliveryStartTime;
-        this.minutesToDelivery = minutesToDelivery;
-        this.totalAmount = totalAmount;
-    }
 
     public Order() {
     }
 
-    public Long getSellerId() {
-        return sellerId;
+    public Order(Long id, String orderNumber, SellerSettings sellerSettings, BuyerSettings buyerSettings, Address address, int status, List<OrderItem> orderItems, float deliveryCharges, float carryBagCharges, float totalAmount, float amountPayable, float notAvailableAmount, boolean homeDelivery, boolean asap, Date orderTime, Date requestedDeliveryTime, Date actualDeliveryTime, Date deliveryStartTime, int minutesToDelivery) {
+        this.id = id;
+        this.orderNumber = orderNumber;
+        this.sellerSettings = sellerSettings;
+        this.buyerSettings = buyerSettings;
+        this.address = address;
+        this.status = status;
+        this.orderItems = orderItems;
+        this.deliveryCharges = deliveryCharges;
+        this.carryBagCharges = carryBagCharges;
+        this.totalAmount = totalAmount;
+        this.amountPayable = amountPayable;
+        this.notAvailableAmount = notAvailableAmount;
+        this.homeDelivery = homeDelivery;
+        this.asap = asap;
+        this.orderTime = orderTime;
+        this.requestedDeliveryTime = requestedDeliveryTime;
+        this.actualDeliveryTime = actualDeliveryTime;
+        this.deliveryStartTime = deliveryStartTime;
+        this.minutesToDelivery = minutesToDelivery;
     }
 
-    public void setSellerId(Long sellerId) {
-        this.sellerId = sellerId;
+    public Long getId() {
+        return id;
     }
 
-    public String getSellerName() {
-        return sellerName;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setSellerName(String sellerName) {
-        this.sellerName = sellerName;
+    public String getOrderNumber() {
+        return orderNumber;
     }
 
-    public Long getSellerPhone() {
-        return sellerPhone;
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
-    public void setSellerPhone(Long sellerPhone) {
-        this.sellerPhone = sellerPhone;
+    public SellerSettings getSellerSettings() {
+        return sellerSettings;
     }
 
-    public String getSellerImageUrl() {
-        return sellerImageUrl;
+    public void setSellerSettings(SellerSettings sellerSettings) {
+        this.sellerSettings = sellerSettings;
     }
 
-    public void setSellerImageUrl(String sellerImageUrl) {
-        this.sellerImageUrl = sellerImageUrl;
+    public BuyerSettings getBuyerSettings() {
+        return buyerSettings;
     }
 
-    public Long getBuyerId() {
-        return buyerId;
+    public void setBuyerSettings(BuyerSettings buyerSettings) {
+        this.buyerSettings = buyerSettings;
     }
 
-    public void setBuyerId(Long buyerId) {
-        this.buyerId = buyerId;
+    public Address getAddress() {
+        return address;
     }
 
-    public String getBuyerName() {
-        return buyerName;
-    }
-
-    public void setBuyerName(String buyerName) {
-        this.buyerName = buyerName;
-    }
-
-    public Long getBuyerPhone() {
-        return buyerPhone;
-    }
-
-    public void setBuyerPhone(Long buyerPhone) {
-        this.buyerPhone = buyerPhone;
-    }
-
-    public String getBuyerImageUrl() {
-        return buyerImageUrl;
-    }
-
-    public void setBuyerImageUrl(String buyerImageUrl) {
-        this.buyerImageUrl = buyerImageUrl;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public int getStatus() {
@@ -131,12 +110,12 @@ public class Order {
         this.status = status;
     }
 
-    public List<OrderItem> getList() {
-        return list;
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
     }
 
-    public void setList(List<OrderItem> list) {
-        this.list = list;
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
     }
 
     public float getDeliveryCharges() {
@@ -147,12 +126,44 @@ public class Order {
         this.deliveryCharges = deliveryCharges;
     }
 
-    public int getOrderType() {
-        return orderType;
+    public float getCarryBagCharges() {
+        return carryBagCharges;
     }
 
-    public void setOrderType(int orderType) {
-        this.orderType = orderType;
+    public void setCarryBagCharges(float carryBagCharges) {
+        this.carryBagCharges = carryBagCharges;
+    }
+
+    public float getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(float totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public float getAmountPayable() {
+        return amountPayable;
+    }
+
+    public void setAmountPayable(float amountPayable) {
+        this.amountPayable = amountPayable;
+    }
+
+    public float getNotAvailableAmount() {
+        return notAvailableAmount;
+    }
+
+    public void setNotAvailableAmount(float notAvailableAmount) {
+        this.notAvailableAmount = notAvailableAmount;
+    }
+
+    public boolean isHomeDelivery() {
+        return homeDelivery;
+    }
+
+    public void setHomeDelivery(boolean homeDelivery) {
+        this.homeDelivery = homeDelivery;
     }
 
     public boolean isAsap() {
@@ -171,20 +182,20 @@ public class Order {
         this.orderTime = orderTime;
     }
 
-    public Date getDeliveryTime() {
-        return deliveryTime;
+    public Date getRequestedDeliveryTime() {
+        return requestedDeliveryTime;
     }
 
-    public void setDeliveryTime(Date deliveryTime) {
-        this.deliveryTime = deliveryTime;
+    public void setRequestedDeliveryTime(Date requestedDeliveryTime) {
+        this.requestedDeliveryTime = requestedDeliveryTime;
     }
 
-    public String getAddress() {
-        return address;
+    public Date getActualDeliveryTime() {
+        return actualDeliveryTime;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setActualDeliveryTime(Date actualDeliveryTime) {
+        this.actualDeliveryTime = actualDeliveryTime;
     }
 
     public Date getDeliveryStartTime() {
@@ -202,13 +213,4 @@ public class Order {
     public void setMinutesToDelivery(int minutesToDelivery) {
         this.minutesToDelivery = minutesToDelivery;
     }
-
-    public float getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(float totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
 }

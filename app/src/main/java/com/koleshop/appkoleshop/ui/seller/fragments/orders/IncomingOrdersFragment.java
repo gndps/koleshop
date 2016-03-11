@@ -13,7 +13,10 @@ import android.widget.Button;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.Order;
+import com.koleshop.appkoleshop.model.parcel.Address;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.ui.seller.adapters.IncomingOrderAdapter;
 
 import java.util.ArrayList;
@@ -82,10 +85,11 @@ public class IncomingOrdersFragment extends Fragment {
         for (int i = 0; i < 10; i++) {
             Order order = new Order();
             order.setAsap(false);
-            order.setBuyerName("Gundeep Singh");
-            order.setAddress("C-78 Sector 23\nNoida");
-            order.setDeliveryTime(new Date());
-            order.setOrderType(1);
+            BuyerSettings buyerSettings = new BuyerSettings(null, null, "Gundeep Singh", null, null);
+            order.setAddress(new Address(null, null, "Gundeep singh", "C-78 Sector 23\nNoida", Constants.ADDRESS_TYPE_BUYER, 8585945716l, 91, "gndp", 76.0d, 30.0d));
+            order.setRequestedDeliveryTime(new Date());
+            order.setBuyerSettings(buyerSettings);
+            order.setHomeDelivery(true);
             order.setTotalAmount(220f);
             list.add(order);
         }

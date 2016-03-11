@@ -77,12 +77,20 @@
             android:id="@+id/button_place_order"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:background="@color/accent"
             android:text="@string/place_order"
             android:textColor="@color/white"
             android:textSize="20sp" />
+
+        <ProgressBar
+            android:id="@+id/pb_activity_place_order"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:indeterminate="true"
+            android:progressTint="@color/white"
+            android:visibility="gone" />
 
     </RelativeLayout>
 
