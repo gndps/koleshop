@@ -3,10 +3,12 @@ package com.koleshop.appkoleshop.ui.common.views;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
@@ -22,6 +24,7 @@ public class ItemCountView extends LinearLayout {
     public static final int VIEW_FLIPPER_COUNT = 0;
     public static final int VIEW_FLIPPER_OUT_OF_STOCK = 1;
     public static final int VIEW_FLIPPER_ADD_TO_CART = 2;
+    private static final String TAG = "ITEM_COUNT_VIEW_TAG";
 
     @Bind(R.id.vf_item_count)
     ViewFlipper viewFlipper;
@@ -89,8 +92,14 @@ public class ItemCountView extends LinearLayout {
         buttonAddToCart.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
+
                 if (mListener != null) {
                     mListener.onItemCountPlusClicked();
+                }
+                else {
+                    Log.d(TAG, "else clicked");
                 }
             }
         });
@@ -140,4 +149,6 @@ public class ItemCountView extends LinearLayout {
         void onItemCountPlusClicked();
         void onItemCountMinusClicked();
     }
+
+
 }

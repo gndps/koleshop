@@ -1,12 +1,14 @@
 package com.koleshop.appkoleshop.ui.buyer.views;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
@@ -20,8 +22,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by Gundeep on 29/01/16.
  */
-public class ViewProductVarietyBuyer extends RelativeLayout {
+public class ViewProductVarietyBuyer extends RelativeLayout implements ItemCountView.ItemCountListener {
 
+    private static final String TAG = "Event";
     private SellerSettings sellerSettings;
     private ProductVariety variety;
     private LayoutInflater inflater;
@@ -62,7 +65,7 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
 
     private void loadTheData() {
         itemCountView = new ItemCountView(getContext());
-        //itemCountView.setItemCountListener(this);
+
         // itemCountView.setOnPlusClickListener()
         if (!variety.isLimitedStock()) {
             itemCountView.setOutOfStock(false);
@@ -83,6 +86,7 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
         textViewPrice.setText(price);
         int cartCount = CartUtils.getCountOfVariety(variety, sellerSettings);
 //        textViewCount.setText(cartCount + "");
+        itemCountView.setItemCountListener(this);
     }
 
     public void setClickListenerArea1(OnClickListener clickListenerArea1) {
@@ -98,8 +102,22 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
 //        buttonMinus.setOnClickListener(plusButtonClickListener);
     }
 
+    
+
     public void setCartCount(int cartCount) {
         textViewCount.setText(cartCount + "");
     }
 
+
+    @Override
+    public void onItemCountPlusClicked() {
+
+        Toast.makeText(getContext(),"",Toast.LENGTH_LONG).show();
+        Log.d(TAG,"clicked");
+    }
+
+    @Override
+    public void onItemCountMinusClicked() {
+
+    }
 }
