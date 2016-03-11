@@ -148,6 +148,7 @@ public class InventoryCategoryFragment extends Fragment {
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     if (menuMultipleActions != null && menuMultipleActions.isExpanded()) {
                         menuMultipleActions.collapse();
+                        menuMultipleActions.collapse();
                     } else {
                         super.onScrolled(recyclerView, dx, dy);
                     }

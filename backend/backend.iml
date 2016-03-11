@@ -16,9 +16,9 @@
       <configuration>
         <option name="HTTP_ADDRESS" value="localhost" />
         <option name="HTTP_PORT" value="8080" />
-        <option name="WAR_DIR" value="$MODULE_DIR$/build/exploded-app" />
-        <option name="WEB_APP_DIR" value="$MODULE_DIR$/src/main/webapp" />
-        <option name="APPENGINE_SDKROOT" value="$USER_HOME$/.gradle/appengine-sdk/appengine-java-sdk-1.9.30" />
+        <option name="WAR_DIR" value="C:\Users\Ankit\Documents\android-client\backend\build\exploded-app" />
+        <option name="WEB_APP_DIR" value="C:\Users\Ankit\Documents\android-client\backend\src\main\webapp" />
+        <option name="APPENGINE_SDKROOT" value="C:\Users\Ankit\.gradle\appengine-sdk\appengine-java-sdk-1.9.30" />
       </configuration>
     </facet>
   </component>

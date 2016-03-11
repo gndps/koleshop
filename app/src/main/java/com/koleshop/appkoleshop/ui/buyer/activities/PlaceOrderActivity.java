@@ -233,7 +233,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             if(validateOrder()) {
                 //OrderIntentService.placeOrder();
                 Snackbar.make(toolbar, "wow...this order looks crispy", Snackbar.LENGTH_LONG).show();
-                BuyerIntentService.createOrder();
+                //BuyerIntentService.createOrder();
             }
         }
     }

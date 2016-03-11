@@ -12,6 +12,7 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
+import com.koleshop.appkoleshop.ui.common.views.ItemCountView;
 import com.koleshop.appkoleshop.util.CartUtils;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -33,6 +34,7 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
     private boolean customerView;
     private String title;
     private boolean showTitle;
+    private ItemCountView itemCountView;
 
     public ViewProductVarietyBuyer(Context context) {
         super(context);
@@ -42,10 +44,10 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
         imageView = (CircleImageView) v.findViewById(R.id.civ_vpvb);
         textViewQuantity = (TextView) v.findViewById(R.id.tv_vpvb_quantity);
         textViewPrice = (TextView) v.findViewById(R.id.tv_vpvb_price);
-        textViewCount = (TextView) v.findViewById(R.id.tv_vpvb_count);
+        //  textViewCount = (TextView) v.findViewById(R.id.tv_vpvb_count);
         clickArea1 = (LinearLayout) v.findViewById(R.id.ll_vpvb_click_area_1);
-        buttonPlus = (Button) v.findViewById(R.id.button_vpvb_plus);
-        buttonMinus = (Button) v.findViewById(R.id.button_vpvb_minus);
+        //buttonPlus = (Button) v.findViewById(R.id.button_vpvb_plus);
+        //buttonMinus = (Button) v.findViewById(R.id.button_vpvb_minus);
     }
 
     public ViewProductVarietyBuyer(Context context, ProductVariety variety, boolean customerView, boolean showTitle, String title, SellerSettings sellerSettings) {
@@ -59,18 +61,28 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
     }
 
     private void loadTheData() {
-        if(showTitle) {
+        itemCountView = new ItemCountView(getContext());
+        //itemCountView.setItemCountListener(this);
+        // itemCountView.setOnPlusClickListener()
+        if (!variety.isLimitedStock()) {
+            itemCountView.setOutOfStock(false);
+            itemCountView.setCount(CartUtils.getCountOfVariety(variety, sellerSettings));
+            //It means stock is available
+        } else {
+            itemCountView.setOutOfStock(true);
+        }
+        if (showTitle) {
             textViewQuantity.setText(title + " " + variety.getQuantity());
         } else {
             textViewQuantity.setText(variety.getQuantity());
         }
         String price = Constants.INDIAN_RUPEE_SYMBOL + " " + variety.getPrice();
-        if(price.endsWith(".0")) {
-            price = price.substring(0, price.length()-2);
+        if (price.endsWith(".0")) {
+            price = price.substring(0, price.length() - 2);
         }
         textViewPrice.setText(price);
         int cartCount = CartUtils.getCountOfVariety(variety, sellerSettings);
-        textViewCount.setText(cartCount + "");
+//        textViewCount.setText(cartCount + "");
     }
 
     public void setClickListenerArea1(OnClickListener clickListenerArea1) {
@@ -79,15 +91,15 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
     }
 
     public void setPlusButtonClickListener(OnClickListener plusButtonClickListener) {
-        buttonPlus.setOnClickListener(plusButtonClickListener);
+//        buttonPlus.setOnClickListener(plusButtonClickListener);
     }
 
     public void setMinusButtonClickListener(OnClickListener plusButtonClickListener) {
-        buttonMinus.setOnClickListener(plusButtonClickListener);
+//        buttonMinus.setOnClickListener(plusButtonClickListener);
     }
 
     public void setCartCount(int cartCount) {
-        textViewCount.setText(cartCount+"");
+        textViewCount.setText(cartCount + "");
     }
 
 }
