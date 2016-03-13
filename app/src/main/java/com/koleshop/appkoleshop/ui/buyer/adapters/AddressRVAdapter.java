@@ -23,11 +23,13 @@ public class AddressRvAdapter extends RecyclerView.Adapter<AddressRvViewHolder> 
     List<BuyerAddress> addresses;
     boolean activateMaps;
     AddressesRvAdapterListener mListener;
+    private boolean showOnlyDefaultAddress;
 
-    public AddressRvAdapter(Context context, List<BuyerAddress> addresses, AddressesRvAdapterListener listener) {
+    public AddressRvAdapter(Context context, List<BuyerAddress> addresses, AddressesRvAdapterListener listener, boolean showOnlyDefaultAddress) {
         mContext = context;
         this.addresses = addresses;
         this.mListener = listener;
+        this.showOnlyDefaultAddress = showOnlyDefaultAddress;
     }
 
     public void setActivateMaps(boolean activateMaps) {
@@ -44,7 +46,7 @@ public class AddressRvAdapter extends RecyclerView.Adapter<AddressRvViewHolder> 
 
             }
         });
-        AddressRvViewHolder addressRvViewHolder = new AddressRvViewHolder(view, mContext, new AddressRvViewHolder.AddressItemClickListener() {
+        AddressRvViewHolder addressRvViewHolder = new AddressRvViewHolder(view, mContext, showOnlyDefaultAddress, new AddressRvViewHolder.AddressItemClickListener() {
             @Override
             public void onAddressSelected(int position) {
                 BuyerAddress selectedAddress = addresses.get(position);

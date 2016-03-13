@@ -7,10 +7,15 @@ package com.koleshop.appkoleshop.services;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -24,7 +29,12 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.constant.Prefs;
 import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
+import com.koleshop.appkoleshop.ui.seller.activities.HomeActivity;
+import com.koleshop.appkoleshop.ui.seller.activities.SellerOrdersActivity;
+import com.koleshop.appkoleshop.util.AndroidCompatUtil;
+import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 public class MyGcmListenerService extends GcmListenerService {
 
@@ -33,7 +43,7 @@ public class MyGcmListenerService extends GcmListenerService {
     //gcm keys
     public static final String GCM_NOTI_USER_INVENTORY_CREATED = "gcm_noti_user_inventory_created";
     public static final String GCM_NOTI_DELETE_OLD_SETTINGS_CACHE = "gcm_noti_delete_old_settings_cache";
-    public static final String GCM_DEMO_MESSAGE = "demo_key";
+    public static final String GCM_NOTI_INCOMING_ORDER = "gcm_noti_incoming_order";
 
     /**
      * Called when message is received.
@@ -73,48 +83,29 @@ public class MyGcmListenerService extends GcmListenerService {
                     break;
                 case GCM_NOTI_DELETE_OLD_SETTINGS_CACHE:
                     Log.d(TAG, "user settings updated message received");
-                    //delete the old seller settings
-                    String millisString = data.getString("millis", "");
-                    Long updatedSettingsMillis = 0l;
-                    if (!millisString.isEmpty()) {
-                        try {
-                            updatedSettingsMillis = Long.parseLong(millisString);
-                        } catch (Exception e) {
-                            Log.e(TAG, "parse exception", e);
-                        }
+                    Log.d(TAG, "clearing seller settings so that it get updated on opening next time");
+                    SettingsIntentService.refreshSellerSettings(this);
+                    RealmUtils.clearSellerSettings(mContext);
+                    Intent intent = new Intent(Constants.ACTION_RELOAD_SETTINGS);
+                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
+                    localBroadcastManager.sendBroadcast(intent);
+                    break;
+                case GCM_NOTI_INCOMING_ORDER:
+                    //show incoming order notification
+                    String sessionType = PreferenceUtils.getPreferences(getApplicationContext(), Constants.KEY_USER_SESSION_TYPE);
+                    if(sessionType.equals(Constants.SESSION_TYPE_BUYER)) {
+                        break;
                     }
-                    SharedPreferences sharedPreferences = getSharedPreferences(Prefs.KOLE_PREFS, MODE_PRIVATE);
-                    Long savedSettingsMillis = sharedPreferences.getLong(Constants.KEY_SELLER_SETTINGS_MILLIS, 0);
-                    if (updatedSettingsMillis > savedSettingsMillis) {
-                        Log.d(TAG, "will update user settings");
-                        SettingsIntentService.refreshSellerSettings(this);
-                        PreferenceUtils.setPreferences(mContext, Constants.KEY_SELLER_SETTINGS, "");
-                        Intent intent = new Intent(Constants.ACTION_RELOAD_SETTINGS);
-                        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
-                        localBroadcastManager.sendBroadcast(intent);
-                    } else {
-                        Log.d(TAG, "no need to update user settings");
+                    try {
+                        Long orderId = Long.valueOf(data.getString("order_id"));
+                        String buyerName = data.getString("buyer_name");
+                        Float amountPayable = Float.valueOf(data.getString("amount_payable"));
+                        String amountPayableString = CommonUtils.getPriceStringFromFloat(amountPayable, true);
+                        showIncomingNotification(orderId, buyerName, amountPayableString);
+                    } catch (Exception e) {
+                        Log.e(TAG, "problem in incoming order", e);
                     }
                     break;
-                /*case GCM_DEMO_MESSAGE:
-                    String messageType = data.getString("messageType", "");
-                    if (!messageType.isEmpty()) {
-                        switch (messageType) {
-                            case "settings":
-                                break;
-                            case "order":
-                                try {
-                                    String jsonOrder = data.getString("jsonData");
-                                    Cart cart = new Gson().fromJson(jsonOrder, Cart.class);
-                                    CartsSingleton.getSharedInstance().setCart(cart);
-                                } catch (Exception e) {
-
-                                }
-                                showNotification();
-                                break;
-                        }
-                    }
-                    break;*/
                 default:
                     break;
             }
@@ -129,21 +120,53 @@ public class MyGcmListenerService extends GcmListenerService {
         }
     }
 
-    public void showNotification() {
-        PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, CartActivity.class), 0);
-        Resources r = getResources();
-        Notification notification = new NotificationCompat.Builder(this)
-                .setTicker("New Order received")
-                .setSmallIcon(R.drawable.koleshop_logo)
-                .setContentTitle("New Order received")
-                .setContentText("")
-                .setContentIntent(pi)
-                .setAutoCancel(true)
-                .build();
+    private void showIncomingNotification(Long orderId, String buyerName, String amountPayable) {
+        Context ctx = getApplicationContext();
+        Intent notificationIntent = new Intent(ctx, SellerOrdersActivity.class);
+        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(HomeActivity.class);
+        stackBuilder.addNextIntent(notificationIntent);
+        PendingIntent pIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, notification);
+
+        NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(NOTIFICATION_SERVICE);
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(ctx);
+
+        /*
+        //add reject button
+        Intent reject = new Intent(MainActivity.this, NotificationReceiver.class);
+        reject.setAction("Reject");
+        PendingIntent pendingReject = PendingIntent.getBroadcast(this, 12345, reject, PendingIntent.FLAG_UPDATE_CURRENT);
+        notification.addAction(android.R.drawable.ic_delete, "Reject", pendingReject);
+
+        //add accept button
+        Intent accept = new Intent(MainActivity.this, DatePickActivity.class);
+        accept.setAction("Accept");
+        PendingIntent pendingAccept = PendingIntent.getActivity(this, 12345, accept, PendingIntent.FLAG_UPDATE_CURRENT);
+        notification.addAction(android.R.drawable.ic_menu_call, "Accept", pendingAccept);
+        */
+
+        Bitmap icon = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                R.drawable.ic_new_order_48dp);
+
+        notification.setContentTitle(buyerName)
+                .setContentText("New Order Received")
+                .setSmallIcon(R.drawable.ic_koleshop_logo_24dp)
+                .setContentIntent(pIntent)
+                //.setLargeIcon(notificationInfo.getImage())
+                .setLargeIcon(icon)
+                .setSound(soundUri)
+                .setOnlyAlertOnce(true)
+                .setAutoCancel(true)
+                .setFullScreenIntent(pIntent, true)
+                .setContentInfo(amountPayable);
+
+        notificationManager.notify(11, notification.build());
     }
+
+
+
     /**
      * Create and show a simple notification containing the received GCM message.
      *

@@ -1,0 +1,69 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.koleshop.appkoleshop.ui.buyer.fragments.MyOrdersFragment">
+
+    <ViewFlipper
+        android:id="@+id/view_flipper_fragment_my_orders"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <!-- loading | view flipper child 0 -->
+        <ProgressBar
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center" />
+
+        <!-- no internet connection | view flipper child 1 -->
+        <include layout="@layout/view_internet_not_connected"/>
+
+        <!-- some problem occurred | view flipper child 2 -->
+        <include layout="@layout/view_some_problem_occurred"/>
+
+        <!-- no order | view flipper child 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_pinky_sad" />
+
+            <TextView
+                android:id="@+id/tv_no_products_fic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Nothing here yet"
+                android:textColor="@color/default_background_font" />
+        </LinearLayout>
+
+        <!-- recycler view | view flipper child 4 -->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_fragment_my_orders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </ViewFlipper>
+
+    <ProgressBar
+        android:id="@+id/pb_load_more_fragment_my_orders"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_gravity="bottom"
+        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminateTint="@color/accent"
+        android:indeterminate="true"/>
+
+</FrameLayout>

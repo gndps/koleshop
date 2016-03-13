@@ -28,6 +28,7 @@ import com.koleshop.appkoleshop.util.NetworkUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.model.parcel.Address;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
 
@@ -200,12 +201,10 @@ public class SettingsIntentService extends IntentService {
             //saved the settings object...extract that shit
 
             //convert the result to string and save in preferences
-            SellerSettings receivedSellerSettings = new SellerSettings();
-            String settingsString = new Gson().toJson(sellerSettings);
-            SharedPreferences.Editor prefs = PreferenceUtils.getSharedPreferencesEditor(context);
-            prefs.putString(Constants.KEY_SELLER_SETTINGS, settingsString);
-            prefs.putLong(Constants.KEY_SELLER_SETTINGS_MILLIS, new Date().getTime());
-            prefs.apply();
+            ArrayMap<String, Object> map = (ArrayMap<String, Object>) result.getData();
+            SellerSettings receivedSellerSettings = CloudEndpointDataExtractionUtil.getSellerSettings(map);
+            RealmUtils.saveSellerSettings(receivedSellerSettings);
+
 
 
             //update the network request status
@@ -274,14 +273,7 @@ public class SettingsIntentService extends IntentService {
             //extract product list from result
             ArrayMap<String, Object> map = (ArrayMap<String, Object>) result.getData();
             SellerSettings sellerSettings = CloudEndpointDataExtractionUtil.getSellerSettings(map);
-
-
-            //convert the result to string and save in preferences
-            String settingsString = new Gson().toJson(sellerSettings);
-            SharedPreferences.Editor prefs = PreferenceUtils.getSharedPreferencesEditor(context);
-            prefs.putString(Constants.KEY_SELLER_SETTINGS, settingsString);
-            prefs.putLong(Constants.KEY_SELLER_SETTINGS_MILLIS, new Date().getTime());
-            prefs.apply();
+            RealmUtils.saveSellerSettings(sellerSettings);
 
             //update the network request status
             NetworkUtils.setRequestStatusSuccess(context, uniqueRequestId);

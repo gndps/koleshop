@@ -21,14 +21,16 @@ public class AddressRvViewHolder extends RecyclerView.ViewHolder implements View
     Context mContext;
     BuyerAddress address;
     View view;
+    private boolean showOnlyDefaultAddress;
     AddressItemClickListener mListener;
     int position;
 
 
-    public AddressRvViewHolder(View view, Context context , AddressItemClickListener addressItemClickListener) {
+    public AddressRvViewHolder(View view, Context context, boolean showOnlyDefaultAddress, AddressItemClickListener addressItemClickListener) {
         super(view);
         this.view = view;
         this.mContext = context;
+        this.showOnlyDefaultAddress = showOnlyDefaultAddress;
         this.mListener = addressItemClickListener;
         view.setOnClickListener(this);
     }
@@ -36,7 +38,7 @@ public class AddressRvViewHolder extends RecyclerView.ViewHolder implements View
     public void bindAddressData(BuyerAddress address, boolean activateMaps, int position) {
         this.address = address;
         this.position = position;
-        addressView = new AddressView(mContext, address, view, activateMaps, this);
+        addressView = new AddressView(mContext, address, view, activateMaps, this, showOnlyDefaultAddress);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.koleshop.koleshopbackend.db.models;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,16 +21,16 @@ public class Order {
     float amountPayable;
     boolean homeDelivery;
     boolean asap;
-    Date orderTime;
-    Date requestedDeliveryTime;
-    Date actualDeliveryTime;
-    Date deliveryStartTime;
+    Long orderTime;
+    Long requestedDeliveryTime;
+    Long actualDeliveryTime;
+    Long deliveryStartTime;
     int minutesToDelivery; //how many minutes did the seller select when sending the order out for delivery
 
     public Order() {
     }
 
-    public Order(Long id, String orderNumber, SellerSettings sellerSettings, BuyerSettings buyerSettings, Address address, int status, List<OrderItem> orderItems, float deliveryCharges, float carryBagCharges, float notAvailableAmount, float totalAmount, float amountPayable, boolean homeDelivery, boolean asap, Date orderTime, Date requestedDeliveryTime, Date actualDeliveryTime, Date deliveryStartTime, int minutesToDelivery) {
+    public Order(Long id, String orderNumber, SellerSettings sellerSettings, BuyerSettings buyerSettings, Address address, int status, List<OrderItem> orderItems, float deliveryCharges, float carryBagCharges, float notAvailableAmount, float totalAmount, float amountPayable, boolean homeDelivery, boolean asap, Long orderTime, Long requestedDeliveryTime, Long actualDeliveryTime, Long deliveryStartTime, int minutesToDelivery) {
         this.id = id;
         this.orderNumber = orderNumber;
         this.sellerSettings = sellerSettings;
@@ -165,35 +164,35 @@ public class Order {
         this.asap = asap;
     }
 
-    public Date getOrderTime() {
+    public Long getOrderTime() {
         return orderTime;
     }
 
-    public void setOrderTime(Date orderTime) {
+    public void setOrderTime(Long orderTime) {
         this.orderTime = orderTime;
     }
 
-    public Date getRequestedDeliveryTime() {
+    public Long getRequestedDeliveryTime() {
         return requestedDeliveryTime;
     }
 
-    public void setRequestedDeliveryTime(Date requestedDeliveryTime) {
+    public void setRequestedDeliveryTime(Long requestedDeliveryTime) {
         this.requestedDeliveryTime = requestedDeliveryTime;
     }
 
-    public Date getActualDeliveryTime() {
+    public Long getActualDeliveryTime() {
         return actualDeliveryTime;
     }
 
-    public void setActualDeliveryTime(Date actualDeliveryTime) {
+    public void setActualDeliveryTime(Long actualDeliveryTime) {
         this.actualDeliveryTime = actualDeliveryTime;
     }
 
-    public Date getDeliveryStartTime() {
+    public Long getDeliveryStartTime() {
         return deliveryStartTime;
     }
 
-    public void setDeliveryStartTime(Date deliveryStartTime) {
+    public void setDeliveryStartTime(Long deliveryStartTime) {
         this.deliveryStartTime = deliveryStartTime;
     }
 

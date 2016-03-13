@@ -39,6 +39,8 @@ public class ItemCountView extends LinearLayout {
     int count;
     Context mContext;
     private ItemCountListener mListener;
+    private OnClickListener plusButtonClickListener;
+    private OnClickListener minusButtonClickListener;
 
     public ItemCountView(Context context) {
         super(context);
@@ -75,6 +77,8 @@ public class ItemCountView extends LinearLayout {
             public void onClick(View v) {
                 if (mListener != null) {
                     mListener.onItemCountPlusClicked();
+                } else if(plusButtonClickListener!=null) {
+                    plusButtonClickListener.onClick(null);
                 }
             }
         });
@@ -83,6 +87,8 @@ public class ItemCountView extends LinearLayout {
             public void onClick(View v) {
                 if (mListener != null) {
                     mListener.onItemCountMinusClicked();
+                } else if(minusButtonClickListener!=null) {
+                    minusButtonClickListener.onClick(null);
                 }
             }
         });
@@ -91,6 +97,8 @@ public class ItemCountView extends LinearLayout {
             public void onClick(View v) {
                 if (mListener != null) {
                     mListener.onItemCountPlusClicked();
+                } else if(plusButtonClickListener!=null) {
+                    plusButtonClickListener.onClick(null);
                 }
             }
         });
@@ -134,6 +142,14 @@ public class ItemCountView extends LinearLayout {
 
     public void setShowZeroCount(boolean showZeroCount) {
         this.showZeroCount = showZeroCount;
+    }
+
+    public void setPlusButtonClickListener(OnClickListener plusButtonClickListener) {
+        this.plusButtonClickListener = plusButtonClickListener;
+    }
+
+    public void setMinusButtonClickListener(OnClickListener minusButtonClickListener) {
+        this.minusButtonClickListener = minusButtonClickListener;
     }
 
     public interface ItemCountListener {

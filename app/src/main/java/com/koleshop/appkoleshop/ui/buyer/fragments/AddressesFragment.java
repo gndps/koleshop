@@ -199,7 +199,7 @@ public class AddressesFragment extends Fragment implements AddressRvAdapter.Addr
     private void initializeRvAndAdapter() {
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_ADDRESSES);
         showFabButton(true);
-        adapter = new AddressRvAdapter(mContext, addresses, this);
+        adapter = new AddressRvAdapter(mContext, addresses, this, showOnlyDefaultAddress);
         if (activateMapsOnAdapterCreated) {
             adapter.setActivateMaps(true);
         }

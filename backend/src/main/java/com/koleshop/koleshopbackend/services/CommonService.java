@@ -43,13 +43,15 @@ public class CommonService {
 
         String query;
 
+        logger.log(Level.INFO, "save/update address");
+
         if (addressId != null && addressId > 0) {
+
+            logger.log(Level.INFO, "updating...");
 
             //update address and phone
             query = "update Address set name=?, address=?, address_type=?, phone_number=?, country_code=?, nickname=?, gps_long=?, gps_lat=?" +
                     " where user_id=? and id=?";
-
-            logger.log(Level.INFO, "query=" + query);
 
             try {
                 dbConnection = DatabaseConnection.getConnection();
@@ -65,11 +67,12 @@ public class CommonService {
                 preparedStatement.setDouble(8, gpsLat);
                 preparedStatement.setLong(9, userId);
                 preparedStatement.setLong(10, addressId);
-
+                logger.log(Level.INFO, "update address query = " + preparedStatement.toString());
                 int update = preparedStatement.executeUpdate();
                 if (update > 0) {
                     //address updated
                     response.setSuccess(true);
+                    logger.log(Level.INFO, "address updated");
                     response.setData(addressObject);
                 } else {
                     //address update failed
@@ -90,11 +93,10 @@ public class CommonService {
             }
 
         } else {
+            logger.log(Level.INFO, "saving...");
             //add new address
             query = "insert into Address(user_id,name,address,address_type,phone_number,country_code,nickname,gps_long,gps_lat)" +
-                    " values ?,?,?,?,?,?,?,?,?";
-
-            logger.log(Level.INFO, "query=" + query);
+                    " values (?,?,?,?,?,?,?,?,?)";
 
             try {
                 dbConnection = DatabaseConnection.getConnection();
@@ -110,6 +112,7 @@ public class CommonService {
                 preparedStatement.setDouble(8, gpsLong);
                 preparedStatement.setDouble(9, gpsLat);
 
+                logger.log(Level.INFO, "saving new address=" + preparedStatement.toString());
                 int executed = preparedStatement.executeUpdate();
                 ResultSet rsAddress = preparedStatement.getGeneratedKeys();
                 if (executed > 0 && rsAddress != null && rsAddress.next()) {

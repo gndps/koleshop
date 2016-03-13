@@ -22,6 +22,7 @@ import android.view.View;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
+import com.koleshop.appkoleshop.ui.buyer.fragments.MyOrdersFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
@@ -46,6 +47,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     private final String FRAGMENT_NEARBY_SHOPS_TAG = "nearby_shops";
     private final String FRAGMENT_NOT_IMPL = "not_impl";
     private final String FRAGMENT_ADDRESSES_TAG = "addresses";
+    private final String FRAGMENT_MY_ORDERS_TAG = "my_orders";
     private String lastFragmentTag;
     private boolean lastFragmentShowed, isLastFragmentSupportType;
     NavigationView navigationView;
@@ -60,7 +62,10 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     String titleHome;
     @BindString(R.string.navigation_drawer_addresses)
     String titleAddresses;
+    @BindString(R.string.navigation_drawer_my_orders)
+    String titleMyOrders;
     private boolean firstTime;
+    private boolean openMyOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,14 +76,15 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             finish();
         } else {
             firstTime = getIntent().getBooleanExtra("firstTime", false);
+            openMyOrders = getIntent().getBooleanExtra("openMyOrders", false);
             ButterKnife.bind(this);
             mContext = this;
             setupToolbar();
-            boolean showHome = true;
+            boolean showDefaultFragment = true;
             if(savedInstanceState!=null && savedInstanceState.getBoolean("createdOnce")) {
-                showHome = false;
+                showDefaultFragment = false;
             }
-            setupDrawerLayout(showHome);
+            setupDrawerLayout(showDefaultFragment);
         }
     }
 
@@ -162,15 +168,19 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         }
     }
 
-    private void setupDrawerLayout(boolean showHome) {
+    private void setupDrawerLayout(boolean showDefaultFragment) {
         //initialize layout elements
         drawerLayout = (DrawerLayout) findViewById(com.koleshop.appkoleshop.R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
         if (firstTime) {
             showNearbyShops();
-        } else if(showHome) {
-            showHome();
+        } else if(showDefaultFragment) {
+            if(!openMyOrders) {
+                showHome();
+            } else {
+                showMyOrders();
+            }
         }
     }
 
@@ -190,6 +200,15 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         }
         setElevation(8);
         setTitle(titleNearbyShops);
+    }
+
+    private void showMyOrders() {
+        MenuItem item = navigationView.getMenu().findItem(R.id.drawer_my_orders);
+        if (item != null) {
+            displayView(item);
+        }
+        setElevation(8);
+        setTitle(titleMyOrders);
     }
 
     /*private void revealSearchBar(View view, final boolean reveal) {
@@ -369,6 +388,14 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 startActivity(intentCart);
                 setItemChecked = true;
                 closeDrawers = true;
+                break;
+
+            case R.id.drawer_my_orders:
+                //open my orders
+                MyOrdersFragment myOrdersFragment = new MyOrdersFragment();
+                setItemChecked = true;
+                closeDrawers = true;
+                replaceFragment(myOrdersFragment, FRAGMENT_MY_ORDERS_TAG);
                 break;
 
             case R.id.drawer_addresses:

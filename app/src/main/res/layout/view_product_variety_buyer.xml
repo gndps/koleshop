@@ -20,12 +20,12 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            android:id="@+id/ll_vpvb_click_area_1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="center"
-            android:id="@+id/ll_vpvb_click_area_1"
             android:orientation="horizontal">
 
             <TextView
@@ -43,9 +43,9 @@
                 android:id="@+id/tv_vpvb_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
                 android:layout_marginRight="16dp"
                 android:layout_weight="1"
+                android:fontFamily="sans-serif"
                 android:gravity="right"
                 android:maxLines="1"
                 android:text="₹ 20"
@@ -54,44 +54,49 @@
 
         </LinearLayout>
 
-        <LinearLayout
+        <com.koleshop.appkoleshop.ui.common.views.ItemCountView
+            android:id="@+id/icv_vpvb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"></com.koleshop.appkoleshop.ui.common.views.ItemCountView>
+
+        <!--LinearLayout
+            android:id="@+id/ll_vpvb_click_area_2"
             android:layout_width="wrap_content"
             android:layout_height="56dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:paddingLeft="16dp"
-            android:id="@+id/ll_vpvb_click_area_2"
             android:paddingRight="16dp">
 
-                <Button
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:padding="8dp"
-                    android:layout_marginRight="4dp"
-                    style="@style/Widget.Design.FloatingActionButton"
-                    android:text="-"
-                    android:id="@+id/button_vpvb_minus" />
+            <Button
+                android:id="@+id/button_vpvb_minus"
+                style="@style/Widget.Design.FloatingActionButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="4dp"
+                android:padding="8dp"
+                android:text="-" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
-                    android:textColor="@color/primary_text"
-                    android:id="@+id/tv_vpvb_count" />
+            <TextView
+                android:id="@+id/tv_vpvb_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:text="1"
+                android:textColor="@color/primary_text" />
 
-                <Button
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:padding="8dp"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
-                    style="@style/Widget.Design.FloatingActionButton"
-                    android:text="+"
-                    android:id="@+id/button_vpvb_plus" />
+            <Button
+                android:id="@+id/button_vpvb_plus"
+                style="@style/Widget.Design.FloatingActionButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:padding="8dp"
+                android:text="+" />
 
-        </LinearLayout>
+        </LinearLayout-->
 
         <!--CheckBox
             android:id="@+id/cb_inventory_product_variety"

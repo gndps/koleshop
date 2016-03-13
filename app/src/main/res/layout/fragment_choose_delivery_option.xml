@@ -26,7 +26,7 @@
                 android:background="@color/accent"
                 android:gravity="left"
                 android:padding="8dp"
-                android:text="1. DELIVERY OPTIONS"
+                android:text="STEP 1. Select Pickup or Delivery"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
 

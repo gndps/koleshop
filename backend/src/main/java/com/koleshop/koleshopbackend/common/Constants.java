@@ -33,10 +33,15 @@ public class Constants {
     public static int USER_SESSION_TYPE_SELLER = 1; //these constants are same in the mysql db
     public static int USER_SESSION_TYPE_BUYER = 2;
 
+	//gcm notification keys
 	public static String GCM_NOTI_USER_INVENTORY_CREATED = "gcm_noti_user_inventory_created";
-    public static String GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED = "gcm_coll_inventory_created";
+	public static String GCM_NOTI_INCOMING_ORDER = "gcm_noti_incoming_order";
 	public static String GCM_NOTI_DELETE_OLD_SETTINGS_CACHE = "gcm_noti_delete_old_settings_cache";
+
+	//notification collapse keys
+    public static String GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED = "gcm_coll_inventory_created";
 	public static String GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE = "gcm_coll_delete_old_settings_cache";
+	public static String GCM_NOTI_COLLAPSE_KEY_INCOMING_ORDER = "gcm_coll_incoming_order";
 
 	public static String GCM_DEMO_MESSAGE_COLLAPSE_KEY = "demo_coll_key";
 	public static String GCM_DEMO_MESSAGE = "demo_key";

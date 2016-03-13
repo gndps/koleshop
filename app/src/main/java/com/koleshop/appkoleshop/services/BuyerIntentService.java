@@ -14,11 +14,15 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.util.ArrayMap;
 import com.koleshop.api.buyerEndpoint.BuyerEndpoint;
 import com.koleshop.api.buyerEndpoint.model.KoleResponse;
+import com.koleshop.api.orderEndpoint.OrderEndpoint;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.model.parcel.Address;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
+import com.koleshop.appkoleshop.util.CloudEndpointDataExtractionUtil;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
@@ -32,6 +36,7 @@ public class BuyerIntentService extends IntentService {
 
     private static final String ACTION_GET_NEARBY_SHOPS = "com.koleshop.appkoleshop.services.action.get_nearby_shops";
     private static final String ACTION_CREATE_NEW_ORDER = "com.koleshop.appkoleshop.services.action.create_new_order";
+    private static final String ACTION_GET_MY_ORDERS = "com.koleshop.appkoleshop.services.action.get_my_orders";
 
 //    @Named("customerId") Long customerId, @Named("sessionId") String sessionId,
 //    @Named("gpsLong") Double gpsLong, @Named("gpsLat") Double gpsLat, @Named("homeDeliveryOnly") boolean homeDeliveryOnly,
@@ -78,6 +83,14 @@ public class BuyerIntentService extends IntentService {
         context.startService(intent);
     }
 
+    public static void getMyOrders(Context context, int limit, int offset) {
+        Intent intent = new Intent(context, BuyerIntentService.class);
+        intent.setAction(ACTION_GET_MY_ORDERS);
+        intent.putExtra(EXTRA_LIMIT, limit);
+        intent.putExtra(EXTRA_OFFSET, offset);
+        context.startService(intent);
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
@@ -99,6 +112,10 @@ public class BuyerIntentService extends IntentService {
                     deliveryMinute = intent.getIntExtra(EXTRA_DELIVERY_MINUTE, 0);
                 }
                 createNewOrder(order, deliveryHour, deliveryMinute);
+            } else if (ACTION_GET_MY_ORDERS.equals(action)) {
+                final int limit = intent.getIntExtra(EXTRA_LIMIT, 0);
+                final int offset = intent.getIntExtra(EXTRA_OFFSET, 0);
+                getMyOrders(limit, offset);
             }
         }
     }
@@ -219,8 +236,8 @@ public class BuyerIntentService extends IntentService {
     }
 
     private void createNewOrder(Order order, int deliveryHour, int deliveryMinute) {
-        BuyerEndpoint endpoint = null;
-        BuyerEndpoint.Builder builder = new BuyerEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+        OrderEndpoint endpoint = null;
+        OrderEndpoint.Builder builder = new OrderEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
                 // use 10.0.2.2 for localhost testing
                 .setRootUrl(Constants.SERVER_URL)
@@ -237,24 +254,100 @@ public class BuyerIntentService extends IntentService {
         Context context = getApplicationContext();
 
         //Long userId = PreferenceUtils.getUserId(context);
-        //String sessionId = PreferenceUtils.getSessionId(context);
+        String sessionId = PreferenceUtils.getSessionId(context);
 
-        KoleResponse result = null;
+        com.koleshop.api.orderEndpoint.model.KoleResponse result = null;
         try {
             int count = 0;
             int maxTries = 3;
             while (count < maxTries) {
                 try {
-                    //result = endpoint.getNearbyShops(gpsLong, gpsLat, homeDeliveryOnly, openShopsOnly, limit, offset).execute();
+                    com.koleshop.api.orderEndpoint.model.Order endpointOrder = KoleshopUtils.getEndpointOrder(order);
+                    result = endpoint.createNewOrder(deliveryHour, deliveryMinute, sessionId, endpointOrder).execute();
                     count = maxTries;
                 } catch (Exception e) {
                     Log.e(TAG, "exception", e);
                     count++;
                 }
             }
+
+            if(result!=null && result.getSuccess()) {
+                Log.d(TAG, "created order success");
+                ArrayMap<String, Object> resultArrayMap = (ArrayMap<String, Object>) result.getData();
+                Log.d(TAG, resultArrayMap.toString());
+                Order createdOrder = CloudEndpointDataExtractionUtil.getOrderFromJsonResult(resultArrayMap);
+                Intent orderCreatedIntent = new Intent(Constants.ACTION_ORDER_CREATED_SUCCESS);
+                orderCreatedIntent.putExtra("orderParcelable", Parcels.wrap(createdOrder));
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderCreatedIntent);
+            } else {
+                Log.d(TAG, "problem in creating order");
+                Intent orderNotCreatedIntent = new Intent(Constants.ACTION_ORDER_CREATED_FAILED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderNotCreatedIntent);
+            }
+
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
         }
 
+    }
+
+    private void getMyOrders(int limit, int offset) {
+        OrderEndpoint endpoint = null;
+        OrderEndpoint.Builder builder = new OrderEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        endpoint = builder.build();
+
+        Context context = getApplicationContext();
+
+        Long userId = PreferenceUtils.getUserId(context);
+        String sessionId = PreferenceUtils.getSessionId(context);
+
+        com.koleshop.api.orderEndpoint.model.KoleResponse result = null;
+        try {
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = endpoint.getMyOrders(limit, offset, true, sessionId, userId).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
+
+            if(result!=null && result.getSuccess()) {
+                Log.d(TAG, "fetched my orders");
+                if(result.getData() instanceof String) {
+                    Intent noOrdersFetchedIntent = new Intent(Constants.ACTION_NO_ORDERS_FETCHED);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(noOrdersFetchedIntent);
+                } else {
+                    ArrayList<ArrayMap<String, Object>> myOrdersJsonList = (ArrayList<ArrayMap<String, Object>>) result.getData();
+                    List<Order> myOrdersList = CloudEndpointDataExtractionUtil.getOrdersListFromJsonResult(myOrdersJsonList);
+                    Intent ordersListFetchedIntent = new Intent(Constants.ACTION_ORDERS_FETCH_SUCCESS);
+                    ordersListFetchedIntent.putExtra("orders", Parcels.wrap(myOrdersList));
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(ordersListFetchedIntent);
+                }
+            } else {
+                Log.d(TAG, "problem in fetching my orders");
+                Intent intentOrdersListFetchFailed = new Intent(Constants.ACTION_ORDERS_FETCH_FAILED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intentOrdersListFetchFailed);
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+            Intent intentOrdersListFetchFailed = new Intent(Constants.ACTION_ORDERS_FETCH_FAILED);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intentOrdersListFetchFailed);
+        }
     }
 }

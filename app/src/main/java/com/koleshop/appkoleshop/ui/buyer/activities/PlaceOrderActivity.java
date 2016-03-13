@@ -1,19 +1,24 @@
 package com.koleshop.appkoleshop.ui.buyer.activities;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
@@ -33,6 +38,7 @@ import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.ChooseDeliveryTimeFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.ChooseDeliveryOptionFragment;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
+import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
@@ -73,6 +79,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     ScrollView scrollView;
     @Bind(R.id.pb_activity_place_order)
     ProgressBar progressBar;
+    @Bind(R.id.button_place_order)
+    Button buttonPlaceOrder;
 
     boolean backHandledByFragment = false;
     private ChooseDeliveryOptionFragment chooseDeliveryOptionFragment; //frag 1
@@ -84,6 +92,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     private boolean asapDelivery;
     private int selectedHour;
     private int selectedMinute;
+    private BroadcastReceiver mBroadcastReceiver;
 
     public static void startActivityNow(Context context, Cart cart) {
         Intent intent = new Intent(context, PlaceOrderActivity.class);
@@ -181,6 +190,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             //getSupportFragmentManager().executePendingTransactions();
         }
 
+        initializeBroadcastReceiver();
+
     }
 
     @Override
@@ -202,6 +213,20 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
         outState.putString(TIME_KEY, time);
         outState.putParcelable(EXTRA_CART, Parcels.wrap(cart));
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_CREATED_SUCCESS));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_CREATED_FAILED));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
@@ -237,6 +262,25 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
         return false;
     }
 
+    private void initializeBroadcastReceiver() {
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                switch (action) {
+                    case Constants.ACTION_ORDER_CREATED_SUCCESS:
+                        orderPlacedSuccessfully();
+                        break;
+                    case Constants.ACTION_ORDER_CREATED_FAILED:
+                        setProcessing(false);
+                        Snackbar.make(buttonPlaceOrder, "Couldn't create order", Snackbar.LENGTH_SHORT).show();
+                        //show snackbar to say that some problem in creating order
+                        break;
+                }
+            }
+        };
+    }
+
     @OnClick(R.id.button_place_order)
     public void placeOrder() {
         if (validateOrder()) {
@@ -254,6 +298,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                     //01. save buyer address to db
                     Address address = new Address();
                     address.setNickname(buyerAddress.getNickname());
+                    address.setName(buyerAddress.getName());
                     address.setUserId(userId);
                     address.setAddress(buyerAddress.getAddress());
                     address.setAddressType(Constants.ADDRESS_TYPE_BUYER);
@@ -273,6 +318,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                     //03. create seller settings
                     SellerSettings sellerSettings = cart.getSellerSettings();
 
+
                     //04. create order
                     Order order = new Order();
                     order.setSellerSettings(sellerSettings);
@@ -281,18 +327,30 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                     order.setStatus(OrderStatus.INCOMING);
                     List<OrderItem> orderItems = createOrderItems();
                     order.setOrderItems(orderItems);
-                    float deliveryCharges = cart.getSellerSettings().getDeliveryCharges();
                     float carryBagCharges = cart.getSellerSettings().getCarryBagCharges();
                     float totalCharges = KoleshopUtils.getItemsTotalPrice(cart.getProductVarietyCountList());
+                    float deliveryCharges = 0f;
+                    if (totalCharges < sellerSettings.getMinimumOrder()) {
+                        deliveryCharges = sellerSettings.getDeliveryCharges();
+                    }
+                    float amountPayable = totalCharges + carryBagCharges + deliveryCharges;
                     order.setDeliveryCharges(deliveryCharges);
                     order.setCarryBagCharges(carryBagCharges);
+                    order.setTotalAmount(totalCharges);
+                    order.setAmountPayable(amountPayable);
                     order.setHomeDelivery(homeDelivery);
                     order.setAsap(asapDelivery);
                     order.setTotalAmount(deliveryCharges + carryBagCharges + totalCharges);
+                    setProcessing(true);
                     BuyerIntentService.createNewOrder(mContext, order, selectedHour, selectedMinute);
                 }
             }
         }
+    }
+
+    private void setProcessing(boolean processing) {
+        progressBar.setVisibility(processing?View.VISIBLE:View.GONE);
+        buttonPlaceOrder.setClickable(processing?false:true);
     }
 
     private List<OrderItem> createOrderItems() {
@@ -396,6 +454,17 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             actionBar.setElevation(8.0f);
 
         }
+    }
+
+    private void orderPlacedSuccessfully() {
+        setProcessing(false);
+        CartUtils.clearCart(cart);
+        //clear back stack and go to my orders display
+        Intent intentMyOrders = new Intent(mContext, HomeActivity.class);
+        intentMyOrders.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intentMyOrders.putExtra("openMyOrders", true);
+        startActivity(intentMyOrders);
+        finish();
     }
 
 }

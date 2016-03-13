@@ -26,7 +26,7 @@
                 android:background="@color/accent"
                 android:gravity="left"
                 android:padding="8dp"
-                android:text="2. DELIVERY TIME"
+                android:text="STEP 2. Choose Delivery Time"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
 

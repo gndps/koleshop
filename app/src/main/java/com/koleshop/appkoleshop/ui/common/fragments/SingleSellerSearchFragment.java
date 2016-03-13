@@ -41,7 +41,7 @@ import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
-public class SingleSellerFragment extends Fragment {
+public class SingleSellerSearchFragment extends Fragment {
 
     private static final String ARG_MY_INVENTORY = "myInventory";
     private static final String ARG_CUSTOMER_VIEW = "customerView";
@@ -98,13 +98,13 @@ public class SingleSellerFragment extends Fragment {
     private static final int ITEMS_PER_PAGE = 20;
     private boolean loadMoreOnScrollToEnd;
 
-    public SingleSellerFragment() {
+    public SingleSellerSearchFragment() {
         // Required empty public constructor
     }
 
-    public static SingleSellerFragment newInstance(boolean myInventory, boolean customerView, Long sellerId
+    public static SingleSellerSearchFragment newInstance(boolean myInventory, boolean customerView, Long sellerId
             , String searchQuery, List<EditProduct> editProducts, SellerSettings sellerSettings) {
-        SingleSellerFragment fragment = new SingleSellerFragment();
+        SingleSellerSearchFragment fragment = new SingleSellerSearchFragment();
         Bundle args = new Bundle();
         args.putBoolean(ARG_CUSTOMER_VIEW, customerView);
         args.putBoolean(ARG_MY_INVENTORY, myInventory);

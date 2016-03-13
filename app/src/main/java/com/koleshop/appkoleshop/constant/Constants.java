@@ -1,5 +1,7 @@
 package com.koleshop.appkoleshop.constant;
 
+import android.content.Context;
+
 /**
  * Created by gundeepsingh on 17/08/14.
  */
@@ -38,7 +40,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = true;
+    public static boolean RESET_REALM = false;
     public static boolean KOLE_CACHE_ALLOWED = true;
 
     public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
@@ -103,6 +105,11 @@ public class Constants {
     public static final String ACTION_SEARCH_RESULTS_EMPTY = "com.koleshop.action_search_results_empty" ;
     public static final String ACTION_OPEN_SINGLE_SELLER_RESULTS = "com.koleshop.action_open_single_seller_results" ;
     public static final String ACTION_REFRESH_CARTS = "com.koleshop.action_refresh_carts" ;
+    public static final String ACTION_ORDER_CREATED_SUCCESS = "com.koleshop.action_order_created_success";
+    public static final String ACTION_ORDER_CREATED_FAILED = "com.koleshop.action_order_created_failed";
+    public static final String ACTION_ORDERS_FETCH_SUCCESS = "com.koleshop.action_orders_fetch_success";
+    public static final String ACTION_NO_ORDERS_FETCHED = "com.koleshop.action_no_orders_fetched";
+    public static final String ACTION_ORDERS_FETCH_FAILED = "com.koleshop.action_orders_fetch_failed";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";
@@ -123,7 +130,6 @@ public class Constants {
     public static final String KEY_SESSION_ID = "pref_session_id";
     public static final String KEY_GOOGLE_API_TOKEN = "pref_google_api_token";
     public static final String KEY_SELLER_SETTINGS = "pref_seller_settings";
-    public static final String KEY_SELLER_SETTINGS_MILLIS = "pref_seller_settings_millis";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";

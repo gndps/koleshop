@@ -163,7 +163,8 @@
         <activity
             android:name=".ui.common.activities.MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".ui.seller.activities.SellerOrdersActivity" />
+        <activity android:name=".ui.seller.activities.SellerOrdersActivity"
+            android:parentActivityName=".ui.seller.activities.HomeActivity"/>
         <activity
             android:name=".ui.common.activities.OrderDetailsActivity"
             android:excludeFromRecents="true"

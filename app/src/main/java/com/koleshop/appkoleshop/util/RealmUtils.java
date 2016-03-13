@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.model.realm.Cart;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
@@ -125,7 +126,7 @@ public class RealmUtils {
             }
         }
         realm.commitTransaction();
-        if(clearAllCarts) {
+        if (clearAllCarts) {
             CartUtils.clearAllCarts();
         }
         realm.close();
@@ -192,4 +193,37 @@ public class RealmUtils {
         }
         return null;
     }
+
+    public static void saveSellerSettings(SellerSettings sellerSettings) {
+        if (sellerSettings != null) {
+            Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(sellerSettings);
+            realm.commitTransaction();
+            realm.close();
+        }
+    }
+
+    public static SellerSettings getSellerSettings(Context context) {
+        Long userId = PreferenceUtils.getUserId(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmQuery<SellerSettings> realmQuery = realm.where(SellerSettings.class)
+                .equalTo("userId", userId);
+        SellerSettings sellerSettingsRealm = realmQuery.findFirst();
+        SellerSettings sellerSettings = realm.copyFromRealm(sellerSettingsRealm);
+        realm.close();
+        return sellerSettings;
+    }
+
+    public static void clearSellerSettings(Context context) {
+        Realm realm = Realm.getDefaultInstance();
+        Long userId = PreferenceUtils.getUserId(context);
+        RealmQuery<SellerSettings> realmQuery = realm.where(SellerSettings.class)
+                .equalTo("userId", userId);
+        SellerSettings sellerSettingsRealm = realmQuery.findFirst();
+        sellerSettingsRealm.removeFromRealm();
+        realm.commitTransaction();
+        realm.close();
+    }
+
 }

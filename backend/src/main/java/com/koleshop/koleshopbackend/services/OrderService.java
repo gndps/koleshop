@@ -1,5 +1,7 @@
 package com.koleshop.koleshopbackend.services;
 
+import com.google.android.gcm.server.Message;
+import com.google.gson.Gson;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.common.OrderStatus;
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
@@ -10,6 +12,7 @@ import com.koleshop.koleshopbackend.db.models.KoleResponse;
 import com.koleshop.koleshopbackend.db.models.Order;
 import com.koleshop.koleshopbackend.db.models.OrderItem;
 import com.koleshop.koleshopbackend.db.models.SellerSettings;
+import com.koleshop.koleshopbackend.gcm.GcmHelper;
 import com.koleshop.koleshopbackend.utils.CommonUtils;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
@@ -44,18 +47,14 @@ public class OrderService {
             logger.log(Level.SEVERE, "Order not created - order was null");
             return null;
         }
-        if(order.getAddress() == null) {
+        if (order.getAddress() == null) {
             logger.log(Level.SEVERE, "Order not created - order address was null");
             return null;
         }
-        if(order.getBuyerSettings() == null) {
+        if (order.getBuyerSettings() == null) {
             logger.log(Level.SEVERE, "Order not created - order buyer settings were null");
             return null;
         }
-
-        Connection dbConnection = null;
-        PreparedStatement preparedStatement = null;
-        boolean rollbackTransaction = false;
 
         List<OrderItem> orderItems = order.getOrderItems();
         if (orderItems == null || orderItems.size() == 0) {
@@ -63,21 +62,27 @@ public class OrderService {
             return null;
         }
 
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        boolean rollbackTransaction = false;
+
         try {
+            logger.log(Level.INFO, "Creating new order - userId = " + order.getAddress().getUserId());
+            logger.log(Level.INFO, "Order object:\n" + new Gson().toJson(order));
 
             //01. UPDATE BUYER SETTINGS IF NOT EXIST
             BuyerSettings buyerSettings = order.getBuyerSettings();
-            if(buyerSettings==null) return null;
+            if (buyerSettings == null) return null;
             boolean buyerSettingsUpdated = new BuyerService().updateBuyerSettings(buyerSettings);
 
-            if(!buyerSettingsUpdated) {
+            if (!buyerSettingsUpdated) {
                 logger.log(Level.SEVERE, "Order not created - couldn't update buyer settings  for userId" + order.getAddress().getUserId());
                 return null;
             }
 
             //02. SAVE OR UPDATE ADDRESS
             KoleResponse response = new CommonService().saveOrUpdateAddress(order.getAddress());
-            if(response.getSuccess()) {
+            if (response.getSuccess()) {
                 order.setAddress((Address) response.getData()); //address id generated
             } else {
                 logger.log(Level.SEVERE, "Order not created - address couldn't be saved/updated for userId" + order.getAddress().getUserId());
@@ -93,7 +98,7 @@ public class OrderService {
             preparedStatement.setFloat(1, order.getSellerSettings().getUserId());
             preparedStatement.setDate(2, new Date(new java.util.Date().getTime()));
             ResultSet rsOrderNumber = preparedStatement.executeQuery();
-            if(rsOrderNumber!=null && rsOrderNumber.first()) {
+            if (rsOrderNumber != null && rsOrderNumber.first()) {
                 String latestOrderNumber = rsOrderNumber.getString(1);
                 try {
                     orderNumberOfTheDay = Integer.parseInt(latestOrderNumber.split("-")[2]) + 1;
@@ -110,14 +115,14 @@ public class OrderService {
             //03.02 INSERT THE ORDER
             String orderQuery = "insert into Orders set order_number=?, customer_id=?, seller_id=?, address_id=?, status_id=?" +
                     ",delivery_charges=?,carry_bag_charges=?,not_available_amount=?,total_amount=?,amount_payable=?" +
-                    ",home_delivery=?,asap=?,order_time,requested_delivery_time=?";
+                    ",home_delivery=?,asap=?,order_time=?,requested_delivery_time=?";
 
 
             //prepare data
             String sellerNameWithoutSpaces = order.getSellerSettings().getAddress().getName().replaceAll(" ", "");
             String orderNumber;
             String sellerShortCode;
-            if(sellerNameWithoutSpaces.length()>2) {
+            if (sellerNameWithoutSpaces.length() > 2) {
                 sellerShortCode = sellerNameWithoutSpaces.substring(0, 3);
             } else {
                 sellerShortCode = CommonUtils.getDigestedString(sellerNameWithoutSpaces);
@@ -127,7 +132,7 @@ public class OrderService {
 
 
             //prepare query
-            int index=1;
+            int index = 1;
             preparedStatement = dbConnection.prepareStatement(orderQuery, Statement.RETURN_GENERATED_KEYS);
             logger.info("will run create order query = " + preparedStatement.toString());
             preparedStatement.setString(index++, orderNumber);
@@ -142,16 +147,21 @@ public class OrderService {
             preparedStatement.setFloat(index++, order.getAmountPayable());
             preparedStatement.setBoolean(index++, order.isHomeDelivery());
             preparedStatement.setBoolean(index++, order.isAsap());
-            preparedStatement.setDate(index++, new Date(orderDate.getTime()));
-            if(order.isAsap()) {
+            preparedStatement.setTimestamp(index++, new Timestamp(orderDate.getTime()));
+            order.setOrderTime(orderDate.getTime());
+            if (order.isAsap()) {
                 //requested delivery time = order time
-                preparedStatement.setDate(index++, new Date(orderDate.getTime()));
+                preparedStatement.setTimestamp(index++, new Timestamp(orderDate.getTime()));
+                order.setRequestedDeliveryTime(orderDate.getTime());
             } else {
                 //requested delivery time with time diff
-                preparedStatement.setDate(index++, new Date(CommonUtils.getDate(orderDate, addMinutes, addHours).getTime()));
+                java.util.Date dateWithDiff = CommonUtils.getDate(orderDate, addMinutes, addHours);
+                preparedStatement.setTimestamp(index++, new Timestamp(dateWithDiff.getTime()));
+                order.setRequestedDeliveryTime(dateWithDiff.getTime());
             }
             preparedStatement.execute();
             ResultSet rs = preparedStatement.getGeneratedKeys();
+            rs.next();
             if (rs != null && rs.getLong(1) > 0) {
                 logger.info("order created!");
                 Long generatedOrderId = rs.getLong(1);
@@ -195,6 +205,7 @@ public class OrderService {
             try {
                 dbConnection.commit();
                 DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+                logger.info("--- order created ---");
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "some exception while committing create new order for customer_id = " + order.getBuyerSettings().getUserId() + "and seller_id = " + order.getSellerSettings().getUserId(), e);
                 DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
@@ -202,6 +213,7 @@ public class OrderService {
         } else {
             //FAILED - rollback the transaction
             try {
+                logger.log(Level.WARNING, "rolling back create order for userId = " + order.getAddress().getUserId());
                 dbConnection.rollback();
                 DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
             } catch (SQLException e) {
@@ -210,6 +222,15 @@ public class OrderService {
             }
         }
 
+        //send notification to seller
+        Message gcmMessage = new Message.Builder()
+                .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_INCOMING_ORDER)
+                .addData("type", Constants.GCM_NOTI_INCOMING_ORDER)
+                .addData("order_id", order.getId().toString())
+                .addData("buyer_name", order.getBuyerSettings().getName())
+                .addData("amount_payable", order.getAmountPayable()+"")
+                .build();
+        GcmHelper.notifyUser(order.getSellerSettings().getUserId(), gcmMessage, 2);
 
         return order;
     }
@@ -260,8 +281,8 @@ public class OrderService {
             preparedStatement.setFloat(index++, order.getTotalAmount());
             preparedStatement.setFloat(index++, order.getNotAvailableAmount());
             preparedStatement.setFloat(index++, order.getAmountPayable());
-            preparedStatement.setDate(index++, new Date(order.getActualDeliveryTime().getTime()));
-            preparedStatement.setDate(index++, new Date(order.getDeliveryStartTime().getTime()));
+            preparedStatement.setTimestamp(index++, new Timestamp(order.getActualDeliveryTime()));
+            preparedStatement.setTimestamp(index++, new Timestamp(order.getDeliveryStartTime()));
             preparedStatement.setInt(index++, order.getMinutesToDelivery());
             preparedStatement.setLong(index++, order.getId());
             preparedStatement.execute();
@@ -314,7 +335,7 @@ public class OrderService {
         return getOrders(userId, OrderQueryType.CustomerOrders, pagination, limit, offset);
     }
 
-    public List<Order> getOrders(Long userId, OrderQueryType status,boolean pagination, int limit, int offset) {
+    public List<Order> getOrders(Long userId, OrderQueryType status, boolean pagination, int limit, int offset) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement;
@@ -329,59 +350,65 @@ public class OrderService {
             case Incoming:
                 query = "select id from Orders where seller_id=? and order_status=" + OrderStatus.INCOMING
                         + " order by id desc ";
+                logger.log(Level.INFO, "getting incoming orders for user_id = " + userId);
                 break;
             case Pending:
-                query =  "select id from Orders where seller_id=? and order_status=" + OrderStatus.ACCEPTED
+                query = "select id from Orders where seller_id=? and order_status=" + OrderStatus.ACCEPTED
                         + " order by id desc ";
+                logger.log(Level.INFO, "getting pending orders for user_id = " + userId);
                 break;
             case Complete:
                 query = "select id from Orders where seller_id=? and order_status not in (" +
                         OrderStatus.INCOMING + ", " + OrderStatus.ACCEPTED + ") ";
+                logger.log(Level.INFO, "getting complete orders for user_id = " + userId);
                 break;
             case CustomerOrders:
                 query = "select id from Orders where customer_id=? order by id desc ";
+                logger.log(Level.INFO, "getting my orders for user_id = " + userId);
                 break;
             default:
                 query = "select id from Orders where seller_id=? order by id desc ";
+                logger.log(Level.INFO, "getting orders for user_id = " + userId);
                 break;
         }
-        if(pagination) {
+        if (pagination) {
             query += "limit ? offset ?";
+            logger.log(Level.INFO, "pagination = true");
         }
-
-
 
 
         //02. FIND THE ORDER IDS
         try {
+            logger.log(Level.INFO, "finding order ids");
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setLong(1, userId);
             //if pagination is true then set the limit and offset
-            if(pagination) {
+            if (pagination) {
                 preparedStatement.setInt(2, limit);
                 preparedStatement.setInt(3, offset);
             }
+            logger.info("finding order ids using query = " + preparedStatement.toString());
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet != null) {
+                logger.info("found result set" + preparedStatement.toString());
                 while (resultSet.next()) {
                     orderIds.add(resultSet.getLong(1));
                 }
+            } else {
+                logger.info("result set not found" + preparedStatement.toString());
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "some problem in getting incoming orders ids for seller_id = " + userId, e);
         }
 
 
-
-
         //03. FETCH ORDERS FOR THE ORDER IDS FOUND IN STEP 2
         if (orderIds.size() > 0) {
 
-
             //03.01 Build the order fetching query
             StringBuilder builder = new StringBuilder();
-            for( int i = 0 ; i < orderIds.size(); i++ ) {
+            for (int i = 0; i < orderIds.size(); i++) {
                 builder.append("?,");
             }
             /*String queryOld = "select o.id as order_id,o.customer_id,o.total_amount,o.not_available_amount,o.delivery_charges,o.carry_bag_charges,o.amount_payable," +
@@ -408,40 +435,36 @@ public class OrderService {
                     " from Orders o join Address a on o.address_id=a.id" +
                     " join OrderItems oi on o.id=oi.order_id" +
                     " join SellerSettings ss on ss.user_id = o.seller_id" +
-                    " join Address sa on sa.user_id = ss.user_id" +
+                    " join Address sa on sa.user_id = ss.user_id and sa.address_type = " + Constants.ADDRESS_TYPE_SELLER +
                     " join BuyerSettings bs on bs.user_id = o.customer_id" +
-                    " join SellerStatus sst on sst.seller_id = ss.id" +
-                    " where o.id in (" + builder.deleteCharAt( builder.length() -1 ).toString() +
+                    " join SellerStatus sst on sst.seller_id = ss.user_id" +
+                    " where o.id in (" + builder.deleteCharAt(builder.length() - 1).toString() +
                     ") order by o.id desc";
 
             try {
                 preparedStatement = dbConnection.prepareStatement(query);
                 int index = 1;
-                for( Long orderId : orderIds ) {
+                for (Long orderId : orderIds) {
                     preparedStatement.setLong(index++, orderId);
                 }
 
-
                 //03.02 Execute the order fetching query
+                logger.info("finding orders using order ids using query : \n" + preparedStatement.toString());
                 ResultSet rs = preparedStatement.executeQuery();
                 HashMap<Long, Integer> ordersHashMap = new HashMap<>();
                 int position = 0;
                 Order order = null;
+                List<OrderItem> orderItems = null;
                 while (rs.next()) {
-                    List<OrderItem> orderItems = null;
                     Long orderId = rs.getLong("order_id");
                     if (!ordersHashMap.containsKey(orderId)) {
                         //03.03 EXTRACT ORDER INFO, ADDRESS, SELLER_SETTINGS, BUYER_SETTINGS
-
-                        //add the currently looping order to the orders list
-                        if (order != null && orderItems != null) {
-                            orders.add(order);
-                        }
 
                         //initialize order items list for new order
                         orderItems = new ArrayList<>();
 
                         //extract order info
+                        logger.info("extracting order info");
                         String orderNumber = rs.getString("order_number");
                         int orderStatusId = rs.getInt("order_status_id");
                         Float deliveryCharges = rs.getFloat("delivery_charges");
@@ -451,13 +474,20 @@ public class OrderService {
                         Float amountPayable = rs.getFloat("amount_payable");
                         boolean homeDelivery = rs.getBoolean("home_delivery");
                         boolean asap = rs.getBoolean("asap");
-                        java.util.Date orderTime = getDateFromSqlTimestamp(rs.getTimestamp("order_time"));
-                        java.util.Date requestedDeliveryTime = rs.getTimestamp("requested_delivery_time");
-                        java.util.Date actualDeliveryTime = rs.getTimestamp("actual_delivery_time");
-                        java.util.Date deliveryStartTime = rs.getTimestamp("delivery_start_time");
+                        Long orderTime = rs.getTimestamp("order_time").getTime();
+                        Long requestedDeliveryTime = rs.getTimestamp("requested_delivery_time").getTime();
+                        Long actualDeliveryTime = null;
+                        if (rs.getTimestamp("actual_delivery_time") != null) {
+                            actualDeliveryTime = rs.getTimestamp("actual_delivery_time").getTime();
+                        }
+                        Long deliveryStartTime = null;
+                        if (rs.getTimestamp("delivery_start_time") != null) {
+                            deliveryStartTime = rs.getTimestamp("delivery_start_time").getTime();
+                        }
                         int minutesToDelivery = rs.getInt("minutes_to_delivery");
 
                         //extract address info
+                        logger.info("extracting address info");
                         Long addressId = rs.getLong("address_id");
                         Long buyerId = rs.getLong("buyer_id");
                         String addressName = rs.getString("address_name");
@@ -472,6 +502,7 @@ public class OrderService {
                                 , countryCode, nickname, gpsLong, gpsLat);
 
                         //extract seller settings
+                        logger.info("extracting seller settings");
                         Long sellerSettingsId = rs.getLong("seller_settings_id");
                         Long sellerId = rs.getLong("seller_id");
                         String imageUrl = rs.getString("ss_image_url");
@@ -489,6 +520,7 @@ public class OrderService {
                         int sellerSettingsDeliveryEndTime = rs.getInt("ss_delivery_end_time");
 
                         //extract buyer settings
+                        logger.info("extracting buyer settings");
                         Long buyerSettingsId = rs.getLong("buyer_settings_id");
                         Long buyerSettingsBuyerId = rs.getLong("buyer_settings_buyer_id");
                         String buyerSettingsName = rs.getString("buyer_settings_name");
@@ -496,6 +528,7 @@ public class OrderService {
                         String buyerSettingsHeaderImageUrl = rs.getString("bs_header_image_url");
 
                         //extract seller address
+                        logger.info("extracting seller address");
                         Long sellerAddressId = rs.getLong("seller_address_id");
                         String sellerAddressName = rs.getString("seller_address_name");
                         String sellerAddressString = rs.getString("seller_address");
@@ -518,13 +551,16 @@ public class OrderService {
                         //create new order
                         order = new Order(orderId, orderNumber, sellerSettings, buyerSettings, address, orderStatusId, null, deliveryCharges, carryBagCharges, notAvailableAmount,
                                 totalAmount, amountPayable, homeDelivery, asap, orderTime, requestedDeliveryTime, actualDeliveryTime, deliveryStartTime, minutesToDelivery);
-                        orders.add(order);
-                        ordersHashMap.put(orderId, position);
-                        position++;
+                        //add the order from previous loop before extracting new order
+                        if (order != null && orderItems != null) {
+                            order.setOrderItems(orderItems);
+                            orders.add(order);
+                            ordersHashMap.put(orderId, position);
+                            position++;
+                        }
                     } else {
                         //THIS ORDER ALREADY EXISTS...ONLY EXTRACT THE ORDER ITEM AND PRODUCT VARIETY
                     }
-
 
 
                     //03.04 Extract order item
@@ -542,10 +578,8 @@ public class OrderService {
                     orderItems.add(item);
 
                 }
-                //add the last order in the loop to the list
-                orders.add(order);
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "some problem while getting the complete order objects for user_id = " + userId);
+                logger.log(Level.SEVERE, "some problem while getting the complete order objects for user_id = " + userId, e);
                 orders = null;
             }
         }

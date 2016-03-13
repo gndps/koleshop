@@ -8,17 +8,22 @@ import android.util.TypedValue;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
+import com.google.api.client.util.ArrayMap;
+import com.google.api.client.util.DateTime;
 import com.google.gson.Gson;
 import com.koleshop.api.productEndpoint.model.InventoryProductVariety;
 import com.koleshop.api.productEndpoint.model.InventoryProduct;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.Order;
+import com.koleshop.appkoleshop.model.OrderItem;
 import com.koleshop.appkoleshop.model.cart.ProductVarietyCount;
+import com.koleshop.appkoleshop.model.parcel.Address;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
-import com.koleshop.appkoleshop.singletons.KoleshopSingleton;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -102,7 +107,7 @@ public class KoleshopUtils {
 
     public static List<Product> getProductListFromEditProductList(List<EditProduct> editProducts) {
         List<Product> products = new ArrayList<>();
-        for(EditProduct editProduct : editProducts) {
+        for (EditProduct editProduct : editProducts) {
             Product product = getProductFromEditProduct(editProduct);
             products.add(product);
         }
@@ -110,14 +115,8 @@ public class KoleshopUtils {
     }
 
     public static SellerSettings getSettingsFromCache(Context context) {
-        String settingsString = PreferenceUtils.getPreferences(context, Constants.KEY_SELLER_SETTINGS);
-        SellerSettings settings = null;
-        if (settingsString != null && !settingsString.isEmpty()) {
-            //load settings from cache
-            SellerSettings sellerSettings = new Gson().fromJson(settingsString, SellerSettings.class);
-            settings = sellerSettings;
-        }
-        return settings;
+        SellerSettings settingsString = RealmUtils.getSellerSettings(context);
+        return settingsString;
     }
 
     public static TextDrawable getTextDrawable(Context context, String name, boolean round) {
@@ -136,20 +135,19 @@ public class KoleshopUtils {
                 .height((int) px) // height in px
                 .endConfig();
         if (round) {
-            textDrawable = textDrawableBuilder.buildRound(name.substring(0,1).toUpperCase(), color);
+            textDrawable = textDrawableBuilder.buildRound(name.substring(0, 1).toUpperCase(), color);
         } else {
-            textDrawable = textDrawableBuilder.buildRect(name.substring(0,1).toUpperCase(), color);
+            textDrawable = textDrawableBuilder.buildRect(name.substring(0, 1).toUpperCase(), color);
         }
 
         return textDrawable;
     }
 
-    public static TextDrawable getTextDrawable(Context context, String name, int widthInDp, boolean round, int color,int textColor) {
+    public static TextDrawable getTextDrawable(Context context, String name, int widthInDp, boolean round, int color, int textColor) {
         Resources r = context.getResources();
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, widthInDp, r.getDisplayMetrics());
         ColorGenerator generator = ColorGenerator.MATERIAL;
-        if(color==-1)
-        {
+        if (color == -1) {
             color = generator.getColor(name);
         }
 
@@ -161,7 +159,7 @@ public class KoleshopUtils {
                 .useFont(Typeface.SANS_SERIF)
                 .textColor(textColor)
                 .endConfig();
-        if(round) {
+        if (round) {
             textDrawable = textDrawableBuilder.buildRound(name, color);
         } else {
             textDrawable = textDrawableBuilder.buildRect(name, color);
@@ -208,5 +206,94 @@ public class KoleshopUtils {
             total += productVarietyCount.getCartCount() * productVarietyCount.getProductVariety().getPrice();
         }
         return total;
+    }
+
+    public static com.koleshop.api.orderEndpoint.model.Order getEndpointOrder(Order order) {
+
+        com.koleshop.api.orderEndpoint.model.Order endpointOrder = new com.koleshop.api.orderEndpoint.model.Order();
+        endpointOrder.setId(order.getId());
+        endpointOrder.setOrderNumber(order.getOrderNumber());
+        endpointOrder.setSellerSettings(getEndpointSellerSettings(order.getSellerSettings()));
+        endpointOrder.setBuyerSettings(getEndpointBuyerSettings(order.getBuyerSettings()));
+        endpointOrder.setAddress(getEndpointAddress(order.getAddress()));
+        endpointOrder.setStatus(order.getStatus());
+        endpointOrder.setOrderItems(getOrderItems(order.getOrderItems()));
+        endpointOrder.setDeliveryCharges(order.getDeliveryCharges());
+        endpointOrder.setCarryBagCharges(order.getCarryBagCharges());
+        endpointOrder.setNotAvailableAmount(order.getNotAvailableAmount());
+        endpointOrder.setTotalAmount(order.getTotalAmount());
+        endpointOrder.setAmountPayable(order.getAmountPayable());
+        endpointOrder.setHomeDelivery(order.isHomeDelivery());
+        endpointOrder.setAsap(order.isAsap());
+        //endpointOrder.setOrderTime(new DateTime(order.getOrderTime()));
+        //endpointOrder.setRequestedDeliveryTime(new DateTime(order.getRequestedDeliveryTime()));
+        //endpointOrder.setActualDeliveryTime(order.getActualDeliveryTime().getTime());
+        //endpointOrder.setDeliveryStartTime(order.getDeliveryStartTime().getTime());
+        endpointOrder.setMinutesToDelivery(order.getMinutesToDelivery());
+        return endpointOrder;
+    }
+
+    private static List<com.koleshop.api.orderEndpoint.model.OrderItem> getOrderItems(List<OrderItem> orderItems) {
+        List<com.koleshop.api.orderEndpoint.model.OrderItem> endpointOrderItems = new ArrayList<>();
+        for (OrderItem item : orderItems) {
+            com.koleshop.api.orderEndpoint.model.OrderItem endpointItem = new com.koleshop.api.orderEndpoint.model.OrderItem();
+            endpointItem.setProductVarietyId(item.getProductVarietyId());
+            endpointItem.setName(item.getName());
+            endpointItem.setBrand(item.getBrand());
+            endpointItem.setQuantity(item.getQuantity());
+            endpointItem.setPricePerUnit(item.getPricePerUnit());
+            endpointItem.setImageUrl(item.getImageUrl());
+            endpointItem.setOrderCount(item.getOrderCount());
+            endpointItem.setAvailableCount(item.getAvailableCount());
+            endpointOrderItems.add(endpointItem);
+        }
+        return endpointOrderItems;
+    }
+
+    private static com.koleshop.api.orderEndpoint.model.Address getEndpointAddress(Address address) {
+        com.koleshop.api.orderEndpoint.model.Address backendAddress = new com.koleshop.api.orderEndpoint.model.Address();
+        if (address != null) {
+            backendAddress.setId(address.getId());
+            backendAddress.setAddress(address.getAddress());
+            backendAddress.setAddressType(address.getAddressType());
+            backendAddress.setCountryCode(address.getCountryCode());
+            backendAddress.setGpsLat(address.getGpsLat());
+            backendAddress.setGpsLong(address.getGpsLong());
+            backendAddress.setName(address.getName());
+            backendAddress.setPhoneNumber(address.getPhoneNumber());
+            backendAddress.setNickname(address.getNickname());
+            backendAddress.setUserId(address.getUserId());
+        }
+        return backendAddress;
+    }
+
+    private static com.koleshop.api.orderEndpoint.model.BuyerSettings getEndpointBuyerSettings(BuyerSettings buyerSettings) {
+        com.koleshop.api.orderEndpoint.model.BuyerSettings endpointBuyerSettings = new com.koleshop.api.orderEndpoint.model.BuyerSettings();
+        endpointBuyerSettings.setId(buyerSettings.getId());
+        endpointBuyerSettings.setName(buyerSettings.getName());
+        endpointBuyerSettings.setUserId(buyerSettings.getUserId());
+        endpointBuyerSettings.setImageUrl(buyerSettings.getImageUrl());
+        endpointBuyerSettings.setHeaderImageUrl(buyerSettings.getHeaderImageUrl());
+        return endpointBuyerSettings;
+    }
+
+    private static com.koleshop.api.orderEndpoint.model.SellerSettings getEndpointSellerSettings(SellerSettings sellerSettings) {
+        Address address = sellerSettings.getAddress();
+        com.koleshop.api.orderEndpoint.model.SellerSettings backendSettings = new com.koleshop.api.orderEndpoint.model.SellerSettings();
+
+        backendSettings.setId(sellerSettings.getId());
+        backendSettings.setUserId(sellerSettings.getUserId());
+        backendSettings.setAddress(getEndpointAddress(address));
+        backendSettings.setDeliveryCharges(sellerSettings.getDeliveryCharges());
+        backendSettings.setCarryBagCharges(sellerSettings.getCarryBagCharges());
+        backendSettings.setDeliveryEndTime(sellerSettings.getDeliveryEndTime());
+        backendSettings.setDeliveryStartTime(sellerSettings.getDeliveryStartTime());
+        backendSettings.setHomeDelivery(sellerSettings.isHomeDelivery());
+        backendSettings.setMaximumDeliveryDistance(sellerSettings.getMaximumDeliveryDistance());
+        backendSettings.setMinimumOrder(sellerSettings.getMinimumOrder());
+        backendSettings.setPickupFromShop(true);
+        backendSettings.setShopCloseTime(sellerSettings.getShopCloseTime());
+        backendSettings.setShopOpenTime(sellerSettings.getShopOpenTime());
+        return backendSettings;
     }
 }

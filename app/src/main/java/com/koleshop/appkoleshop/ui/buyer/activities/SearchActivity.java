@@ -29,7 +29,7 @@ import com.koleshop.appkoleshop.listeners.SearchActivityListener;
 import com.koleshop.appkoleshop.model.parcel.SellerSearchResults;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.ui.buyer.fragments.MultiSellerSearchFragment;
-import com.koleshop.appkoleshop.ui.common.fragments.SingleSellerFragment;
+import com.koleshop.appkoleshop.ui.common.fragments.SingleSellerSearchFragment;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 
 import org.parceler.Parcels;
@@ -71,7 +71,7 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
     BroadcastReceiver mBroadcastReceiver;
 
     MultiSellerSearchFragment multiSellerSearchFragment;
-    SingleSellerFragment singleSellerFragment;
+    SingleSellerSearchFragment singleSellerSearchFragment;
 
     boolean removeSearchTagOnBackPressed;
     boolean searchBarVisible;
@@ -357,9 +357,9 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
             } else {
                 //nothing
                 Log.d(TAG, ">>>single seller search");
-                singleSellerFragment = SingleSellerFragment.newInstance(myInventory, customerView, sellerId, searchQuery, null, sellerSettings);
-                getSupportFragmentManager().beginTransaction().replace(R.id.container_search_view, singleSellerFragment, "single_seller_search_frag").commit();
-                singleSellerFragment.setSearchActivityListener(this);
+                singleSellerSearchFragment = SingleSellerSearchFragment.newInstance(myInventory, customerView, sellerId, searchQuery, null, sellerSettings);
+                getSupportFragmentManager().beginTransaction().replace(R.id.container_search_view, singleSellerSearchFragment, "single_seller_search_frag").commit();
+                singleSellerSearchFragment.setSearchActivityListener(this);
             }
         } else {
             Log.d(TAG, ">>>search cleared");
@@ -368,9 +368,9 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
                     Log.d(TAG, "removing multi search fragment");
                     getSupportFragmentManager().beginTransaction().remove(multiSellerSearchFragment).commit();
                 }
-            } else if (singleSellerFragment != null) {
+            } else if (singleSellerSearchFragment != null) {
                 Log.d(TAG, "removing single search fragment");
-                getSupportFragmentManager().beginTransaction().remove(singleSellerFragment).commit();
+                getSupportFragmentManager().beginTransaction().remove(singleSellerSearchFragment).commit();
             }
         }
     }
@@ -380,12 +380,12 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
         multiSellerSearch = false;
         sellerId = singleSellerResults.getSellerSettings().getUserId();
         sellerSearchTag = singleSellerResults.getSellerSettings().getAddress().getName();
-        singleSellerFragment = SingleSellerFragment.newInstance(myInventory, customerView, singleSellerResults.getSellerSettings().getUserId(), searchQuery, singleSellerResults.getProducts(), singleSellerResults.getSellerSettings());
-        singleSellerFragment.setSearchActivityListener(this);
+        singleSellerSearchFragment = SingleSellerSearchFragment.newInstance(myInventory, customerView, singleSellerResults.getSellerSettings().getUserId(), searchQuery, singleSellerResults.getProducts(), singleSellerResults.getSellerSettings());
+        singleSellerSearchFragment.setSearchActivityListener(this);
         removeSearchTagOnBackPressed = true;
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);
-        ft.replace(R.id.container_search_view, singleSellerFragment, "single_seller_search_frag");
+        ft.replace(R.id.container_search_view, singleSellerSearchFragment, "single_seller_search_frag");
         ft.addToBackStack(null);
         ft.commit();
         configureTheSearchBar();

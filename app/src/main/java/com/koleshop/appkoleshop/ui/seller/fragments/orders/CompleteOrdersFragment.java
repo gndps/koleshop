@@ -77,7 +77,7 @@ public class CompleteOrdersFragment extends Fragment {
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new OrderAdapter(mContext, true);
+        adapter = new OrderAdapter(mContext, true, false);
         adapter.setOrdersList(getDummyOrderList());
         recyclerView.setAdapter(adapter);
     }

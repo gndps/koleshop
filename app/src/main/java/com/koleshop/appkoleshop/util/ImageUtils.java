@@ -4,12 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 
+import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.helpers.CircleTransform;
 import com.koleshop.appkoleshop.services.CommonIntentService;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -152,5 +157,34 @@ public class ImageUtils {
             }
         }.execute(null, null, null);
     }
+
+    /*public Bitmap getImage(Context context, String url, final Bitmap bitmapImage) {
+        Picasso.with(context)
+                .load(url)
+                .transform(new CircleTransform())
+                .error(R.drawable.koleshop_logo)      // optional// optional// optional
+                .resize(90,90)
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        bitmapImage = bitmap;
+
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
+
+        return bitmapImage;
+
+    }*/
+
 
 }

@@ -74,7 +74,7 @@ public class ChooseDeliveryTimeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_choose_delivery_fregment, container, false);
+        view = inflater.inflate(R.layout.fragment_choose_delivery_time_fragment, container, false);
         context = getActivity();
 
         asapButton = (ImageButton) view.findViewById(R.id.asap_button);

@@ -1,7 +1,12 @@
 package com.koleshop.appkoleshop.util;
 
+import android.text.TextUtils;
+
 import com.google.api.client.util.ArrayMap;
+import com.koleshop.appkoleshop.model.Order;
+import com.koleshop.appkoleshop.model.OrderItem;
 import com.koleshop.appkoleshop.model.parcel.Address;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
@@ -23,7 +28,6 @@ public class CloudEndpointDataExtractionUtil {
     public static SellerSettings getSellerSettings(ArrayMap<String, Object> sellerSettingsArrayMap) {
         SellerSettings sellerSettings = new SellerSettings();
         if (sellerSettingsArrayMap != null) {
-            Address address = new Address();
             sellerSettings.setImageUrl((String) sellerSettingsArrayMap.get("imageUrl"));
             sellerSettings.setHeaderImageUrl((String) sellerSettingsArrayMap.get("headerImageUrl"));
             sellerSettings.setId(Long.valueOf((String) sellerSettingsArrayMap.get("id")));
@@ -39,22 +43,38 @@ public class CloudEndpointDataExtractionUtil {
             sellerSettings.setShopCloseTime(((BigDecimal) sellerSettingsArrayMap.get("shopCloseTime")).intValue());
             sellerSettings.setShopOpen((Boolean) sellerSettingsArrayMap.get("shopOpen"));
             sellerSettings.setUserId(Long.valueOf((String) sellerSettingsArrayMap.get("userId")));
-            ArrayMap<String, Object> addressMap = (ArrayMap<String, Object>) sellerSettingsArrayMap.get("address");
-            if (addressMap != null) {
-                address.setUserId(Long.valueOf((String) sellerSettingsArrayMap.get("userId")));
-                address.setId(Long.valueOf((String) addressMap.get("id")));
-                address.setAddress((String) addressMap.get("address"));
-                address.setPhoneNumber(Long.valueOf((String) addressMap.get("phoneNumber")));
-                address.setName((String) addressMap.get("name"));
-                address.setAddressType(((BigDecimal) addressMap.get("addressType")).intValue());
-                address.setCountryCode(((BigDecimal) addressMap.get("countryCode")).intValue());
-                address.setNickname((String) addressMap.get("nickname"));
-                address.setGpsLong(((BigDecimal) addressMap.get("gpsLong")).doubleValue());
-                address.setGpsLat(((BigDecimal) addressMap.get("gpsLat")).doubleValue());
-                sellerSettings.setAddress(address);
-            }
+            sellerSettings.setAddress(getAddress((ArrayMap<String, Object>) sellerSettingsArrayMap.get("address")));
         }
         return sellerSettings;
+    }
+
+    public static Address getAddress(ArrayMap<String, Object> addressMap) {
+        Address address = new Address();
+        if (addressMap != null) {
+            address.setUserId(Long.valueOf((String) addressMap.get("userId")));
+            address.setId(Long.valueOf((String) addressMap.get("id")));
+            address.setAddress((String) addressMap.get("address"));
+            address.setPhoneNumber(Long.valueOf((String) addressMap.get("phoneNumber")));
+            address.setName((String) addressMap.get("name"));
+            address.setAddressType(((BigDecimal) addressMap.get("addressType")).intValue());
+            address.setCountryCode(((BigDecimal) addressMap.get("countryCode")).intValue());
+            address.setNickname((String) addressMap.get("nickname"));
+            address.setGpsLong(((BigDecimal) addressMap.get("gpsLong")).doubleValue());
+            address.setGpsLat(((BigDecimal) addressMap.get("gpsLat")).doubleValue());
+        }
+        return address;
+    }
+
+    public static BuyerSettings getBuyerSettings(ArrayMap<String, Object> buyerSettingsArrayMap) {
+        BuyerSettings buyerSettings = new BuyerSettings();
+        if(buyerSettingsArrayMap.get("id")!=null) {
+            buyerSettings.setId(Long.valueOf((String) buyerSettingsArrayMap.get("id")));
+        }
+        buyerSettings.setName((String) buyerSettingsArrayMap.get("name"));
+        buyerSettings.setUserId(Long.valueOf((String) buyerSettingsArrayMap.get("userId")));
+        buyerSettings.setImageUrl((String) buyerSettingsArrayMap.get("imageUrl"));
+        buyerSettings.setHeaderImageUrl((String) buyerSettingsArrayMap.get("headerImageUrl"));
+        return buyerSettings;
     }
 
     public static List<Product> getProductsList(ArrayList<ArrayMap<String, Object>> list, Long sellerId, Long categoryId, boolean myInventory) {
@@ -134,6 +154,72 @@ public class CloudEndpointDataExtractionUtil {
                 }
         }
         return products;
+    }
+
+    public static Order getOrderFromJsonResult(ArrayMap<String, Object> resultArrayMap) {
+
+        Order order = new Order();
+        order.setId(Long.valueOf((String) resultArrayMap.get("id")));
+        order.setOrderNumber((String) resultArrayMap.get("orderNumber"));
+        order.setSellerSettings(getSellerSettings((ArrayMap<String, Object>) resultArrayMap.get("sellerSettings")));
+        order.setBuyerSettings(getBuyerSettings((ArrayMap<String, Object>) resultArrayMap.get("buyerSettings")));
+        order.setAddress(getAddress((ArrayMap<String, Object>) resultArrayMap.get("address")));
+        order.setStatus(((BigDecimal) resultArrayMap.get("status")).intValue());
+        order.setOrderItems(getOrderItems((ArrayList<ArrayMap<String, Object>>) resultArrayMap.get("orderItems")));
+        order.setDeliveryCharges(((BigDecimal) resultArrayMap.get("deliveryCharges")).floatValue());
+        order.setCarryBagCharges(((BigDecimal) resultArrayMap.get("carryBagCharges")).floatValue());
+        order.setTotalAmount(((BigDecimal) resultArrayMap.get("totalAmount")).floatValue());
+        order.setNotAvailableAmount(((BigDecimal) resultArrayMap.get("notAvailableAmount")).floatValue());
+        order.setAmountPayable(((BigDecimal) resultArrayMap.get("amountPayable")).floatValue());
+        order.setHomeDelivery((Boolean) resultArrayMap.get("homeDelivery"));
+        order.setAsap((Boolean) resultArrayMap.get("asap"));
+        order.setOrderTime(new Date(Long.valueOf((String) resultArrayMap.get("orderTime"))));
+        if(resultArrayMap.get("requestedDeliveryTime")!=null) {
+            order.setRequestedDeliveryTime(new Date(Long.valueOf((String) resultArrayMap.get("requestedDeliveryTime"))));
+        }
+        if(resultArrayMap.get("actualDeliveryTime")!=null) {
+            order.setActualDeliveryTime(new Date(Long.valueOf((String) resultArrayMap.get("actualDeliveryTime"))));
+        }
+        if(resultArrayMap.get("deliveryStartTime")!=null) {
+            order.setDeliveryStartTime(new Date(Long.valueOf((String) resultArrayMap.get("deliveryStartTime"))));
+        }
+        if(resultArrayMap.get("minutesToDelivery")!=null) {
+            order.setMinutesToDelivery(((BigDecimal) resultArrayMap.get("minutesToDelivery")).intValue());
+        }
+
+        return order;
+    }
+
+    public static List<Order> getOrdersListFromJsonResult(ArrayList<ArrayMap<String, Object>> list) {
+        List<Order> orders = new ArrayList<>();
+        if(list!=null && list.size()>0) {
+            for(ArrayMap<String, Object> jsonOrder : list) {
+                Order order = getOrderFromJsonResult(jsonOrder);
+                orders.add(order);
+            }
+        }
+        return orders;
+    }
+
+    public static List<OrderItem> getOrderItems(ArrayList<ArrayMap<String, Object>> orderItemsList) {
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        if (orderItemsList != null) {
+            for (ArrayMap<String, Object> map : orderItemsList)
+                if (map != null) {
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setProductVarietyId(Long.valueOf((String) map.get("productVarietyId")));
+                    orderItem.setName((String) map.get("name"));
+                    orderItem.setBrand((String) map.get("brand"));
+                    orderItem.setQuantity((String) map.get("quantity"));
+                    orderItem.setPricePerUnit(((BigDecimal) map.get("pricePerUnit")).floatValue());
+                    orderItem.setImageUrl((String) map.get("imageUrl"));
+                    orderItem.setOrderCount(((BigDecimal) map.get("orderCount")).intValue());
+                    orderItem.setAvailableCount(((BigDecimal) map.get("availableCount")).intValue());
+                    orderItems.add(orderItem);
+                }
+        }
+        return orderItems;
     }
 
 }

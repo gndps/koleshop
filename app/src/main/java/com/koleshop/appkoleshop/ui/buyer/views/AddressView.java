@@ -66,6 +66,7 @@ public class AddressView extends CardView implements OnMapReadyCallback {
     boolean activateMaps;
     View view;
     AddressViewListener mListener;
+    private boolean showOnlyDefaultAddress;
 
     private static final String TAG = "AddressView";
 
@@ -73,13 +74,14 @@ public class AddressView extends CardView implements OnMapReadyCallback {
         super(context);
     }
 
-    public AddressView(Context context, BuyerAddress address, View view, boolean activateMaps, AddressViewListener listener) {
+    public AddressView(Context context, BuyerAddress address, View view, boolean activateMaps, AddressViewListener listener, boolean showOnlyDefaultAddress) {
         this(context);
         this.mContext = context;
         this.address = address;
         this.view = view;
         this.activateMaps = activateMaps;
         this.mListener = listener;
+        this.showOnlyDefaultAddress = showOnlyDefaultAddress;
         ButterKnife.bind(this, view);
         loadAddressDataIntoUi();
     }
@@ -150,20 +152,24 @@ public class AddressView extends CardView implements OnMapReadyCallback {
             }
         });
 
-        buttonDelete.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                builder.setMessage("Are you sure to delete?")
-                        .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                mListener.deleteAddress(address);
-                            }
-                        })
-                        .setNegativeButton("CANCEL", null);
-                builder.create().show();
-            }
-        });
+        if(!showOnlyDefaultAddress) {
+            buttonDelete.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    builder.setMessage("Are you sure to delete?")
+                            .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    mListener.deleteAddress(address);
+                                }
+                            })
+                            .setNegativeButton("CANCEL", null);
+                    builder.create().show();
+                }
+            });
+        } else {
+            buttonDelete.setVisibility(GONE);
+        }
 
         refreshAddressHighlight();
     }

@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.TextView;
@@ -329,24 +330,7 @@ public class CommonUtils {
     }
 
     public static String getDayCommonName(Date date) {
-        Date dateToday = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(dateToday);
-        int dayToday = calendar.get(Calendar.DAY_OF_MONTH);
-        int monthToday = calendar.get(Calendar.MONTH);
-        int yearToday = calendar.get(Calendar.YEAR);
-
-        calendar.setTime(date);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH);
-        int year = calendar.get(Calendar.YEAR);
-
-        if (dayToday == day && month == monthToday && year == yearToday) {
-            //it's todays date
-            return "Today";
-        } else {
-            return "Older";
-        }
+        return DateUtils.getRelativeTimeSpanString(date.getTime(), new Date().getTime(), DateUtils.DAY_IN_MILLIS).toString();
     }
 
     public static Date getDate(Date date, int differenceInSeconds) {

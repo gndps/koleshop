@@ -7,6 +7,7 @@ import com.google.api.server.spi.config.Named;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.models.KoleResponse;
 import com.koleshop.koleshopbackend.db.models.Order;
+import com.koleshop.koleshopbackend.services.CommonService;
 import com.koleshop.koleshopbackend.services.OrderService;
 import com.koleshop.koleshopbackend.services.SessionService;
 
@@ -32,7 +33,7 @@ public class OrderEndpoint {
         }
         if (order != null && order.getId() != null && order.getId() > 0) {
             response.setSuccess(true);
-            response.setData(order.getId());
+            response.setData(order);
         } else {
             response.setSuccess(false);
         }

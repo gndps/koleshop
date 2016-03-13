@@ -11,6 +11,9 @@ public class BuyerSettings {
     String imageUrl;
     String headerImageUrl;
 
+    public BuyerSettings() {
+    }
+
     public BuyerSettings(Long id, Long userId, String name, String imageUrl, String headerImageUrl) {
         this.id = id;
         this.userId = userId;

@@ -165,6 +165,7 @@ public class BuyerService {
         Connection dbConnection;
         PreparedStatement preparedStatement = null;
         String query;
+        logger.log(Level.INFO, "updating buyer settings - userId = " + buyerSettings.getUserId());
         query = "update BuyerSettings set name=?, image_url=?, header_image_url=? where user_id=?";
         dbConnection = DatabaseConnection.getConnection();
         boolean updated = false;
@@ -175,10 +176,13 @@ public class BuyerService {
             preparedStatement.setString(index++, buyerSettings.getImageUrl());
             preparedStatement.setString(index++, buyerSettings.getHeaderImageUrl());
             preparedStatement.setLong(index++, buyerSettings.getUserId());
+            logger.log(Level.INFO, "update buyer settings query = " + preparedStatement.toString());
             int update = preparedStatement.executeUpdate();
             if (update > 0) {
+                logger.log(Level.INFO, "buyer settings updated");
                 updated = true;
             } else {
+                logger.log(Level.SEVERE, "buyer settings not updated");
                 updated = false;
             }
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);

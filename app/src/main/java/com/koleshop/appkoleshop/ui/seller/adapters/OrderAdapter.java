@@ -26,14 +26,16 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderViewHolder> {
     private List<Order> ordersList;
     private Context mContext;
     private boolean showDayHeaders;
+    private boolean customerView;
     List<LineItem> mItems;
 
     private static int VIEW_TYPE_HEADER = 0x00;
     private static int VIEW_TYPE_ORDER = 0x01;
 
-    public OrderAdapter(Context mContext, boolean showDayHeaders) {
+    public OrderAdapter(Context mContext, boolean showDayHeaders, boolean customerView) {
         this.mContext = mContext;
         this.showDayHeaders = showDayHeaders;
+        this.customerView = customerView;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderViewHolder> {
                     .inflate(R.layout.view_order_tile, parent, false);
         }
 
-        OrderViewHolder holder = new OrderViewHolder(view, mContext);
+        OrderViewHolder holder = new OrderViewHolder(view, mContext, customerView);
         return holder;
     }
 
@@ -112,7 +114,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderViewHolder> {
             int headerCount = 0;
             int sectionFirstPosition = 0;
             for (int i = 0; i < ordersList.size(); i++) {
-                String header = CommonUtils.getDayCommonName(ordersList.get(i).getRequestedDeliveryTime());
+                String header = CommonUtils.getDayCommonName(ordersList.get(i).getOrderTime());
                 if (!TextUtils.equals(lastHeader, header)) {
                     // Insert new header view and update section data.
                     sectionFirstPosition = i + headerCount;
