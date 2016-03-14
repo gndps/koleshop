@@ -22,6 +22,7 @@ import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Cart;
 import com.koleshop.appkoleshop.singletons.CartsSingleton;
 import com.koleshop.appkoleshop.ui.buyer.fragments.CartFragment;
+import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.CommonUtils;
 
 import java.util.List;
@@ -82,6 +83,7 @@ public class CartActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(com.koleshop.appkoleshop.R.menu.menu_cart_activity, menu);
+
         return true;
     }
 
@@ -101,11 +103,14 @@ public class CartActivity extends AppCompatActivity {
 
             case R.id.menu_item_search:
                 //open search overlay activity
-                View menuView = findViewById(R.id.menu_item_search);
+                CartUtils.clearAllCarts();
+                loadCarts();
+
+                /*View menuView = findViewById(R.id.menu_item_search);
                 //revealSearchBar(menuView, true);
                 startActivity(SearchActivity.newMultiSellerSearch(mContext));
                 return true;
-
+*/
         }
         return false;
     }

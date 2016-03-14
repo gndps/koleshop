@@ -1,7 +1,6 @@
 package com.koleshop.appkoleshop.util;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -9,7 +8,6 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
-import com.koleshop.appkoleshop.model.realm.Cart;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
 
 import java.util.ArrayList;
@@ -210,9 +208,13 @@ public class RealmUtils {
         RealmQuery<SellerSettings> realmQuery = realm.where(SellerSettings.class)
                 .equalTo("userId", userId);
         SellerSettings sellerSettingsRealm = realmQuery.findFirst();
-        SellerSettings sellerSettings = realm.copyFromRealm(sellerSettingsRealm);
+        SellerSettings sellerSettings = null;
+        if (sellerSettingsRealm != null) {
+            sellerSettings = realm.copyFromRealm(sellerSettingsRealm);
+        }
         realm.close();
         return sellerSettings;
+
     }
 
     public static void clearSellerSettings(Context context) {

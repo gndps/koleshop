@@ -121,7 +121,7 @@ public class ChangePictureActivity extends AppCompatActivity {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(broadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_SUCCESS));
         lbm.registerReceiver(broadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_FAILED));
-        refreshImage();
+        refreshImage(false);
     }
 
     @Override
@@ -147,7 +147,7 @@ public class ChangePictureActivity extends AppCompatActivity {
                         NetworkUtils.setRequestStatusComplete(mContext, tag);
                         imageUrl = Constants.PUBLIC_PROFILE_IMAGE_URL_PREFIX + filename;
                         SettingsIntentService.refreshSellerSettings(mContext);
-                        refreshImage();
+                        refreshImage(false);
                     }
 
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_UPLOAD_IMAGE_FAILED)) {
@@ -200,73 +200,78 @@ public class ChangePictureActivity extends AppCompatActivity {
 
     }
 
-    private void refreshImage() {
+    private void refreshImage(boolean buyerMode) {
+        if (!buyerMode) {
 
-        if (TextUtils.isEmpty(imageUrl)) {
-            SellerSettings sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
-
-            if (sellerSettings != null
-                    &&
-                    ((!TextUtils.isEmpty(sellerSettings.getImageUrl()) && !isHeaderImage)
-                            ||
-                            (!TextUtils.isEmpty(sellerSettings.getHeaderImageUrl()) && isHeaderImage))) {
-                if (isHeaderImage) {
-                    imageUrl = sellerSettings.getHeaderImageUrl();
-                } else {
-                    imageUrl = sellerSettings.getImageUrl();
-                }
-            }
             if (TextUtils.isEmpty(imageUrl)) {
-                progressBar.setVisibility(View.GONE);
-                if (sellerSettings != null && sellerSettings.getAddress() != null
-                        && !TextUtils.isEmpty(sellerSettings.getAddress().getName())) {
-                    TextDrawable textDrawable = KoleshopUtils.getTextDrawable(mContext, sellerSettings.getAddress().getName(), false);
-                    imageViewPicture.setImageDrawable(textDrawable);
+                SellerSettings sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
+
+                if (sellerSettings != null
+                        &&
+                        ((!TextUtils.isEmpty(sellerSettings.getImageUrl()) && !isHeaderImage)
+                                ||
+                                (!TextUtils.isEmpty(sellerSettings.getHeaderImageUrl()) && isHeaderImage))) {
+                    if (isHeaderImage) {
+                        imageUrl = sellerSettings.getHeaderImageUrl();
+                    } else {
+                        imageUrl = sellerSettings.getImageUrl();
+                    }
+                }
+                if (TextUtils.isEmpty(imageUrl)) {
+                    progressBar.setVisibility(View.GONE);
+                    if (sellerSettings != null && sellerSettings.getAddress() != null
+                            && !TextUtils.isEmpty(sellerSettings.getAddress().getName())) {
+                        TextDrawable textDrawable = KoleshopUtils.getTextDrawable(mContext, sellerSettings.getAddress().getName(), false);
+                        imageViewPicture.setImageDrawable(textDrawable);
+                    }
+                } else {
+                    if (!TextUtils.isEmpty(currentPhotoPath)) {
+                        progressBar.setVisibility(View.GONE);
+                        Picasso.with(mContext)
+                                .load(currentPhotoPath)
+                                .fit().centerCrop()
+                                .into(imageViewPicture);
+                    } else {
+                        progressBar.setVisibility(View.VISIBLE);
+                        Picasso.with(mContext)
+                                .load(imageUrl)
+                                .fit().centerCrop()
+                                .into(imageViewPicture, new Callback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+
+                                    @Override
+                                    public void onError() {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
+                    }
                 }
             } else {
-                if (!TextUtils.isEmpty(currentPhotoPath)) {
-                    progressBar.setVisibility(View.GONE);
-                    Picasso.with(mContext)
-                            .load(currentPhotoPath)
-                            .fit().centerCrop()
-                            .into(imageViewPicture);
-                } else {
-                    progressBar.setVisibility(View.VISIBLE);
-                    Picasso.with(mContext)
-                            .load(imageUrl)
-                            .fit().centerCrop()
-                            .into(imageViewPicture, new Callback() {
-                                @Override
-                                public void onSuccess() {
-                                    progressBar.setVisibility(View.GONE);
-                                }
+                progressBar.setVisibility(View.VISIBLE);
+                Picasso.with(mContext)
+                        .load(imageUrl)
+                        .fit().centerCrop()
+                        .into(imageViewPicture, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBar.setVisibility(View.GONE);
+                            }
 
-                                @Override
-                                public void onError() {
-                                    progressBar.setVisibility(View.GONE);
-                                }
-                            });
-                }
+                            @Override
+                            public void onError() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
             }
-        } else {
-            progressBar.setVisibility(View.VISIBLE);
-            Picasso.with(mContext)
-                    .load(imageUrl)
-                    .fit().centerCrop()
-                    .into(imageViewPicture, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            progressBar.setVisibility(View.GONE);
-                        }
+        }
+        else
+        {
 
-                        @Override
-                        public void onError() {
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
         }
     }
-
     public void createImagePickDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(R.string.choose_image_picker)

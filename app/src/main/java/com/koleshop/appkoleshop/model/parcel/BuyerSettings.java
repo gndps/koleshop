@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.model.parcel;
 import org.parceler.Parcel;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Gundeep on 10/03/16.
@@ -12,6 +13,7 @@ import io.realm.RealmObject;
         analyze = {BuyerSettings.class})
 public class BuyerSettings extends RealmObject {
 
+    @PrimaryKey
     private Long id;
     private Long userId;
     private String name;
