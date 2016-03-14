@@ -313,6 +313,11 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                         buyerSettings = new BuyerSettings();
                         buyerSettings.setUserId(userId);
                         buyerSettings.setName(address.getName());
+                        RealmUtils.saveBuyerSettings(buyerSettings);
+                    } else if(TextUtils.isEmpty(buyerSettings.getName())) {
+                        buyerSettings.setUserId(userId);
+                        buyerSettings.setName(address.getName());
+                        RealmUtils.saveBuyerSettings(buyerSettings);
                     }
 
                     //03. create seller settings

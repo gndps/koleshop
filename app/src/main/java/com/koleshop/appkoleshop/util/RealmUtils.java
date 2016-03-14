@@ -226,4 +226,11 @@ public class RealmUtils {
         realm.close();
     }
 
+    public static void saveBuyerSettings(BuyerSettings buyerSettings) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(buyerSettings);
+        realm.commitTransaction();
+        realm.close();
+    }
 }
