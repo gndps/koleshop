@@ -6,11 +6,17 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -18,8 +24,11 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -29,8 +38,8 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryCategoryFragment;
+import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
-import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -59,6 +68,8 @@ public class ShopActivity extends AppCompatActivity {
     TextView textViewOpenClosed;
     @Bind(R.id.tv_shop_activity_delivery_timings)
     TextView textViewDeliveryTimings;
+    @Bind(R.id.favourite_shop_button)
+    FloatingActionButton favouriteShopButton;
 
     SellerSettings sellerSettings;
     InventoryCategoryFragment inventoryCategoryFragment;
@@ -79,10 +90,51 @@ public class ShopActivity extends AppCompatActivity {
         } else {
             finish();
         }
+
         setupCoordinatorLayout();
         setDeliveryTimingsAndOpenCloseStatusOnTextViews();
         addFragmentToActivity();
+        favouriteShopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flipAnimation(v);
+            }
 
+        });
+
+    }
+
+    private void flipAnimation(final View v) {
+        //final Animation an = new RotateAnimation(0, 360, v.getWidth()/2, v.getHeight()/2);
+        Animation an = AnimationUtils.loadAnimation(this, R.anim.favourite_button_animation);
+        an.setFillAfter(true);
+        v.clearAnimation();
+        v.startAnimation(an);
+
+        final Animation zoomInAnimation = AnimationUtils.loadAnimation(this, R.anim.favourite_button_animation_2);
+
+        an.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.notification_sound);
+                mp.start();
+                zoomInAnimation.setFillAfter(true);
+                v.startAnimation(zoomInAnimation);
+                //v.setBackground(AndroidCompatUtil.getDrawable(getApplicationContext(),R.drawable.ic_star_golden));
+                favouriteShopButton.setImageResource(R.drawable.ic_star_golden);
+                Snackbar.make(v,"Shop Marked as Favourite",Snackbar.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
     @Override
@@ -171,6 +223,8 @@ public class ShopActivity extends AppCompatActivity {
 
                         }
                     });
+
+
         }
 
 
@@ -258,4 +312,5 @@ public class ShopActivity extends AppCompatActivity {
                 .add(R.id.shop_menu_container, inventoryCategoryFragment, "categoriesFragment")
                 .commit();
     }
+
 }
