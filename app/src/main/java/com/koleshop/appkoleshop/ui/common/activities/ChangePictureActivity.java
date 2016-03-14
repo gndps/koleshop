@@ -201,8 +201,10 @@ public class ChangePictureActivity extends AppCompatActivity {
     }
 
     private void refreshImage() {
+
         if (TextUtils.isEmpty(imageUrl)) {
             SellerSettings sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
+
             if (sellerSettings != null
                     &&
                     ((!TextUtils.isEmpty(sellerSettings.getImageUrl()) && !isHeaderImage)
