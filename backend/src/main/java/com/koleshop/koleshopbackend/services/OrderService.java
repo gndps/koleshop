@@ -254,7 +254,7 @@ public class OrderService {
 
             //01. UPDATE THE ORDER ITEMS
             int i = 0;
-            String orderItemsQuery = "update OrderItems(order_count,available_count) set values(?,?) where order_id=? and product_variety_id=?";
+            String orderItemsQuery = "update OrderItems set order_count=?, available_count=? where order_id=? and product_variety_id=?";
             dbConnection = DatabaseConnection.getConnection();
             dbConnection.setAutoCommit(false);
             preparedStatement = dbConnection.prepareStatement(orderItemsQuery);
@@ -272,7 +272,7 @@ public class OrderService {
             }
 
             //02. UPDATE THE ORDER
-            String orderQuery = "update Orders(status_id, total_amount, not_available_amount, amount_payable, actual_delivery_time, delivery_start_time, minutes_to_delivery) set values(?,?,?,?,?,?,?)" +
+            String orderQuery = "update Orders set status_id=?, total_amount=?, not_available_amount=?, amount_payable=?, actual_delivery_time=?, delivery_start_time=?, minutes_to_delivery=? " +
                     " where id=?";
 
             preparedStatement = dbConnection.prepareStatement(orderQuery);
