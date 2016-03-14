@@ -285,6 +285,7 @@ public class OrderService {
             preparedStatement.setTimestamp(index++, new Timestamp(order.getDeliveryStartTime()));
             preparedStatement.setInt(index++, order.getMinutesToDelivery());
             preparedStatement.setLong(index++, order.getId());
+            logger.log(Level.INFO, "updating orders with query = " + preparedStatement.toString());
             preparedStatement.execute();
 
         } catch (Exception e) {
