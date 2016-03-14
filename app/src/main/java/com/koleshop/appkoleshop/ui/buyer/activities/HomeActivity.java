@@ -14,24 +14,35 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
+import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
 import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.exceptions.RealmException;
@@ -49,8 +60,14 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     private String lastFragmentTag;
     private boolean lastFragmentShowed, isLastFragmentSupportType;
     NavigationView navigationView;
-    private boolean backHandled;
     private Toolbar toolbar;
+    private boolean backHandled;
+
+    String imageViewHeaderUrl;
+    String imageViewAvatarUrl;
+    CircleImageView imageViewAvatar;
+    ImageView imageViewHeader;
+    TextView textViewCustomerName;
 
     @BindString(R.string.navigation_drawer_nearby_shops)
     String titleNearbyShops;
@@ -60,7 +77,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     String titleHome;
     @BindString(R.string.navigation_drawer_addresses)
     String titleAddresses;
-    private boolean firstTime;
+    private boolean firstTime;;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,13 +184,104 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         drawerLayout = (DrawerLayout) findViewById(com.koleshop.appkoleshop.R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View headerView = navigationView.getHeaderView(0);
+        imageViewAvatar = (CircleImageView) headerView.findViewById(R.id.avatar_drawer);
+        imageViewHeader = (ImageView) headerView.findViewById(R.id.image_view_header_drawer);
+        textViewCustomerName= (TextView) headerView.findViewById(R.id.tv_drawer_header_title);
+
+        imageViewAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
+                startActivity(intentChangePicture);
+            }
+        });
+        imageViewHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
+                intentChangePicture.putExtra("isHeaderImage", true);
+                startActivity(intentChangePicture);
+            }
+        });
+
         if (firstTime) {
             showNearbyShops();
         } else if(showHome) {
             showHome();
         }
+        if(PreferenceUtils.isUserLoggedIn(mContext))
+        {
+         //   refreshSellerNameAndImage();
+        }
+
+    }
+   /* private void refreshSellerNameAndImage() {
+
+        //set home screen title to shop name
+        BuyerAddress buyerAddress=RealmUtils.getDefaultUserAddress();
+
+        if (buyerAddress != null) {
+            titleHome = buyerAddress.getAddress();
+        } else {
+            titleHome = "My Shop";
+        }
+
+        //set nav bar header title
+        textViewCustomerName.setText(titleHome);
+
+        //set avatar image view
+        boolean refreshAvatar = false;
+        if (imageViewAvatarUrl == null ) {
+            imageViewAvatarUrl = buyerAddress.();
+            refreshAvatar = true;
+        } else if (sellerSettings != null && !TextUtils.isEmpty(sellerSettings.getImageUrl())
+                && !imageViewAvatarUrl.equalsIgnoreCase(sellerSettings.getImageUrl())) {
+            //there is a new image url and avatar should be refreshed
+            imageViewAvatarUrl = sellerSettings.getImageUrl();
+            refreshAvatar = true;
+        }
+
+        if (refreshAvatar) {
+            if (!TextUtils.isEmpty(imageViewAvatarUrl)) {
+                Picasso.with(mContext)
+                        .load(imageViewAvatarUrl)
+                        .fit().centerCrop()
+                        .into(imageViewAvatar);
+            } else {
+                imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
+            }
+            refreshAvatar = false;
+        }
+
+
+        //set header image view
+        boolean refreshHeader = false;
+        if (imageViewHeaderUrl == null && sellerSettings != null) {
+            imageViewHeaderUrl = sellerSettings.getHeaderImageUrl();
+            refreshHeader = true;
+        } else if (sellerSettings != null && !TextUtils.isEmpty(sellerSettings.getHeaderImageUrl())
+                && !imageViewHeaderUrl.equalsIgnoreCase(sellerSettings.getHeaderImageUrl())) {
+            //there is a new image url and avatar should be refreshed
+            imageViewHeaderUrl = sellerSettings.getHeaderImageUrl();
+            refreshHeader = true;
+        }
+
+        if (refreshHeader) {
+            if (!TextUtils.isEmpty(imageViewHeaderUrl)) {
+                Picasso.with(mContext)
+                        .load(imageViewHeaderUrl)
+                        .fit().centerCrop()
+                        .into(imageViewHeader);
+            } else {
+                //imageViewHeader.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
+            }
+            refreshHeader = false;
+        }
+
     }
 
+*/
     private void showHome() {
         MenuItem item = navigationView.getMenu().findItem(R.id.drawer_home);
         if (item != null) {
