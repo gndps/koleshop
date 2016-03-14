@@ -36,7 +36,6 @@
                 android:src="@drawable/ic_pinky_sad" />
 
             <TextView
-                android:id="@+id/tv_no_products_fic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"

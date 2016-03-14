@@ -2,6 +2,7 @@ package com.koleshop.appkoleshop.ui.seller.viewholders;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -14,6 +15,7 @@ import com.koleshop.appkoleshop.listeners.KolClickListener;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.Calendar;
@@ -28,6 +30,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
     private Object order;
+    private int position;
     private Context mContext;
     @Bind(R.id.iv_iot_avatar)
     CircleImageView imageViewAvatar;
@@ -45,15 +48,18 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
     TextView textViewPrice;
     @Bind(R.id.tv_iot_timings)
     TextView textViewTimings;
+    private OrderInteractionListener orderInteractionListener;
 
     public IncomingOrderViewHolder(View itemView, Context context) {
         super(itemView);
         this.mContext = context;
         ButterKnife.bind(this, itemView);
+        setupClickListeners();
     }
 
-    public void bindData(Order order) {
+    public void bindData(Order order, int position) {
         this.order = order;
+        this.position = position;
         if (order == null || order.getBuyerSettings() == null) {
             return;
         }
@@ -61,12 +67,13 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
         BuyerSettings buyerSettings = order.getBuyerSettings();
 
         //1. load image view
-
         String buyerImageUrl = buyerSettings.getImageUrl();
-        if (buyerImageUrl != null && !buyerImageUrl.isEmpty()) {
+        if (!TextUtils.isEmpty(buyerImageUrl)) {
             Picasso.with(mContext)
                     .load(buyerImageUrl)
                     .into(imageViewAvatar);
+        } else if (!TextUtils.isEmpty(buyerSettings.getName())) {
+            imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true));
         }
 
         //2. set buyer name
@@ -118,7 +125,34 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
 
     }
 
-    public void setDetailsButtonClickListener(View.OnClickListener clickListener) {
-        buttonDetails.setOnClickListener(clickListener);
+    public void setupClickListeners() {
+        buttonAccept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                orderInteractionListener.onAcceptButtonClicked(position);
+            }
+        });
+        buttonReject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                orderInteractionListener.onRejectButtonClicked(position);
+            }
+        });
+        buttonDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                orderInteractionListener.onDetailsButtonClicked(position);
+            }
+        });
+    }
+
+    public void setOrderInteractionListener(OrderInteractionListener orderInteractionListener) {
+        this.orderInteractionListener = orderInteractionListener;
+    }
+
+    public interface OrderInteractionListener {
+        void onDetailsButtonClicked(int position);
+        void onAcceptButtonClicked(int position);
+        void onRejectButtonClicked(int position);
     }
 }

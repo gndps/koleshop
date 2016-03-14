@@ -25,7 +25,6 @@
             <de.hdodenhof.circleimageview.CircleImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@color/otherGreen"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
                 android:id="@+id/iv_iot_avatar" />

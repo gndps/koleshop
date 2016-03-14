@@ -176,7 +176,9 @@ public class MyOrdersFragment extends Fragment {
     private void fetchMoreOrdersFromInternet() {
         progressBarLoadMore.setVisibility(View.VISIBLE);
         if (CommonUtils.isConnectedToInternet(mContext)) {
-            BuyerIntentService.getMyOrders(mContext, ORDERS_LOAD_COUNT, orders.size());
+            if(orders.size()>ORDERS_LOAD_COUNT) {
+                BuyerIntentService.getMyOrders(mContext, ORDERS_LOAD_COUNT, orders.size());
+            }
         } else {
             Snackbar.make(viewFlipper, "Please check connection", Snackbar.LENGTH_SHORT).show();
         }

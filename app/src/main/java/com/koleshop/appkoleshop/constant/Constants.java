@@ -110,6 +110,8 @@ public class Constants {
     public static final String ACTION_ORDERS_FETCH_SUCCESS = "com.koleshop.action_orders_fetch_success";
     public static final String ACTION_NO_ORDERS_FETCHED = "com.koleshop.action_no_orders_fetched";
     public static final String ACTION_ORDERS_FETCH_FAILED = "com.koleshop.action_orders_fetch_failed";
+    public static final String ACTION_ORDER_UPDATE_SUCCESS = "com.koleshop.action_order_update_success";
+    public static final String ACTION_ORDER_UPDATE_FAILED = "com.koleshop.action_order_update_failed";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";

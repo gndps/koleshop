@@ -53,7 +53,7 @@ public class OrderEndpoint {
         }
         if (order != null && order.getId() != null && order.getId() > 0) {
             response.setSuccess(true);
-            response.setData("order updated");
+            response.setData("order updated"); //this string ("order updated") is matched to check if the order has been updated;
         } else {
             response.setSuccess(false);
         }

@@ -348,17 +348,17 @@ public class OrderService {
 
         switch (status) {
             case Incoming:
-                query = "select id from Orders where seller_id=? and order_status=" + OrderStatus.INCOMING
+                query = "select id from Orders where seller_id=? and status_id=" + OrderStatus.INCOMING
                         + " order by id desc ";
                 logger.log(Level.INFO, "getting incoming orders for user_id = " + userId);
                 break;
             case Pending:
-                query = "select id from Orders where seller_id=? and order_status=" + OrderStatus.ACCEPTED
+                query = "select id from Orders where seller_id=? and status_id=" + OrderStatus.ACCEPTED
                         + " order by id desc ";
                 logger.log(Level.INFO, "getting pending orders for user_id = " + userId);
                 break;
             case Complete:
-                query = "select id from Orders where seller_id=? and order_status not in (" +
+                query = "select id from Orders where seller_id=? and status_id not in (" +
                         OrderStatus.INCOMING + ", " + OrderStatus.ACCEPTED + ") ";
                 logger.log(Level.INFO, "getting complete orders for user_id = " + userId);
                 break;

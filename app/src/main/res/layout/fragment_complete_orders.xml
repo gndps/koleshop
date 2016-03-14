@@ -1,8 +1,7 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context="com.koleshop.appkoleshop.ui.seller.fragments.orders.CompleteOrdersFragment">
 
     <ViewFlipper
@@ -11,40 +10,22 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center">
 
+        <!-- loading | view flipper child 0 -->
         <ProgressBar
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical">
+        <!-- no internet connection | view flipper child 1 -->
+        <include layout="@layout/view_internet_not_connected"/>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/image_cloud_disconnect" />
+        <!-- some problem occurred | view flipper child 2 -->
+        <include layout="@layout/view_some_problem_occurred"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:fontFamily="sans-serif-light"
-                android:text="No orders complete"
-                android:textColor="@color/default_background_font" />
+        <!-- no order | view flipper child 3 -->
+        <include layout="@layout/view_nothing_here_yet"/>
 
-            <Button
-                android:id="@+id/button_retry_complete_orders"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
-                android:fontFamily="sans-serif-light"
-                android:text="RETRY" />
-
-        </LinearLayout>
-
+        <!-- recycler view | view flipper child 4 -->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_fragment_complete_orders"
             android:layout_width="match_parent"
@@ -55,4 +36,13 @@
 
     </ViewFlipper>
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/pb_load_more_fragment_complete_orders"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_gravity="bottom"
+        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminateTint="@color/accent"
+        android:indeterminate="true"/>
+
+</FrameLayout>

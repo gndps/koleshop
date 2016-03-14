@@ -1,15 +1,23 @@
 package com.koleshop.appkoleshop.ui.seller.fragments.orders;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
@@ -17,7 +25,14 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.model.parcel.Address;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
+import com.koleshop.appkoleshop.services.OrdersIntentService;
 import com.koleshop.appkoleshop.ui.seller.adapters.IncomingOrderAdapter;
+import com.koleshop.appkoleshop.ui.seller.adapters.OrderAdapter;
+import com.koleshop.appkoleshop.util.AndroidCompatUtil;
+import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,17 +40,30 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class IncomingOrdersFragment extends Fragment {
     @Bind(R.id.view_flipper_fragment_incoming_orders)
     ViewFlipper viewFlipper;
     @Bind(R.id.rv_fragment_incoming_orders)
     RecyclerView recyclerView;
-    @Bind(R.id.button_retry_incoming_orders)
-    Button buttonRetry;
+    @Bind(R.id.tv_nothing_here_yet)
+    TextView textViewNothingHereYet;
+    @Bind(R.id.iv_nothing_here_yet)
+    ImageView imageViewNothingHereYet;
+
+    private final int VIEW_FLIPPER_CHILD_LOADING = 0x00;
+    private final int VIEW_FLIPPER_CHILD_NO_INTERNET = 0x01;
+    private final int VIEW_FLIPPER_CHILD_SOME_PROBLEM = 0x02;
+    private final int VIEW_FLIPPER_CHILD_NO_ORDERS = 0x03;
+    private final int VIEW_FLIPPER_CHILD_ORDERS_LIST = 0x04;
+
+    private static final int ORDER_REQUEST_TYPE_INCOMING = 1;
 
     IncomingOrderAdapter adapter;
     Context mContext;
+    BroadcastReceiver mBroadcastReceiver;
+    List<Order> orders;
 
     public IncomingOrdersFragment() {
         // Required empty public constructor
@@ -57,42 +85,118 @@ public class IncomingOrdersFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_incoming_orders, container, false);
         mContext = getContext();
         ButterKnife.bind(this, view);
-        initializeFragment();
+        setupDefaultView();
+        initializeBroadcastReceiver();
+        fetchOrdersFromInternet();
         return view;
     }
 
-    private void initializeFragment() {
-        recyclerViewSetup();
-        new Handler().postDelayed(new Runnable() {
+    private void initializeBroadcastReceiver() {
+        mBroadcastReceiver = new BroadcastReceiver() {
             @Override
-            public void run() {
-                viewFlipper.setDisplayedChild(2);
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                int orderRequestType = -1;
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+                    orderRequestType = intent.getIntExtra("order_request_type", -1);
+                }
+                switch (action) {
+                    case Constants.ACTION_ORDERS_FETCH_SUCCESS:
+                        if (bundle != null && orderRequestType == ORDER_REQUEST_TYPE_INCOMING) {
+                            Parcelable ordersParcel = bundle.getParcelable("orders");
+                            if (ordersParcel != null) {
+                                orders = Parcels.unwrap(ordersParcel);
+                                loadOrders();
+                            }
+                        }
+                        break;
+                    case Constants.ACTION_ORDERS_FETCH_FAILED:
+                        if (orderRequestType == ORDER_REQUEST_TYPE_INCOMING) {
+                            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_SOME_PROBLEM);
+                        }
+                        break;
+                    case Constants.ACTION_NO_ORDERS_FETCHED:
+                        if (orderRequestType == ORDER_REQUEST_TYPE_INCOMING) {
+                            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_NO_ORDERS);
+                        }
+                        break;
+                    case Constants.ACTION_ORDER_UPDATE_SUCCESS:
+                        Long updatedOrderId = intent.getLongExtra("order_id", 0);
+                        if (updatedOrderId != null && updatedOrderId > 0) {
+                            findPositionInOrdersList(updatedOrderId);
+                            //adapter.setOrdersList();
+                        }
+                        break;
+                }
             }
-        }, 1000);
+        }
+
+        ;
     }
 
-    private void recyclerViewSetup() {
+    private int findPositionInOrdersList(Long orderId) {
+        if (orders != null) {
+            int position = 0;
+            for (Order order : orders) {
+                if(order.getId().equals(orderId)) {
+                    return position;
+                }
+                position++;
+            }
+        }
+        return 0;
+    }
+
+    private void setupDefaultView() {
+        imageViewNothingHereYet.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_pinky_sleepy));
+        textViewNothingHereYet.setText("No new orders");
+    }
+
+    @OnClick(R.id.button_retry_vinc)
+    public void reloadOrders() {
+        fetchOrdersFromInternet();
+    }
+
+    @OnClick(R.id.button_retry_vspo)
+    public void reloadOrders2() {
+        fetchOrdersFromInternet();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_SUCCESS));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_FAILED));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NO_ORDERS_FETCHED));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_UPDATE_SUCCESS));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_UPDATE_FAILED));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
+    }
+
+    private void loadOrders() {
+        viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_ORDERS_LIST);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new IncomingOrderAdapter(mContext);
-        adapter.setOrdersList(getDummyOrderList());
+        adapter.setOrdersList(orders);
         recyclerView.setAdapter(adapter);
     }
 
-    private List<Order> getDummyOrderList() {
-        List<Order> list = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Order order = new Order();
-            order.setAsap(false);
-            BuyerSettings buyerSettings = new BuyerSettings(null, null, "Gundeep Singh", null, null);
-            order.setAddress(new Address(null, null, "Gundeep singh", "C-78 Sector 23\nNoida", Constants.ADDRESS_TYPE_BUYER, 8585945716l, 91, "gndp", 76.0d, 30.0d));
-            order.setRequestedDeliveryTime(new Date());
-            order.setBuyerSettings(buyerSettings);
-            order.setHomeDelivery(true);
-            order.setTotalAmount(220f);
-            list.add(order);
+    private void fetchOrdersFromInternet() {
+        if (CommonUtils.isConnectedToInternet(mContext)) {
+            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_LOADING);
+            OrdersIntentService.getIncomingOrders(mContext);
+        } else {
+            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_NO_INTERNET);
         }
-        return list;
-     }
+    }
+
 }
