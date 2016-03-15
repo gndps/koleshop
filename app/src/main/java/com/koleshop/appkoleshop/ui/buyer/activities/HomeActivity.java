@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
@@ -198,16 +199,27 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         imageViewAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!PreferenceUtils.isUserLoggedIn(mContext))
+                {
+                Toast.makeText(mContext,"Log in first",Toast.LENGTH_SHORT).show();
+                }
+                else {
                 Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
                 startActivity(intentChangePicture);
-            }
+            }}
         });
         imageViewHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!PreferenceUtils.isUserLoggedIn(mContext))
+                {
+                    Toast.makeText(mContext,"Log in first",Toast.LENGTH_SHORT).show();
+                }
+                else {
                 Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
                 intentChangePicture.putExtra("isHeaderImage", true);
                 startActivity(intentChangePicture);
+            }
             }
         });
 
@@ -220,20 +232,22 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 showMyOrders();
             }
         }
-        if(PreferenceUtils.isUserLoggedIn(mContext))
-        {
-         //   refreshSellerNameAndImage();
-        }
+           refreshSellerNameAndImage();
+
 
     }
-   /* private void refreshSellerNameAndImage() {
+    private void refreshSellerNameAndImage() {
 
         //set home screen title to shop name
-        BuyerAddress buyerAddress=RealmUtils.getDefaultUserAddress();
+            BuyerSettings buyerSettings=RealmUtils.getBuyerSettings();
 
-        if (buyerAddress != null) {
-            titleHome = buyerAddress.getAddress();
+        if (buyerSettings!= null) {
+            String titleInNavigationDrawer= buyerSettings.getName();
         } else {
+            BuyerSettings newBuyerSettings=new BuyerSettings();
+            newBuyerSettings.setId(PreferenceUtils.getUserId(mContext));
+            imageViewAvatar.setImageResource(R.mipmap.ic_launcher);
+            RealmUtils.saveBuyerSettings(newBuyerSettings);
             titleHome = "My Shop";
         }
 
@@ -243,13 +257,13 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         //set avatar image view
         boolean refreshAvatar = false;
         if (imageViewAvatarUrl == null ) {
-            imageViewAvatarUrl = buyerAddress.();
+//         imageViewAvatarUrl = buyerSettings.getImageUrl();
             refreshAvatar = true;
-        } else if (sellerSettings != null && !TextUtils.isEmpty(sellerSettings.getImageUrl())
-                && !imageViewAvatarUrl.equalsIgnoreCase(sellerSettings.getImageUrl())) {
+        } else if (buyerSettings != null && !TextUtils.isEmpty(buyerSettings.getImageUrl())
+                && !imageViewAvatarUrl.equalsIgnoreCase(buyerSettings.getImageUrl())) {
             //there is a new image url and avatar should be refreshed
-            imageViewAvatarUrl = sellerSettings.getImageUrl();
-            refreshAvatar = true;
+  //          imageViewAvatarUrl = buyerSettings.getImageUrl();
+          refreshAvatar = true;
         }
 
         if (refreshAvatar) {
@@ -266,14 +280,14 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
 
         //set header image view
-        boolean refreshHeader = false;
-        if (imageViewHeaderUrl == null && sellerSettings != null) {
-            imageViewHeaderUrl = sellerSettings.getHeaderImageUrl();
+   /*     boolean refreshHeader = false;
+        if (imageViewHeaderUrl == null && buyerSettings!= null) {
+            imageViewHeaderUrl = buyerSettings.getHeaderImageUrl();
             refreshHeader = true;
-        } else if (sellerSettings != null && !TextUtils.isEmpty(sellerSettings.getHeaderImageUrl())
-                && !imageViewHeaderUrl.equalsIgnoreCase(sellerSettings.getHeaderImageUrl())) {
+        } else if (buyerSettings!= null && !TextUtils.isEmpty(buyerSettings.getHeaderImageUrl())
+                && !imageViewHeaderUrl.equalsIgnoreCase(buyerSettings.getHeaderImageUrl())) {
             //there is a new image url and avatar should be refreshed
-            imageViewHeaderUrl = sellerSettings.getHeaderImageUrl();
+            imageViewHeaderUrl = buyerSettings.getHeaderImageUrl();
             refreshHeader = true;
         }
 
@@ -288,10 +302,9 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             }
             refreshHeader = false;
         }
-
+*/
     }
 
-*/
     private void showHome() {
         MenuItem item = navigationView.getMenu().findItem(R.id.drawer_home);
         if (item != null) {

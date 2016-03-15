@@ -17,7 +17,9 @@ import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.ui.buyer.views.ViewProductVarietyBuyer;
+import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
+import com.koleshop.appkoleshop.util.CartUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,11 +94,13 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
                     @Override
                     public void onClick(View v) {
                         increaseVarietyCountInCart(varietyId);
+
                     }
                 });
                 viewProductVarietyBuyer.setMinusButtonClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         decreaseVarietyCountInCart(varietyId);
                     }
                 });
@@ -133,6 +137,7 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
             intentInternal.putExtra("settingsPosition", settingsPosition);
         }
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentInternal);
+
     }
 
     private void decreaseVarietyCountInCart(Long varietyId) {
@@ -144,6 +149,7 @@ public class ViewInventoryProductExpanded extends RelativeLayout implements View
             intentInternal.putExtra("settingsPosition", settingsPosition);
         }
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentInternal);
+
     }
 
     @Override

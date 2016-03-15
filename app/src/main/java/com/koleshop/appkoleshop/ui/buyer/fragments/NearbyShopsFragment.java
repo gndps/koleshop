@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,18 +21,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.helpers.MyMenuItemStuffListener;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.services.BuyerIntentService;
 import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
+import com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity;
 import com.koleshop.appkoleshop.ui.buyer.activities.ShopActivity;
 import com.koleshop.appkoleshop.ui.buyer.adapters.NearbyShopsFragmentPagerAdapter;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
+import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.CommonUtils;
 
 import org.parceler.Parcels;
@@ -75,6 +81,8 @@ public class NearbyShopsFragment extends Fragment {
     List<SellerSettings> sellers;
 
     boolean loading;
+    private TextView noOfItemsViewer=null;
+    private Menu menu;
 
 
     public NearbyShopsFragment() {
@@ -91,8 +99,42 @@ public class NearbyShopsFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_nearby_shops, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        this.menu = menu;
+        MenuItem item1 = menu.findItem(R.id.items_in_cart);
+        final View showItemsInCart = MenuItemCompat.getActionView(item1);
+        noOfItemsViewer = (TextView) showItemsInCart.findViewById(R.id.no_of_items_in_cart);
+
+        new MyMenuItemStuffListener(showItemsInCart, "Cart") {
+            @Override
+            public void onClick(View v) {
+                Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
+                startActivity(cartActivityIntent);
+            }
+        };
+
     }
 
+    public void updateHotCount() {
+        int new_number = CartUtils.getCartsTotalCount();
+        if (noOfItemsViewer == null) {
+           MenuItem item1 = this.menu.findItem(R.id.items_in_cart);
+            final View showItemsInCart = MenuItemCompat.getActionView(item1);
+            noOfItemsViewer = (TextView) showItemsInCart.findViewById(R.id.no_of_items_in_cart);
+        }
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (CartUtils.getCartsTotalCount() == 0) {
+                    noOfItemsViewer.setVisibility(View.INVISIBLE);
+                } else {
+                    noOfItemsViewer.setVisibility(View.VISIBLE);
+                    noOfItemsViewer.setText(CartUtils.getCartsTotalCount() + "");
+                }
+            }
+        });
+
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -111,8 +153,9 @@ public class NearbyShopsFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_cart:
-                //open cart fragment...handled in home activity
-                return false;
+                Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
+                startActivity(cartActivityIntent);
+                break;
             case R.id.menu_item_only_home_delivery:
                 item.setChecked(!item.isChecked());
                 onlyHomeDeliveryShops = item.isChecked();
@@ -137,6 +180,15 @@ public class NearbyShopsFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NO_ADDRESS_SELECTED));
         fragmentHomeActivityListener.setBackButtonHandledByFragment(false);
         fragmentHomeActivityListener.setTitle(titleNearbyShops);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Do something after 100ms
+                updateHotCount(); }
+        }, 100);
+
+
         if (loading) {
             requestNearbyShopsFromInternet();
         }

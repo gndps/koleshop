@@ -40,7 +40,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = false;
+    public static boolean RESET_REALM = true;
     public static boolean KOLE_CACHE_ALLOWED = true;
 
     public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";

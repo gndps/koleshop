@@ -13,6 +13,7 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.ui.common.views.ItemCountView;
+import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
 import com.koleshop.appkoleshop.util.CartUtils;
 
 import butterknife.Bind;

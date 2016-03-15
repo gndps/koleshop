@@ -22,6 +22,7 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
+import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleCacheUtil;
 import com.koleshop.appkoleshop.listeners.KolClickListener;
@@ -220,6 +221,7 @@ public class InventoryProductFragment extends Fragment {
                         int position = intent.getIntExtra("position", 0);
                         if (varietyId > 0 && requestCategoryId == categoryId) {
                             inventoryProductAdapter.increaseVarietyCount(position, varietyId);
+                            ((InventoryProductActivity)getActivity()).updateHotCount();
                             inventoryProductAdapter.notifyItemChanged(position);
                         } else {
                             return;
@@ -230,6 +232,7 @@ public class InventoryProductFragment extends Fragment {
                         int position = intent.getIntExtra("position", 0);
                         if (varietyId > 0 && requestCategoryId == categoryId) {
                             inventoryProductAdapter.decreaseVarietyCount(position, varietyId);
+                            ((InventoryProductActivity)getActivity()).updateHotCount();
                             inventoryProductAdapter.notifyItemChanged(position);
                         } else {
                             return;

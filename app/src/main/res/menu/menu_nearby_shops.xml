@@ -11,9 +11,10 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/menu_item_cart"
+        android:id="@+id/items_in_cart"
         android:checked="true"
         android:icon="@drawable/ic_shopping_cart_white_24dp"
+        app:actionLayout="@layout/items_in_cart_icon"
         android:orderInCategory="200"
         android:title="@string/action_cart"
         app:showAsAction="always" />
