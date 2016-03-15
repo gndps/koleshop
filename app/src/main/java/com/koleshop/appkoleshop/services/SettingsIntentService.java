@@ -281,6 +281,7 @@ public class SettingsIntentService extends IntentService {
             if (listener != null) {
                 //call the success callback
                 listener.send(RESULT_CODE_SETTINGS_FETCH_SUCCESS, null);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.ACTION_REFRESH_SELLER_SETTINGS));
             }
 
         } else if(result!=null && !result.getSuccess()) {

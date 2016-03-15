@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.services.SettingsIntentService;
 import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.constant.Constants;
@@ -316,6 +317,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_PRODUCT_BRANDS_LOAD_FAILED));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_TO_WAREHOUSE));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP));
+        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_REFRESH_SELLER_SETTINGS));
         refreshSellerNameAndImage();
     }
 
@@ -350,13 +352,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onBackPressed() {
         if (lastFragmentTag.equalsIgnoreCase(FRAGMENT_WAREHOUSE_TAG)) {
-            InventoryCategoryFragment inventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag("frag_my_shop");
+            InventoryCategoryFragment inventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag(FRAGMENT_WAREHOUSE_TAG);
             if (inventoryCategoryFragment.isBackAllowed()) {
                 FragmentManager fragmentManager = getFragmentManager();
                 if (fragmentManager.getBackStackEntryCount() > 0) {
                     fragmentManager.popBackStack();
                     if (titleOnBackPressed != null && !titleOnBackPressed.isEmpty()) {
                         getSupportActionBar().setTitle(titleMyShop);
+                        lastFragmentTag = FRAGMENT_MY_SHOP_TAG;
                         titleOnBackPressed = "";
                     }
                 } else {
@@ -425,6 +428,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     ft.commit();
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP)) {
                     onBackPressed();
+                } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REFRESH_SELLER_SETTINGS)) {
+                    refreshSellerNameAndImage();
                 }
             }
         };
@@ -531,6 +536,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (sellerSettings != null) {
             titleHome = sellerSettings.getAddress().getName();
         } else {
+            SettingsIntentService.refreshSellerSettings(mContext);
             titleHome = "My Shop";
         }
 

@@ -1,6 +1,7 @@
 package com.koleshop.koleshopbackend.services;
 
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,6 +42,7 @@ public class UserService {
                 //FATAL - some problem occurred
                 logger.log(Level.SEVERE, "problem in getting device ids for userId = " + userId);
             }
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "exception while getting device ids for userId = " + userId);
             logger.log(Level.SEVERE, e.getMessage(), e);

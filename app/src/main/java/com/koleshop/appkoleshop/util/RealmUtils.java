@@ -210,7 +210,12 @@ public class RealmUtils {
         RealmQuery<SellerSettings> realmQuery = realm.where(SellerSettings.class)
                 .equalTo("userId", userId);
         SellerSettings sellerSettingsRealm = realmQuery.findFirst();
-        SellerSettings sellerSettings = realm.copyFromRealm(sellerSettingsRealm);
+        SellerSettings sellerSettings;
+        if (sellerSettingsRealm != null) {
+            sellerSettings = realm.copyFromRealm(sellerSettingsRealm);
+        } else {
+            sellerSettings = null;
+        }
         realm.close();
         return sellerSettings;
     }

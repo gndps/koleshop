@@ -159,6 +159,9 @@ public class PendingOrdersFragment extends Fragment {
                             }
                         }
                         break;
+                    case Constants.ACTION_REFRESH_PENDING_ORDERS:
+                        fetchOrdersFromInternet();
+                        break;
                 }
             }
         };
@@ -186,6 +189,7 @@ public class PendingOrdersFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_FAILED));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NO_ORDERS_FETCHED));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_REFRESH_PENDING_ORDERS));
     }
 
     @Override

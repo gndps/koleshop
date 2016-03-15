@@ -22,6 +22,7 @@ import com.koleshop.koleshopbackend.db.models.RestCallResponse;
 import com.koleshop.koleshopbackend.db.models.Session;
 import com.koleshop.koleshopbackend.gcm.GcmHelper;
 import com.koleshop.koleshopbackend.utils.CommonUtils;
+import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 import com.koleshop.koleshopbackend.utils.Md5Hash;
 import com.koleshop.koleshopbackend.utils.RestClient;
 
@@ -97,7 +98,7 @@ public class SessionService {
             Connection dbConnection = null;
             PreparedStatement preparedStatement = null;
 
-            String query = "select otp.session_id,s.session_type from OneTimePassword otp join Session s on otp.session_id=s.id where s.user_id=? and one_time_password=? and generation_time > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL(-"+ Constants.OTP_TIME_TO_LIVE +") MINUTE)";
+            String query = "select otp.session_id,s.session_type from OneTimePassword otp join Session s on otp.session_id=s.id where s.user_id=? and one_time_password=? and generation_time > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL(-" + Constants.OTP_TIME_TO_LIVE + ") MINUTE)";
 
             try {
                 dbConnection = DatabaseConnection.getConnection();
@@ -115,7 +116,7 @@ public class SessionService {
                     restCallResponse.setReason(null);
                     validateSession(sessionId);
                     logger.log(Level.INFO, "will create shop settings if not exist");
-                    if(sessionType == Constants.USER_SESSION_TYPE_SELLER) {
+                    if (sessionType == Constants.USER_SESSION_TYPE_SELLER) {
                         createAddressAndShopSettingsIfNotAlreadyExists(userId);
                         createUserInventoryFromGlobalInventory(userId);
                     } else {
@@ -127,11 +128,14 @@ public class SessionService {
                     restCallResponse.setReason("otp verification failed");
                     restCallResponse.setData(null);
                 }
+                DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
             } catch (Exception e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
                 restCallResponse.setStatus("failure");
                 restCallResponse.setReason("otp verification failed");
                 restCallResponse.setData(null);
+            } finally {
+                DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
             }
         } else {
             restCallResponse.setStatus("failure");
@@ -142,8 +146,8 @@ public class SessionService {
     }
 
     private void createAddressAndShopSettingsIfNotAlreadyExists(Long userId) {
-        Connection dbConnection;
-        PreparedStatement preparedStatement;
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
         Long addressId = 0l;
         boolean alreadyExists = false;
 
@@ -159,13 +163,13 @@ public class SessionService {
             ResultSet rs = preparedStatement.executeQuery();
             if (rs != null && rs.first()) {
                 addressId = rs.getLong(1);
-                if(addressId!=null && addressId>0) {
+                if (addressId != null && addressId > 0) {
                     logger.log(Level.INFO, "address already exists");
                     alreadyExists = true;
                 }
             }
 
-            if(!alreadyExists) {
+            if (!alreadyExists) {
                 //insert shop address, if not already exists
                 logger.log(Level.INFO, "will insert shop address");
                 query = "insert into Address(user_id, address_type) values (?,'" + Constants.ADDRESS_TYPE_SELLER + "')";
@@ -185,7 +189,7 @@ public class SessionService {
                     preparedStatement.setLong(1, userId);
                     preparedStatement.setBoolean(2, false);
                     int addedStatus = preparedStatement.executeUpdate();
-                    if(addedStatus==0) {
+                    if (addedStatus == 0) {
                         logger.severe("seller status not inserted for seller id = " + userId);
                     }
                 } else {
@@ -193,7 +197,7 @@ public class SessionService {
                 }
             }
 
-            if(!alreadyExists && addressId!=null && addressId > 0) {
+            if (!alreadyExists && addressId != null && addressId > 0) {
                 logger.log(Level.INFO, "need to create seller settings");
                 //create seller settings
                 query = "insert into SellerSettings(user_id, address_id) values (?,?)";
@@ -210,15 +214,18 @@ public class SessionService {
                     logger.severe("seller settings not generated for userId " + userId);
                 }
             }
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
     }
 
     private void createBuyerSettingsIfNotAlreadyExists(Long userId) {
-        Connection dbConnection;
-        PreparedStatement preparedStatement;
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
         Long buyerSettingsId = 0l;
         boolean alreadyExists = false;
 
@@ -232,13 +239,13 @@ public class SessionService {
             ResultSet rs = preparedStatement.executeQuery();
             if (rs != null && rs.first()) {
                 buyerSettingsId = rs.getLong(1);
-                if(buyerSettingsId!=null && buyerSettingsId>0) {
+                if (buyerSettingsId != null && buyerSettingsId > 0) {
                     logger.log(Level.INFO, "buyer settings already exists");
                     alreadyExists = true;
                 }
             }
 
-            if(!alreadyExists) {
+            if (!alreadyExists) {
                 //insert buyer settings
                 query = "insert into BuyerSettings(user_id) values (?)";
                 preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -254,6 +261,8 @@ public class SessionService {
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
     }
 
@@ -270,27 +279,27 @@ public class SessionService {
                     preparedStatement.setLong(1, userId);
                     System.out.println(query);
                     ResultSet rs = preparedStatement.executeQuery();
-                    if(rs!=null && rs.next()) {
-                            int count = rs.getInt(1);
-                            if(count>0) {
-                                //products are already there - this is an old customer
+                    if (rs != null && rs.next()) {
+                        int count = rs.getInt(1);
+                        if (count > 0) {
+                            //products are already there - this is an old customer
+                        } else {
+                            //todo add products to user inventory - start stored procedure
+                            query = "call make_user_inventory(?);";
+                            preparedStatement = dbConnection.prepareStatement(query);
+                            preparedStatement.setLong(1, userId);
+                            int update = preparedStatement.executeUpdate();
+                            if (update > 0) {
+                                Message gcmMessage = new Message.Builder()
+                                        .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED)
+                                        .addData("type", Constants.GCM_NOTI_USER_INVENTORY_CREATED)
+                                        .addData("deviceAdded", "true")
+                                        .build();
+                                GcmHelper.notifyUser(userId, gcmMessage, 2);
                             } else {
-                                //todo add products to user inventory - start stored procedure
-                                query = "call make_user_inventory(?);";
-                                preparedStatement = dbConnection.prepareStatement(query);
-                                preparedStatement.setLong(1, userId);
-                                int update = preparedStatement.executeUpdate();
-                                if(update>0) {
-                                    Message gcmMessage = new Message.Builder()
-                                            .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED)
-                                            .addData("type", Constants.GCM_NOTI_USER_INVENTORY_CREATED)
-                                            .addData("deviceAdded", "true")
-                                            .build();
-                                    GcmHelper.notifyUser(userId, gcmMessage, 2);
-                                } else {
-                                    //some problem occurred
-                                }
+                                //some problem occurred
                             }
+                        }
                     } else {
                         //FATAL - some problem occurred
                         logger.log(Level.SEVERE, "problem while making UserInventory for userId = " + userId);
@@ -557,7 +566,7 @@ public class SessionService {
 
     public static boolean verifyUserAuthenticity(Long userId, String sessionId, int requiredSessionType) {
 
-        if(userId==null || sessionId==null || userId<1 || sessionId.isEmpty()) {
+        if (userId == null || sessionId == null || userId < 1 || sessionId.isEmpty()) {
             return false;
         }
 
@@ -567,7 +576,7 @@ public class SessionService {
 
         String query = "select valid from Session where user_id=? and id=?";
 
-        if(requiredSessionType>0) {
+        if (requiredSessionType > 0) {
             query += " and session_type=?";
         }
 
@@ -576,7 +585,7 @@ public class SessionService {
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setLong(1, userId);
             preparedStatement.setString(2, sessionId);
-            if(requiredSessionType>0) {
+            if (requiredSessionType > 0) {
                 preparedStatement.setInt(3, requiredSessionType);
             }
             System.out.println(query);
@@ -588,8 +597,11 @@ public class SessionService {
             } else {
                 logger.log(Level.INFO, "invalid request from userId = " + userId);
             }
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
         return userValid;
     }

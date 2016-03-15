@@ -7,8 +7,7 @@
     <ViewFlipper
         android:id="@+id/view_flipper_fragment_my_orders"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:layout_height="match_parent">
 
         <!-- loading | view flipper child 0 -->
         <ProgressBar
@@ -27,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
+            android:layout_gravity="center"
             android:orientation="vertical">
 
             <ImageView

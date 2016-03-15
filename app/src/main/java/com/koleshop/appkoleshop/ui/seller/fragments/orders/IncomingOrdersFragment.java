@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class IncomingOrdersFragment extends Fragment {
+    private static final String TAG = "IncomingOrdersFrag";
     @Bind(R.id.view_flipper_fragment_incoming_orders)
     ViewFlipper viewFlipper;
     @Bind(R.id.rv_fragment_incoming_orders)
@@ -122,10 +124,33 @@ public class IncomingOrdersFragment extends Fragment {
                         }
                         break;
                     case Constants.ACTION_ORDER_UPDATE_SUCCESS:
+                        Log.d(TAG, "order updated");
                         Long updatedOrderId = intent.getLongExtra("order_id", 0);
+                        Log.d(TAG, "updated order id = " + updatedOrderId);
                         if (updatedOrderId != null && updatedOrderId > 0) {
-                            findPositionInOrdersList(updatedOrderId);
-                            //adapter.setOrdersList();
+                            int position = findPositionInOrdersList(updatedOrderId);
+                            Log.d(TAG, "order position = " + position);
+                            Log.d(TAG, "orders size = " + orders.size() + "...removing this order...");
+                            orders.remove(position);
+                            Log.d(TAG, "orders size = " + orders.size());
+                            adapter.setOrdersList(orders);
+                            adapter.orderRequestComplete(updatedOrderId);
+                            adapter.notifyItemRemoved(position);
+                            Intent refreshPendingOrders = new Intent(Constants.ACTION_REFRESH_PENDING_ORDERS);
+                            LocalBroadcastManager.getInstance(mContext).sendBroadcast(refreshPendingOrders);
+                        }
+                        break;
+                    case Constants.ACTION_ORDER_UPDATE_FAILED:
+                        Long notUpdatedOrderId = intent.getLongExtra("order_id", 0);
+                        if (notUpdatedOrderId != null && notUpdatedOrderId > 0) {
+                            int position = findPositionInOrdersList(notUpdatedOrderId);
+                            adapter.orderRequestComplete(notUpdatedOrderId);
+                            adapter.notifyItemChanged(position);
+                            if(CommonUtils.isConnectedToInternet(mContext)) {
+                                Snackbar.make(viewFlipper, "Some problem occurred", Snackbar.LENGTH_SHORT).show();
+                            } else {
+                                Snackbar.make(viewFlipper, "Please check connection", Snackbar.LENGTH_SHORT).show();
+                            }
                         }
                         break;
                 }
@@ -136,6 +161,11 @@ public class IncomingOrdersFragment extends Fragment {
     }
 
     private int findPositionInOrdersList(Long orderId) {
+        Log.d(TAG, "finding position of " + orderId + " in orders list...");
+        int pos = 0;
+        for(Order order : orders) {
+            Log.d(TAG, "order at pos " + pos + " = " + order.getId());
+        }
         if (orders != null) {
             int position = 0;
             for (Order order : orders) {
@@ -187,6 +217,7 @@ public class IncomingOrdersFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         adapter = new IncomingOrderAdapter(mContext);
         adapter.setOrdersList(orders);
+        adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
     }
 

@@ -3,6 +3,7 @@ package com.koleshop.appkoleshop.ui.seller.viewholders;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.squareup.picasso.Picasso;
+import com.zl.reik.dilatingdotsprogressbar.DilatingDotsProgressBar;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -29,8 +31,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by Gundeep on 23/01/16.
  */
 public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
-    private Object order;
+    private static final String TAG = "IncomingOrderVH";
+    private Order order;
     private int position;
+    private boolean showProgressBar;
     private Context mContext;
     @Bind(R.id.iv_iot_avatar)
     CircleImageView imageViewAvatar;
@@ -48,6 +52,8 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
     TextView textViewPrice;
     @Bind(R.id.tv_iot_timings)
     TextView textViewTimings;
+    @Bind(R.id.pb_status_incoming_order_tile)
+    DilatingDotsProgressBar dotsProgressBar;
     private OrderInteractionListener orderInteractionListener;
 
     public IncomingOrderViewHolder(View itemView, Context context) {
@@ -57,9 +63,10 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
         setupClickListeners();
     }
 
-    public void bindData(Order order, int position) {
+    public void bindData(Order order, int position, boolean showProgressBar) {
         this.order = order;
         this.position = position;
+        this.showProgressBar = showProgressBar;
         if (order == null || order.getBuyerSettings() == null) {
             return;
         }
@@ -123,25 +130,34 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
         }
         textViewTimings.setText(time);
 
+        if(showProgressBar) {
+            dotsProgressBar.show();
+            dotsProgressBar.setVisibility(View.VISIBLE);
+            Log.d(TAG, "will show progress bar at position " + position);
+        } else {
+            dotsProgressBar.setVisibility(View.GONE);
+            Log.d(TAG, "wont show progress bar at position " + position);
+        }
+
     }
 
     public void setupClickListeners() {
         buttonAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                orderInteractionListener.onAcceptButtonClicked(position);
+                orderInteractionListener.onAcceptButtonClicked(order.getId());
             }
         });
         buttonReject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                orderInteractionListener.onRejectButtonClicked(position);
+                orderInteractionListener.onRejectButtonClicked(order.getId());
             }
         });
         buttonDetails.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                orderInteractionListener.onDetailsButtonClicked(position);
+                orderInteractionListener.onDetailsButtonClicked(order.getId());
             }
         });
     }
@@ -151,8 +167,8 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
     }
 
     public interface OrderInteractionListener {
-        void onDetailsButtonClicked(int position);
-        void onAcceptButtonClicked(int position);
-        void onRejectButtonClicked(int position);
+        void onDetailsButtonClicked(Long orderId);
+        void onAcceptButtonClicked(Long orderId);
+        void onRejectButtonClicked(Long orderId);
     }
 }

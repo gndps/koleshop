@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.ui.seller.viewholders.OrderItemsListViewHolder;
 
 /**
@@ -15,6 +16,7 @@ import com.koleshop.appkoleshop.ui.seller.viewholders.OrderItemsListViewHolder;
 public class OrderItemsListAdapter extends RecyclerView.Adapter<OrderItemsListViewHolder> {
 
     Context mContext;
+    Order order;
 
     public OrderItemsListAdapter(Context context) {
         this.mContext = context;
@@ -31,15 +33,19 @@ public class OrderItemsListAdapter extends RecyclerView.Adapter<OrderItemsListVi
 
     @Override
     public void onBindViewHolder(OrderItemsListViewHolder holder, int position) {
-        holder.bindData();
+        holder.bindData(order.getOrderItems().get(position), order.getStatus(), position);
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        if(order!=null && order.getOrderItems()!=null) {
+            return order.getOrderItems().size();
+        } else {
+            return 0;
+        }
     }
 
-    public void setItemsList() {
-
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

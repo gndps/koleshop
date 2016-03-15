@@ -146,4 +146,18 @@ public class CartUtils {
         }.execute(cart);
     }
 
+    public static int getCartsTotalCount() {
+        List<Cart> carts = CartsSingleton.getSharedInstance().getCarts();
+        int total = 0;
+        for(Cart cart : carts) {
+            if(cart!=null) {
+                List<ProductVarietyCount> productVarietyCounts = cart.getProductVarietyCountList();
+                for(ProductVarietyCount productVarietyCount : productVarietyCounts) {
+                    total += productVarietyCount.getCartCount();
+                }
+            }
+        }
+        return total;
+    }
+
 }

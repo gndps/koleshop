@@ -21,7 +21,7 @@
             tools:layout="@layout/fragment_seller_order_details" />
 
         <fragment
-            android:id="@+id/fragment_aot_seller_items_list"
+            android:id="@+id/fragment_aod_seller_items_list"
             android:name="com.koleshop.appkoleshop.ui.seller.fragments.orders.SellerItemListFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

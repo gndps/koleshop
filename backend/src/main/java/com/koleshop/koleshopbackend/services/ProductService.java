@@ -314,6 +314,7 @@ public class ProductService {
                     DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
                     return newBrandId;
                 } else {
+                    DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
                     return 0L;
                 }
             }

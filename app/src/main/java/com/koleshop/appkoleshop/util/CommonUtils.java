@@ -193,7 +193,7 @@ public class CommonUtils {
     }
 
     public static String getPriceStringFromFloat(Float priceFloat, boolean rupeeSymbol) {
-        if(rupeeSymbol) {
+        if (rupeeSymbol) {
             return Constants.INDIAN_RUPEE_SYMBOL + " " + getPriceStringFromFloat(priceFloat);
         } else {
             return getPriceStringFromFloat(priceFloat);
@@ -275,13 +275,13 @@ public class CommonUtils {
             int m = minutes % 60;
             hourString = "" + h;
             if (h > 11) {
-                if(amPmLowerCase) {
+                if (amPmLowerCase) {
                     ampm = "pm";
                 } else {
                     ampm = "PM";
                 }
             } else {
-                if(amPmLowerCase) {
+                if (amPmLowerCase) {
                     ampm = "am";
                 } else {
                     ampm = "AM";
@@ -317,8 +317,8 @@ public class CommonUtils {
         Date date = new Date();
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        cal.set(Calendar.HOUR_OF_DAY, numberOfMinutes/60);
-        cal.set(Calendar.MINUTE, numberOfMinutes%60);
+        cal.set(Calendar.HOUR_OF_DAY, numberOfMinutes / 60);
+        cal.set(Calendar.MINUTE, numberOfMinutes % 60);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
@@ -340,6 +340,39 @@ public class CommonUtils {
         return calendar.getTime();
     }
 
+    public static Date getDateWithHoursAndMinutes(int hours, int minutes, boolean tomorrow) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        calendar.set(Calendar.SECOND, 0);
+        if(tomorrow) {
+            calendar.add(Calendar.DATE, 1);
+        }
+        return calendar.getTime();
+    }
+
+    public static int getHoursDifference(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Long hoursDifference = date.getTime() - calendar.getTime().getTime();
+        Long hours = hoursDifference/DateUtils.HOUR_IN_MILLIS;
+        return hours.intValue();
+    }
+
+    public static int getMinutesDifference(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Long hoursDifference = date.getTime() - calendar.getTime().getTime();
+        Long minutesDifference = hoursDifference%DateUtils.HOUR_IN_MILLIS;
+        Long minutes = minutesDifference/DateUtils.MINUTE_IN_MILLIS;
+        return minutes.intValue();
+    }
+
     public static String getReadableDistanceFromMetres(float distanceInMetres) {
         String distance;
         if (distanceInMetres > 1000) {
@@ -348,7 +381,7 @@ public class CommonUtils {
             if (distanceInKm < 50) {
                 distance = String.format("%.1f", distanceInKm) + " km";
             } else {
-                distance = String.format("%d", (int)distanceInKm) + " km";
+                distance = String.format("%d", (int) distanceInKm) + " km";
             }
         } else {
             distance = String.format("%.0f", distanceInMetres) + " m";
@@ -382,6 +415,29 @@ public class CommonUtils {
     public static float getScreenHeightInPixels(Context context) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         return displayMetrics.heightPixels;
+    }
+
+    public static String getRelativeTime(Date date) {
+        Long timeDifference = date.getTime() - new Date().getTime();
+        String relativeTime;
+        //date is in future
+        long minutes = Math.abs(timeDifference / DateUtils.MINUTE_IN_MILLIS);
+        long hours = 0;
+        if (minutes > 60) {
+            minutes = minutes % 60;
+            hours = minutes / 60;
+        }
+        if (hours > 0) {
+            relativeTime = hours + " hours";
+        } else {
+            relativeTime = minutes + " mins";
+        }
+        return relativeTime;
+    }
+
+    public static boolean isTimeInPast(Date date) {
+        Long timeDifference = date.getTime() - new Date().getTime();
+        return timeDifference<=0;
     }
 
 }

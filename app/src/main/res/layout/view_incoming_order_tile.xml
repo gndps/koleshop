@@ -148,6 +148,20 @@
 
         </RelativeLayout>
 
+        <com.zl.reik.dilatingdotsprogressbar.DilatingDotsProgressBar
+            android:id="@+id/pb_status_incoming_order_tile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:radius="2dp"
+            android:color="@color/accent"
+            app:dd_numDots="10"
+            app:dd_scaleMultiplier="1.8"
+            app:dd_animationDuration="500"
+            app:dd_horizontalSpacing="2dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="2dp"
+            />
+
     </LinearLayout>
 
 </android.support.v7.widget.CardView>

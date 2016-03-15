@@ -136,6 +136,9 @@ public class InitialActivity extends AppCompatActivity {
         if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
             //seller session
             //if logged in
+            if(Constants.RESET_REALM) {
+                RealmUtils.resetRealm(mContext);
+            }
             if (CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0) {
                 //if settings setup is finished then open home
                 boolean settingsSetupFinished = PreferenceUtils.getPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED);

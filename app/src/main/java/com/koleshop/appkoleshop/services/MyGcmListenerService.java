@@ -4,14 +4,11 @@ package com.koleshop.appkoleshop.services;
  * Created by Gundeep on 19/01/16.
  */
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
@@ -27,11 +24,8 @@ import android.widget.Toast;
 import com.google.android.gms.gcm.GcmListenerService;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
-import com.koleshop.appkoleshop.constant.Prefs;
-import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
 import com.koleshop.appkoleshop.ui.seller.activities.HomeActivity;
 import com.koleshop.appkoleshop.ui.seller.activities.SellerOrdersActivity;
-import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
@@ -42,8 +36,14 @@ public class MyGcmListenerService extends GcmListenerService {
 
     //gcm keys
     public static final String GCM_NOTI_USER_INVENTORY_CREATED = "gcm_noti_user_inventory_created";
-    public static final String GCM_NOTI_DELETE_OLD_SETTINGS_CACHE = "gcm_noti_delete_old_settings_cache";
     public static final String GCM_NOTI_INCOMING_ORDER = "gcm_noti_incoming_order";
+    public static final String GCM_NOTI_DELETE_OLD_SETTINGS_CACHE = "gcm_noti_delete_old_settings_cache";
+    public static final String GCM_NOTI_ORDER_ACCEPTED = "gcm_noti_order_accepted";
+    public static final String GCM_NOTI_ORDER_REJECTED = "gcm_noti_order_rejected";
+    public static final String GCM_NOTI_ORDER_CANCELLED = "gcm_noti_order_cancelled";
+    public static final String GCM_NOTI_ORDER_OUT_FOR_DELIVERY = "gcm_noti_order_out_for_delivery";
+    public static final String GCM_NOTI_ORDER_READY_FOR_PICKUP = "gcm_noti_order_ready_for_pickup";
+    public static final String GCM_NOTI_ORDER_NOT_DELIVERED = "gcm_noti_order_not_delivered";
 
     /**
      * Called when message is received.
@@ -72,6 +72,7 @@ public class MyGcmListenerService extends GcmListenerService {
     private void handleGcmMessage(Bundle data) {
         String type = data.getString("type");
         Context mContext = getApplicationContext();
+        String sessionType = "";
         if (type != null && !type.isEmpty()) {
             switch (type) {
                 case GCM_NOTI_USER_INVENTORY_CREATED:
@@ -92,7 +93,7 @@ public class MyGcmListenerService extends GcmListenerService {
                     break;
                 case GCM_NOTI_INCOMING_ORDER:
                     //show incoming order notification
-                    String sessionType = PreferenceUtils.getPreferences(getApplicationContext(), Constants.KEY_USER_SESSION_TYPE);
+                    sessionType = PreferenceUtils.getPreferences(getApplicationContext(), Constants.KEY_USER_SESSION_TYPE);
                     if(sessionType.equals(Constants.SESSION_TYPE_BUYER)) {
                         break;
                     }
@@ -106,6 +107,75 @@ public class MyGcmListenerService extends GcmListenerService {
                         Log.e(TAG, "problem in incoming order", e);
                     }
                     break;
+                case GCM_NOTI_ORDER_ACCEPTED:
+                    sessionType = PreferenceUtils.getPreferences(getApplicationContext(), Constants.KEY_USER_SESSION_TYPE);
+                    if(sessionType.equals(Constants.SESSION_TYPE_SELLER)) {
+                        break;
+                    }
+                    try {
+                        Long orderId = Long.valueOf(data.getString("order_id"));
+                        Intent orderAcceptedIntent = new Intent(Constants.ACTION_GCM_ORDER_ACCEPTED);
+                        orderAcceptedIntent.putExtra("order_id", orderId);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(orderAcceptedIntent);
+                    } catch (Exception e) {
+                        Log.e(TAG, "problem in accept order", e);
+                    }
+                    break;
+                case GCM_NOTI_ORDER_REJECTED:
+                    sessionType = PreferenceUtils.getPreferences(getApplicationContext(), Constants.KEY_USER_SESSION_TYPE);
+                    if(sessionType.equals(Constants.SESSION_TYPE_SELLER)) {
+                        break;
+                    }
+                    try {
+                        Long orderId = Long.valueOf(data.getString("order_id"));
+                        Intent orderRejectedIntent = new Intent(Constants.ACTION_GCM_ORDER_REJECTED);
+                        orderRejectedIntent.putExtra("order_id", orderId);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(orderRejectedIntent);
+                    } catch (Exception e) {
+                        Log.e(TAG, "problem in reject order", e);
+                    }
+                    break;
+                case GCM_NOTI_ORDER_CANCELLED:
+                    try {
+                        Long orderId = Long.valueOf(data.getString("order_id"));
+                        Intent orderCancelledIntent = new Intent(Constants.ACTION_GCM_ORDER_CANCELLED);
+                        orderCancelledIntent.putExtra("order_id", orderId);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(orderCancelledIntent);
+                    } catch (Exception e) {
+                        Log.e(TAG, "problem in cancelled order", e);
+                    }
+                    break;
+                case GCM_NOTI_ORDER_OUT_FOR_DELIVERY:
+                    try {
+                        Long orderId = Long.valueOf(data.getString("order_id"));
+                        Intent orderCancelledIntent = new Intent(Constants.ACTION_GCM_ORDER_CANCELLED);
+                        orderCancelledIntent.putExtra("order_id", orderId);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(orderCancelledIntent);
+                    } catch (Exception e) {
+                        Log.e(TAG, "problem in out for delivery notification", e);
+                    }
+                    break;
+                case GCM_NOTI_ORDER_READY_FOR_PICKUP:
+                    try {
+                        Long orderId = Long.valueOf(data.getString("order_id"));
+                        Intent orderCancelledIntent = new Intent(Constants.ACTION_GCM_ORDER_READY_FOR_PICKUP);
+                        orderCancelledIntent.putExtra("order_id", orderId);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(orderCancelledIntent);
+                    } catch (Exception e) {
+                        Log.e(TAG, "problem in ready for pickup notification", e);
+                    }
+                    break;
+                case GCM_NOTI_ORDER_NOT_DELIVERED:
+                    try {
+                        Long orderId = Long.valueOf(data.getString("order_id"));
+                        Intent orderCancelledIntent = new Intent(Constants.ACTION_GCM_ORDER_READY_FOR_PICKUP);
+                        orderCancelledIntent.putExtra("order_id", orderId);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(orderCancelledIntent);
+                    } catch (Exception e) {
+                        Log.e(TAG, "problem in order not delivered notification", e);
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -123,6 +193,7 @@ public class MyGcmListenerService extends GcmListenerService {
     private void showIncomingNotification(Long orderId, String buyerName, String amountPayable) {
         Context ctx = getApplicationContext();
         Intent notificationIntent = new Intent(ctx, SellerOrdersActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(HomeActivity.class);

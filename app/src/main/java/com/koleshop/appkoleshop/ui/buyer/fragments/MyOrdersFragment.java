@@ -21,6 +21,7 @@ import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.constant.OrderStatus;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.services.BuyerIntentService;
 import com.koleshop.appkoleshop.ui.seller.adapters.OrderAdapter;
@@ -134,9 +135,54 @@ public class MyOrdersFragment extends Fragment {
                             }
                         }
                         break;
+                    case Constants.ACTION_GCM_ORDER_ACCEPTED:
+                        Long acceptedOrderId = intent.getLongExtra("order_id", 0);
+                        if(acceptedOrderId!=null && acceptedOrderId>0) {
+                            orderAccepted(acceptedOrderId);
+                        }
+                        break;
+                    case Constants.ACTION_GCM_ORDER_REJECTED:
+                        Long rejectedOrderId = intent.getLongExtra("order_id", 0);
+                        if(rejectedOrderId!=null && rejectedOrderId>0) {
+                            orderRejected(rejectedOrderId);
+                        }
+                        break;
                 }
             }
         };
+    }
+
+    private void orderAccepted(Long acceptedOrderId) {
+        int orderPosition = getOrderPositionWithId(acceptedOrderId);
+        if(orderPosition>-1) {
+            orders.get(orderPosition).setStatus(OrderStatus.ACCEPTED);
+        }
+        adapter.setOrdersList(orders);
+        adapter.notifyItemChanged(orderPosition);
+    }
+
+    private void orderRejected(Long rejectedOrderId) {
+        int orderPosition = getOrderPositionWithId(rejectedOrderId);
+        if(orderPosition>-1) {
+            orders.get(orderPosition).setStatus(OrderStatus.REJECTED);
+        }
+        adapter.setOrdersList(orders);
+        adapter.notifyItemChanged(orderPosition);
+    }
+
+    private int getOrderPositionWithId(Long orderId) {
+        int orderPosition = -1;
+        if(orders!=null && orders.size()>0) {
+            int position = 0;
+            for (Order order : orders) {
+                if(order.getId().equals(orderId)) {
+                    orderPosition = position;
+                    break;
+                }
+                position++;
+            }
+        }
+        return orderPosition;
     }
 
     @OnClick(R.id.button_retry_vinc)
@@ -156,6 +202,8 @@ public class MyOrdersFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_FAILED));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NO_ORDERS_FETCHED));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_GCM_ORDER_ACCEPTED));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_GCM_ORDER_REJECTED));
     }
 
     @Override

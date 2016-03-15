@@ -215,9 +215,11 @@ public class OrdersIntentService extends IntentService {
                 Log.d(TAG, "updated order with id = " + order.getId());
                 if (result.getData() instanceof String && result.getData().equals("order updated")) {
                     Intent orderUpdatedIntent = new Intent(Constants.ACTION_ORDER_UPDATE_SUCCESS);
+                    orderUpdatedIntent.putExtra("order_id", order.getId());
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderUpdatedIntent);
                 } else {
                     Intent orderNotUpdatedIntent = new Intent(Constants.ACTION_ORDERS_FETCH_FAILED);
+                    orderNotUpdatedIntent.putExtra("order_id", order.getId());
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderNotUpdatedIntent);
                 }
             } else {

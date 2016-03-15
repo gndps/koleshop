@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import java.util.List;
  */
 public class IncomingOrderAdapter extends RecyclerView.Adapter<IncomingOrderViewHolder> implements IncomingOrderViewHolder.OrderInteractionListener {
 
+    private static final String TAG = "IncomingOrderAdapter";
     private List<Order> ordersList;
     private List<Long> processingOrderIdsList;
     private Context mContext;
@@ -46,7 +48,9 @@ public class IncomingOrderAdapter extends RecyclerView.Adapter<IncomingOrderView
     public void onBindViewHolder(IncomingOrderViewHolder holder, int position) {
         Order order = ordersList.get(position);
         //final View itemView = holder.itemView;
-        holder.bindData(order, position);
+        boolean showProgressBar = processingOrderIdsList.contains(order.getId());
+        Log.d(TAG, "binding order at position " + position);
+        holder.bindData(order, position, showProgressBar);
         holder.setOrderInteractionListener(this);
     }
 
@@ -57,31 +61,73 @@ public class IncomingOrderAdapter extends RecyclerView.Adapter<IncomingOrderView
 
     public void setOrdersList(List<Order> ordersList) {
         this.ordersList = ordersList;
-        notifyDataSetChanged();
     }
 
     @Override
-    public void onDetailsButtonClicked(int position) {
+    public void onDetailsButtonClicked(Long orderId) {
         Intent orderDetailsIntent = new Intent(mContext, OrderDetailsActivity.class);
-        Order order = ordersList.get(position);
-        Parcelable parcelableOrder = Parcels.wrap(order);
-        orderDetailsIntent.putExtra("order", parcelableOrder);
-        mContext.startActivity(orderDetailsIntent);
+        int position = findPositionInOrdersList(orderId);
+        if(position>-1) {
+            Order order = ordersList.get(position);
+            Parcelable parcelableOrder = Parcels.wrap(order);
+            orderDetailsIntent.putExtra("order", parcelableOrder);
+            mContext.startActivity(orderDetailsIntent);
+        }
     }
 
     @Override
-    public void onAcceptButtonClicked(int position) {
+    public void onAcceptButtonClicked(Long orderId) {
+        int position = findPositionInOrdersList(orderId);
+        if(position>-1) {
+            Log.d(TAG, "on accept button clicked at position " + position);
+            //send request to update order
+            if (ordersList != null && ordersList.size() > 0) {
+                Order acceptOrder = ordersList.get(position);
+                acceptOrder.setStatus(OrderStatus.ACCEPTED);
+                processingOrderIdsList.add(acceptOrder.getId());
+                notifyItemChanged(position);
+                OrdersIntentService.updateOrder(mContext, acceptOrder);
+            }
+        }
+    }
+
+    @Override
+    public void onRejectButtonClicked(Long orderId) {
         //send request to update order
-        Order acceptOrder = ordersList.get(position);
-        acceptOrder.setStatus(OrderStatus.ACCEPTED);
-        processingOrderIdsList.add(acceptOrder.getId());
-        notifyItemChanged(position);
-        OrdersIntentService.updateOrder(mContext, acceptOrder);
+        int position = findPositionInOrdersList(orderId);
+        if(position>-1) {
+            Log.d(TAG, "on reject button clicked at position " + position);
+            if (ordersList != null && ordersList.size() > 0) {
+                Order rejectOrder = ordersList.get(position);
+                rejectOrder.setStatus(OrderStatus.REJECTED);
+                processingOrderIdsList.add(rejectOrder.getId());
+                notifyItemChanged(position);
+                OrdersIntentService.updateOrder(mContext, rejectOrder);
+            }
+        }
     }
 
-    @Override
-    public void onRejectButtonClicked(int position) {
-        processingOrderIdsList.add(ordersList.get(position).getId());
-        notifyItemChanged(position);
+    public void orderRequestComplete(Long orderId) {
+        try {
+            processingOrderIdsList.remove(orderId);
+        } catch (Exception e) {
+            Log.e(TAG, "some problem in removing processing order id from list", e);
+        }
     }
+
+    private int findPositionInOrdersList(Long orderId) {
+        Log.d(TAG, "finding position of " + orderId + " in orders list...");
+        int pos = 0;
+        if (ordersList != null) {
+            int position = 0;
+            for (Order order : ordersList) {
+                if(order.getId().equals(orderId)) {
+                    return position;
+                }
+                position++;
+            }
+        }
+        return -1;
+    }
+
 }

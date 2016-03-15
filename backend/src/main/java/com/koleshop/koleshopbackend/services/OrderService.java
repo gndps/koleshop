@@ -281,8 +281,8 @@ public class OrderService {
             preparedStatement.setFloat(index++, order.getTotalAmount());
             preparedStatement.setFloat(index++, order.getNotAvailableAmount());
             preparedStatement.setFloat(index++, order.getAmountPayable());
-            preparedStatement.setTimestamp(index++, new Timestamp(order.getActualDeliveryTime()));
-            preparedStatement.setTimestamp(index++, new Timestamp(order.getDeliveryStartTime()));
+            preparedStatement.setTimestamp(index++, new Timestamp(order.getActualDeliveryTime()!=null?order.getActualDeliveryTime():(new java.util.Date()).getTime()));
+            preparedStatement.setTimestamp(index++, new Timestamp(order.getDeliveryStartTime()!=null?order.getDeliveryStartTime():(new java.util.Date()).getTime()));
             preparedStatement.setInt(index++, order.getMinutesToDelivery());
             preparedStatement.setLong(index++, order.getId());
             logger.log(Level.INFO, "updating orders with query = " + preparedStatement.toString());
@@ -313,7 +313,75 @@ public class OrderService {
             }
         }
 
+        notifyUpdateOrder(order);
+
         return order;
+    }
+
+    private void notifyUpdateOrder(Order order) {
+        switch (order.getStatus()) {
+            case OrderStatus.ACCEPTED:
+                //updated by seller...notify the user
+                Message gcmMessageAccepted = new Message.Builder()
+                        .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_ACCEPTED)
+                        .addData("type", Constants.GCM_NOTI_ORDER_ACCEPTED)
+                        .addData("order_id", order.getId().toString())
+                        .build();
+                GcmHelper.notifyUser(order.getBuyerSettings().getUserId(), gcmMessageAccepted, 2);
+                break;
+            case OrderStatus.REJECTED:
+                //updated by seller...notify the user
+                Message gcmMessageRejected = new Message.Builder()
+                        .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_REJECTED)
+                        .addData("type", Constants.GCM_NOTI_ORDER_REJECTED)
+                        .addData("order_id", order.getId().toString())
+                        .build();
+                GcmHelper.notifyUser(order.getBuyerSettings().getUserId(), gcmMessageRejected, 2);
+                break;
+            case OrderStatus.MISSED:
+                //ignore for now
+                break;
+            case OrderStatus.CANCELLED:
+                //updated by user...notify the seller
+                Message gcmMessageCancelled = new Message.Builder()
+                        .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_CANCELLED)
+                        .addData("type", Constants.GCM_NOTI_ORDER_CANCELLED)
+                        .addData("order_id", order.getId().toString())
+                        .build();
+                GcmHelper.notifyUser(order.getSellerSettings().getUserId(), gcmMessageCancelled, 2);
+                break;
+            case OrderStatus.OUT_FOR_DELIVERY:
+                //updated by seller...notify the user
+                Message gcmMessageOutForDelivery = new Message.Builder()
+                        .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_OUT_FOR_DELIVERY)
+                        .addData("type", Constants.GCM_NOTI_ORDER_OUT_FOR_DELIVERY)
+                        .addData("order_id", order.getId().toString())
+                        .build();
+                GcmHelper.notifyUser(order.getBuyerSettings().getUserId(), gcmMessageOutForDelivery, 2);
+                break;
+            case OrderStatus.READY_FOR_PICKUP:
+                //updated by seller...notify the user
+                Message gcmMessageReadyForPickup = new Message.Builder()
+                        .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_READY_FOR_PICKUP)
+                        .addData("type", Constants.GCM_NOTI_ORDER_READY_FOR_PICKUP)
+                        .addData("order_id", order.getId().toString())
+                        .build();
+                GcmHelper.notifyUser(order.getBuyerSettings().getUserId(), gcmMessageReadyForPickup, 2);
+                break;
+            case OrderStatus.DELIVERED:
+                //ignore for now
+                break;
+            case OrderStatus.NOT_DELIVERED:
+                //updated by seller...notify the user
+                Message gcmMessageNotDelivery = new Message.Builder()
+                        .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_NOT_DELIVERED)
+                        .addData("type", Constants.GCM_NOTI_ORDER_NOT_DELIVERED)
+                        .addData("order_id", order.getId().toString())
+                        .build();
+                GcmHelper.notifyUser(order.getBuyerSettings().getUserId(), gcmMessageNotDelivery, 2);
+                break;
+
+        }
     }
 
     private enum OrderQueryType {
@@ -339,7 +407,7 @@ public class OrderService {
     public List<Order> getOrders(Long userId, OrderQueryType status, boolean pagination, int limit, int offset) {
 
         Connection dbConnection = null;
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement = null;
 
         List<Order> orders = new ArrayList<>();
         List<Long> orderIds = new ArrayList<>();
@@ -579,9 +647,12 @@ public class OrderService {
                     orderItems.add(item);
 
                 }
+                DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "some problem while getting the complete order objects for user_id = " + userId, e);
                 orders = null;
+            } finally {
+                DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
             }
         }
         return orders;

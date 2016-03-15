@@ -7,8 +7,7 @@
     <ViewFlipper
         android:id="@+id/view_flipper_fragment_incoming_orders"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:layout_height="match_parent">
 
         <!-- loading | view flipper child 0 -->
         <ProgressBar
@@ -17,13 +16,13 @@
             android:layout_gravity="center" />
 
         <!-- no internet connection | view flipper child 1 -->
-        <include layout="@layout/view_internet_not_connected"/>
+        <include layout="@layout/view_internet_not_connected" />
 
         <!-- some problem occurred | view flipper child 2 -->
-        <include layout="@layout/view_some_problem_occurred"/>
+        <include layout="@layout/view_some_problem_occurred" />
 
         <!-- no order | view flipper child 3 -->
-        <include layout="@layout/view_nothing_here_yet"/>
+        <include layout="@layout/view_nothing_here_yet" />
 
         <!-- recycler view | view flipper child 4 -->
         <android.support.v7.widget.RecyclerView

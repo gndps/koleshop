@@ -41,6 +41,8 @@ public class ItemCountView extends LinearLayout {
     private ItemCountListener mListener;
     private OnClickListener plusButtonClickListener;
     private OnClickListener minusButtonClickListener;
+    private int maximumCount;
+    private boolean dontShowButtons;
 
     public ItemCountView(Context context) {
         super(context);
@@ -75,10 +77,12 @@ public class ItemCountView extends LinearLayout {
         buttonPlus.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mListener != null) {
-                    mListener.onItemCountPlusClicked();
-                } else if(plusButtonClickListener!=null) {
-                    plusButtonClickListener.onClick(null);
+                if(count<maximumCount) {
+                    if (mListener != null) {
+                        mListener.onItemCountPlusClicked();
+                    } else if (plusButtonClickListener != null) {
+                        plusButtonClickListener.onClick(null);
+                    }
                 }
             }
         });
@@ -87,7 +91,7 @@ public class ItemCountView extends LinearLayout {
             public void onClick(View v) {
                 if (mListener != null) {
                     mListener.onItemCountMinusClicked();
-                } else if(minusButtonClickListener!=null) {
+                } else if (minusButtonClickListener != null) {
                     minusButtonClickListener.onClick(null);
                 }
             }
@@ -97,7 +101,7 @@ public class ItemCountView extends LinearLayout {
             public void onClick(View v) {
                 if (mListener != null) {
                     mListener.onItemCountPlusClicked();
-                } else if(plusButtonClickListener!=null) {
+                } else if (plusButtonClickListener != null) {
                     plusButtonClickListener.onClick(null);
                 }
             }
@@ -112,6 +116,10 @@ public class ItemCountView extends LinearLayout {
         } else {
             textViewItemCount.setText(count+"");
             viewFlipper.setDisplayedChild(VIEW_FLIPPER_COUNT);
+        }
+        if(dontShowButtons) {
+            buttonPlus.setVisibility(GONE);
+            buttonMinus.setVisibility(GONE);
         }
     }
 
@@ -136,12 +144,21 @@ public class ItemCountView extends LinearLayout {
         refreshThisLayout();
     }
 
+    public void setMaximumCount(int maximumCount) {
+        this.maximumCount = maximumCount;
+    }
+
     public boolean isShowZeroCount() {
         return showZeroCount;
     }
 
     public void setShowZeroCount(boolean showZeroCount) {
         this.showZeroCount = showZeroCount;
+    }
+
+    public void setDontShowButtons(boolean dontShowButtons) {
+        this.dontShowButtons = dontShowButtons;
+        refreshThisLayout();
     }
 
     public void setPlusButtonClickListener(OnClickListener plusButtonClickListener) {

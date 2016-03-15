@@ -90,8 +90,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     private Context mContext;
     private boolean homeDelivery;
     private boolean asapDelivery;
-    private int selectedHour;
-    private int selectedMinute;
+    private int hoursLater;
+    private int minutesLater;
     private BroadcastReceiver mBroadcastReceiver;
 
     public static void startActivityNow(Context context, Cart cart) {
@@ -313,11 +313,11 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                         buyerSettings = new BuyerSettings();
                         buyerSettings.setUserId(userId);
                         buyerSettings.setName(address.getName());
-                        RealmUtils.saveBuyerSettings(buyerSettings);
+                        //RealmUtils.saveBuyerSettings(buyerSettings);
                     } else if(TextUtils.isEmpty(buyerSettings.getName())) {
                         buyerSettings.setUserId(userId);
                         buyerSettings.setName(address.getName());
-                        RealmUtils.saveBuyerSettings(buyerSettings);
+                        //RealmUtils.saveBuyerSettings(buyerSettings);
                     }
 
                     //03. create seller settings
@@ -347,7 +347,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                     order.setAsap(asapDelivery);
                     order.setTotalAmount(deliveryCharges + carryBagCharges + totalCharges);
                     setProcessing(true);
-                    BuyerIntentService.createNewOrder(mContext, order, selectedHour, selectedMinute);
+                    BuyerIntentService.createNewOrder(mContext, order, hoursLater, minutesLater);
                 }
             }
         }
@@ -411,9 +411,16 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                 return true;
             case ChooseDeliveryTimeFragment.CHOOSE_DELIVERY_BUTTON_CLICKED:
                 asapDelivery = false;
-                selectedHour = chooseDeliveryTimeFragment.getDeliveryTimeHours();
-                selectedMinute = chooseDeliveryTimeFragment.getDeliveryTimeMinutes();
-                return true;
+                Date deliveryTime = chooseDeliveryTimeFragment.getDeliveryTime();
+                hoursLater = CommonUtils.getHoursDifference(deliveryTime);
+                minutesLater = CommonUtils.getMinutesDifference(deliveryTime);
+                if(hoursLater<0 || minutesLater <0) {
+                    scrollView.smoothScrollTo(0, scrollView.getBottom() / 3);
+                    Snackbar.make(toolbar, "Please choose a delivery time in future", Snackbar.LENGTH_LONG).show();
+                    return false;
+                } else {
+                    return true;
+                }
             default:
                 scrollView.smoothScrollTo(0, scrollView.getBottom() / 3);
                 Snackbar.make(toolbar, "Please choose a delivery time", Snackbar.LENGTH_LONG).show();

@@ -19,6 +19,7 @@
             android:background="@color/accent">
 
             <TextView
+                android:id="@+id/tv_title_seller_order_details_fragment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
@@ -28,6 +29,7 @@
                 android:textSize="22sp" />
 
             <ImageView
+                android:id="@+id/iv_title_seller_order_details_fragment"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
@@ -54,6 +56,7 @@
                     android:layout_marginTop="16dp">
 
                     <TextView
+                        android:id="@+id/textview_price_seller_order_details_fragment"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="16dp"
@@ -72,18 +75,21 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
 
+                            <!--view flipper child 0 delivery in time-->
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical">
 
                                 <TextView
+                                    android:id="@+id/textview_headline_description_fragment_seller_order_details"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="DELIVERY IN"
                                     android:textSize="12dp" />
 
                                 <TextView
+                                    android:id="@+id/textview_headline_fragment_seller_order_details"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="15 mins"
@@ -92,12 +98,15 @@
 
                             </LinearLayout>
 
+                            <!--view flipper child 1 order status delivered-->
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_gravity="bottom"
                                 android:orientation="horizontal">
 
                                 <ImageView
+                                    android:id="@+id/iv_order_complete_status_fsod"
                                     android:layout_width="24dp"
                                     android:layout_height="28dp"
                                     android:layout_gravity="center_vertical"
@@ -105,6 +114,7 @@
                                     android:src="@drawable/check" />
 
                                 <TextView
+                                    android:id="@+id/tv_order_complete_fsod"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
@@ -139,12 +149,14 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tv_address_fsod"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Anmol Singh Brar\n#20014 St. no. 14\nJujhar Singh Nagar"
                     android:textColor="@color/primary_text" />
 
                 <TextView
+                    android:id="@+id/tv_order_time_title_fsod"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
@@ -153,6 +165,7 @@
                     android:textSize="12sp" />
 
                 <TextView
+                    android:id="@+id/tv_order_time_fsod"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5:30 PM Today"
@@ -160,6 +173,7 @@
                     android:textSize="18sp" />
 
                 <TextView
+                    android:id="@+id/tv_delivery_time_title_fsod"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
@@ -168,6 +182,7 @@
                     android:textSize="12sp" />
 
                 <TextView
+                    android:id="@+id/tv_delivery_time_fsod"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5:30 PM Today"
@@ -181,6 +196,7 @@
                     android:orientation="horizontal">
 
                     <Button
+                        android:id="@+id/button_cancel_fsod"
                         style="@style/Widget.AppCompat.Button.Borderless"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -189,6 +205,7 @@
                         android:textColor="@color/error_color" />
 
                     <Button
+                        android:id="@+id/button_delivery_fsod"
                         style="@style/Widget.AppCompat.Button.Borderless"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

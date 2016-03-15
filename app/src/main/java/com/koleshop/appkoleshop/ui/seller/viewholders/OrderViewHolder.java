@@ -1,7 +1,9 @@
 package com.koleshop.appkoleshop.ui.seller.viewholders;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -17,11 +19,14 @@ import com.koleshop.appkoleshop.constant.OrderStatus;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.ui.common.activities.OrderDetailsActivity;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.squareup.picasso.Picasso;
 import com.zl.reik.dilatingdotsprogressbar.DilatingDotsProgressBar;
+
+import org.parceler.Parcels;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -67,6 +72,15 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
 
     public OrderViewHolder(View itemView, Context context, boolean customerView) {
         super(itemView);
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent orderDetailsIntent = new Intent(mContext, OrderDetailsActivity.class);
+                Parcelable parcelableOrder = Parcels.wrap(order);
+                orderDetailsIntent.putExtra("order", parcelableOrder);
+                mContext.startActivity(orderDetailsIntent);
+            }
+        });
         mContext = context;
         this.customerView = customerView;
         ButterKnife.bind(this, itemView);
@@ -159,7 +173,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
         //2. set seller name and number of items
         int numberOfItems = order.getOrderItems().size();
         if (sellerSettings.getAddress() != null && !TextUtils.isEmpty(sellerSettings.getAddress().getName())) {
-            textViewName.setText(sellerSettings.getAddress().getName() + " (" + numberOfItems + (numberOfItems>1?" items)":" item)"));
+            textViewName.setText(sellerSettings.getAddress().getName() + " (" + numberOfItems + (numberOfItems > 1 ? " items)" : " item)"));
         }
 
         //3. set bill amount
@@ -174,7 +188,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
         boolean showProgressBar = false;
         Drawable statusDrawable = null;
         String orderDetailsText = null;
-        if(order!=null) {
+        if (order != null) {
             switch (order.getStatus()) {
                 case OrderStatus.INCOMING:
                     orderDetailsText = "Ordering";
@@ -206,7 +220,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_shopping_bag_green_24dp);
                     break;
                 case OrderStatus.DELIVERED:
-                    if(order.isHomeDelivery()) {
+                    if (order.isHomeDelivery()) {
                         orderDetailsText = "Delivered";
                     } else {
                         orderDetailsText = "Picked Up";
@@ -219,7 +233,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     break;
 
             }
-            if(!showProgressBar) {
+            if (!showProgressBar) {
                 progressBarStatus.setVisibility(View.GONE);
                 if (statusDrawable != null) {
                     imageViewOrderStatus.setVisibility(View.VISIBLE);
@@ -241,14 +255,14 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
     private String getTimeRemainingString(int minutesToDelivery) {
         int minutes = minutesToDelivery;
         int hours = 0;
-        if(minutes>=60) {
-            hours = minutes/60;
-            minutes = minutes%60;
+        if (minutes >= 60) {
+            hours = minutes / 60;
+            minutes = minutes % 60;
         }
-        if(hours>0 && minutes>30) {
-            hours+=1;
+        if (hours > 0 && minutes > 30) {
+            hours += 1;
         }
-        if(hours>0) {
+        if (hours > 0) {
             return hours + "hours left";
         } else {
             return minutes + "mins left";

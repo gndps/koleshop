@@ -328,7 +328,7 @@ public class BuyerIntentService extends IntentService {
 
             if(result!=null && result.getSuccess()) {
                 Log.d(TAG, "fetched my orders");
-                if(result.getData() instanceof String) {
+                if(result.getData() instanceof String && ((String) result.getData()).startsWith("No")) {
                     Intent noOrdersFetchedIntent = new Intent(Constants.ACTION_NO_ORDERS_FETCHED);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(noOrdersFetchedIntent);
                 } else {

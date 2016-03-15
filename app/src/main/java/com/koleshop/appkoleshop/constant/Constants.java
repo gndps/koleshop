@@ -97,6 +97,7 @@ public class Constants {
     public static final String ACTION_SHOP_STATUS_UPDATED_SUCCESS = "com.koleshop.action_shop_status_updated_success";
     public static final String ACTION_SHOP_STATUS_UPDATED_FAILED = "com.koleshop.action_shop_status_updated_failed";
     public static final String ACTION_REFRESH_SELLER_SETTINGS = "com.koleshop.action_refresh_seller_settings";
+    public static final String ACTION_REFRESH_SELLER_SETTINGS_SUCCESS = "com.koleshop.action_refresh_seller_settings_success";
     public static final String ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS = "com.koleshop.action_nearby_shops_receive_success";
     public static final String ACTION_NEARBY_SHOPS_RECEIVE_FAILED = "com.koleshop.action_nearby_shops_receive_failed";
     public static final String ACTION_NO_ADDRESS_SELECTED = "com.koleshop.action_no_address_selected";
@@ -112,6 +113,9 @@ public class Constants {
     public static final String ACTION_ORDERS_FETCH_FAILED = "com.koleshop.action_orders_fetch_failed";
     public static final String ACTION_ORDER_UPDATE_SUCCESS = "com.koleshop.action_order_update_success";
     public static final String ACTION_ORDER_UPDATE_FAILED = "com.koleshop.action_order_update_failed";
+    public static final String ACTION_REFRESH_PENDING_ORDERS = "com.koleshop.action_refresh_pending_orders";
+    public static final String ACTION_ORDER_ITEM_COUNT_PLUS = "com.koleshop.action_order_item_count_plus";
+    public static final String ACTION_ORDER_ITEM_COUNT_MINUS = "com.koleshop.action_order_item_count_minus";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";
@@ -121,6 +125,12 @@ public class Constants {
     public static final String ACTION_GCM_REGISTRATION_COMPLETE = "com.koleshop.action_gcm_registration_complete";
     public static final String ACTION_GCM_REGISTRATION_FAILED = "com.koleshop.action_gcm_registration_failed";
     public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "com.koleshop.action_gcm_broadcast_inventory_created";
+    public static final String ACTION_GCM_ORDER_ACCEPTED = "com.koleshop.action_gcm_order_accepted";
+    public static final String ACTION_GCM_ORDER_REJECTED = "com.koleshop.action_gcm_order_rejected";
+    public static final String ACTION_GCM_ORDER_CANCELLED = "com.koleshop.action_gcm_order_cancelled";
+    public static final String ACTION_GCM_ORDER_OUT_FOR_DELIVERY = "com.koleshop.action_gcm_order_out_for_delivery";
+    public static final String ACTION_GCM_ORDER_READY_FOR_PICKUP = "com.koleshop.action_gcm_order_ready_for_pickup";
+    public static final String ACTION_GCM_ORDER_NOT_DELIVERED = "com.koleshop.action_gcm_order_not_delivered";
 
     //Shared preferences keys
     public static final String KEY_REG_ID = "registration_id";

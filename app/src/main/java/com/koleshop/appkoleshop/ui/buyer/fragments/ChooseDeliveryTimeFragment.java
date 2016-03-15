@@ -21,6 +21,8 @@ import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 
+import java.util.Date;
+
 
 public class ChooseDeliveryTimeFragment extends Fragment {
     private static final int CHOOSE_DELIVERY_BUTTON_HAS_BEEN_CLICKED = 6;
@@ -67,6 +69,7 @@ public class ChooseDeliveryTimeFragment extends Fragment {
     private Animation notTimePickedAnimation;
     private int deliveryTimeHours;
     private int deliveryTimeMinutes;
+    private Date deliveryTime;
 
     public ChooseDeliveryTimeFragment() {
     }
@@ -353,12 +356,14 @@ public class ChooseDeliveryTimeFragment extends Fragment {
                         deliveryTimeMinutes = selectedMinute;
                         time = "Tomorrow" + "\r\n" + time;
                         chooseDeliverTimeTextView.setText(time);
+                        deliveryTime = CommonUtils.getDateWithHoursAndMinutes(deliveryTimeHours, deliveryTimeMinutes, true);
 
                     } else {
                         deliveryTimeHours = selectedHour;
                         deliveryTimeMinutes = selectedMinute;
                         time = "Today" + "\r\n" + time;
                         chooseDeliverTimeTextView.setText(time);
+                        deliveryTime = CommonUtils.getDateWithHoursAndMinutes(deliveryTimeHours, deliveryTimeMinutes, false);
                     }
                     chooseDeliveryTimeButton.setBackground(AndroidCompatUtil.getDrawable(context, R.drawable.shape_choose_delivery_time_button));
                     fixImageButtonsSize();
@@ -414,6 +419,10 @@ public class ChooseDeliveryTimeFragment extends Fragment {
 
     public int getDeliveryTimeHours() {
         return deliveryTimeHours;
+    }
+
+    public Date getDeliveryTime() {
+        return deliveryTime;
     }
 
     public int getDeliveryTimeMinutes() {
