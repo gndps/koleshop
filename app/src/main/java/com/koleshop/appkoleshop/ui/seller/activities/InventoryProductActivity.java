@@ -4,38 +4,43 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.appkoleshop.R;
-import com.koleshop.appkoleshop.model.parcel.SellerSettings;
-import com.koleshop.appkoleshop.model.realm.ProductCategory;
-import com.koleshop.appkoleshop.ui.buyer.activities.SearchActivity;
-import com.koleshop.appkoleshop.ui.seller.adapters.InventoryCategoryViewPagerAdapter;
 import com.koleshop.appkoleshop.constant.Constants;
-import com.koleshop.appkoleshop.util.CommonUtils;
-import com.koleshop.appkoleshop.util.KoleCacheUtil;
-import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryProductFragment;
+import com.koleshop.appkoleshop.helpers.MyMenuItemStuffListener;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.singletons.KoleshopSingleton;
+import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
+import com.koleshop.appkoleshop.ui.buyer.activities.SearchActivity;
+import com.koleshop.appkoleshop.ui.seller.adapters.InventoryCategoryViewPagerAdapter;
+import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryProductFragment;
+import com.koleshop.appkoleshop.util.CartUtils;
+import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleCacheUtil;
 
 import org.parceler.Parcels;
 
@@ -61,7 +66,10 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     @Bind(R.id.fab_add_new_product)
     FloatingActionButton menuMultipleActions;
     Long selectedCategoryId;
+    TextView noOfItemsViewer = null;
     SellerSettings sellerSettings;
+    private static int current_number = 0;
+    private Menu menu;
 
 
     @Override
@@ -116,8 +124,44 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_inventory_category_fragment, menu);
-        return true;
+        this.menu = menu;
+        MenuItem item1 = menu.findItem(R.id.items_in_cart);
+        final View showItemsInCart = MenuItemCompat.getActionView(item1);
+        noOfItemsViewer = (TextView) showItemsInCart.findViewById(R.id.no_of_items_in_cart);
+        updateHotCount();
+
+        new MyMenuItemStuffListener(showItemsInCart, "Cart") {
+            @Override
+                    public void onClick(View v) {
+                Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
+                startActivity(cartActivityIntent);
+            }
+        };
+        return super.onCreateOptionsMenu(menu);
     }
+
+    public void updateHotCount() {
+        int new_number = CartUtils.getCartsTotalCount();
+        if (noOfItemsViewer == null) {
+            MenuItem item1 = this.menu.findItem(R.id.items_in_cart);
+            final View showItemsInCart = MenuItemCompat.getActionView(item1);
+            noOfItemsViewer = (TextView) showItemsInCart.findViewById(R.id.no_of_items_in_cart);
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (CartUtils.getCartsTotalCount() == 0) {
+                    noOfItemsViewer.setVisibility(View.INVISIBLE);
+                } else {
+                    noOfItemsViewer.setVisibility(View.VISIBLE);
+                    noOfItemsViewer.setText(CartUtils.getCartsTotalCount() + "");
+                }
+            }
+        });
+
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -130,6 +174,13 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
                     searchIntent = SearchActivity.newMyShopSearch(mContext, myInventory, sellerSettings.getUserId(), "My Shop");
                 }
                 startActivity(searchIntent);
+                break;
+            case R.id.items_in_cart:
+                View view = findViewById(R.id.items_in_cart);
+
+                Intent cartActivityIntent = new Intent(this, CartActivity.class);
+                startActivity(cartActivityIntent);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -182,6 +233,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         tabLayout = (TabLayout) findViewById(R.id.tab_inventory_product);
         tabLayout.setVisibility(View.GONE);
         initFabMenu();
+
     }
 
     private void fetchCategories() {
@@ -313,7 +365,8 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
 
     private void initFabMenu() {
         if (customerView) {
-            menuMultipleActions.setVisibility(View.GONE);
+            menuMultipleActions.setVisibility(View.VISIBLE);
+
         } else {
             menuMultipleActions.setOnClickListener(new View.OnClickListener() {
                 @Override

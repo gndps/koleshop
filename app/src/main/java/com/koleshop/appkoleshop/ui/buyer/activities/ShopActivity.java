@@ -7,16 +7,15 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -35,10 +34,11 @@ import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.helpers.MyMenuItemStuffListener;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryCategoryFragment;
-import com.koleshop.appkoleshop.util.AndroidCompatUtil;
+import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
 import com.squareup.picasso.Callback;
@@ -76,6 +76,8 @@ public class ShopActivity extends AppCompatActivity {
     private AppBarLayout.OnOffsetChangedListener mListener;
     Context mContext;
     private static final String TAG = "ShopActivity";
+    private Menu menu;
+    private TextView noOfItemsViewer = null;
 
 
     @Override
@@ -127,7 +129,7 @@ public class ShopActivity extends AppCompatActivity {
                 v.startAnimation(zoomInAnimation);
                 //v.setBackground(AndroidCompatUtil.getDrawable(getApplicationContext(),R.drawable.ic_star_golden));
                 favouriteShopButton.setImageResource(R.drawable.ic_star_golden);
-                Snackbar.make(v,"Shop Marked as Favourite",Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(v, "Shop Marked as Favourite", Snackbar.LENGTH_SHORT).show();
             }
 
             @Override
@@ -140,8 +142,45 @@ public class ShopActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_shop_activity, menu);
+        this.menu = menu;
+        MenuItem item1 = menu.findItem(R.id.items_in_cart);
+        final View showItemsInCart = MenuItemCompat.getActionView(item1);
+        noOfItemsViewer = (TextView) showItemsInCart.findViewById(R.id.no_of_items_in_cart);
+
+
+        new MyMenuItemStuffListener(showItemsInCart, "Cart") {
+            @Override
+            public void onClick(View v) {
+                Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
+                startActivity(cartActivityIntent);
+            }
+        };
         return true;
     }
+
+
+    public void updateHotCount() {
+        int new_number = CartUtils.getCartsTotalCount();
+        if (noOfItemsViewer == null) {
+            MenuItem item1 = this.menu.findItem(R.id.items_in_cart);
+            final View showItemsInCart = MenuItemCompat.getActionView(item1);
+            noOfItemsViewer = (TextView) showItemsInCart.findViewById(R.id.no_of_items_in_cart);
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (CartUtils.getCartsTotalCount() == 0) {
+                    noOfItemsViewer.setVisibility(View.INVISIBLE);
+                } else {
+                    noOfItemsViewer.setVisibility(View.VISIBLE);
+                    noOfItemsViewer.setText(CartUtils.getCartsTotalCount() + "");
+                }
+            }
+        });
+
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -151,9 +190,11 @@ public class ShopActivity extends AppCompatActivity {
             case android.R.id.home:
                 onBackPressed();
                 break;
-            case R.id.menu_item_cart:
+            case R.id.items_in_cart:
+                Intent cartOpenActivityIntent = new Intent(this, CartActivity.class);
+                startActivity(cartOpenActivityIntent);
                 //open the cart activity
-                return true;
+                break;
             case R.id.menu_item_search:
                 Intent searchIntent = SearchActivity.newSingleSellerSearch(mContext, sellerSettings);
                 startActivity(searchIntent);
@@ -313,4 +354,16 @@ public class ShopActivity extends AppCompatActivity {
                 .commit();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateHotCount();
+            }
+        }, 100);
+        ;
+    }
 }

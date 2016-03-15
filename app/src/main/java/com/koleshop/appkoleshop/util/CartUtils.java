@@ -20,7 +20,7 @@ import io.realm.RealmResults;
  * Created by Gundeep on 02/03/16.
  */
 public class CartUtils {
-
+    static int totalNoOfProducts=0;
     public static void increaseCount(String title, final ProductVariety productVariety, final SellerSettings sellerSettings) {
         Cart cart = CartsSingleton.getSharedInstance().getCart(sellerSettings);
         RealmList<ProductVarietyCount> list = cart.getProductVarietyCountList();
@@ -145,5 +145,16 @@ public class CartUtils {
             }
         }.execute(cart);
     }
-
-}
+    public static int getCartsTotalCount() {
+        List<Cart> carts = CartsSingleton.getSharedInstance().getCarts();
+        int total = 0;
+        for(Cart cart : carts) {
+            if(cart!=null) {
+                List<ProductVarietyCount> productVarietyCounts = cart.getProductVarietyCountList();
+                for(ProductVarietyCount productVarietyCount : productVarietyCounts) {
+                    total += productVarietyCount.getCartCount();
+                }
+            }
+        }
+        return total;
+    }}

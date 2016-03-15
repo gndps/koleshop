@@ -48,11 +48,8 @@ public class CartsSingleton {
 
 
     public Cart getCart(SellerSettings sellerSettings) {
-
         Cart sellerCart = null;
-
         loadCartsFromRealm();
-
         for(Cart singleCart : carts) {
             if(singleCart!=null && singleCart.getSellerSettings()!=null && singleCart.getSellerSettings().getUserId().equals(sellerSettings.getUserId())) {
                 sellerCart = singleCart;
@@ -77,10 +74,7 @@ public class CartsSingleton {
         }
     }
 
-    public void removeCart(Cart cart) {
-        if(carts!=null) {
-            carts.remove(cart);
-        }
+    public void removeCart(Cart cart) {if(carts!=null) {carts.remove(cart);}
     }
 
     public void setCarts(List<Cart> carts) {
