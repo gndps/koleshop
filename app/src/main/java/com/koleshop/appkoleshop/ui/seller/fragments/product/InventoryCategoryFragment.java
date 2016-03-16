@@ -163,11 +163,17 @@ public class InventoryCategoryFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_inventory_category_fragment, menu);
+        if(!customerView)
+        {
+            menu.removeItem(R.id.items_in_cart);
+            getActivity().invalidateOptionsMenu();
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.menu_item_search:
                 Intent searchIntent = SearchActivity.newMyShopSearch(mContext, myInventory, sellerSettings.getUserId(), "My Shop");

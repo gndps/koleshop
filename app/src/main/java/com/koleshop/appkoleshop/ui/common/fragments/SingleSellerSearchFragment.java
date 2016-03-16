@@ -29,6 +29,7 @@ import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.services.SearchIntentService;
+import com.koleshop.appkoleshop.ui.buyer.activities.SearchActivity;
 import com.koleshop.appkoleshop.ui.seller.adapters.InventoryProductAdapter;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
@@ -257,6 +258,7 @@ public class SingleSellerSearchFragment extends Fragment {
                         int position = intent.getIntExtra("position", 0);
                         if (varietyId > 0) {
                             adapter.increaseVarietyCount(position, varietyId);
+                            ((SearchActivity)getActivity()).updateHotCount();
                             adapter.notifyItemChanged(position);
                         } else {
                             return;
@@ -266,6 +268,7 @@ public class SingleSellerSearchFragment extends Fragment {
                         int position = intent.getIntExtra("position", 0);
                         if (varietyId > 0) {
                             adapter.decreaseVarietyCount(position, varietyId);
+                            ((SearchActivity)getActivity()).updateHotCount();
                             adapter.notifyItemChanged(position);
                         } else {
                             return;
