@@ -16,8 +16,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
@@ -50,6 +52,7 @@ public class InventoryProductFragment extends Fragment {
     private long categoryId;
     Button buttonRetry, buttonReload;
     LayoutManager lm;
+
     boolean refreshProductsInsteadOfReloading;
     private final static String TAG = "InventProductFragment";
     private static final int VIEW_TYPE_HEADER = 0x01;

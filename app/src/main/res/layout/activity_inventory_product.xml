@@ -92,19 +92,32 @@
         </LinearLayout>
 
     </ViewFlipper>
-
-    <com.getbase.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_new_product"
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom|right"
-        fab:fab_addButtonColorNormal="@color/accent"
-        fab:fab_addButtonColorPressed="@color/offwhite"
-        fab:fab_addButtonPlusIconColor="@color/white"
-        fab:fab_labelStyle="@style/menu_labels_style"
-        android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp">
-    </com.getbase.floatingactionbutton.FloatingActionButton>
+        android:layout_gravity="bottom|right">
 
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/fab_add_new_product"
+            android:src="@drawable/ic_shopping_cart_white_24dp" >
+        </com.getbase.floatingactionbutton.FloatingActionButton>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id="@+id/text_on_floating_button"
+            android:minWidth="10dp"
+            android:minHeight="10dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:layout_marginLeft="36dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="2dp"
+            android:background="@drawable/rounded_square"
+            android:textColor="@color/offwhite"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </FrameLayout>
 </android.support.design.widget.CoordinatorLayout>

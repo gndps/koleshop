@@ -101,16 +101,17 @@ public class CartActivity extends AppCompatActivity {
                 onBackPressed();
                 return true;
 
-            case R.id.menu_item_search:
+            case R.id.hidden_menu:
                 //open search overlay activity
                 CartUtils.clearAllCarts();
                 loadCarts();
-
-                /*View menuView = findViewById(R.id.menu_item_search);
+                break;
+            case R.id.menu_item_search:
+                View menuView = findViewById(R.id.menu_item_search);
                 //revealSearchBar(menuView, true);
                 startActivity(SearchActivity.newMultiSellerSearch(mContext));
                 return true;
-*/
+
         }
         return false;
     }
