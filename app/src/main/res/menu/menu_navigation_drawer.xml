@@ -71,9 +71,9 @@
     <group android:id="@+id/shopkeeper_drawer_help"
         android:checkableBehavior="none">
         <item
-            android:id="@+id/drawer_help"
+            android:id="@+id/drawer_feedback"
             android:menuCategory="secondary"
-            android:title="@string/navigation_drawer_help" />
+            android:title="@string/navigation_drawer_feedback" />
     </group>
 
     <group android:id="@+id/shopkeeper_drawer_legal"

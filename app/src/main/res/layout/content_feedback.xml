@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ui.common.activities.Feedback"
+    tools:showIn="@layout/activity_feedback">
+
+    <TextView
+        android:id="@+id/header_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:paddingTop="32dp"
+        android:text="Thanks for Deciding to get in touch"
+        android:textColor="@color/secondary_text"
+        android:fontFamily="sans-serif-light"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/feedback_text"
+        android:layout_alignStart="@+id/feedback_text" />
+
+    <EditText
+        android:id="@+id/feedback_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:gravity="left"
+        android:hint="We would love to hear from you"
+        android:textSize="12dp"
+        android:layout_marginTop="66dp"
+        android:layout_marginBottom="40dp"
+        android:layout_alignRight="@+id/linearLayout"
+        android:layout_alignEnd="@+id/linearLayout" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/feedback_text"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout"
+        android:layout_marginTop="-32dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="32dp"
+       >
+
+
+
+    <Button
+        android:id="@+id/button_send_feedback"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:text="Send Feedback"
+        android:textSize="16dp"
+        android:paddingRight="4dp"
+        android:layout_gravity="right"
+        android:textColor="@color/accent"
+        android:layout_above="@+id/button_call_us"
+        android:layout_alignRight="@+id/feedback_text"
+        android:layout_alignEnd="@+id/feedback_text" />
+
+    <Button
+        android:id="@+id/button_call_us"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:paddingRight="4dp"
+        android:fontFamily="sans-serif-light"
+        android:text="Call us"
+        android:textSize="16dp"
+        android:textColor="@color/accent"
+        android:layout_below="@+id/feedback_text"
+        android:layout_alignRight="@+id/feedback_text"
+        android:layout_alignEnd="@+id/feedback_text" />
+    </LinearLayout>
+</RelativeLayout>

@@ -20,7 +20,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +29,9 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.services.SettingsIntentService;
+import com.koleshop.appkoleshop.ui.common.activities.Feedback;
 import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
+import com.koleshop.appkoleshop.ui.common.activities.LegalActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
@@ -40,7 +41,6 @@ import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryCategoryFragment;
-import com.koleshop.appkoleshop.util.RealmUtils;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
@@ -49,8 +49,6 @@ import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -193,6 +191,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         })
                         .setNegativeButton("CANCEL", null);
                 builder.create().show();
+                break;
+            case R.id.drawer_feedback:
+                closeDrawers = true;
+                setItemChecked = false;
+                Intent feedback=new Intent(mContext,Feedback.class);
+                startActivity(feedback);
+                break;
+            case R.id.drawer_legal:
+                closeDrawers = true;
+                setItemChecked = false;
+                Intent intentLegalWebPage = new Intent(mContext, LegalActivity.class);
+                startActivity(intentLegalWebPage);
                 break;
             default:
                 closeDrawers = true;

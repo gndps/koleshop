@@ -1,7 +1,9 @@
 package com.koleshop.appkoleshop.ui.buyer.activities;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
@@ -24,6 +26,7 @@ import com.koleshop.appkoleshop.singletons.CartsSingleton;
 import com.koleshop.appkoleshop.ui.buyer.fragments.CartFragment;
 import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import java.util.List;
 
@@ -103,8 +106,17 @@ public class CartActivity extends AppCompatActivity {
 
             case R.id.hidden_menu:
                 //open search overlay activity
-                CartUtils.clearAllCarts();
-                loadCarts();
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setMessage("Are you sure ?")
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                                CartUtils.clearAllCarts();
+                                loadCarts();                            }
+                        })
+                        .setNegativeButton("No", null);
+                builder.create().show();
+
                 break;
             case R.id.menu_item_search:
                 View menuView = findViewById(R.id.menu_item_search);
@@ -148,7 +160,7 @@ public class CartActivity extends AppCompatActivity {
         };
     }
 
-    private void loadCarts() {
+    public void loadCarts() {
         carts = CartsSingleton.getSharedInstance().getCarts();
         if (carts != null && carts.size()>0) {
             viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_RECYCLER_VIEW);
