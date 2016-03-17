@@ -26,12 +26,12 @@ import android.widget.Toast;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
-import com.koleshop.appkoleshop.model.parcel.SellerSettings;
-import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.MyOrdersFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
 import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
+import com.koleshop.appkoleshop.ui.common.activities.Feedback;
+import com.koleshop.appkoleshop.ui.common.activities.LegalActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
@@ -45,9 +45,6 @@ import com.squareup.picasso.Picasso;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
-import io.realm.exceptions.RealmException;
 
 public class HomeActivity extends AppCompatActivity implements FragmentHomeActivityListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -572,6 +569,18 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                         })
                         .setNegativeButton("CANCEL", null);
                 builder.create().show();
+                break;
+            case R.id.drawer_feedback:
+                closeDrawers = true;
+                setItemChecked = false;
+                Intent feedback=new Intent(mContext,Feedback.class);
+                startActivity(feedback);
+                break;
+            case R.id.drawer_legal:
+                closeDrawers = true;
+                setItemChecked = false;
+                Intent intentLegalWebPage = new Intent(mContext,LegalActivity.class);
+                startActivity(intentLegalWebPage);
                 break;
             default:
                 closeDrawers = true;

@@ -38,28 +38,30 @@
                     android:text="Gandhi Daily Needs Store"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal">
 
-                <ImageButton
+                    <ImageButton
                     android:id="@+id/ib_search_in_cart_shop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
                     android:background="@color/transparent"
                     android:padding="8dp"
                     android:src="@drawable/ic_search_white_24dp" />
-
-                <ImageButton
+                    <ImageButton
                     android:id="@+id/ib_more_in_cart"
                     android:layout_width="wrap_content"
-                    android:visibility="gone"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:padding="8dp"
                     android:background="@color/transparent"
-                    android:layout_alignParentRight="true"
                     android:layout_toRightOf="@+id/ib_search_in_cart_shop"
                     android:src="@drawable/ic_more_vert_white_24dp"/>
-
+                </LinearLayout>
             </RelativeLayout>
 
             <android.support.v7.widget.RecyclerView

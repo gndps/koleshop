@@ -194,6 +194,7 @@ public class MultiSellerSearchFragment extends Fragment {
                     int settingsPosition = intent.getIntExtra("settingsPosition", 0);
                     if (varietyId > 0) {
                         adapter.increaseVarietyCount(settingsPosition, position, varietyId);
+                        ((SearchActivity)getActivity()).updateHotCount();
                         adapter.notifyItemChanged(position);
                     } else {
                         return;
@@ -204,6 +205,7 @@ public class MultiSellerSearchFragment extends Fragment {
                     int settingsPosition = intent.getIntExtra("settingsPosition", 0);
                     if (varietyId > 0) {
                         adapter.decreaseVarietyCount(settingsPosition, position, varietyId);
+                        ((SearchActivity)getActivity()).updateHotCount();
                         adapter.notifyItemChanged(position);
                     } else {
                         return;

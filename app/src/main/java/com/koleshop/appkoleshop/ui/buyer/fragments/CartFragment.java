@@ -8,9 +8,12 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +26,7 @@ import com.koleshop.appkoleshop.singletons.CartsSingleton;
 import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
 import com.koleshop.appkoleshop.ui.buyer.activities.PlaceOrderActivity;
 import com.koleshop.appkoleshop.ui.buyer.adapters.CartFragmentAdapter;
+import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 
@@ -54,7 +58,8 @@ public class CartFragment extends Fragment implements CartFragmentAdapter.CartFr
     TextView textViewCarryBagCharges;
     @Bind(R.id.tv_bill_details_amount_payable)
     TextView textViewAmountPayable;
-
+    @Bind(R.id.ib_more_in_cart)
+    ImageButton clearCartButton;
     private SellerSettings sellerSettings;
     private Context mContext;
     private CartFragmentAdapter cartFragmentAdapter;
@@ -124,8 +129,18 @@ public class CartFragment extends Fragment implements CartFragmentAdapter.CartFr
     }
 
     @OnClick(R.id.ib_more_in_cart)
-    public void moreInCart() {
-
+    public void showPopUpMenu() {
+        PopupMenu popup = new PopupMenu(((CartActivity) getActivity()),clearCartButton);
+        popup.getMenuInflater().inflate(R.menu.popup_menu_clear_cart, popup.getMenu());
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                CartUtils.clearCart(cart);
+                ((CartActivity) getActivity()).loadCarts();
+                return true;
+            }
+        });
+        popup.show();
     }
 
     @Override

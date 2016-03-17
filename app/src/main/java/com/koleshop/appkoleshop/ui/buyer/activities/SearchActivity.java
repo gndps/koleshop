@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -31,8 +32,10 @@ import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.ui.buyer.fragments.MultiSellerSearchFragment;
 import com.koleshop.appkoleshop.ui.common.fragments.SingleSellerSearchFragment;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
+import com.koleshop.appkoleshop.util.CartUtils;
 
 import org.parceler.Parcels;
+
 
 import butterknife.Bind;
 import butterknife.BindString;
@@ -58,7 +61,12 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
     String myShopString;
     @BindString(R.string.navigation_drawer_inventory)
     String wareHouseString;
-
+    @Bind(R.id.fab_add_new_product)
+    com.getbase.floatingactionbutton.FloatingActionButton floatingActionButton;
+    @Bind(R.id.text_on_floating_button)
+    TextView noOfItemsViewer;
+    @Bind(R.id.frame_layout_floating_cart)
+    FrameLayout frameLayout;
     Context mContext;
 
     String searchQuery;
@@ -123,6 +131,15 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
         searchBarVisible = true;
         mContext = this;
         ButterKnife.bind(this);
+        updateHotCount();
+        frameLayout.setVisibility(View.INVISIBLE);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
+                startActivity(cartActivityIntent);
+            }
+        });
 
         Bundle receivedBundle = null;
         if (getIntent() != null && getIntent().getExtras() != null) {
@@ -168,10 +185,11 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
     protected void onResume() {
         super.onResume();
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_OPEN_SINGLE_SELLER_RESULTS));
-        if(editTextSearch!=null && !TextUtils.isEmpty(editTextSearch.getText())) {
+        if (editTextSearch != null && !TextUtils.isEmpty(editTextSearch.getText())) {
             try {
                 loadTheSearchResults();
                 showSearchBar();
+                updateHotCount();
             } catch (Exception e) {
 
             }
@@ -320,7 +338,7 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
                     loadTheSearchResults();
                 }
             });
-        } else if(myInventory) {
+        } else if (myInventory) {
             imageButtonClearTag.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -367,12 +385,15 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
                 if (multiSellerSearchFragment != null) {
                     Log.d(TAG, "removing multi search fragment");
                     getSupportFragmentManager().beginTransaction().remove(multiSellerSearchFragment).commit();
+                    frameLayout.setVisibility(View.INVISIBLE);
                 }
             } else if (singleSellerSearchFragment != null) {
                 Log.d(TAG, "removing single search fragment");
                 getSupportFragmentManager().beginTransaction().remove(singleSellerSearchFragment).commit();
+                frameLayout.setVisibility(View.INVISIBLE);
             }
         }
+
     }
 
     private void openSingleSellerResults(int position) {
@@ -399,6 +420,15 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    frameLayout.setVisibility(View.VISIBLE);
+                    updateHotCount();
+                }
+            }, 1000);
         }
     }
 
@@ -464,5 +494,24 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
             }
         });
         frameLayoutSearchTag.startAnimation(anim);
+    }
+
+    public void updateHotCount() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                if (CartUtils.getCartsTotalCount() == 0) {
+                    noOfItemsViewer.setVisibility(View.INVISIBLE);
+                }
+                else if(frameLayout.getVisibility()==View.VISIBLE)
+                {
+                    noOfItemsViewer.setVisibility(View.VISIBLE);
+                    noOfItemsViewer.setText(CartUtils.getCartsTotalCount() + "");
+                }
+            }
+        });
+
     }
 }

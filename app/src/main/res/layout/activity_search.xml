@@ -5,9 +5,9 @@
     android:id="@+id/root_search_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:clickable="true"
     android:focusable="true"
+    android:orientation="vertical"
     tools:context=".ui.buyer.activities.SearchActivity">
 
     <!--placeholder for search results fragments -->
@@ -43,10 +43,10 @@
             android:background="#00000000"
             android:gravity="center_vertical"
             android:hint="Search Products"
-            android:padding="4dp"
             android:imeOptions="actionSearch"
-            android:singleLine="true"
             android:maxLines="1"
+            android:padding="4dp"
+            android:singleLine="true"
             android:textColor="@color/primary_text_grey"
             android:textColorHint="@color/hint_text"
             android:textSize="16sp" />
@@ -56,34 +56,62 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|right"
-            android:visibility="gone"
-            android:layout_marginRight="8dp">
+            android:layout_marginRight="8dp"
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/tv_search_tag_amss"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/search_tag_oval_background"
-            android:gravity="center_vertical"
-            android:paddingBottom="4dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="32dp"
-            android:paddingTop="4dp"
-            android:text="Nicky General Store"
-            android:textColor="@color/white"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/tv_search_tag_amss"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/search_tag_oval_background"
+                android:gravity="center_vertical"
+                android:paddingBottom="4dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="32dp"
+                android:paddingTop="4dp"
+                android:text="Nicky General Store"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
 
-        <ImageButton
-            android:id="@+id/button_clear_tag_amss"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:padding="12dp"
-            android:background="?attr/selectableItemBackground"
-            android:layout_gravity="center_vertical|right"
-            android:src="@drawable/ic_clear_white_24dp" />
+            <ImageButton
+                android:id="@+id/button_clear_tag_amss"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical|right"
+                android:background="?attr/selectableItemBackground"
+                android:padding="12dp"
+                android:src="@drawable/ic_clear_white_24dp" />
 
-        </FrameLayout>
+                    </FrameLayout>
 
     </android.support.v7.widget.CardView>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/frame_layout_floating_cart"
+        android:layout_gravity="bottom|right">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_new_product"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_shopping_cart_white_24dp"></com.getbase.floatingactionbutton.FloatingActionButton>
+
+        <TextView
+            android:id="@+id/text_on_floating_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="36dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/rounded_square"
+            android:gravity="center"
+            android:minHeight="10dp"
+            android:minWidth="10dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/offwhite" />
+    </FrameLayout>
 
 </FrameLayout>

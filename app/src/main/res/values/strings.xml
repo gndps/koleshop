@@ -175,5 +175,8 @@
     <string name="no_nearby_shops">No nearby shops are using Koleshop\nBtw any shopkeeper can download and start using it</string>
     <string name="place_order">PLACE ORDER</string>
     <string name="title_place_order">Place Order</string>
+    <string name="navigation_drawer_feedback">FEEDBACK</string>
+    <string name="title_activity_feedback">Feedback</string>
+    <string name="title_activity_legal">LegalActivity</string>
 
 </resources>

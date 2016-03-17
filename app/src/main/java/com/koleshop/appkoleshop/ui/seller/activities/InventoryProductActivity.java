@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -14,14 +13,13 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
@@ -65,6 +63,8 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     int selectedPage;
     @Bind(R.id.fab_add_new_product)
     FloatingActionButton menuMultipleActions;
+    @Bind(R.id.text_on_floating_button)
+    TextView floatingButtonText;
     Long selectedCategoryId;
     TextView noOfItemsViewer = null;
     SellerSettings sellerSettings;
@@ -93,6 +93,12 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
             customerView = savedInstanceState.getBoolean("customerView");
             sellerSettings = Parcels.unwrap(savedInstanceState.getParcelable("sellerSettings"));
         }
+        menuMultipleActions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
+                startActivity(cartActivityIntent);}
+        });
         initializeBroadcastReceivers();
         setupActivity();
         fetchCategories();
@@ -126,17 +132,25 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         getMenuInflater().inflate(R.menu.menu_inventory_category_fragment, menu);
         this.menu = menu;
         MenuItem item1 = menu.findItem(R.id.items_in_cart);
-        final View showItemsInCart = MenuItemCompat.getActionView(item1);
-        noOfItemsViewer = (TextView) showItemsInCart.findViewById(R.id.no_of_items_in_cart);
-        updateHotCount();
+        if (!customerView) {
+            menu.removeItem(R.id.items_in_cart);
+            menuMultipleActions.setVisibility(View.GONE);
+            invalidateOptionsMenu();
 
-        new MyMenuItemStuffListener(showItemsInCart, "Cart") {
-            @Override
-                    public void onClick(View v) {
-                Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
-                startActivity(cartActivityIntent);
-            }
-        };
+        } else {
+            Log.d("TAg","51");
+            final View showItemsInCart = MenuItemCompat.getActionView(item1);
+            noOfItemsViewer = (TextView) showItemsInCart.findViewById(R.id.no_of_items_in_cart);
+            updateHotCount();
+
+            new MyMenuItemStuffListener(showItemsInCart, "Cart") {
+                @Override
+                public void onClick(View v) {
+                    Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
+                    startActivity(cartActivityIntent);
+                }
+            };
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -153,9 +167,12 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
             public void run() {
                 if (CartUtils.getCartsTotalCount() == 0) {
                     noOfItemsViewer.setVisibility(View.INVISIBLE);
+                    floatingButtonText.setVisibility(View.INVISIBLE);
                 } else {
                     noOfItemsViewer.setVisibility(View.VISIBLE);
+                    floatingButtonText.setVisibility(View.VISIBLE);
                     noOfItemsViewer.setText(CartUtils.getCartsTotalCount() + "");
+                    floatingButtonText.setText(CartUtils.getCartsTotalCount() + "");
                 }
             }
         });
@@ -165,6 +182,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.menu_item_search:
                 Intent searchIntent;
@@ -177,7 +195,6 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
                 break;
             case R.id.items_in_cart:
                 View view = findViewById(R.id.items_in_cart);
-
                 Intent cartActivityIntent = new Intent(this, CartActivity.class);
                 startActivity(cartActivityIntent);
                 break;
@@ -330,6 +347,14 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         });
         selectedCategoryId = categories.get(0).getId();
         if (!customerView) {
+            if(CartUtils.getCartsTotalCount()==0)
+            {
+                floatingButtonText.setVisibility(View.INVISIBLE);
+            }
+            else
+            {
+                floatingButtonText.setVisibility(View.VISIBLE);
+            }
             menuMultipleActions.setVisibility(View.VISIBLE);
         }
     }
@@ -367,6 +392,7 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
         if (customerView) {
             menuMultipleActions.setVisibility(View.VISIBLE);
 
+
         } else {
             menuMultipleActions.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -398,14 +424,13 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     public void hideFloatingActionButton() {
         if (menuMultipleActions.getVisibility() == View.VISIBLE && !customerView) {
             menuMultipleActions.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.hide_to_bottom));
-            menuMultipleActions.setVisibility(View.GONE);
+            menuMultipleActions.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void showFloatingActionButton() {
-        if (menuMultipleActions.getVisibility() == View.GONE && !customerView) {
-            menuMultipleActions.setVisibility(View.VISIBLE);
+        if (!customerView) {
             menuMultipleActions.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.show_from_bottom));
         }
     }

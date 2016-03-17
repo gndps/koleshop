@@ -13,6 +13,7 @@
     <uses-permission android:name="com.koleshop.appkoleshop.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -207,7 +208,16 @@
             android:exported="false" />
         <service
             android:name=".services.OrdersIntentService"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.common.activities.Feedback"
+            android:label="@string/title_activity_feedback"
+            android:theme="@style/AppTheme.Base" />
+        <activity
+            android:name=".ui.common.activities.LegalActivity"
+            android:label="@string/title_activity_legal"
+            android:theme="@style/AppTheme.Base"></activity>
     </application>
 
 </manifest>

@@ -114,7 +114,6 @@
         <item name="android:imeOptions">actionSearch</item>
     </style>
 
-    <style name="TransparentAppTheme" parent="AppTheme">
-    </style>
+    <style name="TransparentAppTheme" parent="AppTheme"></style>
 
 </resources>
