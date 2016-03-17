@@ -18,7 +18,6 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.constant.OrderStatus;
 import com.koleshop.appkoleshop.model.OrderItem;
 import com.koleshop.appkoleshop.ui.common.views.ItemCountView;
-import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 
 import butterknife.Bind;
@@ -58,6 +57,7 @@ public class OrderItemsListViewHolder extends RecyclerView.ViewHolder implements
     private OrderItem orderItem;
     private int orderStatus;
     private int position;
+    private boolean customerView;
 
     public OrderItemsListViewHolder(View itemView, Context context) {
         super(itemView);
@@ -65,48 +65,71 @@ public class OrderItemsListViewHolder extends RecyclerView.ViewHolder implements
         ButterKnife.bind(this, itemView);
     }
 
-    public void bindData(OrderItem orderItem, int status, int position) {
+    public void bindData(OrderItem orderItem, int status, int position, boolean customerView) {
         this.orderItem = orderItem;
         this.orderStatus = status;
         this.position = position;
+        this.customerView = customerView;
         textViewName.setText(orderItem.getBrand() + " - " + orderItem.getName() + " " + orderItem.getQuantity());
         textViewCount.setText(orderItem.getOrderCount() + "");
         textViewUnitPrice.setText(CommonUtils.getPriceStringFromFloat(orderItem.getPricePerUnit(), true));
+        /* CONDITIONS FOR VISIBILITY AND CONFIGURATION OF ITEMS IN THIS VIEW HOLDER
+         *  item count view should be shown only in one case -> accepted(seller)
+         *  text view delivery count should be shown in these cases -> complete(both)
+         *  status image should be shown in these cases -> accepted(seller),complete(both)
+         *  price should be shown using available count in these case -> accepted(seller),complete(both)
+         *  price should be shown using order count in these case -> incoming(both),accepted(buyer)
+         */
         switch (orderStatus) {
             case OrderStatus.INCOMING:
                 itemCountView.setVisibility(View.GONE);
                 imageViewStatus.setVisibility(View.GONE);
+                textViewDeliveredCount.setVisibility(View.GONE);
                 textViewPrice.setText(CommonUtils.getPriceStringFromFloat(orderItem.getPricePerUnit() * orderItem.getOrderCount(), true));
                 adjustHeightOfView();
                 break;
             case OrderStatus.ACCEPTED:
                 int orderCount = orderItem.getOrderCount();
                 int availableCount = orderItem.getAvailableCount();
-                itemCountView.setMaximumCount(orderCount);
-                itemCountView.setCount(availableCount);
-                if(orderCount == availableCount) {
-                    imageViewStatus.setImageDrawable(drawableCheckGreen);
-                } else if (availableCount > 0 && availableCount < orderCount) {
-                    imageViewStatus.setImageDrawable(drawableCheckGrey);
-                } else if (availableCount == 0) {
-                    imageViewStatus.setImageDrawable(drawableClearRed);
+                if (!customerView) {
+                    itemCountView.setVisibility(View.VISIBLE);
+                    imageViewStatus.setVisibility(View.VISIBLE);
+                    textViewDeliveredCount.setVisibility(View.GONE);
+                    itemCountView.setMaximumCount(orderCount);
+                    itemCountView.setCount(availableCount);
+                    itemCountView.setItemCountListener(this);
+                    if (orderCount == availableCount) {
+                        imageViewStatus.setImageDrawable(drawableCheckGreen);
+                    } else if (availableCount > 0 && availableCount < orderCount) {
+                        imageViewStatus.setImageDrawable(drawableCheckGrey);
+                    } else if (availableCount == 0) {
+                        imageViewStatus.setImageDrawable(drawableClearRed);
+                    }
+                    textViewPrice.setText(CommonUtils.getPriceStringFromFloat(orderItem.getPricePerUnit() * orderItem.getAvailableCount(), true));
+                } else {
+                    itemCountView.setVisibility(View.GONE);
+                    imageViewStatus.setVisibility(View.GONE);
+                    textViewDeliveredCount.setVisibility(View.GONE);
+                    textViewPrice.setText(CommonUtils.getPriceStringFromFloat(orderItem.getPricePerUnit() * orderItem.getOrderCount(), true));
                 }
-                textViewPrice.setText(CommonUtils.getPriceStringFromFloat(orderItem.getPricePerUnit() * orderItem.getAvailableCount(), true));
-                itemCountView.setItemCountListener(this);
+                adjustHeightOfView();
                 break;
             default:
-                itemCountView.setCount(orderItem.getAvailableCount());
                 itemCountView.setVisibility(View.GONE);
+                imageViewStatus.setVisibility(View.VISIBLE);
                 textViewDeliveredCount.setText(orderItem.getAvailableCount() + "");
                 textViewDeliveredCount.setVisibility(View.VISIBLE);
                 textViewPrice.setText(CommonUtils.getPriceStringFromFloat(orderItem.getPricePerUnit() * orderItem.getAvailableCount(), true));
-                int orderCount2 = orderItem.getOrderCount();
-                int availableCount2 = orderItem.getAvailableCount();
-                if(orderCount2 == availableCount2) {
+                int orderCountCompleteOrder = orderItem.getOrderCount();
+                int availableCountCompleteOrder = orderItem.getAvailableCount();
+                if (orderCountCompleteOrder == availableCountCompleteOrder) {
+                    //all items were available
                     imageViewStatus.setImageDrawable(drawableCheckGreen);
-                } else if (availableCount2 > 0 && availableCount2 < orderCount2) {
+                } else if (availableCountCompleteOrder > 0 && availableCountCompleteOrder < orderCountCompleteOrder) {
+                    //less items were available than ordered
                     imageViewStatus.setImageDrawable(drawableCheckGrey);
-                } else if (availableCount2 == 0) {
+                } else if (availableCountCompleteOrder == 0) {
+                    //item was not available
                     imageViewStatus.setImageDrawable(drawableClearRed);
                 }
                 adjustHeightOfView();
@@ -116,14 +139,19 @@ public class OrderItemsListViewHolder extends RecyclerView.ViewHolder implements
 
     private void adjustHeightOfView() {
         ViewGroup.LayoutParams layoutParams = relativeLayout.getLayoutParams();
-        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, mContext.getResources().getDisplayMetrics());
-        layoutParams.height = height; //set height to 64dp
+        int height;
+        if (orderStatus == OrderStatus.ACCEPTED) {
+            height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 88, mContext.getResources().getDisplayMetrics());
+        } else {
+            height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 68, mContext.getResources().getDisplayMetrics());
+        }
+        layoutParams.height = height; //set height to 68dp
     }
 
     @Override
     public void onItemCountPlusClicked() {
         Log.d(TAG, "item plus clicked");
-        Intent intentCountPlus =new Intent(Constants.ACTION_ORDER_ITEM_COUNT_PLUS);
+        Intent intentCountPlus = new Intent(Constants.ACTION_ORDER_ITEM_COUNT_PLUS);
         intentCountPlus.putExtra("position", position);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentCountPlus);
     }
@@ -131,7 +159,7 @@ public class OrderItemsListViewHolder extends RecyclerView.ViewHolder implements
     @Override
     public void onItemCountMinusClicked() {
         Log.d(TAG, "item minus clicked");
-        Intent intentCountMinus =new Intent(Constants.ACTION_ORDER_ITEM_COUNT_MINUS);
+        Intent intentCountMinus = new Intent(Constants.ACTION_ORDER_ITEM_COUNT_MINUS);
         intentCountMinus.putExtra("position", position);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intentCountMinus);
     }

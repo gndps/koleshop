@@ -41,8 +41,7 @@ public class ItemCountView extends LinearLayout {
     private ItemCountListener mListener;
     private OnClickListener plusButtonClickListener;
     private OnClickListener minusButtonClickListener;
-    private int maximumCount;
-    private boolean dontShowButtons;
+    private int maximumCount =  100;
 
     public ItemCountView(Context context) {
         super(context);
@@ -117,10 +116,6 @@ public class ItemCountView extends LinearLayout {
             textViewItemCount.setText(count+"");
             viewFlipper.setDisplayedChild(VIEW_FLIPPER_COUNT);
         }
-        if(dontShowButtons) {
-            buttonPlus.setVisibility(GONE);
-            buttonMinus.setVisibility(GONE);
-        }
     }
 
     public void setItemCountListener(ItemCountListener itemCountListener) {
@@ -154,11 +149,6 @@ public class ItemCountView extends LinearLayout {
 
     public void setShowZeroCount(boolean showZeroCount) {
         this.showZeroCount = showZeroCount;
-    }
-
-    public void setDontShowButtons(boolean dontShowButtons) {
-        this.dontShowButtons = dontShowButtons;
-        refreshThisLayout();
     }
 
     public void setPlusButtonClickListener(OnClickListener plusButtonClickListener) {

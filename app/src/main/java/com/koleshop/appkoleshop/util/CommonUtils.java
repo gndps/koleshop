@@ -329,8 +329,46 @@ public class CommonUtils {
         return format1.format(date);
     }
 
+    //returns 10:20 am or 9 pm
+    public static String getSimpleTimeString(Date date) {
+        String simpleTime = getDateStringInFormat(date, "h:mm a");
+        if (simpleTime.endsWith(":00")) {
+            simpleTime = CommonUtils.getDateStringInFormat(date, "h a");
+        }
+        return simpleTime;
+    }
+
     public static String getDayCommonName(Date date) {
         return DateUtils.getRelativeTimeSpanString(date.getTime(), new Date().getTime(), DateUtils.DAY_IN_MILLIS).toString();
+    }
+
+    public static String getTodayTomorrowYesterdayOrDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        int dayOfYearToday = calendar.get(Calendar.DAY_OF_YEAR);
+        int yearToday = calendar.get(Calendar.YEAR);
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        int dayOfYearTomorrow = calendar.get(Calendar.DAY_OF_YEAR);
+        int yearTomorrow = calendar.get(Calendar.YEAR);
+        calendar.add(Calendar.DAY_OF_YEAR, -2);
+        int dayOfYearYesterday = calendar.get(Calendar.DAY_OF_YEAR);
+        int yearYesterday = calendar.get(Calendar.YEAR);
+        calendar.setTime(date);
+        int dayOfYearGivenDate = calendar.get(Calendar.DAY_OF_YEAR);
+        int yearGivenDate = calendar.get(Calendar.YEAR);
+        if(dayOfYearToday == dayOfYearGivenDate && yearToday == yearGivenDate) {
+            return "Today";
+        } else if(dayOfYearTomorrow == dayOfYearGivenDate && yearTomorrow == yearGivenDate) {
+            return "Tomorrow";
+        } else if(dayOfYearYesterday == dayOfYearGivenDate && yearYesterday == yearGivenDate) {
+            return "Yesterday";
+        } else {
+            if(yearToday == yearGivenDate) {
+                return getDateStringInFormat(date, "MMM dd");
+            } else {
+                return getDateStringInFormat(date, "MMM dd 'YY");
+            }
+        }
     }
 
     public static Date getDate(Date date, int differenceInSeconds) {
@@ -423,14 +461,19 @@ public class CommonUtils {
         //date is in future
         long minutes = Math.abs(timeDifference / DateUtils.MINUTE_IN_MILLIS);
         long hours = 0;
-        if (minutes > 60) {
-            minutes = minutes % 60;
+        if (minutes > 59) {
             hours = minutes / 60;
+            minutes = minutes % 60;
         }
         if (hours > 0) {
-            relativeTime = hours + " hours";
+            relativeTime = hours + (hours==1?" hour":" hours");
         } else {
-            relativeTime = minutes + " mins";
+            relativeTime = minutes + (minutes==1?" minute":" minutes");
+        }
+        long days = 0;
+        if(hours>23) {
+            days = hours / 24;
+            relativeTime = days + (days==1?" day":" days");
         }
         return relativeTime;
     }

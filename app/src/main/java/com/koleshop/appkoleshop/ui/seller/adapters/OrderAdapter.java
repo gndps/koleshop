@@ -103,8 +103,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderViewHolder> {
         }
     }
 
-    public void setOrdersList(List<Order> ordersList) {
+    public void setOrdersList(List<Order> ordersList, boolean customerView) {
         this.ordersList = ordersList;
+        this.customerView = customerView;
 
         if(showDayHeaders) {
             //show headers like "Today" or "Yesterday"

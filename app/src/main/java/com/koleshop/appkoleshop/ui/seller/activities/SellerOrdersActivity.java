@@ -49,6 +49,7 @@ public class SellerOrdersActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+        toolbar.setTitle(titleOrders);
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
         TextView toolbarTextView = CommonUtils.getActionBarTextView(toolbar);
         if (toolbarTextView != null) {

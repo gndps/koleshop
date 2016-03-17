@@ -31,12 +31,12 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class SellerItemListFragment extends Fragment {
+public class OrderDetailsItemListFragment extends Fragment {
 
     private static final String TAG = "SellerListFragment";
-    @Bind(R.id.rv_fsil)
+    @Bind(R.id.rv_fodil)
     RecyclerView recyclerView;
-    @Bind(R.id.button_fsil_check_all)
+    @Bind(R.id.button_fodil_check_all)
     Button buttonCheckAll;
     @Bind(R.id.tv_bill_details_total)
     TextView textViewTotal;
@@ -53,8 +53,9 @@ public class SellerItemListFragment extends Fragment {
     OrderItemsListAdapter adapter;
     private Order order;
     private BroadcastReceiver mBroadcastReceiver;
+    boolean customerView;
 
-    public SellerItemListFragment() {
+    public OrderDetailsItemListFragment() {
         // Required empty public constructor
     }
 
@@ -63,7 +64,7 @@ public class SellerItemListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_seller_item_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_order_details_item_list, container, false);
         mContext = getContext();
         ButterKnife.bind(this, view);
         recyclerViewSetup();
@@ -93,14 +94,14 @@ public class SellerItemListFragment extends Fragment {
                     case Constants.ACTION_ORDER_ITEM_COUNT_PLUS:
                         int position = intent.getIntExtra("position", -1);
                         Log.d(TAG, "item plus broadcast received");
-                        if(position>-1) {
+                        if (position > -1) {
                             Log.d(TAG, "position = " + position);
                             increaseAvailableCount(position);
                         }
                         break;
                     case Constants.ACTION_ORDER_ITEM_COUNT_MINUS:
                         int positionDecrement = intent.getIntExtra("position", -1);
-                        if(positionDecrement>-1) {
+                        if (positionDecrement > -1) {
                             decreaseAvailableCount(positionDecrement);
                         }
                         break;
@@ -108,8 +109,31 @@ public class SellerItemListFragment extends Fragment {
             }
         };
     }
+
+    private void recyclerViewSetup() {
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new OrderItemsListAdapter(mContext);
+        recyclerView.setAdapter(adapter);
+    }
+
+    public void setCustomerView(boolean customerView) {
+        this.customerView = customerView;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+        adapter.setData(order, customerView);
+        adapter.notifyDataSetChanged();
+        refreshViews();
+    }
+
     private void refreshViews() {
-        if(order.getStatus() != OrderStatus.ACCEPTED) {
+        if (order.getStatus() == OrderStatus.ACCEPTED && !customerView) {
+            //show this button only when order is pending(accepted) in seller view
+            buttonCheckAll.setVisibility(View.VISIBLE);
+        } else {
             buttonCheckAll.setVisibility(View.GONE);
         }
         textViewCarryBagCharges.setText(CommonUtils.getPriceStringFromFloat(order.getCarryBagCharges(), true));
@@ -119,8 +143,17 @@ public class SellerItemListFragment extends Fragment {
 
     private void refreshAmountPayable() {
         float amountPayable = 0f;
-        for(OrderItem orderItem : order.getOrderItems()) {
-            amountPayable += orderItem.getAvailableCount() * orderItem.getPricePerUnit();
+        boolean atLeastOneItemIsChecked = isAtLeastOneItemChecked();
+        /*at least one item is always checked in complete order
+        show amount payable using order count in these cases:incoming,accepted(buyer)
+        show amount payable using available count in these cases:accepted(seller),complete
+        */
+        for (OrderItem orderItem : order.getOrderItems()) {
+            if (atLeastOneItemIsChecked || (order.getStatus() == OrderStatus.ACCEPTED && !customerView)) {
+                amountPayable += orderItem.getAvailableCount() * orderItem.getPricePerUnit();
+            } else {
+                amountPayable += orderItem.getOrderCount() * orderItem.getPricePerUnit();
+            }
         }
         textViewTotal.setText(CommonUtils.getPriceStringFromFloat(amountPayable, true));
         amountPayable += order.getCarryBagCharges();
@@ -133,12 +166,12 @@ public class SellerItemListFragment extends Fragment {
         OrderItem orderItem = order.getOrderItems().get(position);
         int availableCount = orderItem.getAvailableCount();
         Log.d(TAG, "old available count= " + availableCount);
-        if(availableCount<orderItem.getOrderCount()) {
+        if (availableCount < orderItem.getOrderCount()) {
             orderItem.setAvailableCount(availableCount++);
         }
         Log.d(TAG, "new available count= " + availableCount);
         order.getOrderItems().get(position).setAvailableCount(availableCount);
-        adapter.setOrder(order);
+        adapter.setData(order, customerView);
         refreshAmountPayable();
         adapter.notifyItemChanged(position);
     }
@@ -146,36 +179,34 @@ public class SellerItemListFragment extends Fragment {
     private void decreaseAvailableCount(int position) {
         OrderItem orderItem = order.getOrderItems().get(position);
         int availableCount = orderItem.getAvailableCount();
-        if(availableCount>0) {
+        if (availableCount > 0) {
             orderItem.setAvailableCount(availableCount--);
         }
         order.getOrderItems().get(position).setAvailableCount(availableCount);
-        adapter.setOrder(order);
+        adapter.setData(order, customerView);
         refreshAmountPayable();
         adapter.notifyItemChanged(position);
     }
 
-    private void recyclerViewSetup() {
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new OrderItemsListAdapter(mContext);
-        recyclerView.setAdapter(adapter);
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-        adapter.setOrder(order);
-        adapter.notifyDataSetChanged();
-        refreshViews();
-    }
-
-    @OnClick(R.id.button_fsil_check_all)
+    @OnClick(R.id.button_fodil_check_all)
     public void checkAll() {
         List<OrderItem> orderItemsList = order.getOrderItems();
-        for(int i=0; i<orderItemsList.size(); i++) {
+        for (int i = 0; i < orderItemsList.size(); i++) {
             order.getOrderItems().get(i).setAvailableCount(order.getOrderItems().get(i).getOrderCount());
         }
         setOrder(order);
     }
+
+    private boolean isAtLeastOneItemChecked() {
+        boolean atLeastOneItemIsChecked = false;
+        for (OrderItem orderItem : order.getOrderItems()) {
+            if (orderItem.getAvailableCount() > 0) {
+                atLeastOneItemIsChecked = true;
+                break;
+            }
+        }
+        return atLeastOneItemIsChecked;
+    }
+
+
 }

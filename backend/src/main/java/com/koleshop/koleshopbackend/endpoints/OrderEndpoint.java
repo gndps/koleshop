@@ -7,7 +7,6 @@ import com.google.api.server.spi.config.Named;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.models.KoleResponse;
 import com.koleshop.koleshopbackend.db.models.Order;
-import com.koleshop.koleshopbackend.services.CommonService;
 import com.koleshop.koleshopbackend.services.OrderService;
 import com.koleshop.koleshopbackend.services.SessionService;
 
@@ -45,7 +44,8 @@ public class OrderEndpoint {
 
         KoleResponse response = new KoleResponse();
         try {
-            if (SessionService.verifyUserAuthenticity(order.getBuyerSettings().getUserId(), sessionId)) {
+            if (SessionService.verifyUserAuthenticity(order.getBuyerSettings().getUserId(), sessionId)
+                    || SessionService.verifyUserAuthenticity(order.getSellerSettings().getUserId(), sessionId)) {
                 order = new OrderService().updateOrder(order);
             }
         } catch (Exception e) {
@@ -163,6 +163,32 @@ public class OrderEndpoint {
         } else {
             response.setSuccess(true);
             response.setData("No Orders available");
+        }
+        return response;
+    }
+
+    @ApiMethod(name = "getOrderForId", httpMethod = ApiMethod.HttpMethod.POST)
+    public KoleResponse getOrderForId(@Named("userId") Long userId, @Named("sessionId") String sessionId, @Named("orderId") Long orderId) {
+
+        KoleResponse response = new KoleResponse();
+        Order order;
+        try {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
+                order = new OrderService().getOrderForId(orderId, userId);
+            } else {
+                return KoleResponse.failedResponse();
+            }
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setData(e.getLocalizedMessage());
+            return response;
+        }
+        if (order != null && order.getId() > 0) {
+            response.setSuccess(true);
+            response.setData(order);
+        } else {
+            response.setSuccess(true);
+            response.setData("No such order exist");
         }
         return response;
     }

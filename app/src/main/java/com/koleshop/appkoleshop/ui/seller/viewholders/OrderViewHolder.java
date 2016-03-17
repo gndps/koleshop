@@ -10,11 +10,9 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
-import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.constant.OrderStatus;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
@@ -32,6 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import butterknife.Bind;
+import butterknife.BindDrawable;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -67,10 +66,22 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
     @Nullable
     @Bind(R.id.pb_ot_order_status)
     DilatingDotsProgressBar progressBarStatus;
+    @BindDrawable(R.drawable.ic_check_grey600_24dp)
+    Drawable drawableCheckGrey;
+    @BindDrawable(R.drawable.ic_check_green_24dp)
+    Drawable drawableCheckGreen;
+    @BindDrawable(R.drawable.ic_double_check_24dp)
+    Drawable drawableDoubleCheck;
+    @BindDrawable(R.drawable.ic_clear_red_24dp)
+    Drawable drawableClearRed;
+    @BindDrawable(R.drawable.ic_delivery_boy_colored_circle_24dp)
+    Drawable drawableDeliveryBoy;
+    @BindDrawable(R.drawable.ic_pickup_bag_circle_24dp)
+    Drawable drawablePickup;
     private Order order;
 
 
-    public OrderViewHolder(View itemView, Context context, boolean customerView) {
+    public OrderViewHolder(View itemView, Context context, final boolean customerView) {
         super(itemView);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +89,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                 Intent orderDetailsIntent = new Intent(mContext, OrderDetailsActivity.class);
                 Parcelable parcelableOrder = Parcels.wrap(order);
                 orderDetailsIntent.putExtra("order", parcelableOrder);
+                orderDetailsIntent.putExtra("customerView", customerView);
                 mContext.startActivity(orderDetailsIntent);
             }
         });
@@ -120,41 +132,102 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
         textViewPrice.setText(CommonUtils.getPriceStringFromFloat(order.getAmountPayable(), true));
 
         //4. set delivery details
-        boolean pickup = false;
-        if (order.isHomeDelivery()) {
-            pickup = true;
-        }
-        String time = "";
-        if (order.isAsap()) {
-            time = "ASAP";
-        } else {
-            //get today or tomorrow here
-            String day = "";
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(new Date());
-            int dateToday = cal.get(Calendar.DAY_OF_MONTH);
-            Date orderDeliveryTime = order.getRequestedDeliveryTime();
-            cal.setTime(orderDeliveryTime);
-            int orderDate = cal.get(Calendar.DAY_OF_MONTH);
-            if (orderDate == dateToday) {
-                day = "";
-            } else {
-                day = "Tomorrow ";
-            }
+        setOrderDetailsSellerView();
+        textViewRelativeTime.setText(DateUtils.getRelativeTimeSpanString(order.getOrderTime().getTime(), new Date().getTime(), DateUtils.MINUTE_IN_MILLIS));
+    }
 
-            time = day + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), "h:mm a");
-            if (time.endsWith(":00")) {
-                time = day + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), "h a");
-            }
+    private void setOrderDetailsSellerView() {
 
-            //append pickup if applicable
-            if (pickup) {
-                time += " Pickup";
-            } else {
-                time += " Home delivery";
+        Drawable statusDrawable = null;
+        String orderDetailsText = null;
+        if (order != null) {
+            switch (order.getStatus()) {
+                case OrderStatus.INCOMING:
+                    //not possible...incoming orders are shown in different view
+                    break;
+                case OrderStatus.ACCEPTED:
+                    //asap or time selected
+                    if (order.isAsap()) {
+                        orderDetailsText = "ASAP";
+                        if (order.isHomeDelivery()) {
+                            orderDetailsText += " Delivery";
+                            statusDrawable = drawableDeliveryBoy;
+                        } else {
+                            orderDetailsText += " Pickup";
+                            statusDrawable = drawablePickup;
+                        }
+                    } else {
+
+                        //pickup or home delivery
+                        if (order.isHomeDelivery()) {
+                            orderDetailsText = "Delivery ";
+                            statusDrawable = drawableDeliveryBoy;
+                        } else {
+                            orderDetailsText = "Pickup ";
+                            statusDrawable = drawablePickup;
+                        }
+
+                        //late or in time
+                        if (CommonUtils.isTimeInPast(order.getRequestedDeliveryTime())) {
+                            //show time in minutes/hours/days
+                            orderDetailsText += "late by ";
+                            orderDetailsText += CommonUtils.getRelativeTime(order.getRequestedDeliveryTime());
+                            textViewDetails.setTextColor(AndroidCompatUtil.getColor(mContext, R.color.cool_red));
+                        } else {
+                            //show time in minutes/hours or tomorrow with time
+                            orderDetailsText += getHoursMinutesOrTomorrowTime(order.getRequestedDeliveryTime());
+                            textViewDetails.setTextColor(AndroidCompatUtil.getColor(mContext, R.color.secondary_text));
+                        }
+                    }
+                    break;
+                case OrderStatus.REJECTED:
+                    orderDetailsText = "Declined";
+                    statusDrawable = drawableClearRed;
+                    break;
+                case OrderStatus.MISSED:
+                    orderDetailsText = "Missed";
+                    statusDrawable = drawableClearRed;
+                    break;
+                case OrderStatus.CANCELLED:
+                    orderDetailsText = "Cancelled";
+                    statusDrawable = drawableClearRed;
+                    break;
+                case OrderStatus.OUT_FOR_DELIVERY:
+                    /*Date actualDeliveryTime = order.getActualDeliveryTime();
+                    String timeRemainingString = "";
+                    if (!CommonUtils.isTimeInPast(actualDeliveryTime)) {
+                        timeRemainingString = "Delivering in ";
+                    } else {
+                        timeRemainingString = "Delivering late by ";
+                    }
+                    timeRemainingString += CommonUtils.getRelativeTime(actualDeliveryTime);*/
+                    orderDetailsText = "Out for delivery";
+                    statusDrawable = drawableDeliveryBoy;
+                    break;
+                case OrderStatus.READY_FOR_PICKUP:
+                    orderDetailsText = "Ready for pickup";
+                    statusDrawable = drawablePickup;
+                    break;
+                case OrderStatus.DELIVERED:
+                    if (order.isHomeDelivery()) {
+                        orderDetailsText = "Delivered";
+                    } else {
+                        orderDetailsText = "Picked Up";
+                    }
+                    statusDrawable = drawableDoubleCheck;
+                    break;
+                case OrderStatus.NOT_DELIVERED:
+                    orderDetailsText = "Not Delivered";
+                    statusDrawable = drawableClearRed;
+                    break;
+
             }
+            imageViewOrderStatus.setVisibility(View.VISIBLE);
+            progressBarStatus.setVisibility(View.GONE);
+            textViewDetails.setText(orderDetailsText);
+            imageViewOrderStatus.setImageDrawable(statusDrawable);
+
         }
-        textViewDetails.setText(time);
     }
 
     private void loadDataWithCustomerView() {
@@ -180,11 +253,11 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
         textViewPrice.setText(CommonUtils.getPriceStringFromFloat(order.getAmountPayable(), true));
 
         //4. set order details
-        setOrderDetails();
+        setOrderDetailsCustomerView();
         textViewRelativeTime.setText(DateUtils.getRelativeTimeSpanString(order.getOrderTime().getTime(), new Date().getTime(), DateUtils.MINUTE_IN_MILLIS));
     }
 
-    private void setOrderDetails() {
+    private void setOrderDetailsCustomerView() {
         boolean showProgressBar = false;
         Drawable statusDrawable = null;
         String orderDetailsText = null;
@@ -196,28 +269,35 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     break;
                 case OrderStatus.ACCEPTED:
                     orderDetailsText = "Accepted";
-                    statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_check_grey600_24dp);
+                    statusDrawable = drawableCheckGreen;
                     break;
                 case OrderStatus.REJECTED:
-                    orderDetailsText = "Cancelled";
-                    statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_clear_red_24dp);
+                    orderDetailsText = "Declined";
+                    statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.MISSED:
-                    orderDetailsText = "Cancelled";
-                    statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_clear_red_24dp);
+                    orderDetailsText = "Missed";
+                    statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.CANCELLED:
                     orderDetailsText = "Cancelled";
-                    statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_clear_red_24dp);
+                    statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.OUT_FOR_DELIVERY:
-                    String timeRemainingString = getTimeRemainingString(order.getMinutesToDelivery());
+                    Date actualDeliveryTime = order.getActualDeliveryTime();
+                    String timeRemainingString = "";
+                    if (!CommonUtils.isTimeInPast(actualDeliveryTime)) {
+                        timeRemainingString = "Delivering in ";
+                        timeRemainingString += CommonUtils.getRelativeTime(actualDeliveryTime);
+                    } else {
+                        timeRemainingString = "Delivering";
+                    }
                     orderDetailsText = timeRemainingString;
-                    statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_delivery_boy_colored_24dp);
+                    statusDrawable = drawableDeliveryBoy;
                     break;
                 case OrderStatus.READY_FOR_PICKUP:
                     orderDetailsText = "Ready for pickup";
-                    statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_shopping_bag_green_24dp);
+                    statusDrawable = drawablePickup;
                     break;
                 case OrderStatus.DELIVERED:
                     if (order.isHomeDelivery()) {
@@ -225,11 +305,11 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     } else {
                         orderDetailsText = "Picked Up";
                     }
-                    statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_check_green_24dp);
+                    statusDrawable = drawableDoubleCheck;
                     break;
                 case OrderStatus.NOT_DELIVERED:
                     orderDetailsText = "Not Delivered";
-                    statusDrawable = AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_clear_red_24dp);
+                    statusDrawable = drawableClearRed;
                     break;
 
             }
@@ -263,11 +343,37 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
             hours += 1;
         }
         if (hours > 0) {
-            return hours + "hours left";
+            return hours + " hours left";
         } else {
-            return minutes + "mins left";
+            return minutes + " minutes left";
         }
 
+    }
+
+    private String getHoursMinutesOrTomorrowTime(Date date) {
+        String timeString = "";
+        //get today or tomorrow here
+        Calendar cal = Calendar.getInstance();
+        Calendar calendarDate = Calendar.getInstance();
+        calendarDate.setTime(date);
+        cal.setTime(new Date());
+        int dateToday = cal.get(Calendar.DAY_OF_YEAR);
+        int yearToday = cal.get(Calendar.YEAR);
+        int dateDate = calendarDate.get(Calendar.DAY_OF_YEAR);
+        int yearDate = calendarDate.get(Calendar.YEAR);
+        cal.add(Calendar.DAY_OF_YEAR, 1);
+        int dateTomorrow = cal.get(Calendar.DAY_OF_YEAR);
+        int yearTomorrow = cal.get(Calendar.YEAR);
+        if (dateToday == dateDate && yearToday == yearDate) {
+            //this is today...return hours/minutes
+            timeString = "in " + CommonUtils.getRelativeTime(date);
+        } else if (dateTomorrow == dateDate && yearTomorrow == yearDate) {
+            //the given date is tomorrow
+            timeString = "Tomorrow " + CommonUtils.getSimpleTimeString(order.getRequestedDeliveryTime());
+        } else {
+            timeString = CommonUtils.getSimpleTimeString(order.getRequestedDeliveryTime()) + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), " d MMM");
+        }
+        return timeString;
     }
 
     public void bindHeader(String headerTitle) {

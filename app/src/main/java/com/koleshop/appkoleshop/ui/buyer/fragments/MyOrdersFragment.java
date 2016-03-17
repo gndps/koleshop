@@ -157,7 +157,7 @@ public class MyOrdersFragment extends Fragment {
         if(orderPosition>-1) {
             orders.get(orderPosition).setStatus(OrderStatus.ACCEPTED);
         }
-        adapter.setOrdersList(orders);
+        adapter.setOrdersList(orders, true);
         adapter.notifyItemChanged(orderPosition);
     }
 
@@ -166,7 +166,7 @@ public class MyOrdersFragment extends Fragment {
         if(orderPosition>-1) {
             orders.get(orderPosition).setStatus(OrderStatus.REJECTED);
         }
-        adapter.setOrdersList(orders);
+        adapter.setOrdersList(orders, true);
         adapter.notifyItemChanged(orderPosition);
     }
 
@@ -224,7 +224,7 @@ public class MyOrdersFragment extends Fragment {
     private void fetchMoreOrdersFromInternet() {
         progressBarLoadMore.setVisibility(View.VISIBLE);
         if (CommonUtils.isConnectedToInternet(mContext)) {
-            if(orders.size()>ORDERS_LOAD_COUNT) {
+            if(orders.size()>=ORDERS_LOAD_COUNT) {
                 BuyerIntentService.getMyOrders(mContext, ORDERS_LOAD_COUNT, orders.size());
             }
         } else {
@@ -235,7 +235,7 @@ public class MyOrdersFragment extends Fragment {
     private void loadOrders() {
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_ORDERS_LIST);
         adapter = new OrderAdapter(mContext, true, true);
-        adapter.setOrdersList(orders);
+        adapter.setOrdersList(orders, true);
         mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(mLinearLayoutManager);
         recyclerView.setAdapter(adapter);
@@ -245,7 +245,7 @@ public class MyOrdersFragment extends Fragment {
 
     private void loadMoreOrders() {
         progressBarLoadMore.setVisibility(View.GONE);
-        adapter.setOrdersList(orders);
+        adapter.setOrdersList(orders, true);
         adapter.notifyDataSetChanged();
     }
 

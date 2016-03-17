@@ -200,7 +200,7 @@ public class CompleteOrdersFragment extends Fragment {
     private void fetchMoreOrdersFromInternet() {
         progressBarLoadMore.setVisibility(View.VISIBLE);
         if (CommonUtils.isConnectedToInternet(mContext)) {
-            if(orders.size()>ITEMS_PER_PAGE) {
+            if(orders.size()>=ITEMS_PER_PAGE) {
                 OrdersIntentService.getCompleteOrders(mContext, ITEMS_PER_PAGE, orders.size());
             }
         } else {
@@ -211,7 +211,7 @@ public class CompleteOrdersFragment extends Fragment {
     private void loadOrders() {
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_ORDERS_LIST);
         adapter = new OrderAdapter(mContext, true, false);
-        adapter.setOrdersList(orders);
+        adapter.setOrdersList(orders, false);
         mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(mLinearLayoutManager);
         recyclerView.setAdapter(adapter);
@@ -221,7 +221,7 @@ public class CompleteOrdersFragment extends Fragment {
 
     private void loadMoreOrders() {
         progressBarLoadMore.setVisibility(View.GONE);
-        adapter.setOrdersList(orders);
+        adapter.setOrdersList(orders, false);
         adapter.notifyDataSetChanged();
     }
 

@@ -5,30 +5,49 @@
     android:layout_height="match_parent"
     tools:context="com.koleshop.appkoleshop.ui.common.activities.OrderDetailsActivity">
 
-    <LinearLayout
+    <ViewFlipper
+        android:id="@+id/vf_activity_order_details"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/default_background"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <fragment
-            android:id="@+id/fragment_aod_seller_details"
-            android:name="com.koleshop.appkoleshop.ui.seller.fragments.orders.SellerOrderDetailsFragment"
+
+        <!--child 0 fragments-->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginTop="16dp"
-            tools:layout="@layout/fragment_seller_order_details" />
+            android:layout_height="match_parent"
+            android:background="@color/default_background"
+            android:orientation="vertical">
 
-        <fragment
-            android:id="@+id/fragment_aod_seller_items_list"
-            android:name="com.koleshop.appkoleshop.ui.seller.fragments.orders.SellerItemListFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginTop="16dp"
-            tools:layout="@layout/fragment_seller_item_list" />
+            <fragment
+                android:id="@+id/fragment_aod_seller_details"
+                android:name="com.koleshop.appkoleshop.ui.seller.fragments.orders.OrderDetailsFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_marginTop="16dp"
+                tools:layout="@layout/fragment_order_details" />
 
-    </LinearLayout>
+            <fragment
+                android:id="@+id/fragment_aod_seller_items_list"
+                android:name="com.koleshop.appkoleshop.ui.seller.fragments.orders.OrderDetailsItemListFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_marginTop="16dp"
+                tools:layout="@layout/fragment_order_details_item_list" />
+
+        </LinearLayout>
+
+        <!--child 1 progress bar-->
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+        <!--child 2 something is wrong-->
+        <include layout="@layout/view_some_problem_occurred"/>
+
+    </ViewFlipper>
 
 </RelativeLayout>

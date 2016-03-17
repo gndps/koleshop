@@ -40,7 +40,7 @@ public class Constants {
     public static String GOOGLE_USER_TOKEN = "google_user_token";
 
     //configurable constants
-    public static boolean RESET_REALM = true;
+    public static boolean RESET_REALM = false;
     public static boolean KOLE_CACHE_ALLOWED = true;
 
     public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
@@ -116,6 +116,8 @@ public class Constants {
     public static final String ACTION_REFRESH_PENDING_ORDERS = "com.koleshop.action_refresh_pending_orders";
     public static final String ACTION_ORDER_ITEM_COUNT_PLUS = "com.koleshop.action_order_item_count_plus";
     public static final String ACTION_ORDER_ITEM_COUNT_MINUS = "com.koleshop.action_order_item_count_minus";
+    public static final String ACTION_SINGLE_ORDER_FETCH_SUCCESS = "com.koleshop.action_single_order_fetch_success";
+    public static final String ACTION_SINGLE_ORDER_FETCH_FAILED = "com.koleshop.action_single_order_fetch_failed";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";

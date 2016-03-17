@@ -1,10 +1,13 @@
 package com.koleshop.appkoleshop.util;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.TypedValue;
+import android.view.View;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
@@ -296,4 +299,5 @@ public class KoleshopUtils {
         backendSettings.setShopOpenTime(sellerSettings.getShopOpenTime());
         return backendSettings;
     }
+
 }
