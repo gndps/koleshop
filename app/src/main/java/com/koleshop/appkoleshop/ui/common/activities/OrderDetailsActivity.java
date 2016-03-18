@@ -2,14 +2,23 @@ package com.koleshop.appkoleshop.ui.common.activities;
 
 import android.content.Context;
 import android.os.Parcelable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.klinker.android.sliding.SlidingActivity;
 import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.constant.OrderStatus;
 import com.koleshop.appkoleshop.model.Order;
+import com.koleshop.appkoleshop.ui.buyer.activities.CartActivity;
 import com.koleshop.appkoleshop.ui.seller.fragments.orders.SellerItemListFragment;
 import com.koleshop.appkoleshop.ui.seller.fragments.orders.SellerOrderDetailsFragment;
+import com.koleshop.appkoleshop.util.CartUtils;
 
 import org.parceler.Parcels;
 
@@ -56,5 +65,42 @@ public class OrderDetailsActivity extends SlidingActivity {
     private void updateOrder(Order order) {
         this.order = order;
         loadOrderContent();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_order_details_activity, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        View menuItemView = findViewById(R.id.hidden_menu);
+        PopupMenu popup = new PopupMenu(this,menuItemView);
+        popup.getMenuInflater().inflate(R.menu.popup_menu_order_details_activity, popup.getMenu());
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+             /*   switch (item.getItemId())
+                {
+                    case R.id.cancel:
+                        order.setStatus(OrderStatus.CANCELLED);
+                        loadOrderContent();
+                        break;
+                    case R.id.call:
+                        order.setStatus(OrderStatus.INCOMING);
+                        loadOrderContent();
+                        break;
+                    case R.id.not_delivered:
+                        order.setStatus(OrderStatus.NOT_DELIVERED);
+                        loadOrderContent();
+                        break;
+                }*/
+                Toast.makeText(mContext,"You Clicked : " + item.getTitle(),Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        popup.show();
+        return super.onOptionsItemSelected(item);
     }
 }

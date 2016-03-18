@@ -78,7 +78,7 @@
     <orderEntry type="library" exported="" name="google-http-client-protobuf-1.15.0-rc" level="project" />
     <orderEntry type="library" exported="" name="hamcrest-core-1.1" level="project" />
     <orderEntry type="library" exported="" name="gson-2.4" level="project" />
-    <orderEntry type="library" exported="" name="appengine-api-1.0-sdk-1.9.32" level="project" />
+    <orderEntry type="library" exported="" name="appengine-api-1.0-sdk-1.9.34" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-1.21.0" level="project" />
     <orderEntry type="library" exported="" name="google-oauth-client-appengine-1.21.0" level="project" />
     <orderEntry type="library" exported="" name="google-api-client-1.21.0" level="project" />
