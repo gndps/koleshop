@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -228,7 +229,7 @@ public class OrderService {
                 .addData("type", Constants.GCM_NOTI_INCOMING_ORDER)
                 .addData("order_id", order.getId().toString())
                 .addData("buyer_name", order.getBuyerSettings().getName())
-                .addData("amount_payable", order.getAmountPayable()+"")
+                .addData("amount_payable", order.getAmountPayable() + "")
                 .build();
         GcmHelper.notifyUser(order.getSellerSettings().getUserId(), gcmMessage, 2);
 
@@ -281,8 +282,31 @@ public class OrderService {
             preparedStatement.setFloat(index++, order.getTotalAmount());
             preparedStatement.setFloat(index++, order.getNotAvailableAmount());
             preparedStatement.setFloat(index++, order.getAmountPayable());
-            preparedStatement.setTimestamp(index++, new Timestamp(order.getActualDeliveryTime()!=null?order.getActualDeliveryTime():(new java.util.Date()).getTime()));
-            preparedStatement.setTimestamp(index++, new Timestamp(order.getDeliveryStartTime()!=null?order.getDeliveryStartTime():(new java.util.Date()).getTime()));
+            int minutesToDelivery = order.getMinutesToDelivery();
+            java.util.Date deliveryStartDateTime = null;
+            java.util.Date actualDeliveryDateTime = null;
+            if (minutesToDelivery > 0 && order.getDeliveryStartTime() == null) {
+                logger.log(Level.INFO, "order updated and is out for delivery");
+                //order is out for delivery...set the delivery start time and actual delivery time
+                deliveryStartDateTime = new java.util.Date();
+                actualDeliveryDateTime = CommonUtils.addMinutesToDate(deliveryStartDateTime, minutesToDelivery);
+                logger.log(Level.INFO, "delivery start time = " + deliveryStartDateTime.getTime());
+                logger.log(Level.INFO, "actual start time = " + actualDeliveryDateTime.getTime());
+            }
+            if(order.getStatus() == OrderStatus.READY_FOR_PICKUP) {
+                deliveryStartDateTime = new java.util.Date();
+                actualDeliveryDateTime = new java.util.Date();
+            }
+            if(order.getActualDeliveryTime() != null || actualDeliveryDateTime!=null) {
+                preparedStatement.setTimestamp(index++, new Timestamp(order.getActualDeliveryTime() != null ? order.getActualDeliveryTime() : actualDeliveryDateTime.getTime()));
+            } else {
+                preparedStatement.setNull(index++, Types.TIMESTAMP);
+            }
+            if(order.getDeliveryStartTime() != null || deliveryStartDateTime!=null) {
+                preparedStatement.setTimestamp(index++, new Timestamp(order.getDeliveryStartTime() != null ? order.getDeliveryStartTime() : deliveryStartDateTime.getTime()));
+            } else {
+                preparedStatement.setNull(index++, Types.TIMESTAMP);
+            }
             preparedStatement.setInt(index++, order.getMinutesToDelivery());
             preparedStatement.setLong(index++, order.getId());
             logger.log(Level.INFO, "updating orders with query = " + preparedStatement.toString());
@@ -384,6 +408,21 @@ public class OrderService {
         }
     }
 
+    public Order getOrderForId(Long orderId, Long userId) {
+        if (orderId > 0) {
+            List<Long> orderIds = new ArrayList<>();
+            orderIds.add(orderId);
+            List<Order> orders = getOrdersWithIds(orderIds, userId);
+            if (orders != null) {
+                return orders.get(0);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     private enum OrderQueryType {
         Incoming, Pending, Complete, CustomerOrders
     }
@@ -409,7 +448,6 @@ public class OrderService {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        List<Order> orders = new ArrayList<>();
         List<Long> orderIds = new ArrayList<>();
 
         //01. CONFIGURE THE QUERY FOR ORDER IDS
@@ -428,7 +466,8 @@ public class OrderService {
                 break;
             case Complete:
                 query = "select id from Orders where seller_id=? and status_id not in (" +
-                        OrderStatus.INCOMING + ", " + OrderStatus.ACCEPTED + ") ";
+                        OrderStatus.INCOMING + ", " + OrderStatus.ACCEPTED + ") "
+                        + " order by id desc ";
                 logger.log(Level.INFO, "getting complete orders for user_id = " + userId);
                 break;
             case CustomerOrders:
@@ -467,11 +506,24 @@ public class OrderService {
             } else {
                 logger.info("result set not found" + preparedStatement.toString());
             }
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "some problem in getting incoming orders ids for seller_id = " + userId, e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
 
+        return getOrdersWithIds(orderIds, userId);
+    }
 
+    private List<Order> getOrdersWithIds(List<Long> orderIds, Long userId) {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        List<Order> orders = new ArrayList<>();
+
+        String query;
         //03. FETCH ORDERS FOR THE ORDER IDS FOUND IN STEP 2
         if (orderIds.size() > 0) {
 
@@ -511,6 +563,7 @@ public class OrderService {
                     ") order by o.id desc";
 
             try {
+                dbConnection = DatabaseConnection.getConnection();
                 preparedStatement = dbConnection.prepareStatement(query);
                 int index = 1;
                 for (Long orderId : orderIds) {
@@ -655,6 +708,7 @@ public class OrderService {
                 DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
             }
         }
+
         return orders;
     }
 

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/dialogue_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:textColor="@color/primary_text" />
+
+    <GridView
+        android:id="@+id/buttons_grid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:gravity="center"
+        android:horizontalSpacing="16dp"
+        android:listSelector="@android:color/transparent"
+        android:numColumns="3"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:rowCount="3"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dp"></GridView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <EditText
+            android:id="@+id/show_hour"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/hr_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="hr" />
+
+        <EditText
+            android:id="@+id/show_min"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/min_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="min" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right">
+
+        <Button
+            android:id="@+id/cancel_button"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textColor="@color/primary_text" />
+
+        <Button
+            android:id="@+id/deliver_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="Deliver"
+            android:textColor="@color/accent" />
+    </LinearLayout>
+</LinearLayout>

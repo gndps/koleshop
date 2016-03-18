@@ -31,10 +31,13 @@ public class OrdersIntentService extends IntentService {
     private static final String ACTION_GET_INCOMING_ORDERS = "com.koleshop.appkoleshop.services.action.get_incoming_orders";
     private static final String ACTION_GET_COMPLETE_ORDERS = "com.koleshop.appkoleshop.services.action.get_complete_orders";
     private static final String ACTION_UPDATE_ORDER = "com.koleshop.appkoleshop.services.action.update_order";
+    private static final String ACTION_GET_ORDER = "com.koleshop.appkoleshop.services.action.get_order";
 
     private static final String EXTRA_LIMIT = "com.koleshop.appkoleshop.services.extra.limit";
     private static final String EXTRA_OFFSET = "com.koleshop.appkoleshop.services.extra.offset";
     private static final String EXTRA_ORDER_REQUEST_TYPE = "com.koleshop.appkoleshop.services.extra.order_request_type";
+    private static final String EXTRA_ORDER_ID = "com.koleshop.appkoleshop.services.extra.order_id";
+    private static final String EXTRA_ORDER = "com.koleshop.appkoleshop.services.extra.order";
 
     private static final int ORDER_REQUEST_TYPE_PENDING = 0;
     private static final int ORDER_REQUEST_TYPE_INCOMING = 1;
@@ -70,11 +73,18 @@ public class OrdersIntentService extends IntentService {
         context.startService(intent);
     }
 
-    public static void updateOrder(Context context, Order acceptOrder) {
+    public static void getOrderForId(Context context, Long orderId) {
+        Intent intent = new Intent(context, OrdersIntentService.class);
+        intent.setAction(ACTION_GET_ORDER);
+        intent.putExtra(EXTRA_ORDER_ID, orderId);
+        context.startService(intent);
+    }
+
+    public static void updateOrder(Context context, Order order) {
         Intent intent = new Intent(context, OrdersIntentService.class);
         intent.setAction(ACTION_UPDATE_ORDER);
-        Parcelable parcelableOrder = Parcels.wrap(acceptOrder);
-        intent.putExtra("order", parcelableOrder);
+        Parcelable parcelableOrder = Parcels.wrap(order);
+        intent.putExtra(EXTRA_ORDER, parcelableOrder);
         context.startService(intent);
     }
 
@@ -96,9 +106,12 @@ public class OrdersIntentService extends IntentService {
                 final int orderRequestType = intent.getIntExtra(EXTRA_ORDER_REQUEST_TYPE, -1);
                 fetchOrders(orderRequestType, 0, 0);
             } else if (ACTION_UPDATE_ORDER.equals(action)) {
-                Parcelable parcelableOrder = intent.getParcelableExtra("order");
+                Parcelable parcelableOrder = intent.getParcelableExtra(EXTRA_ORDER);
                 Order updateOrder = Parcels.unwrap(parcelableOrder);
                 updateOrderRightNow(updateOrder);
+            } else if (ACTION_GET_ORDER.equals(action)) {
+                Long orderId = intent.getLongExtra(EXTRA_ORDER_ID, 0l);
+                getOrderForId(orderId);
             }
         }
     }
@@ -218,20 +231,79 @@ public class OrdersIntentService extends IntentService {
                     orderUpdatedIntent.putExtra("order_id", order.getId());
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderUpdatedIntent);
                 } else {
-                    Intent orderNotUpdatedIntent = new Intent(Constants.ACTION_ORDERS_FETCH_FAILED);
+                    Intent orderNotUpdatedIntent = new Intent(Constants.ACTION_ORDER_UPDATE_FAILED);
                     orderNotUpdatedIntent.putExtra("order_id", order.getId());
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderNotUpdatedIntent);
                 }
             } else {
                 Log.d(TAG, "problem in updating order with id = " + order.getId());
-                Intent orderNotUpdatedIntent = new Intent(Constants.ACTION_ORDERS_FETCH_FAILED);
+                Intent orderNotUpdatedIntent = new Intent(Constants.ACTION_ORDER_UPDATE_FAILED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderNotUpdatedIntent);
             }
 
         } catch (Exception e) {
             Log.e(TAG, "exception", e);
-            Intent orderNotUpdatedIntent = new Intent(Constants.ACTION_ORDERS_FETCH_FAILED);
+            Intent orderNotUpdatedIntent = new Intent(Constants.ACTION_ORDER_UPDATE_FAILED);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderNotUpdatedIntent);
+        }
+    }
+
+    private void getOrderForId(Long orderId) {
+        OrderEndpoint endpoint = null;
+        OrderEndpoint.Builder builder = new OrderEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        endpoint = builder.build();
+
+        Context context = getApplicationContext();
+
+        String sessionId = PreferenceUtils.getSessionId(context);
+        Long userId = PreferenceUtils.getUserId(context);
+
+        com.koleshop.api.orderEndpoint.model.KoleResponse result = null;
+        try {
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = endpoint.getOrderForId(userId, sessionId, orderId).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
+
+            if (result != null && result.getSuccess()) {
+                if(result.getData() instanceof String && ((String) result.getData()).equalsIgnoreCase("No such order exist")) {
+                    //order doesn't exist
+                    Intent orderFetchFailedIntent = new Intent(Constants.ACTION_SINGLE_ORDER_FETCH_FAILED);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderFetchFailedIntent);
+                } else {
+                    ArrayMap<String, Object> fetchedOrderJson = (ArrayMap<String, Object>) result.getData();
+                    Order fetchedOrder = CloudEndpointDataExtractionUtil.getOrderFromJsonResult(fetchedOrderJson);
+                    Intent orderFetchedIntent = new Intent(Constants.ACTION_SINGLE_ORDER_FETCH_SUCCESS);
+                    orderFetchedIntent.putExtra("order", Parcels.wrap(fetchedOrder));
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderFetchedIntent);
+                }
+            } else {
+                Intent orderFetchFailedIntent = new Intent(Constants.ACTION_SINGLE_ORDER_FETCH_FAILED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderFetchFailedIntent);
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+            Intent orderFetchFailedIntent = new Intent(Constants.ACTION_SINGLE_ORDER_FETCH_FAILED);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(orderFetchFailedIntent);
         }
     }
 

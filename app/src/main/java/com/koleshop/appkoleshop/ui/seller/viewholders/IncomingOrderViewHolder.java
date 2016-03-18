@@ -1,6 +1,7 @@
 package com.koleshop.appkoleshop.ui.seller.viewholders;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,6 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import butterknife.Bind;
+import butterknife.BindDrawable;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -52,8 +54,14 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
     TextView textViewPrice;
     @Bind(R.id.tv_iot_timings)
     TextView textViewTimings;
+    @Bind(R.id.iv_iot_home_delivery_pickup)
+    ImageView imageViewDeliveryPickup;
     @Bind(R.id.pb_status_incoming_order_tile)
     DilatingDotsProgressBar dotsProgressBar;
+    @BindDrawable(R.drawable.ic_delivery_boy_colored_circle_24dp)
+    Drawable drawableHomeDelivery;
+    @BindDrawable(R.drawable.ic_pickup_bag_circle_24dp)
+    Drawable drawablePickup;
     private OrderInteractionListener orderInteractionListener;
 
     public IncomingOrderViewHolder(View itemView, Context context) {
@@ -118,10 +126,7 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
                 day = "Tomorrow ";
             }
 
-            time = day + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), "h:mm a");
-            if (time.endsWith(":0")) {
-                time = day + CommonUtils.getDateStringInFormat(order.getRequestedDeliveryTime(), "h a");
-            }
+            time = day + CommonUtils.getSimpleTimeString(order.getRequestedDeliveryTime());
 
             //append pickup if applicable
             if (pickup) {
@@ -129,6 +134,13 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
             }
         }
         textViewTimings.setText(time);
+
+        //6. set delivery or pickup
+        if(order.isHomeDelivery()) {
+            imageViewDeliveryPickup.setImageDrawable(drawableHomeDelivery);
+        } else {
+            imageViewDeliveryPickup.setImageDrawable(drawablePickup);
+        }
 
         if(showProgressBar) {
             dotsProgressBar.show();

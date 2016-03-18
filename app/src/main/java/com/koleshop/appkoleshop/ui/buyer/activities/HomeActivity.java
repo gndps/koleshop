@@ -510,6 +510,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
             case R.id.drawer_my_orders:
                 //open my orders
+                title = titleMyOrders;
                 MyOrdersFragment myOrdersFragment = new MyOrdersFragment();
                 setItemChecked = true;
                 closeDrawers = true;

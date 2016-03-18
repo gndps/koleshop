@@ -76,4 +76,11 @@ public class CommonUtils {
         }
     }
 
+    public static Date addMinutesToDate(Date date, int addMinutes) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, addMinutes);
+        return calendar.getTime();
+    }
+
 }

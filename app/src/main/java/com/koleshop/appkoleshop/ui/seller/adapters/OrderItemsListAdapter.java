@@ -16,6 +16,7 @@ import com.koleshop.appkoleshop.ui.seller.viewholders.OrderItemsListViewHolder;
 public class OrderItemsListAdapter extends RecyclerView.Adapter<OrderItemsListViewHolder> {
 
     Context mContext;
+    private boolean customerView;
     Order order;
 
     public OrderItemsListAdapter(Context context) {
@@ -33,7 +34,7 @@ public class OrderItemsListAdapter extends RecyclerView.Adapter<OrderItemsListVi
 
     @Override
     public void onBindViewHolder(OrderItemsListViewHolder holder, int position) {
-        holder.bindData(order.getOrderItems().get(position), order.getStatus(), position);
+        holder.bindData(order.getOrderItems().get(position), order.getStatus(), position, customerView);
     }
 
     @Override
@@ -45,7 +46,8 @@ public class OrderItemsListAdapter extends RecyclerView.Adapter<OrderItemsListVi
         }
     }
 
-    public void setOrder(Order order) {
+    public void setData(Order order, boolean customerView) {
+        this.customerView = customerView;
         this.order = order;
     }
 }

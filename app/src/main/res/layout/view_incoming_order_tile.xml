@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginBottom="4dp"
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp"
     android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    android:elevation="2dp"
-    app:cardCornerRadius="2dp"
     android:background="@color/offwhite"
-    android:orientation="vertical">
+    android:elevation="2dp"
+    android:orientation="vertical"
+    app:cardCornerRadius="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,11 +23,11 @@
             android:paddingBottom="16dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/iv_iot_avatar"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:id="@+id/iv_iot_avatar" />
+                android:layout_marginTop="16dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -41,23 +41,23 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tv_iot_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
                     android:text="Sanjay Bhansali"
                     android:textColor="@color/primary_text"
-                    android:textSize="13sp"
-                    android:id="@+id/tv_iot_name" />
+                    android:textSize="13sp" />
 
                 <TextView
+                    android:id="@+id/tv_iot_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="left"
                     android:maxLines="3"
                     android:text="C-78\nSector 23\nNoida"
                     android:textColor="@color/secondary_text"
-                    android:textSize="11sp"
-                    android:id="@+id/tv_iot_address" />
+                    android:textSize="11sp" />
 
             </LinearLayout>
 
@@ -73,22 +73,38 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tv_iot_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_gravity="right"
+                    android:fontFamily="sans-serif-medium"
                     android:text="Rs. 220"
                     android:textColor="@color/primary_text"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:id="@+id/tv_iot_price" />
+                    android:textSize="15sp" />
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ASAP Home delivery"
-                    android:textSize="11sp"
-                    android:id="@+id/tv_iot_timings" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="2dp">
+
+                    <TextView
+                        android:id="@+id/tv_iot_timings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ASAP"
+                        android:textSize="12sp"
+                        android:layout_marginRight="2dp" />
+
+                    <ImageView
+                        android:id="@+id/iv_iot_home_delivery_pickup"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_delivery_boy_colored_circle_24dp"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -100,19 +116,19 @@
             android:layout_marginBottom="4dp">
 
             <Button
+                android:id="@+id/button_iot_reject"
                 style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="64dp"
+                android:layout_width="72dp"
                 android:layout_height="40dp"
                 android:layout_marginLeft="68dp"
+                android:fontFamily="sans-serif-light"
                 android:gravity="left|center_vertical"
                 android:paddingBottom="4dp"
                 android:paddingLeft="4dp"
                 android:paddingTop="4dp"
-                android:text="REJECT"
-                android:fontFamily="sans-serif-light"
-                android:textColor="@color/error_color"
-                android:textSize="13dp"
-                android:id="@+id/button_iot_reject" />
+                android:text="DECLINE"
+                android:textColor="@color/cool_red"
+                android:textSize="13dp" />
 
             <Button
                 android:id="@+id/button_iot_details"
@@ -121,14 +137,14 @@
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="72dp"
+                android:fontFamily="sans-serif-light"
                 android:paddingBottom="4dp"
                 android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:paddingTop="4dp"
                 android:text="DETAILS"
-                android:fontFamily="sans-serif-light"
                 android:textColor="@color/primary_text"
-                android:textSize="13dp"
-                android:paddingRight="4dp" />
+                android:textSize="13dp" />
 
             <Button
                 android:id="@+id/button_iot_accept"
@@ -136,13 +152,13 @@
                 android:layout_width="72dp"
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
+                android:fontFamily="sans-serif-light"
                 android:gravity="center_vertical|right"
                 android:paddingBottom="4dp"
                 android:paddingLeft="4dp"
                 android:paddingRight="12dp"
                 android:paddingTop="4dp"
                 android:text="ACCEPT"
-                android:fontFamily="sans-serif-light"
                 android:textColor="@color/accent"
                 android:textSize="13dp" />
 
@@ -152,15 +168,14 @@
             android:id="@+id/pb_status_incoming_order_tile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:radius="2dp"
-            android:color="@color/accent"
-            app:dd_numDots="10"
-            app:dd_scaleMultiplier="1.8"
-            app:dd_animationDuration="500"
-            app:dd_horizontalSpacing="2dp"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="2dp"
-            />
+            android:color="@color/accent"
+            android:radius="2dp"
+            app:dd_animationDuration="500"
+            app:dd_horizontalSpacing="2dp"
+            app:dd_numDots="10"
+            app:dd_scaleMultiplier="1.8" />
 
     </LinearLayout>
 

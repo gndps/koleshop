@@ -34,7 +34,7 @@
     <application
         android:name=".network.volley.VolleyUtil"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_koleshop_round_logo"
+        android:icon="@mipmap/koleshop_logo"
         android:label="@string/app_name"
         android:theme="@style/AppTheme.Base">
         <activity
