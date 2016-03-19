@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/cancel"
+        app:showAsAction="always"
+        android:title="Cancel" />
+
+    <item
+        android:id="@+id/call"
+        app:showAsAction="always"
+        android:title="Call" />
+    <item
+        android:id="@+id/not_delivered"
+        app:showAsAction="always"
+        android:title="Not delivered" />
+
+</menu>

@@ -99,14 +99,13 @@ public class ShopActivity extends AppCompatActivity {
         favouriteShopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flipAnimation(v);
+                showFavouriteButtonAnimation(v);
             }
 
         });
-
     }
 
-    private void flipAnimation(final View v) {
+    private void showFavouriteButtonAnimation(final View v) {
         //final Animation an = new RotateAnimation(0, 360, v.getWidth()/2, v.getHeight()/2);
         Animation an = AnimationUtils.loadAnimation(this, R.anim.favourite_button_animation);
         an.setFillAfter(true);
