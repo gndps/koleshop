@@ -217,6 +217,7 @@ public class CompleteOrdersFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         setupScrollListenerOnRv();
+        //todo dismiss complete order noti
     }
 
     private void loadMoreOrders() {

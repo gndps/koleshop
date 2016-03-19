@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.DrawableRes;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
@@ -156,6 +157,12 @@ public class ImageUtils {
 
             }
         }.execute(null, null, null);
+    }
+
+    public static Bitmap getBitmapFromDrawableResource(Context context, @DrawableRes int drawableResource) {
+        Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
+                drawableResource);
+        return icon;
     }
 
     /*public Bitmap getImage(Context context, String url, final Bitmap bitmapImage) {

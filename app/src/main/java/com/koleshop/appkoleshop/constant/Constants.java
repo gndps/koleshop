@@ -118,6 +118,7 @@ public class Constants {
     public static final String ACTION_ORDER_ITEM_COUNT_MINUS = "com.koleshop.action_order_item_count_minus";
     public static final String ACTION_SINGLE_ORDER_FETCH_SUCCESS = "com.koleshop.action_single_order_fetch_success";
     public static final String ACTION_SINGLE_ORDER_FETCH_FAILED = "com.koleshop.action_single_order_fetch_failed";
+    public static final String ACTION_ORDER_UPDATE_NOTIFICATION = "com.koleshop.action_order_update_notification";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";
@@ -127,12 +128,6 @@ public class Constants {
     public static final String ACTION_GCM_REGISTRATION_COMPLETE = "com.koleshop.action_gcm_registration_complete";
     public static final String ACTION_GCM_REGISTRATION_FAILED = "com.koleshop.action_gcm_registration_failed";
     public static final String ACTION_GCM_BROADCAST_INVENTORY_CREATED = "com.koleshop.action_gcm_broadcast_inventory_created";
-    public static final String ACTION_GCM_ORDER_ACCEPTED = "com.koleshop.action_gcm_order_accepted";
-    public static final String ACTION_GCM_ORDER_REJECTED = "com.koleshop.action_gcm_order_rejected";
-    public static final String ACTION_GCM_ORDER_CANCELLED = "com.koleshop.action_gcm_order_cancelled";
-    public static final String ACTION_GCM_ORDER_OUT_FOR_DELIVERY = "com.koleshop.action_gcm_order_out_for_delivery";
-    public static final String ACTION_GCM_ORDER_READY_FOR_PICKUP = "com.koleshop.action_gcm_order_ready_for_pickup";
-    public static final String ACTION_GCM_ORDER_NOT_DELIVERED = "com.koleshop.action_gcm_order_not_delivered";
 
     //Shared preferences keys
     public static final String KEY_REG_ID = "registration_id";
@@ -144,6 +139,8 @@ public class Constants {
     public static final String KEY_SESSION_ID = "pref_session_id";
     public static final String KEY_GOOGLE_API_TOKEN = "pref_google_api_token";
     public static final String KEY_SELLER_SETTINGS = "pref_seller_settings";
+    public static final String KEY_ORDERS_NEED_REFRESHING = "pref_orders_need_refreshing";
+    public static final String KEY_ORDERS_NOTIFICATION_MAP = "pref_orders_notification_map";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";

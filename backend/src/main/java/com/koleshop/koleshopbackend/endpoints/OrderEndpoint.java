@@ -44,9 +44,10 @@ public class OrderEndpoint {
 
         KoleResponse response = new KoleResponse();
         try {
-            if (SessionService.verifyUserAuthenticity(order.getBuyerSettings().getUserId(), sessionId)
-                    || SessionService.verifyUserAuthenticity(order.getSellerSettings().getUserId(), sessionId)) {
-                order = new OrderService().updateOrder(order);
+            if (SessionService.verifyUserAuthenticity(order.getBuyerSettings().getUserId(), sessionId)) {
+                order = new OrderService().updateOrder(order, true);
+            } else if (SessionService.verifyUserAuthenticity(order.getSellerSettings().getUserId(), sessionId)) {
+                order = new OrderService().updateOrder(order, false);
             }
         } catch (Exception e) {
             response.setData(e.getLocalizedMessage());

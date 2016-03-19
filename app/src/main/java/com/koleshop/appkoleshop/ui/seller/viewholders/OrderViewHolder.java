@@ -181,15 +181,15 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     }
                     break;
                 case OrderStatus.REJECTED:
-                    orderDetailsText = "Declined";
+                    orderDetailsText = "Order Declined";
                     statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.MISSED:
-                    orderDetailsText = "Missed";
+                    orderDetailsText = "Order Missed";
                     statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.CANCELLED:
-                    orderDetailsText = "Cancelled";
+                    orderDetailsText = "Order Cancelled";
                     statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.OUT_FOR_DELIVERY:
@@ -217,7 +217,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     statusDrawable = drawableDoubleCheck;
                     break;
                 case OrderStatus.NOT_DELIVERED:
-                    orderDetailsText = "Not Delivered";
+                    orderDetailsText = "Order Not Delivered";
                     statusDrawable = drawableClearRed;
                     break;
 
@@ -268,19 +268,19 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     showProgressBar = true;
                     break;
                 case OrderStatus.ACCEPTED:
-                    orderDetailsText = "Accepted";
+                    orderDetailsText = "Order Accepted";
                     statusDrawable = drawableCheckGreen;
                     break;
                 case OrderStatus.REJECTED:
-                    orderDetailsText = "Declined";
+                    orderDetailsText = "Order Declined";
                     statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.MISSED:
-                    orderDetailsText = "Missed";
+                    orderDetailsText = "Order Missed";
                     statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.CANCELLED:
-                    orderDetailsText = "Cancelled";
+                    orderDetailsText = "Order Cancelled";
                     statusDrawable = drawableClearRed;
                     break;
                 case OrderStatus.OUT_FOR_DELIVERY:
@@ -308,7 +308,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     statusDrawable = drawableDoubleCheck;
                     break;
                 case OrderStatus.NOT_DELIVERED:
-                    orderDetailsText = "Not Delivered";
+                    orderDetailsText = "Order Not Delivered";
                     statusDrawable = drawableClearRed;
                     break;
 

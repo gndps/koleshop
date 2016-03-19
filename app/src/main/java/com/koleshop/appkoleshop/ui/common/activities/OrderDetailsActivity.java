@@ -16,10 +16,12 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.constant.OrderStatus;
 import com.koleshop.appkoleshop.model.Order;
+import com.koleshop.appkoleshop.model.OrderItem;
 import com.koleshop.appkoleshop.services.OrdersIntentService;
 import com.koleshop.appkoleshop.ui.seller.fragments.DeliveryTimeRemainingDialogFragment;
 import com.koleshop.appkoleshop.ui.seller.fragments.orders.OrderDetailsItemListFragment;
 import com.koleshop.appkoleshop.ui.seller.fragments.orders.OrderDetailsFragment;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import org.parceler.Parcels;
 
@@ -103,6 +105,7 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
                 switch (action) {
                     case Constants.ACTION_ORDER_UPDATE_SUCCESS:
                         if (haveChangesLocally) {
+                            haveChangesLocally = false;
                             updateOrderInUi(order);
                         } else {
                             refreshOrderFromInternet();
@@ -122,6 +125,13 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
                         //something went wrong
                         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_SOMETHING_WRONG);
                         break;
+                    case Constants.ACTION_ORDER_UPDATE_NOTIFICATION:
+                        int refreshedOrderId = intent.getIntExtra("orderId", 0);
+                        if (refreshedOrderId > 0 && refreshedOrderId == order.getId()) {
+                            order = null;
+                            refreshOrderFromInternet();
+                            PreferenceUtils.setPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING, true);
+                        }
                 }
             }
         };
@@ -175,6 +185,15 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
 
     public void updateOrderInCloud(Order order) {
         this.order = order;
+        if(order.getStatus() == OrderStatus.READY_FOR_PICKUP || order.getStatus() == OrderStatus.OUT_FOR_DELIVERY) {
+            float deliveryCharges = order.getDeliveryCharges();
+            float carryBagCharges = order.getCarryBagCharges();
+            float availableItemsCharges = 0;
+            for(OrderItem orderItem : order.getOrderItems()) {
+                availableItemsCharges += orderItem.getAvailableCount() * orderItem.getPricePerUnit();
+            }
+            order.setAmountPayable(availableItemsCharges + deliveryCharges + carryBagCharges);
+        }
         haveChangesLocally = true;
         OrdersIntentService.updateOrder(mContext, order);
     }
@@ -188,4 +207,5 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
             }
         }
     }
+
 }
