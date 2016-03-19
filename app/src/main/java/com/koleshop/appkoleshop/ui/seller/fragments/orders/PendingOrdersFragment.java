@@ -227,6 +227,7 @@ public class PendingOrdersFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         setupScrollListenerOnRv();
+        //todo dismiss pending orders notification
     }
 
     private void loadMoreOrders() {

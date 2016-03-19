@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:paddingTop="32dp"
-        android:text="Thanks for Deciding to get in touch"
+        android:text="@string/thanks_for_feedback"
         android:textColor="@color/secondary_text"
         android:fontFamily="sans-serif-light"
         android:layout_alignParentTop="true"

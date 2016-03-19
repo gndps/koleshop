@@ -132,6 +132,9 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             if (parcelableCart != null) {
                 cart = Parcels.unwrap(parcelableCart);
             }
+            if (cart != null) {
+                toolbar.setSubtitle(cart.getSellerSettings().getAddress().getName());
+            }
 
             //restore fragment state
             int deliveryOptionsSelection = savedInstanceState.getInt(DELIVERY_OPTIONS_SELECTIONS_KEY);

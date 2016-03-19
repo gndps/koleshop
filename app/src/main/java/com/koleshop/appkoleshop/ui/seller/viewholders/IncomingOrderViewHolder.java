@@ -68,7 +68,7 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         this.mContext = context;
         ButterKnife.bind(this, itemView);
-        setupClickListeners();
+        setupClickListeners(itemView);
     }
 
     public void bindData(Order order, int position, boolean showProgressBar) {
@@ -129,9 +129,9 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
             time = day + CommonUtils.getSimpleTimeString(order.getRequestedDeliveryTime());
 
             //append pickup if applicable
-            if (pickup) {
+            /*if (pickup) {
                 time += " Pickup";
-            }
+            }*/
         }
         textViewTimings.setText(time);
 
@@ -153,7 +153,7 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
 
     }
 
-    public void setupClickListeners() {
+    public void setupClickListeners(View itemView) {
         buttonAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,6 +167,12 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
             }
         });
         buttonDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                orderInteractionListener.onDetailsButtonClicked(order.getId());
+            }
+        });
+        itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 orderInteractionListener.onDetailsButtonClicked(order.getId());

@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +25,7 @@ import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.services.BuyerIntentService;
 import com.koleshop.appkoleshop.ui.seller.adapters.OrderAdapter;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import org.parceler.Parcels;
 
@@ -85,6 +85,9 @@ public class MyOrdersFragment extends Fragment {
         ButterKnife.bind(this, view);
         initializeBroadcastReceiver();
         fetchOrdersFromInternet();
+        if (PreferenceUtils.getPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING)) {
+            PreferenceUtils.setPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING, false);
+        }
         return view;
     }
 
@@ -135,18 +138,21 @@ public class MyOrdersFragment extends Fragment {
                             }
                         }
                         break;
-                    case Constants.ACTION_GCM_ORDER_ACCEPTED:
-                        Long acceptedOrderId = intent.getLongExtra("order_id", 0);
-                        if(acceptedOrderId!=null && acceptedOrderId>0) {
-                            orderAccepted(acceptedOrderId);
+                    case Constants.ACTION_ORDER_UPDATE_NOTIFICATION:
+                        Long orderId = intent.getLongExtra("orderId", 0);
+                        if (orderId > 0) {
+                            int newOrderStatus = intent.getIntExtra("status", 0);
+                            if(newOrderStatus == OrderStatus.ACCEPTED) {
+                                orderAccepted(orderId);
+                            } else if(newOrderStatus == OrderStatus.REJECTED) {
+                                orderRejected(orderId);
+                            } else {
+                                fetchOrdersFromInternet();
+                            }
                         }
+                        abortBroadcast();
                         break;
-                    case Constants.ACTION_GCM_ORDER_REJECTED:
-                        Long rejectedOrderId = intent.getLongExtra("order_id", 0);
-                        if(rejectedOrderId!=null && rejectedOrderId>0) {
-                            orderRejected(rejectedOrderId);
-                        }
-                        break;
+
                 }
             }
         };
@@ -154,7 +160,7 @@ public class MyOrdersFragment extends Fragment {
 
     private void orderAccepted(Long acceptedOrderId) {
         int orderPosition = getOrderPositionWithId(acceptedOrderId);
-        if(orderPosition>-1) {
+        if (orderPosition > -1) {
             orders.get(orderPosition).setStatus(OrderStatus.ACCEPTED);
         }
         adapter.setOrdersList(orders, true);
@@ -163,7 +169,7 @@ public class MyOrdersFragment extends Fragment {
 
     private void orderRejected(Long rejectedOrderId) {
         int orderPosition = getOrderPositionWithId(rejectedOrderId);
-        if(orderPosition>-1) {
+        if (orderPosition > -1) {
             orders.get(orderPosition).setStatus(OrderStatus.REJECTED);
         }
         adapter.setOrdersList(orders, true);
@@ -172,10 +178,10 @@ public class MyOrdersFragment extends Fragment {
 
     private int getOrderPositionWithId(Long orderId) {
         int orderPosition = -1;
-        if(orders!=null && orders.size()>0) {
+        if (orders != null && orders.size() > 0) {
             int position = 0;
             for (Order order : orders) {
-                if(order.getId().equals(orderId)) {
+                if (order.getId().equals(orderId)) {
                     orderPosition = position;
                     break;
                 }
@@ -202,8 +208,11 @@ public class MyOrdersFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_FAILED));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NO_ORDERS_FETCHED));
-        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_GCM_ORDER_ACCEPTED));
-        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_GCM_ORDER_REJECTED));
+        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_UPDATE_NOTIFICATION));
+        if (PreferenceUtils.getPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING)) {
+            fetchOrdersFromInternet();
+            PreferenceUtils.setPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING, false);
+        }
     }
 
     @Override
@@ -224,7 +233,7 @@ public class MyOrdersFragment extends Fragment {
     private void fetchMoreOrdersFromInternet() {
         progressBarLoadMore.setVisibility(View.VISIBLE);
         if (CommonUtils.isConnectedToInternet(mContext)) {
-            if(orders.size()>=ORDERS_LOAD_COUNT) {
+            if (orders.size() >= ORDERS_LOAD_COUNT) {
                 BuyerIntentService.getMyOrders(mContext, ORDERS_LOAD_COUNT, orders.size());
             }
         } else {

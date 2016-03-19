@@ -35,25 +35,13 @@ public class Constants {
 
 	//gcm notification keys
 	public static String GCM_NOTI_USER_INVENTORY_CREATED = "gcm_noti_user_inventory_created";
-	public static String GCM_NOTI_INCOMING_ORDER = "gcm_noti_incoming_order";
+	public static String GCM_NOTI_ORDER_UPDATED = "gcm_noti_order_updated";
 	public static String GCM_NOTI_DELETE_OLD_SETTINGS_CACHE = "gcm_noti_delete_old_settings_cache";
-	public static String GCM_NOTI_ORDER_ACCEPTED = "gcm_noti_order_accepted";
-	public static String GCM_NOTI_ORDER_REJECTED = "gcm_noti_order_rejected";
-	public static String GCM_NOTI_ORDER_CANCELLED = "gcm_noti_order_cancelled";
-	public static String GCM_NOTI_ORDER_OUT_FOR_DELIVERY = "gcm_noti_order_out_for_delivery";
-	public static String GCM_NOTI_ORDER_READY_FOR_PICKUP = "gcm_noti_order_ready_for_pickup";
-	public static String GCM_NOTI_ORDER_NOT_DELIVERED = "gcm_noti_order_not_delivered";
 
 	//notification collapse keys
     public static String GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED = "gcm_coll_inventory_created";
 	public static String GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE = "gcm_coll_delete_old_settings_cache";
-	public static String GCM_NOTI_COLLAPSE_KEY_INCOMING_ORDER = "gcm_coll_incoming_order";
-	public static String GCM_NOTI_COLLAPSE_KEY_ORDER_ACCEPTED = "gcm_coll_order_accepted";
-	public static String GCM_NOTI_COLLAPSE_KEY_ORDER_REJECTED = "gcm_coll_order_rejected";
-	public static String GCM_NOTI_COLLAPSE_KEY_ORDER_CANCELLED = "gcm_coll_order_cancelled";
-	public static String GCM_NOTI_COLLAPSE_KEY_ORDER_OUT_FOR_DELIVERY = "gcm_coll_order_out_for_delivery";
-	public static String GCM_NOTI_COLLAPSE_KEY_ORDER_READY_FOR_PICKUP = "gcm_coll_order_ready_for_pickup";
-	public static String GCM_NOTI_COLLAPSE_KEY_ORDER_NOT_DELIVERED = "gcm_coll_order_not_delivered";
+	public static String GCM_NOTI_COLLAPSE_KEY_ORDER_UPDATED = "gcm_coll_order_updated";
 
 	public static String GCM_DEMO_MESSAGE_COLLAPSE_KEY = "demo_coll_key";
 	public static String GCM_DEMO_MESSAGE = "demo_key";

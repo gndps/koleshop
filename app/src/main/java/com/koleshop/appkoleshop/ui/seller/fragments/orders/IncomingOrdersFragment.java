@@ -219,6 +219,7 @@ public class IncomingOrdersFragment extends Fragment {
         adapter.setOrdersList(orders);
         adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
+        //todo dismiss all incoming order notifications
     }
 
     private void fetchOrdersFromInternet() {

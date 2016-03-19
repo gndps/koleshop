@@ -79,6 +79,12 @@ public class PreferenceUtils {
         return editor;
     }
 
+    public static SharedPreferences getSharedPreferences(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(Prefs.KOLE_PREFS, Context.MODE_PRIVATE);
+        return prefs;
+    }
+
+
     public static void clearUserSettings(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(Prefs.KOLE_PREFS, Context.MODE_PRIVATE);
         prefs.edit().clear().commit();
@@ -130,6 +136,24 @@ public class PreferenceUtils {
 
     public static boolean isUserLoggedIn(Context context) {
         return getUserId(context)>0;
+    }
+
+    public static boolean isSessionTypeSeller(Context context) {
+        String sessionType = PreferenceUtils.getPreferences(context, Constants.KEY_USER_SESSION_TYPE);
+        if(sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isSessionTypeBuyer(Context context) {
+        String sessionType = PreferenceUtils.getPreferences(context, Constants.KEY_USER_SESSION_TYPE);
+        if(sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_BUYER)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /*public static Double getGpsLong(Context context) {

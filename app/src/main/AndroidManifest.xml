@@ -217,7 +217,16 @@
         <activity
             android:name=".ui.common.activities.LegalActivity"
             android:label="@string/title_activity_legal"
-            android:theme="@style/AppTheme.Base"></activity>
+            android:theme="@style/AppTheme.Base" />
+
+        <receiver
+            android:name=".receiver.OrderUpdateReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.koleshop.action_order_update_notification" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

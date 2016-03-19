@@ -172,6 +172,7 @@ public class OrderDetailsFragment extends Fragment {
         }
 
         //05. Set delivery relative time and configure buttons
+        //customer and seller cases are handled separately
         String titleString;
         switch (order.getStatus()) {
             case OrderStatus.INCOMING:

@@ -178,5 +178,6 @@
     <string name="navigation_drawer_feedback">FEEDBACK</string>
     <string name="title_activity_feedback">Feedback</string>
     <string name="title_activity_legal">LegalActivity</string>
+    <string name="thanks_for_feedback">Thanks for Deciding to Get in Touch</string>
 
 </resources>
