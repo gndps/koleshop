@@ -3,11 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.koleshop.appkoleshop.ui.buyer.activities.CartActivity">
 
+
     <item
-        android:id="@+id/hidden_menu"
-        android:icon="@drawable/ic_more_vert_white_24dp"
-        android:orderInCategory="100"
-        android:title="options"
-        app:showAsAction="always" />
+        android:id="@+id/cancel"
+        app:showAsAction="never"
+        android:title="Cancel"
+        />
+
+    <item
+        android:id="@+id/call"
+        app:showAsAction="never"
+        android:title="Call" />
+    <item
+        android:id="@+id/not_delivered"
+        app:showAsAction="never"
+        android:title="Not delivered" />
+
 
 </menu>

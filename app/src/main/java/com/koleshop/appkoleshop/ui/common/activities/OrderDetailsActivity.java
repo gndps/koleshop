@@ -11,9 +11,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.PopupMenu;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.klinker.android.sliding.SlidingActivity;
@@ -45,6 +42,7 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
     boolean haveChangesLocally;
     boolean customerView;
     Long orderId;
+
 
     OrderDetailsItemListFragment orderDetailsItemListFragment;
     OrderDetailsFragment orderDetailsFragment;
@@ -169,6 +167,17 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
         this.order = order;
         loadOrderContent();
     }
+    //refreshMenu(order.getStatus());
+
+/*
+    private void refreshMenu(int  flag) {
+        if(flag==OrderStatus.CANCELLED)
+        {
+            menu.removeItem(R.id.cancel);
+        }
+
+    }*/
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -178,33 +187,14 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        View menuItemView = findViewById(R.id.hidden_menu);
-        PopupMenu popup = new PopupMenu(this, menuItemView);
-        popup.getMenuInflater().inflate(R.menu.popup_menu_order_details_activity, popup.getMenu());
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-             /*   switch (item.getItemId())
-                {
-                    case R.id.cancel:
-                        order.setStatus(OrderStatus.CANCELLED);
-                        loadOrderContent();
-                        break;
-                    case R.id.call:
-                        order.setStatus(OrderStatus.INCOMING);
-                        loadOrderContent();
-                        break;
-                    case R.id.not_delivered:
-                        order.setStatus(OrderStatus.NOT_DELIVERED);
-                        loadOrderContent();
-                        break;
-                }*/
-                Toast.makeText(mContext, "You Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+        switch (item.getItemId()) {
+            case R.id.cancel:
+                order.setStatus(OrderStatus.CANCELLED);
+                updateOrderInCloud(order);
                 return true;
-            }
-        });
-        popup.show();
-        return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public void deliveryTimeRemainingSelected(int minutes) {
@@ -228,5 +218,13 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
                 OrdersIntentService.getOrderForId(mContext, orderId);
             }
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            menu.removeItem(R.id.cancel);
+        }
+        return true;
     }
 }
