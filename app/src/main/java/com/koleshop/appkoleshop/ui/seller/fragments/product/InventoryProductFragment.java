@@ -91,7 +91,6 @@ public class InventoryProductFragment extends Fragment {
         }
         mContext = getActivity();
         refreshProductsInsteadOfReloading = false;
-        fetchProducts();
     }
 
     @Override
@@ -116,6 +115,7 @@ public class InventoryProductFragment extends Fragment {
         initializeBroadcastReceivers();
         lm = new LayoutManager(getActivity());
         recyclerView.setLayoutManager(lm);
+        fetchProducts();
         return layout;
     }
 
@@ -140,6 +140,7 @@ public class InventoryProductFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_INCREASE_VARIETY_COUNT));
         lbm.registerReceiver(mBroadcastReceiverInventoryProductFragment, new IntentFilter(Constants.ACTION_DECREASE_VARIETY_COUNT));
 
+        Log.d(TAG, "InventoryProductFragment onResume for categoryId = " + categoryId);
         KoleshopSingleton koleshopSingleton = KoleshopSingleton.getSharedInstance();
         if(koleshopSingleton.isReloadProducts() && koleshopSingleton.getReloadProductsCategoryIds()!=null) {
             //refresh products list to show changes
@@ -165,18 +166,18 @@ public class InventoryProductFragment extends Fragment {
                     //fetch product success
                     if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_SUCCESS)) {
                         long receivedCategoryId = intent.getLongExtra("catId", 0l);
-                        //Log.d(TAG, "receivedCategoryId = " + receivedCategoryId + " and categoryId = " + categoryId);
+                        Log.d(TAG, "receivedCategoryId = " + receivedCategoryId + " and categoryId = " + categoryId);
                         if (receivedCategoryId == categoryId) {
-                            //Log.d(TAG, "yippie...will load products now for categoryId = " + categoryId);
+                            Log.d(TAG, "yippie...will load products now for categoryId = " + categoryId);
                             loadProducts(null);
                         } else {
-                            //Log.d(TAG, "wtf is happening");
+                            Log.d(TAG, "wtf is happening");
                         }
 
                         //fetch products failed
                     } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED)) {
                         long receivedCategoryId = intent.getLongExtra("catId", 0l);
-                        //Log.d(TAG, "FAIL...receivedCategoryId = " + receivedCategoryId + " and categoryId = " + categoryId);
+                        Log.d(TAG, "FAIL...receivedCategoryId = " + receivedCategoryId + " and categoryId = " + categoryId);
                         if (receivedCategoryId == categoryId) {
                             couldNotLoadProducts();
                         }
@@ -270,6 +271,7 @@ public class InventoryProductFragment extends Fragment {
 
     private void fetchProducts() {
         //load products on a background thread
+        Log.d(TAG, "fetching products for categoryId = " + categoryId);
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -278,6 +280,7 @@ public class InventoryProductFragment extends Fragment {
 
                 if (cachedProductsAvailable && (!refreshProductsInsteadOfReloading || inventoryProductAdapter==null)) {
 
+                    Log.d(TAG, "will load products for categoryId = " + categoryId);
                     //show a mandatory progress bar for 350 ms...to make smooth transitions between tabs
                     Date threadStartTimeStamp = new Date();
                     int FRAGMENT_LOAD_WAIT_TIME = 350; //in milliseconds
@@ -286,6 +289,7 @@ public class InventoryProductFragment extends Fragment {
                     if (timeDiff < FRAGMENT_LOAD_WAIT_TIME) {
                         long sleepTime = FRAGMENT_LOAD_WAIT_TIME - timeDiff;
                         try {
+                            Log.d(TAG, "showing a 350 ms timer for categoryId = " + categoryId);
                             Thread.sleep(sleepTime);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -293,16 +297,19 @@ public class InventoryProductFragment extends Fragment {
                     }
 
                     //load products list
+                    Log.d(TAG, "350 ms timer complete for categoryId = " + categoryId);
                     FragmentActivity activity = getActivity();
                     if (activity != null) {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                Log.d(TAG, "loading products after timer for categoryId = " + categoryId);
                                 loadProducts(listOfProducts);
                             }
                         });
                     }
                 } else if (cachedProductsAvailable && refreshProductsInsteadOfReloading && inventoryProductAdapter!=null) {
+                    Log.d(TAG, "will refresh products for categoryId = " + categoryId);
                     inventoryProductAdapter.setProductsList(listOfProducts);
                     if(customerView) {
                         //seller settings are required only when add to cart is needed
@@ -310,6 +317,7 @@ public class InventoryProductFragment extends Fragment {
                     }
                     inventoryProductAdapter.notifyItemRangeChanged(0, inventoryProductAdapter.getItemCount());
                 } else {
+                    Log.d(TAG, "will fetch products from internet for categoryId = " + categoryId);
                     fetchProductsFromInternet();
                 }
             }
@@ -325,6 +333,7 @@ public class InventoryProductFragment extends Fragment {
         intent.putExtra("categoryId", categoryId);
         intent.putExtra("myInventory", myInventory);
         intent.putExtra("customerView", customerView);
+        Log.d(TAG, "trying to fetch product for category id = " + categoryId);
         if(customerView) {
             intent.putExtra("sellerId", getSellerIdFromParentActivity());
         }
@@ -337,6 +346,7 @@ public class InventoryProductFragment extends Fragment {
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_right_margin))
                 .build());*/
         FragmentActivity activity = getActivity();
+        Log.d(TAG, "will load products into ui for categoryId = " + categoryId);
         if (activity == null) {
             return;
         } else {
@@ -410,10 +420,10 @@ public class InventoryProductFragment extends Fragment {
                         //seller settings are required only when add to cart is needed
                         inventoryProductAdapter.setSellerSettings(mListener.getSellerSettings());
                     }
-                    //Log.d(TAG, "will set view flipper 2 for category id =" + categoryId);
+                    Log.d(TAG, "will set view flipper recycler view for category id =" + categoryId);
                     viewFlipper.setDisplayedChild(VF_RECYCLER_VIEW);
                 } else {
-                    //Log.d(TAG, "will set view flipper 3 for category id =" + categoryId );
+                    Log.d(TAG, "will set view flipper no products for category id =" + categoryId );
                     viewFlipper.setDisplayedChild(VF_NO_PRODUCTS);
                 }
             } catch (Exception e) {

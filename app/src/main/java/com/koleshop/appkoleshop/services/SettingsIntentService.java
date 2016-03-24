@@ -201,14 +201,13 @@ public class SettingsIntentService extends IntentService {
             //saved the settings object...extract that shit
 
             //convert the result to string and save in preferences
-            ArrayMap<String, Object> map = (ArrayMap<String, Object>) result.getData();
-            SellerSettings receivedSellerSettings = CloudEndpointDataExtractionUtil.getSellerSettings(map);
-            RealmUtils.saveSellerSettings(receivedSellerSettings);
-
-
-
-            //update the network request status
-            NetworkUtils.setRequestStatusSuccess(context, uniqueRequestId);
+            String settingsUpdatedString = (String) result.getData();
+            if (settingsUpdatedString.equalsIgnoreCase("settings_updated")) {
+                //settings updated successfully
+                //update the network request status
+                NetworkUtils.setRequestStatusSuccess(context, uniqueRequestId);
+                RealmUtils.saveSellerSettings(sellerSettings);
+            }
 
             if (listener != null) {
                 //call the success callback
@@ -281,12 +280,12 @@ public class SettingsIntentService extends IntentService {
             if (listener != null) {
                 //call the success callback
                 listener.send(RESULT_CODE_SETTINGS_FETCH_SUCCESS, null);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.ACTION_REFRESH_SELLER_SETTINGS));
             }
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.ACTION_REFRESH_SELLER_SETTINGS));
 
-        } else if(result!=null && !result.getSuccess()) {
+        } else if (result != null && !result.getSuccess()) {
             NetworkUtils.setRequestStatusSuccess(context, uniqueRequestId);
-            if(listener != null) {
+            if (listener != null) {
                 listener.send(RESULT_CODE_SETTINGS_FETCH_SUCCESS, null);
             }
         } else {

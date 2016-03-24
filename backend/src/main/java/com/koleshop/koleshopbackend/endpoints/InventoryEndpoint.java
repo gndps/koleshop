@@ -156,4 +156,45 @@ public class InventoryEndpoint {
         return response;
     }
 
+    @ApiMethod(name = "getOutOfStockProductVarieties", httpMethod = ApiMethod.HttpMethod.POST, path = "outofstock")
+    public KoleResponse getOutOfStockProductVarieties(@Named("userId") Long userId, @Named("sessionId") String sessionId) {
+
+        KoleResponse response = new KoleResponse();
+        List<InventoryProduct> products = null;
+        try {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId, Constants.USER_SESSION_TYPE_SELLER)) {
+                products = new InventoryService().getOutOfStockProducts(userId);
+            }
+        } catch (Exception e) {
+            response.setData(e.getLocalizedMessage());
+        }
+        if (products != null) {
+            response.setSuccess(true);
+            response.setData(products);
+        } else if (products.size() > 0) {
+            response.setSuccess(true);
+            response.setData("no products found");
+        } else {
+            response.setSuccess(false);
+        }
+        return response;
+    }
+
+    @ApiMethod(name = "backInStock", httpMethod = ApiMethod.HttpMethod.POST, path = "backinstock")
+    public KoleResponse backInStock(@Named("userId") Long userId, @Named("sessionId") String sessionId, @Named("varietyId") Long varietyId) {
+
+        KoleResponse response = new KoleResponse();
+        boolean updated = false;
+        try {
+            if (SessionService.verifyUserAuthenticity(userId, sessionId, Constants.USER_SESSION_TYPE_SELLER)) {
+                updated = new InventoryService().backInStock(varietyId, userId);
+            }
+        } catch (Exception e) {
+            response.setData(e.getLocalizedMessage());
+        }
+        response.setSuccess(updated);
+        response.setData("");
+        return response;
+    }
+
 }

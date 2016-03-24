@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,13 +34,17 @@ import android.widget.TextView;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.services.SettingsIntentService;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.ImageUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.NetworkUtils;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -47,8 +53,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import butterknife.Bind;
+import butterknife.BindDrawable;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 
 public class ChangePictureActivity extends AppCompatActivity {
 
@@ -61,10 +69,14 @@ public class ChangePictureActivity extends AppCompatActivity {
     ImageView imageViewPicture;
     @BindString(R.string.title_shop_picture)
     String shopTitle;
+    @BindString(R.string.profile_picture)
+    String yourPictureTitle;
     @Bind(R.id.ll_activity_change_picture)
     LinearLayout linearLayout;
     @Bind(R.id.pb_acp)
     ProgressBar progressBar;
+    @BindDrawable(R.drawable.ic_user_profile)
+    Drawable profileDrawable;
 
     Context mContext;
     private String currentPhotoPath;
@@ -74,6 +86,7 @@ public class ChangePictureActivity extends AppCompatActivity {
     private String imageUrl;
     private int widthDimensionInDp;
     private boolean isHeaderImage;
+    private boolean buyerMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,14 +94,16 @@ public class ChangePictureActivity extends AppCompatActivity {
         setContentView(R.layout.activity_change_picture);
         ButterKnife.bind(this);
         mContext = this;
+        if (savedInstanceState != null) {
+            isHeaderImage = savedInstanceState.getBoolean("isHeaderImage");
+            buyerMode = savedInstanceState.getBoolean("buyerMode");
+        } else if (getIntent() != null && getIntent().getExtras() != null) {
+            isHeaderImage = getIntent().getExtras().getBoolean("isHeaderImage");
+            buyerMode = getIntent().getExtras().getBoolean("buyerMode");
+        }
         setupToolbar();
         setupImageView();
         initializeBroadcastReceiver();
-        if (savedInstanceState != null) {
-            isHeaderImage = savedInstanceState.getBoolean("isHeaderImage");
-        } else if (getIntent() != null && getIntent().getExtras() != null) {
-            isHeaderImage = getIntent().getExtras().getBoolean("isHeaderImage");
-        }
     }
 
     @Override
@@ -121,7 +136,7 @@ public class ChangePictureActivity extends AppCompatActivity {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(broadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_SUCCESS));
         lbm.registerReceiver(broadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_FAILED));
-        refreshImage(false);
+        refreshImage();
     }
 
     @Override
@@ -134,6 +149,7 @@ public class ChangePictureActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("isHeaderImage", isHeaderImage);
+        outState.putBoolean("buyerMode", buyerMode);
     }
 
     private void initializeBroadcastReceiver() {
@@ -146,8 +162,20 @@ public class ChangePictureActivity extends AppCompatActivity {
                     if (tag != null && !tag.isEmpty() && filename != null && !filename.isEmpty() && tag.equalsIgnoreCase(imageUploadRequestId)) {
                         NetworkUtils.setRequestStatusComplete(mContext, tag);
                         imageUrl = Constants.PUBLIC_PROFILE_IMAGE_URL_PREFIX + filename;
-                        SettingsIntentService.refreshSellerSettings(mContext);
-                        refreshImage(false);
+                        if(!buyerMode) {
+                            SettingsIntentService.refreshSellerSettings(mContext);
+                        } else {
+                            BuyerSettings buyerSettings = RealmUtils.getBuyerSettings();
+                            if(buyerSettings!=null) {
+                                buyerSettings.setImageUrl(imageUrl);
+                            } else {
+                                buyerSettings = new BuyerSettings();
+                                buyerSettings.setUserId(PreferenceUtils.getUserId(mContext));
+                                buyerSettings.setImageUrl(imageUrl);
+                            }
+                            RealmUtils.saveBuyerSettings(buyerSettings);
+                        }
+                        refreshImage();
                     }
 
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_UPLOAD_IMAGE_FAILED)) {
@@ -163,7 +191,13 @@ public class ChangePictureActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        toolbar.setTitle(shopTitle);
+
+        if(buyerMode) {
+            toolbar.setTitle(yourPictureTitle);
+        } else {
+            toolbar.setTitle(shopTitle);
+        }
+
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
         CommonUtils.getActionBarTextView(toolbar).setTypeface(typeface);
 
@@ -200,12 +234,13 @@ public class ChangePictureActivity extends AppCompatActivity {
 
     }
 
-    private void refreshImage(boolean buyerMode) {
-        if (!buyerMode) {
+    private void refreshImage() {
 
-            if (TextUtils.isEmpty(imageUrl)) {
-                SellerSettings sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
-
+        if (TextUtils.isEmpty(imageUrl)) {
+            //01. Load image url from settings
+            SellerSettings sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
+            BuyerSettings buyerSettings = RealmUtils.getBuyerSettings();
+            if (!buyerMode) {
                 if (sellerSettings != null
                         &&
                         ((!TextUtils.isEmpty(sellerSettings.getImageUrl()) && !isHeaderImage)
@@ -217,61 +252,112 @@ public class ChangePictureActivity extends AppCompatActivity {
                         imageUrl = sellerSettings.getImageUrl();
                     }
                 }
-                if (TextUtils.isEmpty(imageUrl)) {
-                    progressBar.setVisibility(View.GONE);
+            } else {
+                if(buyerSettings!=null && !TextUtils.isEmpty(buyerSettings.getImageUrl())) {
+                    imageUrl = buyerSettings.getImageUrl();
+                }
+            }
+
+            //02. Load image url into image
+            if (TextUtils.isEmpty(imageUrl)) {
+                //02.01 if image url is not available, then load the placeholder image
+                progressBar.setVisibility(View.GONE);
+                if (!buyerMode) {
                     if (sellerSettings != null && sellerSettings.getAddress() != null
                             && !TextUtils.isEmpty(sellerSettings.getAddress().getName())) {
                         TextDrawable textDrawable = KoleshopUtils.getTextDrawable(mContext, sellerSettings.getAddress().getName(), false);
                         imageViewPicture.setImageDrawable(textDrawable);
                     }
                 } else {
-                    if (!TextUtils.isEmpty(currentPhotoPath)) {
-                        progressBar.setVisibility(View.GONE);
-                        Picasso.with(mContext)
-                                .load(currentPhotoPath)
-                                .fit().centerCrop()
-                                .into(imageViewPicture);
-                    } else {
-                        progressBar.setVisibility(View.VISIBLE);
-                        Picasso.with(mContext)
-                                .load(imageUrl)
-                                .fit().centerCrop()
-                                .into(imageViewPicture, new Callback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-
-                                    @Override
-                                    public void onError() {
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-                                });
-                    }
+                    imageViewPicture.setImageDrawable(profileDrawable);
                 }
             } else {
-                progressBar.setVisibility(View.VISIBLE);
-                Picasso.with(mContext)
-                        .load(imageUrl)
-                        .fit().centerCrop()
-                        .into(imageViewPicture, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                progressBar.setVisibility(View.GONE);
-                            }
+                //02.02 if image url is available then load the picture into ui
+                if (!TextUtils.isEmpty(currentPhotoPath)) {
+                    progressBar.setVisibility(View.GONE);
+                    Picasso.with(mContext)
+                            .load(currentPhotoPath)
+                            .networkPolicy(NetworkPolicy.OFFLINE)
+                            .fit().centerCrop()
+                            .into(imageViewPicture, new Callback() {
+                                @Override
+                                public void onSuccess() {
 
-                            @Override
-                            public void onError() {
-                                progressBar.setVisibility(View.GONE);
-                            }
-                        });
+                                }
+
+                                @Override
+                                public void onError() {
+                                    Picasso.with(mContext)
+                                            .load(currentPhotoPath)
+                                            .fit().centerCrop()
+                                            .into(imageViewPicture);
+                                }
+                            });
+                } else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    Picasso.with(mContext)
+                            .load(imageUrl)
+                            .networkPolicy(NetworkPolicy.OFFLINE)
+                            .fit().centerCrop()
+                            .into(imageViewPicture, new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    progressBar.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onError() {
+                                    Picasso.with(mContext)
+                                            .load(imageUrl)
+                                            .fit().centerCrop()
+                                            .into(imageViewPicture, new Callback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    progressBar.setVisibility(View.GONE);
+                                                }
+
+                                                @Override
+                                                public void onError() {
+                                                    progressBar.setVisibility(View.GONE);
+                                                }
+                                            });
+                                }
+                            });
+                }
             }
-        }
-        else
-        {
+        } else {
+            progressBar.setVisibility(View.VISIBLE);
+            Picasso.with(mContext)
+                    .load(imageUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .fit().centerCrop()
+                    .into(imageViewPicture, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            progressBar.setVisibility(View.GONE);
+                        }
 
+                        @Override
+                        public void onError() {
+                            Picasso.with(mContext)
+                                    .load(imageUrl)
+                                    .fit().centerCrop()
+                                    .into(imageViewPicture, new Callback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            progressBar.setVisibility(View.GONE);
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                            progressBar.setVisibility(View.GONE);
+                                        }
+                                    });
+                        }
+                    });
         }
     }
+
     public void createImagePickDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(R.string.choose_image_picker)

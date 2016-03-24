@@ -419,14 +419,14 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                 minutesLater = CommonUtils.getMinutesDifference(deliveryTime);
                 if(hoursLater<0 || minutesLater <0) {
                     scrollView.smoothScrollTo(0, scrollView.getBottom() / 3);
-                    Snackbar.make(toolbar, "Please choose a delivery time in future", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(toolbar, "Please choose a delivery time in future", Snackbar.LENGTH_SHORT).show();
                     return false;
                 } else {
                     return true;
                 }
             default:
                 scrollView.smoothScrollTo(0, scrollView.getBottom() / 3);
-                Snackbar.make(toolbar, "Please choose a delivery time", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(toolbar, "Please choose a delivery time", Snackbar.LENGTH_SHORT).show();
                 return false;
         }
     }
@@ -442,14 +442,14 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             if (TextUtils.isEmpty(selectedAddress.getName()) || TextUtils.isEmpty(selectedAddress.getAddress())
                     || (selectedAddress.getPhoneNumber() == null || selectedAddress.getPhoneNumber() < 10000)) {
                 //address is not valid
-                Snackbar.make(toolbar, "Please set a delivery address", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(toolbar, "Please set a delivery address", Snackbar.LENGTH_SHORT).show();
                 scrollView.smoothScrollTo(0, scrollView.getBottom());
                 return false;
             } else {
                 return true;
             }
         } else {
-            Snackbar.make(toolbar, "Please select a valid delivery address", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(toolbar, "Please select a valid delivery address", Snackbar.LENGTH_SHORT).show();
             scrollView.scrollTo(0, scrollView.getBottom());
             return false;
         }

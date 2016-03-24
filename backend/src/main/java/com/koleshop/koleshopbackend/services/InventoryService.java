@@ -33,7 +33,7 @@ public class InventoryService {
 
         String query;
 
-        if(myInventory) {
+        if (myInventory) {
             query = "select pc1.id,pc1.name,pc1.description,pc1.image_url,pc1.sort_order from ProductCategory pc1 join ProductCategory pc2 on pc1.id = pc2.parent_category_id " +
                     "and (pc1.parent_category_id is null or pc1.parent_category_id = '0') " +
                     "join Product p on p.category_id = pc2.id and p.user_id=? and p.valid='1' " +
@@ -42,18 +42,17 @@ public class InventoryService {
                     "order by pc1.sort_order;";
 
         } else {
-            query = "select id,name,description,image_url,sort_order from ProductCategory where (parent_category_id is null or parent_category_id = '0') and id not in ("
-                    + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
-                    + ") order by sort_order asc";
+            query = "select id,name,description,image_url,sort_order from ProductCategory where (parent_category_id is null or parent_category_id = '0') and valid = '1' "
+                    + " order by sort_order asc";
         }
 
-        logger.log(Level.INFO, "query="+query);
+        logger.log(Level.INFO, "query=" + query);
 
         try {
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
 
-            if(myInventory) {
+            if (myInventory) {
                 preparedStatement.setLong(1, userId);
             }
 
@@ -80,7 +79,7 @@ public class InventoryService {
         PreparedStatement preparedStatement = null;
 
         String query;
-        if(myInventory) {
+        if (myInventory) {
             query = "select pc.id,pc.name,pc.sort_order from ProductCategory pc inner join Product p on p.category_id = pc.id and p.user_id=? and p.valid='1' " +
                     "join ProductVariety pv on p.id = pv.product_id and pv.valid='1' " +
                     "where parent_category_id=? " +
@@ -93,7 +92,7 @@ public class InventoryService {
         try {
             dbConnection = DatabaseConnection.getConnection();
             preparedStatement = dbConnection.prepareStatement(query);
-            if(myInventory) {
+            if (myInventory) {
                 preparedStatement.setLong(1, userId);
                 preparedStatement.setLong(2, categoryId);
             } else {
@@ -149,7 +148,7 @@ public class InventoryService {
                 "order by brand asc,i.name asc,ivar_id asc;";*/
 
         String newQuery;
-        if(myInventory) {
+        if (myInventory) {
             newQuery = "select p.id,p.name,b.name as brand,pv.id as pvar_id,pv.quantity,pv.price as price,pv.image,pv.limited_stock,'1' as selected" +
                     " from Product p join ProductVariety pv" +
                     " on p.id = pv.product_id and pv.valid='1'" +
@@ -179,11 +178,11 @@ public class InventoryService {
             InventoryProduct currentInventoryProduct = null;
 
             while (rs.next()) {
-                if(currentInventoryProduct!=null && rs.getLong(1)==currentInventoryProduct.getId()) {
+                if (currentInventoryProduct != null && rs.getLong(1) == currentInventoryProduct.getId()) {
                     //use the existing currentInventoryProduct
                 } else {
                     //save the inventory product from previous iteration
-                    if(currentInventoryProduct!=null) {
+                    if (currentInventoryProduct != null) {
                         //---------------------------------------> place 88
                         currentInventoryProduct.setVarieties(inventoryProductVarieties);
                         result.add(currentInventoryProduct);
@@ -215,7 +214,7 @@ public class InventoryService {
             }
 
             //after the last iteration, control will not go to place 88, so add the last product manually
-            if(currentInventoryProduct!=null) {
+            if (currentInventoryProduct != null) {
                 currentInventoryProduct.setVarieties(inventoryProductVarieties);
                 result.add(currentInventoryProduct);
             }
@@ -238,13 +237,13 @@ public class InventoryService {
 
         List<Long> selectionProductsList = productVarietySelection.getSelectProductIds();
         String selectionProducts = "";
-        if(selectionProductsList!=null && selectionProductsList.size()>0) {
+        if (selectionProductsList != null && selectionProductsList.size() > 0) {
             selectionProducts = StringUtils.join(productVarietySelection.getSelectProductIds(), ',');
         }
 
         List<Long> deselectionProductsList = productVarietySelection.getDeselectProductIds();
         String deselectionProducts = "";
-        if(deselectionProductsList!=null && deselectionProductsList.size()>0) {
+        if (deselectionProductsList != null && deselectionProductsList.size() > 0) {
             deselectionProducts = StringUtils.join(productVarietySelection.getDeselectProductIds(), ',');
         }
 
@@ -256,7 +255,7 @@ public class InventoryService {
         try {
             dbConnection = DatabaseConnection.getConnection();
 
-            if(!selectionProducts.isEmpty()) {
+            if (!selectionProducts.isEmpty()) {
                 preparedStatement = dbConnection.prepareStatement(selectionQuery);
                 preparedStatement.setLong(1, userId);
                 preparedStatement.setString(2, selectionProducts);
@@ -264,7 +263,7 @@ public class InventoryService {
                 logger.log(Level.INFO, "updated selection products");
             }
 
-            if(!deselectionProducts.isEmpty()) {
+            if (!deselectionProducts.isEmpty()) {
                 preparedStatement = dbConnection.prepareStatement(deselectionQuery);
                 preparedStatement.setLong(1, userId);
                 preparedStatement.setString(2, deselectionProducts);
@@ -281,5 +280,90 @@ public class InventoryService {
         }
         logger.log(Level.INFO, "updated product selection");
         return true;
+    }
+
+    public List<InventoryProduct> getOutOfStockProducts(Long userId) {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        String newQuery;
+        newQuery = "select pv.id,p.name,b.name as brand,pv.quantity,pv.price as price,pv.image,pv.date_modified" +
+                " from Product p join ProductVariety pv" +
+                " on p.id = pv.product_id and pv.valid='1' and pv.limited_stock = '0'" +
+                " join Brand b on b.id = p.brand_id" +
+                " where p.valid=1 and p.user_id=?" +
+                " order by pv.date_modified asc, p.name asc;";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(newQuery);
+            preparedStatement.setLong(1, userId);
+
+            logger.log(Level.INFO, "query=" + preparedStatement.toString());
+
+            ResultSet rs = preparedStatement.executeQuery();
+            List<InventoryProduct> result = new ArrayList<>();
+
+            while (rs.next()) {
+
+                InventoryProduct currentInventoryProduct = new InventoryProduct();
+                List<InventoryProductVariety> inventoryProductVarieties = new ArrayList<>();
+                //extract product data
+                currentInventoryProduct.setName(rs.getString("name"));
+                currentInventoryProduct.setBrand(rs.getString("brand"));
+                //extract inventory product variety data
+                InventoryProductVariety inventoryProductVariety = new InventoryProductVariety();
+                inventoryProductVariety.setId(rs.getLong("id"));
+                inventoryProductVariety.setQuantity(rs.getString("quantity"));
+                inventoryProductVariety.setPrice(rs.getFloat("price"));
+                inventoryProductVariety.setImageUrl(rs.getString("image"));
+                inventoryProductVarieties.add(inventoryProductVariety);
+
+                //after the last iteration, control will not go to place 88, so add the last product manually
+                currentInventoryProduct.setVarieties(inventoryProductVarieties);
+                result.add(currentInventoryProduct);
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+
+            return result;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            return null;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+    }
+
+    public boolean backInStock(Long varietyId, Long userId) {
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        logger.log(Level.INFO, "product variety will be back in stock for variety id = " + varietyId + "\n user id = " + userId);
+
+        String newQuery;
+        newQuery = "update ProductVariety pv join Product p on p.id = pv.product_id and p.user_id = ? set pv.limited_stock = '1' where pv.id = ?";
+
+        boolean updated = false;
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(newQuery);
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setLong(2, varietyId);
+
+            logger.log(Level.INFO, "query=" + preparedStatement.toString());
+
+            updated = preparedStatement.executeUpdate()>0;
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "some problem in back in stock", e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+
+        return updated;
     }
 }

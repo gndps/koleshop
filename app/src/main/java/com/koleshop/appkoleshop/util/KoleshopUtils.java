@@ -127,8 +127,7 @@ public class KoleshopUtils {
     }
 
     public static TextDrawable getTextDrawable(Context context, String name, int widthInDp, boolean round) {
-        Resources r = context.getResources();
-        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, widthInDp, r.getDisplayMetrics());
+        float px = CommonUtils.getPixelsFromDp(context, widthInDp);
         ColorGenerator generator = ColorGenerator.MATERIAL;
         int color = generator.getColor(name);
         TextDrawable textDrawable;
@@ -148,7 +147,7 @@ public class KoleshopUtils {
 
     public static TextDrawable getTextDrawable(Context context, String name, int widthInDp, boolean round, int color, int textColor) {
         Resources r = context.getResources();
-        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, widthInDp, r.getDisplayMetrics());
+        float px = CommonUtils.getPixelsFromDp(context, widthInDp);
         ColorGenerator generator = ColorGenerator.MATERIAL;
         if (color == -1) {
             color = generator.getColor(name);
@@ -300,4 +299,23 @@ public class KoleshopUtils {
         return backendSettings;
     }
 
+    public static String getSmallImageUrl(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            if (imageUrl.contains("/product_images/")) {
+                imageUrl = imageUrl.replace("/product_images/", "/product_images_small/");
+            }
+            return imageUrl;
+        } else {
+            return null;
+        }
+    }
+
+    public static String getThumbnailImageUrl(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            if (imageUrl.contains("/profile/")) {
+                imageUrl = imageUrl.replace("/profile/", "/profile_thumb/");
+            }
+        }
+        return imageUrl;
+    }
 }

@@ -141,9 +141,9 @@ public class OrderItemsListViewHolder extends RecyclerView.ViewHolder implements
         ViewGroup.LayoutParams layoutParams = relativeLayout.getLayoutParams();
         int height;
         if (orderStatus == OrderStatus.ACCEPTED) {
-            height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 88, mContext.getResources().getDisplayMetrics());
+            height = CommonUtils.getPixelsFromDp(mContext, 88);
         } else {
-            height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 68, mContext.getResources().getDisplayMetrics());
+            height = CommonUtils.getPixelsFromDp(mContext, 68);
         }
         layoutParams.height = height; //set height to 68dp
     }

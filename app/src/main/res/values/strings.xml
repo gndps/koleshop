@@ -179,5 +179,13 @@
     <string name="title_activity_feedback">Feedback</string>
     <string name="title_activity_legal">LegalActivity</string>
     <string name="thanks_for_feedback">Thanks for Deciding to Get in Touch</string>
+    <string name="cancel_order">Cancel order</string>
+    <string name="call">Call</string>
+    <string name="not_delivered">Not delivered</string>
+    <string name="not_picked_up">Not picked up</string>
+    <string name="please_select_address">Please select an address to see nearby shops</string>
+    <string name="login_to_set_picture">Only logged in users can change picture</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="send_feedback">Send Feedback</string>
 
 </resources>

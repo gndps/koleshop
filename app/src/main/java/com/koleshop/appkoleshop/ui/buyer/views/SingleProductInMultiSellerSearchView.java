@@ -19,6 +19,9 @@ import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.ui.buyer.activities.ProductDetailsSlidingActivity;
 import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -83,12 +86,7 @@ public class SingleProductInMultiSellerSearchView extends RelativeLayout impleme
         List<ProductVariety> varieties = product.getVarieties();
         if (varieties != null) {
             String imageUrl = varieties.get(0).getImageUrl();
-            String smallSizeImageUrl = "";
-            if (imageUrl != null)
-                smallSizeImageUrl = imageUrl.replaceFirst("small", "prod-image/286X224");
-            //setImageUrl(smallSizeImageUrl);
-            //todo launch this request when kolserver image server is working
-            //holder.sendImageFetchRequest(context);
+            setImage(imageUrl);
         }
     }
 
@@ -98,6 +96,32 @@ public class SingleProductInMultiSellerSearchView extends RelativeLayout impleme
 
     public void setSubtitle(String subtitle) {
         textViewSubtitleProductMasterList.setText(subtitle);
+    }
+
+    public void setImage(String imageUrl) {
+        final String smallSizeImageUrl = KoleshopUtils.getSmallImageUrl(imageUrl);
+        Picasso.with(mContext)
+                .load(smallSizeImageUrl)
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .centerCrop().fit()
+                .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                .into(circleImageViewProductMasterList, new Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        Picasso.with(mContext)
+                                .load(smallSizeImageUrl)
+                                .networkPolicy(NetworkPolicy.OFFLINE)
+                                .centerCrop().fit()
+                                .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                                .error(R.drawable.ic_koleshop_grey_24dp)
+                                .into(circleImageViewProductMasterList);
+                    }
+                });
     }
 
     private String makeDescription() {

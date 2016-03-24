@@ -347,7 +347,7 @@ public class OrderService {
     private void notifyUpdateOrder(Order order, boolean updatedByBuyer) {
         //if updatedByBuyer, send notification to seller...vice versa
 
-        Long userId = updatedByBuyer ? order.getBuyerSettings().getUserId() : order.getSellerSettings().getUserId();
+        Long userId = updatedByBuyer ? order.getSellerSettings().getUserId() : order.getBuyerSettings().getUserId();
         String name = updatedByBuyer ? order.getBuyerSettings().getName() : order.getSellerSettings().getAddress().getName();
         String imageUrl = updatedByBuyer ? order.getBuyerSettings().getImageUrl() : order.getSellerSettings().getImageUrl();
 

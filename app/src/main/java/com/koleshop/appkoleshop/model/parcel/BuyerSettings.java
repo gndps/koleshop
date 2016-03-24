@@ -13,8 +13,8 @@ import io.realm.annotations.PrimaryKey;
         analyze = {BuyerSettings.class})
 public class BuyerSettings extends RealmObject {
 
-    @PrimaryKey
     private Long id;
+    @PrimaryKey
     private Long userId;
     private String name;
     private String imageUrl;

@@ -1,6 +1,7 @@
 package com.koleshop.appkoleshop.ui.seller.views;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,6 +13,10 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -31,6 +36,7 @@ public class ViewInventoryProductVariety extends RelativeLayout {
     private LinearLayout clickArea1,clickArea2;
     private OnClickListener clickListenerArea1, clickListenerArea2;
     private boolean customerView;
+    private Context context;
 
     public ViewInventoryProductVariety(Context context) {
         super(context);
@@ -64,13 +70,42 @@ public class ViewInventoryProductVariety extends RelativeLayout {
         }
         textViewPrice.setText(price);
         setChecked(variety.isVarietyValid());
-        //todo set the image url for this shit
+        loadImage();
         if(productCheckboxProgress) {
             imageViewCheckbox.setVisibility(GONE);
             progressBarCheckbox.setVisibility(VISIBLE);
         } else {
             imageViewCheckbox.setVisibility(VISIBLE);
             progressBarCheckbox.setVisibility(GONE);
+        }
+    }
+
+    private void loadImage() {
+        if(!TextUtils.isEmpty(variety.getImageUrl())) {
+            final String imageUrl = KoleshopUtils.getSmallImageUrl(variety.getImageUrl());
+            Picasso.with(context)
+                    .load(imageUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .centerCrop()
+                    .fit()
+                    .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                    .into(imageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+                            Picasso.with(context)
+                                    .load(imageUrl)
+                                    .centerCrop()
+                                    .fit()
+                                    .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                                    .error(R.drawable.ic_koleshop_grey_24dp)
+                                    .into(imageView);
+                        }
+                    });
         }
     }
 

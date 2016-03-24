@@ -33,6 +33,7 @@ import com.koleshop.api.yolo.inventoryEndpoint.InventoryEndpoint;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.api.yolo.inventoryEndpoint.model.KoleResponse;
 import com.koleshop.api.yolo.inventoryEndpoint.model.ProductVarietySelection;
+import com.koleshop.appkoleshop.util.ProductUtil;
 
 import org.parceler.Parcels;
 
@@ -50,6 +51,7 @@ public class CommonIntentService extends IntentService {
 
     public static final String ACTION_LOAD_PRODUCT_CATEGORIES = "action_load_product_categories";
     public static final String ACTION_LOAD_BRANDS = "action_load_brands";
+    public static final String ACTION_SAVE_FEEDBACK = "action_save_feedback";
     public static final String TAG = "CommonIntentService";
     Realm realm;
 
@@ -97,9 +99,11 @@ public class CommonIntentService extends IntentService {
                 Long sellerId = intent.getLongExtra("sellerId", 0);
                 boolean myInventory = intent.getBooleanExtra("myInventory", false);
                 if (categoryId > 0L) {
+                    Log.d(TAG, "category id > 0....fetching products from internet");
                     fetchInventoryProductsForCategoryAndUser(categoryId, myInventory, customerView, sellerId);
                 } else {
                     //broadcast failure
+                    Log.d(TAG, "category id = 0....fetching products from internet");
                     Intent intent2 = new Intent(Constants.ACTION_FETCH_INVENTORY_PRODUCTS_FAILED);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent2);
                 }
@@ -107,7 +111,13 @@ public class CommonIntentService extends IntentService {
                 //inventory product selection
             } else if (Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION.equals(action)) {
                 ProductSelectionRequest request = Parcels.unwrap(intent.getParcelableExtra("request"));
-                updateInventoryProductSelection(request);
+                boolean stockMode = intent.getBooleanExtra("stockMode", false);
+                //stock mode is true only when a "back in stock" button is clicked in out of stock fragment
+                if (stockMode) {
+                    backInStock(request);
+                } else {
+                    updateInventoryProductSelection(request);
+                }
 
                 //upload image
             } else if (Constants.ACTION_UPLOAD_IMAGE.equals(action)) {
@@ -134,6 +144,23 @@ public class CommonIntentService extends IntentService {
                 } else {
                     setUserProfilePicture(filepath, filename, tag, userIsSeller, isHeaderImage);
                 }
+            } else if (ACTION_SAVE_FEEDBACK.equals(action)) {
+                String message = intent.getStringExtra("message");
+                String deviceModel = intent.getStringExtra("deviceModel");
+                String deviceManufacturer = intent.getStringExtra("deviceManufacturer");
+                String osVersion = intent.getStringExtra("osVersion");
+                String heightDp = intent.getStringExtra("heightDp");
+                String widthDp = intent.getStringExtra("widthDp");
+                String screenSize = intent.getStringExtra("screenSize");
+                String deviceTime = intent.getStringExtra("deviceTime");
+                String sessionType = intent.getStringExtra("sessionType");
+                String gpsLat = intent.getStringExtra("gpsLat");
+                String gpsLong = intent.getStringExtra("gpsLong");
+                String networkName = intent.getStringExtra("networkName");
+                String isWifiConnected = intent.getStringExtra("isWifiConnected");
+                String userId = intent.getStringExtra("userId");
+                String sessionId = intent.getStringExtra("sessionId");
+                saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLat, gpsLong, networkName, isWifiConnected, userId, sessionId);
             }
         }
         realm.close();
@@ -194,7 +221,7 @@ public class CommonIntentService extends IntentService {
         if (realmBrands != null && realmBrands.size() > 0) {
 
             realm.beginTransaction();
-            realm.copyToRealm(realmBrands);
+            realm.copyToRealmOrUpdate(realmBrands);
             realm.commitTransaction();
             Log.d("SessionIntentService", "product brands fetched");
             Intent intent = new Intent(Constants.ACTION_PRODUCT_BRANDS_LOAD_SUCCESS);
@@ -264,9 +291,9 @@ public class CommonIntentService extends IntentService {
         if (productCategories != null && productCategories.size() > 0) {
             try {
                 realm.beginTransaction();
-                realm.copyToRealm(proCats);
+                realm.copyToRealmOrUpdate(proCats);
                 realm.commitTransaction();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, "exception while copying product categories into realm", e);
             }
             Log.d("SessionIntentService", "product categories fetched");
@@ -301,7 +328,7 @@ public class CommonIntentService extends IntentService {
         Context context = getApplicationContext();
         Long userId = PreferenceUtils.getUserId(context);
         String sessionId = PreferenceUtils.getSessionId(context);
-        if(sessionId.isEmpty()) {
+        if (sessionId.isEmpty()) {
             sessionId = " "; //not empty
         }
 
@@ -364,7 +391,7 @@ public class CommonIntentService extends IntentService {
                     Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_FAILED);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 }
-            } else if (cats!=null) {
+            } else if (cats != null) {
                 Log.d(TAG, "fetch inventory categories empty");
                 Intent intent = new Intent(Constants.ACTION_FETCH_INVENTORY_CATEGORIES_EMPTY);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -398,7 +425,7 @@ public class CommonIntentService extends IntentService {
             Context context = getApplicationContext();
             Long userId = PreferenceUtils.getUserId(context);
             String sessionId = PreferenceUtils.getSessionId(context);
-            if(sessionId.isEmpty()) {
+            if (sessionId.isEmpty()) {
                 sessionId = "something";
             }
             int count = 0;
@@ -610,6 +637,61 @@ public class CommonIntentService extends IntentService {
         }
     }
 
+    private void backInStock(ProductSelectionRequest productSelectionRequest) {
+        InventoryEndpoint inventoryEndpoint = null;
+        InventoryEndpoint.Builder builder = new InventoryEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        inventoryEndpoint = builder.build();
+
+        KoleResponse result = null;
+
+        try {
+            Context context = getApplicationContext();
+            Long userId = PreferenceUtils.getUserId(context);
+            String sessionId = PreferenceUtils.getSessionId(context);
+
+            Long varietyId = productSelectionRequest.getProductVarietyIds().get(0);
+
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = inventoryEndpoint.backInStock(sessionId, userId, varietyId).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+        if (result == null || !result.getSuccess()) {
+            //result is null - request failed
+            Log.e(TAG, "product variety back in stock failed");
+            Intent intent = new Intent(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_FAILURE);
+            Parcelable wrapped = Parcels.wrap(productSelectionRequest);
+            intent.putExtra("request", wrapped);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        } else {
+            //result is cool - request success
+            Intent intent = new Intent(Constants.ACTION_UPDATE_INVENTORY_PRODUCT_SELECTION_SUCCESS);
+            Parcelable wrapped = Parcels.wrap(productSelectionRequest);
+            intent.putExtra("request", wrapped);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+    }
+
     private void uploadImageToCloudStorage(String filepath, String filename, String tag) {
         CommonEndpoint commonEndpoint = null;
         CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
@@ -766,6 +848,79 @@ public class CommonIntentService extends IntentService {
             NetworkUtils.setRequestStatusSuccess(context, tag);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
+    }
+
+    private void saveFeedback(String message, String deviceModel, String deviceManufacturer, String osVersion,
+                              String heightDp, String widthDp, String screenSize, String deviceTime, String sessionType,
+                              String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId) {
+        CommonEndpoint commonEndpoint = null;
+        CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        commonEndpoint = builder.build();
+
+
+        com.koleshop.api.commonEndpoint.model.KoleResponse result = null;
+        Context context = getApplicationContext();
+
+        try {
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = commonEndpoint.saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLong, gpsLat, networkName, isWifiConnected, userId, sessionId).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+        if (result == null || !result.getSuccess()) {
+            //save feedback failed
+            Log.e(TAG, "save feedback failed");
+            Intent intent = new Intent(Constants.ACTION_SAVE_FEEDBACK_FAILED);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        } else {
+            //success
+            Intent intent = new Intent(Constants.ACTION_SAVE_FEEDBACK_SUCCESS);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+    }
+
+    public static void saveFeedback(Context context, String message, String deviceModel, String deviceManufacturer, String osVersion,
+                                    String heightDp, String widthDp, String screenSize, String deviceTime, String sessionType,
+                                    String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId) {
+        Intent intent = new Intent(context, CommonIntentService.class);
+        intent.setAction(ACTION_SAVE_FEEDBACK);
+        intent.putExtra("message", message!=null?message:"");
+        intent.putExtra("deviceModel", deviceModel!=null?deviceModel:"");
+        intent.putExtra("deviceManufacturer", deviceManufacturer!=null?deviceManufacturer:"");
+        intent.putExtra("osVersion", osVersion!=null?osVersion:"");
+        intent.putExtra("heightDp", heightDp!=null?heightDp:"");
+        intent.putExtra("widthDp", widthDp!=null?widthDp:"");
+        intent.putExtra("screenSize", screenSize!=null?screenSize:"");
+        intent.putExtra("deviceTime", deviceTime!=null?deviceTime:"");
+        intent.putExtra("sessionType", sessionType!=null?sessionType:"");
+        intent.putExtra("gpsLat", gpsLat!=null?gpsLat:"");
+        intent.putExtra("gpsLong", gpsLong!=null?gpsLong:"");
+        intent.putExtra("networkName", networkName!=null?networkName:"");
+        intent.putExtra("isWifiConnected", isWifiConnected!=null?isWifiConnected:"");
+        intent.putExtra("userId", userId!=null?userId:"");
+        intent.putExtra("sessionId", sessionId!=null?sessionId:"");
+        context.startService(intent);
     }
 
 }

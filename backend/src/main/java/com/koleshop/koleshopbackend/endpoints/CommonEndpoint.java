@@ -4,6 +4,7 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
+import com.google.api.server.spi.config.Nullable;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.models.Address;
 import com.koleshop.koleshopbackend.db.models.Brand;
@@ -229,6 +230,17 @@ public class CommonEndpoint {
             return null;
         }
 
+    }
+
+    @ApiMethod(name = "saveFeedback")
+    public KoleResponse saveFeedback(@Named("message") String message, @Named("deviceModel") String deviceModel, @Named("deviceManufacturer") String deviceManufacturer, @Named("osVersion") String osVersion, @Named("heightDp") String heightDp,
+                                     @Named("widthDp") String widthDp, @Named("screenSize") String screenSize, @Named("deviceTime") String deviceTime, @Named("sessionType") String sessionType, @Named("gpsLong") String gpsLong, @Named("gpsLat") String gpsLat,
+                                     @Named("networkName") String networkName, @Named("isWifiConnected") String isWifiConnected, @Named("userId") String userId, @Named("sessionId") String sessionId) {
+        try {
+            return new CommonService().saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLat, gpsLong, networkName, isWifiConnected, userId, sessionId);
+        } catch (Exception e) {
+            return KoleResponse.failedResponse();
+        }
     }
 
 }

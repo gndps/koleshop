@@ -226,6 +226,7 @@ public class RealmUtils {
         RealmQuery<SellerSettings> realmQuery = realm.where(SellerSettings.class)
                 .equalTo("userId", userId);
         SellerSettings sellerSettingsRealm = realmQuery.findFirst();
+        realm.beginTransaction();
         sellerSettingsRealm.removeFromRealm();
         realm.commitTransaction();
         realm.close();

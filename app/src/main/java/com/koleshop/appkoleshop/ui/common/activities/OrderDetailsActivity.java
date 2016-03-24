@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
@@ -11,17 +12,21 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.klinker.android.sliding.SlidingActivity;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.constant.OrderStatus;
+import com.koleshop.appkoleshop.helpers.KoleshopNotificationUtils;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.model.OrderItem;
 import com.koleshop.appkoleshop.services.OrdersIntentService;
 import com.koleshop.appkoleshop.ui.seller.fragments.DeliveryTimeRemainingDialogFragment;
 import com.koleshop.appkoleshop.ui.seller.fragments.orders.OrderDetailsFragment;
+import com.koleshop.appkoleshop.util.AndroidCompatUtil;
+import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.fragments.orders.OrderDetailsItemListFragment;
 
@@ -49,6 +54,7 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
     OrderDetailsItemListFragment orderDetailsItemListFragment;
     OrderDetailsFragment orderDetailsFragment;
     BroadcastReceiver mBroadcastReceiver;
+    private Menu mOptionsMenu;
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -87,6 +93,9 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
             refreshOrderFromInternet();
         }
         initializeBroadcastReceiver();
+        if (customerView) {
+            KoleshopNotificationUtils.removeThisOrderFromNotificationOrders(orderId);
+        }
     }
 
     @Override
@@ -148,12 +157,17 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_UPDATE_FAILED));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_SINGLE_ORDER_FETCH_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_SINGLE_ORDER_FETCH_FAILED));
+        IntentFilter orderUpdateIntentFilter = new IntentFilter(Constants.ACTION_ORDER_UPDATE_NOTIFICATION);
+        orderUpdateIntentFilter.setPriority(1);
+        mContext.registerReceiver(mBroadcastReceiver, orderUpdateIntentFilter);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
+        mContext.unregisterReceiver(mBroadcastReceiver);
     }
 
     private void loadOrderContent() {
@@ -176,21 +190,12 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
     public void updateOrderInUi(Order order) {
         this.order = order;
         loadOrderContent();
+        invalidateOptionsMenu();
     }
-    //refreshMenu(order.getStatus());
-
-/*
-    private void refreshMenu(int  flag) {
-        if(flag==OrderStatus.CANCELLED)
-        {
-            menu.removeItem(R.id.cancel);
-        }
-
-    }*/
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        mOptionsMenu = menu;
         getMenuInflater().inflate(R.menu.menu_order_details_activity, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -198,8 +203,37 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.cancel:
+            case R.id.menu_item_cancel:
                 order.setStatus(OrderStatus.CANCELLED);
+                updateOrderInCloud(order);
+                return true;
+            case R.id.menu_item_call:
+                if (customerView) {
+                    //call seller
+                    if (order != null && order.getSellerSettings() != null) {
+                        Long phoneNumber = order.getSellerSettings().getAddress().getPhoneNumber();
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        intent.setData(Uri.parse("tel:" + phoneNumber));
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(mContext, "Phone number is not available", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    //call buyer
+                    if (order != null && order.getBuyerSettings() != null) {
+                        Long phoneNumber = order.getAddress().getPhoneNumber();
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        intent.setData(Uri.parse("tel:" + phoneNumber));
+                        startActivity(intent);
+                    }
+                }
+                return true;
+            case R.id.menu_item_not_delivered:
+                order.setStatus(OrderStatus.NOT_DELIVERED);
+                updateOrderInCloud(order);
+                return true;
+            case R.id.menu_item_not_picked_up:
+                order.setStatus(OrderStatus.NOT_DELIVERED);
                 updateOrderInCloud(order);
                 return true;
             default:
@@ -216,11 +250,11 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
 
     public void updateOrderInCloud(Order order) {
         this.order = order;
-        if(order.getStatus() == OrderStatus.READY_FOR_PICKUP || order.getStatus() == OrderStatus.OUT_FOR_DELIVERY) {
+        if (order.getStatus() == OrderStatus.READY_FOR_PICKUP || order.getStatus() == OrderStatus.OUT_FOR_DELIVERY) {
             float deliveryCharges = order.getDeliveryCharges();
             float carryBagCharges = order.getCarryBagCharges();
             float availableItemsCharges = 0;
-            for(OrderItem orderItem : order.getOrderItems()) {
+            for (OrderItem orderItem : order.getOrderItems()) {
                 availableItemsCharges += orderItem.getAvailableCount() * orderItem.getPricePerUnit();
             }
             order.setAmountPayable(availableItemsCharges + deliveryCharges + carryBagCharges);
@@ -230,23 +264,79 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
     }
 
     public void refreshOrderFromInternet() {
-        if (order != null) {
-            Long orderId = order.getId();
-            if (orderId > 0) {
-                viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_PROGRESS_BAR);
-                OrdersIntentService.getOrderForId(mContext, orderId);
-            }
+        if (orderId > 0) {
+            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_PROGRESS_BAR);
+            OrdersIntentService.getOrderForId(mContext, orderId);
         }
     }
 
-<<<<<<< HEAD
+    private void showNotPickedUpOrNotDeliveredMenu(boolean show) {
+        MenuItem item = mOptionsMenu.findItem(R.id.menu_item_not_delivered);
+        if (item != null) {
+            item.setVisible(show && order.isHomeDelivery());
+        }
+        MenuItem item2 = mOptionsMenu.findItem(R.id.menu_item_not_picked_up);
+        if (item2 != null) {
+            item2.setVisible(show && !order.isHomeDelivery());
+        }
+    }
+
+    private void showCancelButton(boolean show) {
+        MenuItem item = mOptionsMenu.findItem(R.id.menu_item_cancel);
+        if (item != null) {
+            item.setVisible(show);
+        }
+    }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (order.getStatus() == OrderStatus.CANCELLED) {
-            menu.removeItem(R.id.cancel);
+        if(order == null) {
+            return true;
         }
+        int orderStatus = order.getStatus();
+        switch (orderStatus) {
+            case OrderStatus.INCOMING:
+                //show only cancel button in customer view
+                if (customerView) {
+                    showNotPickedUpOrNotDeliveredMenu(false);
+                    showCancelButton(true);
+                } else {
+                    showNotPickedUpOrNotDeliveredMenu(false);
+                    showCancelButton(false);
+                }
+                break;
+            case OrderStatus.ACCEPTED:
+                //show cancel button for customer and seller both
+                showNotPickedUpOrNotDeliveredMenu(false);
+                showCancelButton(true);
+                break;
+            case OrderStatus.REJECTED:
+            case OrderStatus.MISSED:
+            case OrderStatus.CANCELLED:
+                //don't show cancel and not picked up/delivered
+                showNotPickedUpOrNotDeliveredMenu(false);
+                showCancelButton(false);
+                break;
+            case OrderStatus.OUT_FOR_DELIVERY:
+            case OrderStatus.DELIVERED:
+                showNotPickedUpOrNotDeliveredMenu(true);
+                showCancelButton(false);
+                break;
+            case OrderStatus.READY_FOR_PICKUP:
+                if(customerView) {
+                    showNotPickedUpOrNotDeliveredMenu(false);
+                    showCancelButton(false);
+                } else {
+                    showNotPickedUpOrNotDeliveredMenu(true);
+                    showCancelButton(false);
+                }
+                break;
+            case OrderStatus.NOT_DELIVERED:
+                showNotPickedUpOrNotDeliveredMenu(false);
+                showCancelButton(false);
+                break;
+        }
+        invalidateOptionsMenu();
         return true;
     }
-=======
->>>>>>> 217923c2a0e36eb4ca713fdd12b38e2a8dbd36c9
 }

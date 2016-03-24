@@ -166,7 +166,7 @@
             android:label="@string/title_activity_maps" />
         <activity
             android:name=".ui.seller.activities.SellerOrdersActivity"
-            android:parentActivityName=".ui.seller.activities.HomeActivity" />
+            android:parentActivityName=".ui.seller.activities.HomeActivity"/>
         <activity
             android:name=".ui.common.activities.OrderDetailsActivity"
             android:excludeFromRecents="true"
@@ -211,7 +211,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.common.activities.Feedback"
+            android:name=".ui.common.activities.FeedbackActivity"
             android:label="@string/title_activity_feedback"
             android:theme="@style/AppTheme.Base" />
         <activity
@@ -223,10 +223,14 @@
             android:name=".receiver.OrderUpdateReceiver"
             android:enabled="true"
             android:exported="false">
-            <intent-filter>
+            <intent-filter android:priority="-1">
                 <action android:name="com.koleshop.action_order_update_notification" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".services.NotificationIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

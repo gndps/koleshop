@@ -14,11 +14,15 @@ import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
+import com.koleshop.appkoleshop.util.AndroidCompatUtil;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.ProductUtil;
 import com.koleshop.appkoleshop.network.volley.VolleyUtil;
 import com.koleshop.appkoleshop.ui.seller.views.ViewInventoryProductExpanded;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -114,24 +118,29 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
         textViewHowManySelected.setText(selectedCount + "/" + totalCount);
     }
 
-    public void sendImageFetchRequest(Context context) {
+    public void sendImageFetchRequest(final Context context) {
+        //loading product image
+        imageUrl = KoleshopUtils.getSmallImageUrl(imageUrl);
         Picasso.with(context)
                 .load(imageUrl)
-                .into(circleImageViewProductMasterList);
-        /*ImageRequest request = new ImageRequest(imageUrl,
-                new Response.Listener<Bitmap>() {
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .placeholder(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_koleshop_grey_24dp))
+                .error(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_koleshop_grey_24dp))
+                .into(circleImageViewProductMasterList, new Callback() {
                     @Override
-                    public void onResponse(Bitmap bitmap) {
-                        circleImageViewProductMasterList.setImageBitmap(bitmap);
+                    public void onSuccess() {
+
                     }
-                }, IMAGE_SIZE_XXXDPI, IMAGE_SIZE_XXXDPI, ImageView.ScaleType.CENTER_INSIDE, null,
-                new Response.ErrorListener() {
-                    public void onErrorResponse(VolleyError error) {
-                        circleImageViewProductMasterList.setImageResource(R.drawable.image_just_gray);
+
+                    @Override
+                    public void onError() {
+                        Picasso.with(context)
+                                .load(imageUrl)
+                                .placeholder(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_koleshop_grey_24dp))
+                                .error(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_koleshop_grey_24dp))
+                                .into(circleImageViewProductMasterList);
                     }
                 });
-        uniqueTag = CommonUtils.randomString(10);
-        VolleyUtil.getInstance().addToRequestQueue(request, uniqueTag);*/
     }
 
     public void cancelImageFetchRequest() {
@@ -170,12 +179,9 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
             List<ProductVariety> varieties = product.getVarieties();
             if(varieties!=null) {
                 String imageUrl = varieties.get(0).getImageUrl();
-                String smallSizeImageUrl="";
-                if(imageUrl!=null)
-                    smallSizeImageUrl = imageUrl.replaceFirst("small", "prod-image/286X224");
-                setImageUrl(smallSizeImageUrl);
+                setImageUrl(imageUrl);
                 //todo launch this request when kolserver image server is working
-                //holder.sendImageFetchRequest(context);
+                sendImageFetchRequest(mContext);
             }
         } else { //expanded view
             viewInventoryProductExpanded.setProduct(product, productVarietyCheckBoxProgress, positionInParentView);

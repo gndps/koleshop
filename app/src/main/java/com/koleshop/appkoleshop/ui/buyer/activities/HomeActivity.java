@@ -9,19 +9,22 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
@@ -30,7 +33,7 @@ import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.MyOrdersFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
 import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
-import com.koleshop.appkoleshop.ui.common.activities.Feedback;
+import com.koleshop.appkoleshop.ui.common.activities.FeedbackActivity;
 import com.koleshop.appkoleshop.ui.common.activities.LegalActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
@@ -40,6 +43,8 @@ import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindString;
@@ -62,6 +67,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     NavigationView navigationView;
     private Toolbar toolbar;
     private boolean backHandled;
+    private BuyerSettings buyerSettings;
 
     String imageViewHeaderUrl;
     String imageViewAvatarUrl;
@@ -96,7 +102,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             mContext = this;
             setupToolbar();
             boolean showDefaultFragment = true;
-            if(savedInstanceState!=null && savedInstanceState.getBoolean("createdOnce")) {
+            if (savedInstanceState != null && savedInstanceState.getBoolean("createdOnce")) {
                 showDefaultFragment = false;
             }
             setupDrawerLayout(showDefaultFragment);
@@ -158,6 +164,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     protected void onResume() {
         super.onResume();
         refreshLoginLogoutStates();
+        refreshBuyerNameAndImage();
     }
 
     @Override
@@ -191,21 +198,21 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         View headerView = navigationView.getHeaderView(0);
         imageViewAvatar = (CircleImageView) headerView.findViewById(R.id.avatar_drawer);
         imageViewHeader = (ImageView) headerView.findViewById(R.id.image_view_header_drawer);
-        textViewCustomerName= (TextView) headerView.findViewById(R.id.tv_drawer_header_title);
+        textViewCustomerName = (TextView) headerView.findViewById(R.id.tv_drawer_header_title);
 
         imageViewAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!PreferenceUtils.isUserLoggedIn(mContext))
-                {
-                Toast.makeText(mContext,"Log in first",Toast.LENGTH_SHORT).show();
+                if (!PreferenceUtils.isUserLoggedIn(mContext)) {
+                    Snackbar.make(imageViewAvatar, R.string.login_to_set_picture, Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
+                    intentChangePicture.putExtra("buyerMode", true);
+                    startActivity(intentChangePicture);
                 }
-                else {
-                Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
-                startActivity(intentChangePicture);
-            }}
+            }
         });
-        imageViewHeader.setOnClickListener(new View.OnClickListener() {
+        /*imageViewHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!PreferenceUtils.isUserLoggedIn(mContext))
@@ -218,88 +225,96 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 startActivity(intentChangePicture);
             }
             }
-        });
+        });*/
 
         if (firstTime) {
             showNearbyShops();
-        } else if(showDefaultFragment) {
-            if(!openMyOrders) {
+        } else if (showDefaultFragment) {
+            if (!openMyOrders) {
                 showHome();
             } else {
                 showMyOrders();
             }
         }
-           refreshSellerNameAndImage();
 
 
     }
-    private void refreshSellerNameAndImage() {
+
+    private void refreshBuyerNameAndImage() {
 
         //set home screen title to shop name
-            BuyerSettings buyerSettings=RealmUtils.getBuyerSettings();
+        buyerSettings = RealmUtils.getBuyerSettings();
+        boolean updateTitle = false;
+        String drawerTitle = "";
 
-        if (buyerSettings!= null) {
-            String titleInNavigationDrawer= buyerSettings.getName();
+        if (buyerSettings != null) {
+            if (!TextUtils.isEmpty(buyerSettings.getName())) {
+                drawerTitle = buyerSettings.getName();
+                updateTitle = true;
+            }
         } else {
-            BuyerSettings newBuyerSettings=new BuyerSettings();
-            newBuyerSettings.setId(PreferenceUtils.getUserId(mContext));
-            imageViewAvatar.setImageResource(R.mipmap.ic_launcher);
-            RealmUtils.saveBuyerSettings(newBuyerSettings);
-            titleHome = "My Shop";
+            BuyerSettings newBuyerSettings = new BuyerSettings();
+            if (PreferenceUtils.getUserId(mContext) > 0) {
+                //newBuyerSettings.setId(PreferenceUtils.getUserId(mContext));
+                newBuyerSettings.setUserId(PreferenceUtils.getUserId(mContext));
+                RealmUtils.saveBuyerSettings(newBuyerSettings);
+            }
         }
 
         //set nav bar header title
-        textViewCustomerName.setText(titleHome);
+        if(updateTitle) {
+            textViewCustomerName.setText(drawerTitle);
+        }
 
         //set avatar image view
         boolean refreshAvatar = false;
-        if (imageViewAvatarUrl == null ) {
-//         imageViewAvatarUrl = buyerSettings.getImageUrl();
+        if (imageViewAvatarUrl == null && buyerSettings != null) {
+            imageViewAvatarUrl = buyerSettings.getImageUrl();
             refreshAvatar = true;
         } else if (buyerSettings != null && !TextUtils.isEmpty(buyerSettings.getImageUrl())
                 && !imageViewAvatarUrl.equalsIgnoreCase(buyerSettings.getImageUrl())) {
             //there is a new image url and avatar should be refreshed
-  //          imageViewAvatarUrl = buyerSettings.getImageUrl();
-          refreshAvatar = true;
+            imageViewAvatarUrl = buyerSettings.getImageUrl();
+            refreshAvatar = true;
         }
 
         if (refreshAvatar) {
             if (!TextUtils.isEmpty(imageViewAvatarUrl)) {
+                imageViewAvatarUrl = KoleshopUtils.getThumbnailImageUrl(imageViewAvatarUrl);
                 Picasso.with(mContext)
                         .load(imageViewAvatarUrl)
+                        .networkPolicy(NetworkPolicy.OFFLINE)
                         .fit().centerCrop()
-                        .into(imageViewAvatar);
+                        .into(imageViewAvatar, new Callback() {
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError() {
+                                //Try again online if cache failed
+                                Picasso.with(mContext)
+                                        .load(imageViewAvatarUrl)
+                                        .error(R.drawable.ic_user_profile)
+                                        .into(imageViewAvatar, new Callback() {
+                                            @Override
+                                            public void onSuccess() {
+
+                                            }
+
+                                            @Override
+                                            public void onError() {
+                                                Log.v("Picasso","Could not fetch image");
+                                            }
+                                        });
+                            }
+                        });
             } else {
-                imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
+                imageViewAvatar.setImageResource(R.drawable.ic_user_profile);
             }
-            refreshAvatar = false;
         }
 
-
-        //set header image view
-   /*     boolean refreshHeader = false;
-        if (imageViewHeaderUrl == null && buyerSettings!= null) {
-            imageViewHeaderUrl = buyerSettings.getHeaderImageUrl();
-            refreshHeader = true;
-        } else if (buyerSettings!= null && !TextUtils.isEmpty(buyerSettings.getHeaderImageUrl())
-                && !imageViewHeaderUrl.equalsIgnoreCase(buyerSettings.getHeaderImageUrl())) {
-            //there is a new image url and avatar should be refreshed
-            imageViewHeaderUrl = buyerSettings.getHeaderImageUrl();
-            refreshHeader = true;
-        }
-
-        if (refreshHeader) {
-            if (!TextUtils.isEmpty(imageViewHeaderUrl)) {
-                Picasso.with(mContext)
-                        .load(imageViewHeaderUrl)
-                        .fit().centerCrop()
-                        .into(imageViewHeader);
-            } else {
-                //imageViewHeader.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
-            }
-            refreshHeader = false;
-        }
-*/
     }
 
     private void showHome() {
@@ -552,6 +567,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 closeDrawers = true;
                 setItemChecked = false;
                 Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
+                intentLogin.putExtra("finishOnVerify", true);
                 startActivity(intentLogin);
                 break;
 
@@ -573,13 +589,13 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             case R.id.drawer_feedback:
                 closeDrawers = true;
                 setItemChecked = false;
-                Intent feedback=new Intent(mContext,Feedback.class);
+                Intent feedback = new Intent(mContext, FeedbackActivity.class);
                 startActivity(feedback);
                 break;
             case R.id.drawer_legal:
                 closeDrawers = true;
                 setItemChecked = false;
-                Intent intentLegalWebPage = new Intent(mContext,LegalActivity.class);
+                Intent intentLegalWebPage = new Intent(mContext, LegalActivity.class);
                 startActivity(intentLegalWebPage);
                 break;
             default:
@@ -652,6 +668,61 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("CLOSE_APPLICATION", true);
         startActivity(intent);
+    }
+
+    //this method is called onClick on edit button in xml
+    public void editNameOfUser(View view) {
+        if (PreferenceUtils.isUserLoggedIn(mContext)) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Set name");
+
+            // Set up the input
+            final EditText input = new EditText(this);
+            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+            FrameLayout container = new FrameLayout(this);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT
+            );
+            int pixelsFor8dp = CommonUtils.getPixelsFromDp(mContext, 8);
+            params.setMargins(2 * pixelsFor8dp, 2 * pixelsFor8dp, 2 * pixelsFor8dp, 2 * pixelsFor8dp);
+            container.addView(input);
+            input.setLayoutParams(params);
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            input.setText(textViewCustomerName.getText());
+            builder.setView(container);
+
+            // Set up the buttons
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String newName = input.getText().toString();
+                    if(!TextUtils.isEmpty(newName)) {
+                        if(buyerSettings!=null) {
+                            buyerSettings.setName(newName);
+                            buyerSettings.setUserId(PreferenceUtils.getUserId(mContext));
+                            RealmUtils.saveBuyerSettings(buyerSettings);
+                        } else {
+                            buyerSettings = new BuyerSettings();
+                            buyerSettings.setUserId(PreferenceUtils.getUserId(mContext));
+                            buyerSettings.setName(newName);
+                            RealmUtils.saveBuyerSettings(buyerSettings);
+                        }
+                        refreshBuyerNameAndImage();
+                    }
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
+        } else {
+            Snackbar.make(navigationView, "Only logged in users can change this", Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     @Override

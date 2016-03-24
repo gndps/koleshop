@@ -1,6 +1,7 @@
 package com.koleshop.appkoleshop.ui.buyer.views;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +16,10 @@ import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.ui.common.views.ItemCountView;
 import com.koleshop.appkoleshop.ui.seller.activities.InventoryProductActivity;
 import com.koleshop.appkoleshop.util.CartUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -40,9 +45,11 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
     private boolean customerView;
     private String title;
     private boolean showTitle;
+    private Context context;
 
     public ViewProductVarietyBuyer(Context context) {
         super(context);
+        this.context = context;
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         v = inflater.inflate(R.layout.view_product_variety_buyer, this, true);
@@ -81,6 +88,7 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
         itemCountView.setShowZeroCount(false);
         itemCountView.setOutOfStock(!variety.isLimitedStock());
         itemCountView.setCount(cartCount);
+        loadImage();
         //textViewCount.setText(cartCount + "");
     }
 
@@ -97,6 +105,35 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
     public void setMinusButtonClickListener(OnClickListener plusButtonClickListener) {
         itemCountView.setMinusButtonClickListener(plusButtonClickListener);
         //buttonMinus.setOnClickListener(plusButtonClickListener);
+    }
+
+    private void loadImage() {
+        if(variety!=null && !TextUtils.isEmpty(variety.getImageUrl())) {
+            final String imageUrl = KoleshopUtils.getThumbnailImageUrl(variety.getImageUrl());
+            Picasso.with(context)
+                    .load(imageUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .centerCrop()
+                    .fit()
+                    .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                    .into(imageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+                            Picasso.with(context)
+                                    .load(imageUrl)
+                                    .centerCrop()
+                                    .fit()
+                                    .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                                    .error(R.drawable.ic_koleshop_grey_24dp)
+                                    .into(imageView);
+                        }
+                    });
+        }
     }
 
     /*public void setCartCount(int cartCount) {

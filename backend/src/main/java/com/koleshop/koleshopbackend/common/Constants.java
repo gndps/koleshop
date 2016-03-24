@@ -25,9 +25,6 @@ public class Constants {
 
 	public static boolean USE_LOCAL_DATABASE = true;
 
-	//Excluded Categories : Home & Kitchen Ware, Appliances, Frozen Foods, Fruits & Veg, Popular
-	public static String EXCLUDED_INVENTORY_CATEGORIES_IDS = "'9','8','13','17','138'";
-
 	public static String OTP_TIME_TO_LIVE = "5"; // 5 minutes
 
     public static int USER_SESSION_TYPE_SELLER = 1; //these constants are same in the mysql db

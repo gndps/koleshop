@@ -29,18 +29,21 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.services.SettingsIntentService;
-import com.koleshop.appkoleshop.ui.common.activities.Feedback;
+import com.koleshop.appkoleshop.ui.common.activities.FeedbackActivity;
 import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
 import com.koleshop.appkoleshop.ui.common.activities.LegalActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
+import com.koleshop.appkoleshop.ui.seller.fragments.product.OutOfStockFragment;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.ui.seller.fragments.product.InventoryCategoryFragment;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
@@ -62,6 +65,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private final String FRAGMENT_MY_SHOP_TAG = "frag_my_shop_tag";
     private final String FRAGMENT_WAREHOUSE_TAG = "frag_ware_tag";
     private final String FRAGMENT_NOT_IMPL = "not_impl";
+    private final String FRAGMENT_OUT_OF_STOCK = "out_of_stock";
     private String titleOnBackPressed;
     private String lastFragmentTag;
     private boolean lastFragmentShowed, isLastFragmentSupportType;
@@ -74,6 +78,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     String titleWareHouse;
     @BindString(R.string.navigation_drawer_home)
     String titleHome;
+    @BindString(R.string.navigation_drawer_out_of_stock)
+    String titleOutOfStock;
     @Bind(R.id.navigation_view)
     NavigationView navigationView;
     CircleImageView imageViewAvatar;
@@ -159,6 +165,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 setItemChecked = true;
                 break;
 
+            case R.id.drawer_out_of_stock:
+                //Out of stock
+                title = titleOutOfStock;
+                OutOfStockFragment outOfStockFragment = new OutOfStockFragment();
+                replaceFragment(outOfStockFragment, FRAGMENT_OUT_OF_STOCK);
+                setItemChecked = true;
+                closeDrawers = true;
+                break;
+
             case R.id.drawer_settings:
                 //Settings
                 closeDrawers = true;
@@ -195,7 +210,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.drawer_feedback:
                 closeDrawers = true;
                 setItemChecked = false;
-                Intent feedback=new Intent(mContext,Feedback.class);
+                Intent feedback=new Intent(mContext,FeedbackActivity.class);
                 startActivity(feedback);
                 break;
             case R.id.drawer_legal:
@@ -439,7 +454,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP)) {
                     onBackPressed();
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REFRESH_SELLER_SETTINGS)) {
+                    //refresh seller name and image
                     refreshSellerNameAndImage();
+
+                    //refresh shop open close status
+                    if(lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+                        //home fragment is shown
+                        DummyHomeFragment homeFragment= (DummyHomeFragment) getFragmentManager().findFragmentByTag(FRAGMENT_HOME_TAG);
+                        homeFragment.refreshShopOpenCloseStatus();
+                    }
                 }
             }
         };
@@ -569,8 +592,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             if (!TextUtils.isEmpty(imageViewAvatarUrl)) {
                 Picasso.with(mContext)
                         .load(imageViewAvatarUrl)
+                        .networkPolicy(NetworkPolicy.OFFLINE)
                         .fit().centerCrop()
-                        .into(imageViewAvatar);
+                        .placeholder(R.drawable.ic_user_profile)
+                        .into(imageViewAvatar, new Callback() {
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError() {
+                                Picasso.with(mContext)
+                                        .load(imageViewAvatarUrl)
+                                        .fit().centerCrop()
+                                        .placeholder(R.drawable.ic_user_profile)
+                                        .error(KoleshopUtils.getTextDrawable(mContext, titleHome, false))
+                                        .into(imageViewAvatar);
+                            }
+                        });
             } else {
                 imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
             }
@@ -594,8 +634,22 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             if (!TextUtils.isEmpty(imageViewHeaderUrl)) {
                 Picasso.with(mContext)
                         .load(imageViewHeaderUrl)
+                        .networkPolicy(NetworkPolicy.OFFLINE)
                         .fit().centerCrop()
-                        .into(imageViewHeader);
+                        .into(imageViewHeader, new Callback() {
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError() {
+                                Picasso.with(mContext)
+                                        .load(imageViewHeaderUrl)
+                                        .fit().centerCrop()
+                                        .into(imageViewHeader);
+                            }
+                        });
             } else {
                 //imageViewHeader.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, titleHome, false));
             }

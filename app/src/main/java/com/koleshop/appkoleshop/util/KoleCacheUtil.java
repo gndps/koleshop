@@ -48,7 +48,7 @@ public class KoleCacheUtil {
 
                 RealmQuery<ProductCategory> query = realm.where(ProductCategory.class);
                 List<ProductCategory> productCategories = query.equalTo("id", products.get(0).getCategoryId()).findAll();
-                if (productCategories!=null && productCategories.size()>0 && productCategories.get(0)!=null) {
+                if (productCategories != null && productCategories.size() > 0 && productCategories.get(0) != null) {
                     ProductCategory productCategory = productCategories.get(0);
                     productCategory.setAddedToMyShop(categoryExistsInMyShop);
                     realm.beginTransaction();
@@ -280,7 +280,7 @@ public class KoleCacheUtil {
             parentCategoryId = 0l;
         }
 
-        if(myInventory) {
+        if (myInventory) {
             query = query.equalTo("addedToMyShop", myInventory);
         }
 
@@ -345,19 +345,22 @@ public class KoleCacheUtil {
                 .equalTo("sellerId", 0)
                 .findAll();
 
+
         if (products != null && products.size() > 0) {
-            for (Product product : products) {
+            realm.beginTransaction();
+
+            for (int i=0; i<products.size(); i++) {
                 if (myShop) {
-                    product.setUpdateDateMyShop(CommonUtils.getDate(new Date(), -2 * Constants.TIME_TO_LIVE_PRODUCT_CACHE));
+                    products.get(i).setUpdateDateMyShop(CommonUtils.getDate(new Date(), -2 * Constants.TIME_TO_LIVE_PRODUCT_CACHE));
                 } else {
-                    product.setUpdateDateWareHouse(CommonUtils.getDate(new Date(), -2 * Constants.TIME_TO_LIVE_PRODUCT_CACHE));
+                    products.get(i).setUpdateDateWareHouse(CommonUtils.getDate(new Date(), -2 * Constants.TIME_TO_LIVE_PRODUCT_CACHE));
                 }
             }
+
+            realm.copyToRealmOrUpdate(products);
+            realm.commitTransaction();
         }
 
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(products);
-        realm.commitTransaction();
         realm.close();
 
     }
@@ -377,13 +380,15 @@ public class KoleCacheUtil {
                 .findAll();
 
         if (productCategories != null && productCategories.size() > 0) {
-            for (ProductCategory productCategory : productCategories) {
+            realm.beginTransaction();
+            for (int i=0; i<productCategories.size(); i++) {
                 if (myShop) {
-                    productCategory.setMyShopUpdateDate(CommonUtils.getDate(new Date(), -2 * Constants.TIME_TO_LIVE_CATEGORY_CACHE));
+                    productCategories.get(i).setMyShopUpdateDate(CommonUtils.getDate(new Date(), -2 * Constants.TIME_TO_LIVE_CATEGORY_CACHE));
                 } else {
-                    productCategory.setWarehouseUpdateDate(CommonUtils.getDate(new Date(), -2 * Constants.TIME_TO_LIVE_CATEGORY_CACHE));
+                    productCategories.get(i).setWarehouseUpdateDate(CommonUtils.getDate(new Date(), -2 * Constants.TIME_TO_LIVE_CATEGORY_CACHE));
                 }
             }
+            realm.commitTransaction();
         }
         realm.close();
 

@@ -54,10 +54,9 @@ public class SellerOrdersActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         IntentFilter intentFilter = new IntentFilter(Constants.ACTION_ORDER_UPDATE_NOTIFICATION);
-        intentFilter.setPriority(1);
-        lbm.registerReceiver(mBroadcastReceiver, intentFilter);
+        intentFilter.setPriority(100);
+        mContext.registerReceiver(mBroadcastReceiver, intentFilter);
         if(PreferenceUtils.getPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING)) {
             adapter.notifyDataSetChanged();
             PreferenceUtils.setPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING, false);
@@ -68,6 +67,7 @@ public class SellerOrdersActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        mContext.unregisterReceiver(mBroadcastReceiver);
     }
 
     private void initializeActivity() {
@@ -76,6 +76,7 @@ public class SellerOrdersActivity extends AppCompatActivity {
         setupViewPagerAndTabLayout();
         if(PreferenceUtils.getPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING)) {
             PreferenceUtils.setPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING, false);
+            KoleshopNotificationUtils.dismissAllNotifications(mContext);
         }
     }
 
@@ -94,7 +95,7 @@ public class SellerOrdersActivity extends AppCompatActivity {
                                 adapter.notifyDataSetChanged();
                             }
                         }
-                        abortBroadcast();
+                        //abortBroadcast();
                         break;
                 }
             }
@@ -129,6 +130,7 @@ public class SellerOrdersActivity extends AppCompatActivity {
         //setupViewPager(viewPager, list);
         adapter = new SellerOrderTabsAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(2);
         tabLayout.setupWithViewPager(viewPager);
     }
 }

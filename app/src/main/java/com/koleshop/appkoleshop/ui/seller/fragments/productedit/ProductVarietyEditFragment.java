@@ -32,9 +32,12 @@ import android.widget.Toast;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.ImageUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.NetworkUtils;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -324,7 +327,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
 
     private void reloadImageViewAndProcessing() {
 
-        Drawable drawableCamera;
+        final Drawable drawableCamera;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             drawableCamera = mContext.getDrawable(R.drawable.ic_photo_camera_grey600_48dp);
@@ -332,7 +335,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
             drawableCamera = mContext.getResources().getDrawable(R.drawable.ic_photo_camera_grey600_48dp);
         }
 
-        if (variety.getImagePath() != null && imageView != null) {
+        /*if (variety.getImagePath() != null && imageView != null) {
             //load local image
             final String imageLoadPath = new File(variety.getImagePath()).toString();
             Log.d(TAG, "will try to load local image from path : " + imageLoadPath);
@@ -355,7 +358,7 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
             } catch (Exception e) {
                 Log.d(TAG, "some problem occurred while setting local image to image view", e);
             }
-        } else if (imageView != null) {
+        } else */if (imageView != null) {
             //load from internet
             String imageUrl = variety.getImageUrl();
             boolean validUrl = URLUtil.isValidUrl(imageUrl);
@@ -365,13 +368,63 @@ public class ProductVarietyEditFragment extends Fragment implements View.OnClick
                 Log.d(TAG, "url is valid");
             }
             Log.d(TAG, "will load this url : " + imageUrl);
+            final String finalImageUrl = imageUrl;
             Picasso.with(mContext)
                     .load(imageUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
                     .fit()
                     .centerCrop()
                     .placeholder(drawableCamera)
-                    .error(drawableCamera)
-                    .into(imageView);
+                    .into(imageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+                            Picasso.with(mContext)
+                                    .load(finalImageUrl)
+                                    .fit()
+                                    .centerCrop()
+                                    .placeholder(drawableCamera)
+                                    .error(drawableCamera)
+                                    .into(imageView, new Callback() {
+                                        @Override
+                                        public void onSuccess() {
+
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                            final String smallImageUrl = KoleshopUtils.getSmallImageUrl(finalImageUrl);
+                                            Picasso.with(mContext)
+                                                    .load(smallImageUrl)
+                                                    .networkPolicy(NetworkPolicy.OFFLINE)
+                                                    .fit()
+                                                    .centerCrop()
+                                                    .placeholder(drawableCamera)
+                                                    .into(imageView, new Callback() {
+                                                        @Override
+                                                        public void onSuccess() {
+
+                                                        }
+
+                                                        @Override
+                                                        public void onError() {
+                                                            Picasso.with(mContext)
+                                                                    .load(smallImageUrl)
+                                                                    .fit()
+                                                                    .centerCrop()
+                                                                    .placeholder(drawableCamera)
+                                                                    .error(drawableCamera)
+                                                                    .into(imageView);
+                                                        }
+                                                    });
+                                        }
+                                    });
+                        }
+                    });
         } else if (imageView == null) {
             //this condition should never be called
             Toast.makeText(mContext, "image view not created", Toast.LENGTH_SHORT).show();

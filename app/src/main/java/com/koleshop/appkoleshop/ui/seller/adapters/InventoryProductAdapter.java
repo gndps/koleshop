@@ -19,7 +19,6 @@ import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.services.CommonIntentService;
-import com.koleshop.appkoleshop.ui.buyer.activities.ProductDetailsSlidingActivity;
 import com.koleshop.appkoleshop.ui.seller.activities.ProductActivity;
 import com.koleshop.appkoleshop.ui.seller.viewholders.InventoryProductViewHolder;
 import com.koleshop.appkoleshop.util.CartUtils;
@@ -51,7 +50,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
 
     private static final int VIEW_TYPE_CONTENT_EXPANDED = 0x02;
 
-    private LayoutInflater inflator;
+    private LayoutInflater inflater;
     List<Product> products;
     Context context;
     List<LineItem> mItems;
@@ -68,7 +67,7 @@ public class InventoryProductAdapter extends RecyclerView.Adapter<InventoryProdu
         this.myInventory = myInventory;
         this.categoryId = categoryId;
         this.customerView = customerView;
-        inflator = LayoutInflater.from(context);
+        inflater = LayoutInflater.from(context);
         pendingRequestsRandomIds = new ArrayList<>();
     }
 

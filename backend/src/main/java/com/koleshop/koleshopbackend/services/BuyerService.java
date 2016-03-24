@@ -57,7 +57,7 @@ public class BuyerService {
                 "* cos( radians( gps_long ) - radians(?) ) + sin( radians(?) ) * sin(radians(gps_lat)) ) ) AS distance " +
                 "FROM SellerSettings ss join Address a on ss.address_id=a.id " +
                 "JOIN SellerStatus seller_status on ss.user_id = seller_status.seller_id " +
-                "WHERE a.gps_long between ? and ? and a.gps_lat between ? and ? ";
+                "WHERE ss.valid = '1' and a.gps_long between ? and ? and a.gps_lat between ? and ? ";
 
         if (homeDeliveryOnly) {
             query += "and ss.home_delivery='1' ";

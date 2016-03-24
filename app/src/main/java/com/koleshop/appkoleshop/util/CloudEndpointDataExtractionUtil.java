@@ -83,7 +83,9 @@ public class CloudEndpointDataExtractionUtil {
             for (ArrayMap<String, Object> map : list)
                 if (map != null) {
                     Product prod = new Product();
-                    prod.setId(Long.valueOf((String) map.get("id")));
+                    if(map.get("id")!=null) {
+                        prod.setId(Long.valueOf((String) map.get("id")));
+                    }
                     prod.setSellerId(sellerId);
                     prod.setName((String) map.get("name"));
                     //prod.setDescription((String) map.get("description"));

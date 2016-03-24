@@ -125,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
                 android:layout_gravity="center"
-                android:text="Please select a address to see nearby shops"
+                android:text="@string/please_select_address"
                 android:textColor="@color/default_background_font" />
 
         </LinearLayout>

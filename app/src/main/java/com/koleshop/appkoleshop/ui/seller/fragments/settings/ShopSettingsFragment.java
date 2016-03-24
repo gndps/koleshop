@@ -163,7 +163,9 @@ public class ShopSettingsFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 address.setName(s.toString());
-                mListener.settingsModified();
+                if(mListener!=null) {
+                    mListener.settingsModified();
+                }
             }
         });
         materialEditTextShopPhone.addTextChangedListener(new TextWatcher() {
@@ -186,7 +188,9 @@ public class ShopSettingsFragment extends Fragment {
                     //Log.d(TAG, "whatever");
                 }
                 address.setPhoneNumber(phoneNumberLong);
-                mListener.settingsModified();
+                if(mListener!=null) {
+                    mListener.settingsModified();
+                }
             }
         });
         materialEditTextShopAddress.addTextChangedListener(new TextWatcher() {
@@ -203,7 +207,9 @@ public class ShopSettingsFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 address.setAddress(s.toString());
-                mListener.settingsModified();
+                if(mListener!=null) {
+                    mListener.settingsModified();
+                }
             }
         });
     }

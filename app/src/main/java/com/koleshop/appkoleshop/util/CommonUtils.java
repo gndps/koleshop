@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.TextView;
 
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
@@ -483,4 +484,7 @@ public class CommonUtils {
         return timeDifference<=0;
     }
 
+    public static int getPixelsFromDp(Context mContext, int sizeInDp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInDp, mContext.getResources().getDisplayMetrics());
+    }
 }

@@ -104,7 +104,6 @@ public class ProductEditFragment extends Fragment {
         realm = Realm.getDefaultInstance();
         loadBrands();
         loadCategories();
-        realm.close();
         loadAndBindSpinners();
         return v;
     }
@@ -297,4 +296,9 @@ public class ProductEditFragment extends Fragment {
         editTextProductName.setError("Name can't be empty");
     }
 
+    @Override
+    public void onDestroy() {
+        realm.close();
+        super.onDestroy();
+    }
 }

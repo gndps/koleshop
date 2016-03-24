@@ -336,8 +336,8 @@ public class ProductService {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        String query = "select id,name,image_url,parent_category_id from ProductCategory where id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS
-                + ") and parent_category_id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS + ") ;";
+        String query = "select id,name,image_url,parent_category_id from ProductCategory where valid = '1' "
+                + " and parent_category_id not in (select id from ProductCategory where valid = '0') ;";
 
         try {
             dbConnection = DatabaseConnection.getConnection();
@@ -371,10 +371,8 @@ public class ProductService {
         PreparedStatement preparedStatement = null;
 
         String query = "select b.id,b.name from Brand b join Inventory i on i.brand_id = b.id " +
-                "join ProductCategory pc on pc.id = i.category_id " +
-                "and pc.id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS +
-                ") and pc.parent_category_id not in (" + Constants.EXCLUDED_INVENTORY_CATEGORIES_IDS +
-                ") group by b.id;";
+                "join ProductCategory pc1 on pc1.id = i.category_id and pc1.valid = '1' " +
+                "join ProductCategory pc2 on pc1.parent_category_id = pc2.id and pc2.valid = '1' group by b.id;";
 
         try {
             dbConnection = DatabaseConnection.getConnection();

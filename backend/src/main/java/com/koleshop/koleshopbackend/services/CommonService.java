@@ -211,10 +211,10 @@ public class CommonService {
             preparedStatement.setInt(10, closeTime);
             preparedStatement.setBoolean(11, pickupFromShop);
             preparedStatement.setBoolean(12, homeDelivery);
-            preparedStatement.setLong(13, maxDeliveryDistance==null?0l:maxDeliveryDistance);
-            preparedStatement.setFloat(14, minOrder==null?0f:minOrder);
-            preparedStatement.setFloat(15, deliveryCharges==null?0:deliveryCharges);
-            preparedStatement.setFloat(16, carryBagCharges==null?0:carryBagCharges);
+            preparedStatement.setLong(13, maxDeliveryDistance == null ? 0l : maxDeliveryDistance);
+            preparedStatement.setFloat(14, minOrder == null ? 0f : minOrder);
+            preparedStatement.setFloat(15, deliveryCharges == null ? 0 : deliveryCharges);
+            preparedStatement.setFloat(16, carryBagCharges == null ? 0 : carryBagCharges);
             preparedStatement.setInt(17, deliveryStartTime);
             preparedStatement.setInt(18, deliveryEndTime);
             preparedStatement.setLong(19, userId);
@@ -232,7 +232,6 @@ public class CommonService {
                 Message gcmMessage = new Message.Builder()
                         .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE)
                         .addData("type", Constants.GCM_NOTI_DELETE_OLD_SETTINGS_CACHE)
-                        .addData("millis", ""+new Date().getTime())
                         .build();
                 GcmHelper.notifyUser(userId, gcmMessage, 2);
             } else {
@@ -283,7 +282,7 @@ public class CommonService {
 
             preparedStatement.setLong(1, userId);
 
-            logger.log(Level.INFO, "prepared statement=" + preparedStatement);
+            logger.log(Level.INFO, "prepared statement=" + preparedStatement.toString());
 
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
@@ -324,6 +323,47 @@ public class CommonService {
             response.setStatus(e.getLocalizedMessage());
             response.setData(null);
             return response;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+    }
+
+    public KoleResponse saveFeedback(String message, String deviceModel, String deviceManufacturer, String osVersion, String heightDp, String widthDp, String screenSize, String deviceTime, String sessionType,
+                                     String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId) {
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        String query = "insert into Feedback(message, device_model, device_manufacturer, os_version, height_dp, width_dp, screen_size, device_time, session_type, gps_lat, gps_long, network_name, is_wifi, user_id, session_id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+
+            int index = 1;
+            preparedStatement.setString(index++, message == null ? "" : message);
+            preparedStatement.setString(index++, deviceModel == null ? "" : deviceModel);
+            preparedStatement.setString(index++, deviceManufacturer == null ? "" : deviceManufacturer);
+            preparedStatement.setString(index++, osVersion == null ? "" : osVersion);
+            preparedStatement.setString(index++, heightDp == null ? "" : heightDp);
+            preparedStatement.setString(index++, widthDp == null ? "" : widthDp);
+            preparedStatement.setString(index++, screenSize == null ? "" : screenSize);
+            preparedStatement.setString(index++, deviceTime == null ? "" : deviceTime);
+            preparedStatement.setString(index++, sessionType == null ? "" : sessionType);
+            preparedStatement.setString(index++, gpsLat == null ? "" : gpsLat);
+            preparedStatement.setString(index++, gpsLong == null ? "" : gpsLong);
+            preparedStatement.setString(index++, networkName == null ? "" : networkName);
+            preparedStatement.setString(index++, isWifiConnected == null ? "" : isWifiConnected);
+            preparedStatement.setString(index++, userId == null ? "" : userId);
+            preparedStatement.setString(index++, sessionId == null ? "" : sessionId);
+
+            logger.log(Level.INFO, "will execute this prepared statement=" + preparedStatement.toString());
+
+            preparedStatement.execute();
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return KoleResponse.successResponse();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "problem while capturing feedback", e);
+            return KoleResponse.failedResponse();
         } finally {
             DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }

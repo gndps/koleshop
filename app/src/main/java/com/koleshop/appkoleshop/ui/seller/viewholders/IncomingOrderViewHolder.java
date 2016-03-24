@@ -18,6 +18,8 @@ import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.zl.reik.dilatingdotsprogressbar.DilatingDotsProgressBar;
 
@@ -79,14 +81,31 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
             return;
         }
 
-        BuyerSettings buyerSettings = order.getBuyerSettings();
+        final BuyerSettings buyerSettings = order.getBuyerSettings();
 
         //1. load image view
-        String buyerImageUrl = buyerSettings.getImageUrl();
+        final String buyerImageUrl = buyerSettings.getImageUrl();
         if (!TextUtils.isEmpty(buyerImageUrl)) {
             Picasso.with(mContext)
                     .load(buyerImageUrl)
-                    .into(imageViewAvatar);
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .placeholder(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true))
+                    .into(imageViewAvatar, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+                            Picasso.with(mContext)
+                                    .load(buyerImageUrl)
+                                    .networkPolicy(NetworkPolicy.OFFLINE)
+                                    .placeholder(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true))
+                                    .error(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true))
+                                    .into(imageViewAvatar);
+                        }
+                    });
         } else if (!TextUtils.isEmpty(buyerSettings.getName())) {
             imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true));
         }

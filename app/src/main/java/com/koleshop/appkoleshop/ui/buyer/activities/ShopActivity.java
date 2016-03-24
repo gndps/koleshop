@@ -42,6 +42,7 @@ import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
@@ -238,10 +239,27 @@ public class ShopActivity extends AppCompatActivity {
         if (!TextUtils.isEmpty(sellerSettings.getImageUrl())) {
             Picasso.with(mContext)
                     .load(sellerSettings.getImageUrl())
+                    .networkPolicy(NetworkPolicy.OFFLINE)
                     .centerCrop()
                     .fit()
                     .placeholder(KoleshopUtils.getTextDrawable(mContext, sellerSettings.getAddress().getName(), 96, true))
-                    .into(circleImageViewAvatarShop);
+                    .into(circleImageViewAvatarShop, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+                            Picasso.with(mContext)
+                                    .load(sellerSettings.getImageUrl())
+                                    .centerCrop()
+                                    .fit()
+                                    .placeholder(KoleshopUtils.getTextDrawable(mContext, sellerSettings.getAddress().getName(), 96, true))
+                                    .error(KoleshopUtils.getTextDrawable(mContext, sellerSettings.getAddress().getName(), 96, true))
+                                    .into(circleImageViewAvatarShop);
+                        }
+                    });
         } else {
             circleImageViewAvatarShop.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, sellerSettings.getAddress().getName(), 96, true));
         }
@@ -250,6 +268,7 @@ public class ShopActivity extends AppCompatActivity {
         if (!TextUtils.isEmpty(sellerSettings.getHeaderImageUrl())) {
             Picasso.with(mContext)
                     .load(sellerSettings.getHeaderImageUrl())
+                    .networkPolicy(NetworkPolicy.OFFLINE)
                     .centerCrop()
                     .fit()
                     .into(headerImageView, new Callback() {
@@ -260,7 +279,11 @@ public class ShopActivity extends AppCompatActivity {
 
                         @Override
                         public void onError() {
-
+                            Picasso.with(mContext)
+                                    .load(sellerSettings.getHeaderImageUrl())
+                                    .centerCrop()
+                                    .fit()
+                                    .into(headerImageView);
                         }
                     });
 

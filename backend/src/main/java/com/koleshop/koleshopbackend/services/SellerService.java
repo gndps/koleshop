@@ -1,8 +1,11 @@
 package com.koleshop.koleshopbackend.services;
 
+import com.google.android.gcm.server.Message;
+import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
 import com.koleshop.koleshopbackend.db.models.InventoryProduct;
 import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
+import com.koleshop.koleshopbackend.gcm.GcmHelper;
 import com.koleshop.koleshopbackend.utils.CommonUtils;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
@@ -39,6 +42,12 @@ public class SellerService {
                 updated = false;
             }
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            //delete any old caches stored in phones
+            Message gcmMessage = new Message.Builder()
+                    .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE)
+                    .addData("type", Constants.GCM_NOTI_DELETE_OLD_SETTINGS_CACHE)
+                    .build();
+            GcmHelper.notifyUser(sellerId, gcmMessage, 2);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "exception in open close shop for seller_id = " + sellerId, e);
         } finally {

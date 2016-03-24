@@ -13,6 +13,9 @@ import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.ui.common.views.ItemCountView;
 import com.koleshop.appkoleshop.util.CartUtils;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
@@ -55,12 +58,29 @@ public class CartFragmentViewHolder extends RecyclerView.ViewHolder implements I
         this.position = position;
         this.mListener = listener;
         if(!TextUtils.isEmpty(productVarietyCount.getProductVariety().getImageUrl())) {
+            final String imageUrl = KoleshopUtils.getSmallImageUrl(productVarietyCount.getProductVariety().getImageUrl());
             Picasso.with(mContext)
-                    .load(productVarietyCount.getProductVariety().getImageUrl())
+                    .load(imageUrl)
                     .centerCrop()
+                    .networkPolicy(NetworkPolicy.OFFLINE)
                     .fit()
                     .placeholder(R.drawable.ic_koleshop_grey_24dp)
-                    .into(circleImageView);
+                    .into(circleImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+                            Picasso.with(mContext)
+                                    .load(imageUrl)
+                                    .centerCrop()
+                                    .fit()
+                                    .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                                    .into(circleImageView);
+                        }
+                    });
         } else {
             Picasso.with(mContext)
                     .load(R.drawable.ic_koleshop_grey_24dp)

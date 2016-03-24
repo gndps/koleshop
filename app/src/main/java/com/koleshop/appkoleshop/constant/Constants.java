@@ -119,6 +119,11 @@ public class Constants {
     public static final String ACTION_SINGLE_ORDER_FETCH_SUCCESS = "com.koleshop.action_single_order_fetch_success";
     public static final String ACTION_SINGLE_ORDER_FETCH_FAILED = "com.koleshop.action_single_order_fetch_failed";
     public static final String ACTION_ORDER_UPDATE_NOTIFICATION = "com.koleshop.action_order_update_notification";
+    public static final String ACTION_OUT_OF_STOCK_FETCH_SUCCESS = "com.koleshop.action_out_of_stock_fetch_success";
+    public static final String ACTION_NO_ITEMS_OUT_OF_STOCK = "com.koleshop.action_no_items_out_of_stock";
+    public static final String ACTION_OUT_OF_STOCK_FETCH_FAILED = "com.koleshop.action_out_of_stock_fetch_failed";
+    public static final String ACTION_SAVE_FEEDBACK_SUCCESS = "com.koleshop.action_save_feedback_success";
+    public static final String ACTION_SAVE_FEEDBACK_FAILED = "com.koleshop.action_save_feedback_failed";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";

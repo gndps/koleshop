@@ -3,21 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.koleshop.appkoleshop.ui.buyer.activities.CartActivity">
 
+    <item
+        android:id="@+id/menu_item_cancel"
+        android:title="@string/cancel_order"
+        app:showAsAction="never" />
 
     <item
-        android:id="@+id/cancel"
-        app:showAsAction="never"
-        android:title="Cancel"
-        />
+        android:id="@+id/menu_item_call"
+        android:title="@string/call"
+        app:showAsAction="never" />
 
     <item
-        android:id="@+id/call"
-        app:showAsAction="never"
-        android:title="Call" />
-    <item
-        android:id="@+id/not_delivered"
-        app:showAsAction="never"
-        android:title="Not delivered" />
+        android:id="@+id/menu_item_not_delivered"
+        android:title="@string/not_delivered"
+        app:showAsAction="never" />
 
+    <item
+        android:id="@+id/menu_item_not_picked_up"
+        android:title="@string/not_picked_up"
+        app:showAsAction="never" />
 
 </menu>

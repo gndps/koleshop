@@ -58,6 +58,13 @@ public class KoleResponse {
         return kr;
     }
 
+    public static KoleResponse successResponse() {
+        KoleResponse kr = new KoleResponse();
+        kr.setSuccess(true);
+        kr.setData(null);
+        return kr;
+    }
+
     public static KoleResponse failedResponse(String reason) {
         KoleResponse kr = new KoleResponse();
         kr.setStatus(reason);

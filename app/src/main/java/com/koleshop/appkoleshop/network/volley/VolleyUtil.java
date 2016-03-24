@@ -7,6 +7,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -32,6 +34,7 @@ public class VolleyUtil extends Application {
         mInstance = this;
         RealmConfiguration config = new RealmConfiguration.Builder(mInstance).build();
         Realm.setDefaultConfiguration(config);
+        setupPicassoDiskCache();
     }
 
     public RequestQueue getRequestQueue() {
@@ -72,6 +75,15 @@ public class VolleyUtil extends Application {
         if (mRequestQueue != null) {
             mRequestQueue.cancelAll(tag);
         }
+    }
+
+    private void setupPicassoDiskCache() {
+        Picasso.Builder builder = new Picasso.Builder(this);
+        builder.downloader(new OkHttpDownloader(this,Integer.MAX_VALUE));
+        Picasso built = builder.build();
+        //built.setIndicatorsEnabled(true);
+        //built.setLoggingEnabled(true);
+        Picasso.setSingletonInstance(built);
     }
 
 }

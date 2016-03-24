@@ -21,6 +21,7 @@ import android.widget.ViewFlipper;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.constant.OrderStatus;
+import com.koleshop.appkoleshop.helpers.KoleshopNotificationUtils;
 import com.koleshop.appkoleshop.model.Order;
 import com.koleshop.appkoleshop.services.BuyerIntentService;
 import com.koleshop.appkoleshop.ui.seller.adapters.OrderAdapter;
@@ -87,6 +88,7 @@ public class MyOrdersFragment extends Fragment {
         fetchOrdersFromInternet();
         if (PreferenceUtils.getPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING)) {
             PreferenceUtils.setPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING, false);
+            KoleshopNotificationUtils.dismissAllNotifications(mContext);
         }
         return view;
     }
@@ -142,9 +144,9 @@ public class MyOrdersFragment extends Fragment {
                         Long orderId = intent.getLongExtra("orderId", 0);
                         if (orderId > 0) {
                             int newOrderStatus = intent.getIntExtra("status", 0);
-                            if(newOrderStatus == OrderStatus.ACCEPTED) {
+                            if (newOrderStatus == OrderStatus.ACCEPTED) {
                                 orderAccepted(orderId);
-                            } else if(newOrderStatus == OrderStatus.REJECTED) {
+                            } else if (newOrderStatus == OrderStatus.REJECTED) {
                                 orderRejected(orderId);
                             } else {
                                 fetchOrdersFromInternet();
@@ -208,7 +210,9 @@ public class MyOrdersFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDERS_FETCH_FAILED));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NO_ORDERS_FETCHED));
-        lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_UPDATE_NOTIFICATION));
+        IntentFilter orderUpdateIntentFilter = new IntentFilter(Constants.ACTION_ORDER_UPDATE_NOTIFICATION);
+        orderUpdateIntentFilter.setPriority(100);
+        mContext.registerReceiver(mBroadcastReceiver, orderUpdateIntentFilter);
         if (PreferenceUtils.getPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING)) {
             fetchOrdersFromInternet();
             PreferenceUtils.setPreferencesFlag(mContext, Constants.KEY_ORDERS_NEED_REFRESHING, false);
@@ -219,6 +223,7 @@ public class MyOrdersFragment extends Fragment {
     public void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
+        mContext.unregisterReceiver(mBroadcastReceiver);
     }
 
     private void fetchOrdersFromInternet() {

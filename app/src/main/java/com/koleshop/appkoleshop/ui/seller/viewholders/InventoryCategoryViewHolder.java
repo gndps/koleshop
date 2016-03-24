@@ -5,7 +5,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.network.volley.VolleyUtil;
+import com.koleshop.appkoleshop.ui.seller.adapters.InventoryCategoryAdapter;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -22,6 +27,7 @@ public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
     public CircleImageView circleImageViewInventoryCategory;
     private String imageUrl;
     private String uniqueTag;
+    private ProductCategory productCategory;
 
     public InventoryCategoryViewHolder(View view) {
         super(view);
@@ -42,10 +48,26 @@ public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
         this.imageUrl = imageUrl;
     }
 
-    public void sendImageFetchRequest(Context context) {
+    public void sendImageFetchRequest(final Context context) {
         Picasso.with(context)
                 .load(imageUrl)
-                .into(circleImageViewInventoryCategory);
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                .into(circleImageViewInventoryCategory, new Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        Picasso.with(context)
+                                .load(imageUrl)
+                                .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                                .error(R.drawable.ic_koleshop_grey_24dp)
+                                .into(circleImageViewInventoryCategory);
+                    }
+                });
         /*ImageRequest request = new ImageRequest(imageUrl,
                 new Response.Listener<Bitmap>() {
                     @Override
@@ -66,4 +88,16 @@ public class InventoryCategoryViewHolder extends RecyclerView.ViewHolder {
         VolleyUtil.getInstance().cancelRequestsWithTag(uniqueTag);
     }
 
+    public void setOnItemClickListener(final InventoryCategoryAdapter.OnItemClickListener onItemClickListener) {
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onItemClickListener.onItemClick(productCategory);
+            }
+        });
+    }
+
+    public void setProductCategory(ProductCategory productCategory) {
+        this.productCategory = productCategory;
+    }
 }

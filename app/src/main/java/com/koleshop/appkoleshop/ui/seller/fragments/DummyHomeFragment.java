@@ -27,6 +27,10 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.services.SellerIntentService;
+import com.koleshop.appkoleshop.services.SettingsIntentService;
+import com.koleshop.appkoleshop.util.CloudEndpointDataExtractionUtil;
+import com.koleshop.appkoleshop.util.KoleCacheUtil;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import org.parceler.Parcels;
@@ -90,12 +94,7 @@ public class DummyHomeFragment extends Fragment {
             LinearLayout switchLayout = (LinearLayout) menu.findItem(R.id.menu_shop_switch).getActionView();
             switchOpenClose = (SwitchCompat) switchLayout.findViewById(R.id.switch_shop_open_close);
             progressBarOpenClose = (ProgressBar) switchLayout.findViewById(R.id.progress_bar_shop_open_close);
-            if (sellerSettings != null) {
-                switchOpenClose.setChecked(sellerSettings.isShopOpen());
-                if (!sellerSettings.isShopOpen()) {
-                    switchOpenClose.setText("Close ");
-                }
-            }
+            refreshShopOpenCloseStatus();
             switchOpenClose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
@@ -171,5 +170,16 @@ public class DummyHomeFragment extends Fragment {
         }
     }
 
-
+    public void refreshShopOpenCloseStatus() {
+        sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
+        if (sellerSettings != null) {
+            switchOpenClose.setChecked(sellerSettings.isShopOpen());
+            if (!sellerSettings.isShopOpen()) {
+                switchOpenClose.setText("Close ");
+            }
+        } else {
+            setShopToggleProcessing(true, null);
+            SettingsIntentService.refreshSellerSettings(mContext);
+        }
+    }
 }

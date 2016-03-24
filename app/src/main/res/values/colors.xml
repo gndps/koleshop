@@ -31,6 +31,7 @@
     <color name="default_background">#eaeaea</color>
     <color name="default_background_font">#B7B6B7</color>
     <color name="offwhite">#F9F9F9</color>
+    <color name="offwhite_transparent">#BBF9F9F9</color>
     <color name="otherGreen">#57BB8A</color>
     <color name="otherGreenOld">#5BB990</color>
     <color name="veryLightGray">#D5D5D5</color>

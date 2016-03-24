@@ -101,11 +101,35 @@ public class InventoryCategoryFragment extends Fragment {
                 .margin(getResources().getDimensionPixelSize(com.koleshop.appkoleshop.R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(com.koleshop.appkoleshop.R.dimen.recycler_view_right_margin))
                 .build());
-        inventoryCategoryAdapter = new InventoryCategoryAdapter(getActivity(), null);
+        inventoryCategoryAdapter = new InventoryCategoryAdapter(getActivity(), null, new InventoryCategoryAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ProductCategory productCategory) {
+                if (menuMultipleActions != null && menuMultipleActions.isExpanded()) {
+                    menuMultipleActions.collapse();
+                } else {
+                    Intent intent = new Intent(mContext, InventoryProductActivity.class);
+                    intent.putExtra("categoryId", productCategory.getId());
+                    intent.putExtra("myInventory", myInventory);
+                    intent.putExtra("customerView", customerView);
+                    intent.putExtra("sellerSettings", Parcels.wrap(sellerSettings));
+                    String categoryName = productCategory.getName();
+                    if (categoryName != null && !categoryName.isEmpty()) {
+                        intent.putExtra("categoryTitle", categoryName);
+                        startActivity(intent);
+                    } else {
+                        new AlertDialog.Builder(mContext)
+                                .setTitle("Some problem occurred")
+                                .setMessage("Please try again")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    }
+                }
+            }
+        });
         //inventoryCategoryAdapter.
         recyclerView.setAdapter(inventoryCategoryAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
+        /*recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 if (menuMultipleActions != null && menuMultipleActions.isExpanded()) {
@@ -131,7 +155,7 @@ public class InventoryCategoryFragment extends Fragment {
                 ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.exit_to_right, R.anim.enter_from_left);
                 ft.replace(R.id.fragment_container, new InventoryProductFragment(), "InventoryProductFragment");
                 ft.addToBackStack(null);
-                ft.commit();*/
+                ft.commit();* /
                     //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -141,7 +165,7 @@ public class InventoryCategoryFragment extends Fragment {
                 //Toast.makeText(getActivity(), "item clicked " + position, Toast.LENGTH_LONG).show();
 
             }
-        }));
+        }));*/
         if (!customerView) {
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override

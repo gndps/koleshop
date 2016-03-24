@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
 import com.koleshop.appkoleshop.ui.seller.viewholders.InventoryCategoryViewHolder;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 
 import java.util.List;
 
@@ -17,21 +16,24 @@ import java.util.List;
  */
 public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCategoryViewHolder> {
 
-    private LayoutInflater inflator;
+    private LayoutInflater inflater;
     List<ProductCategory> categories;
     Context context;
+    OnItemClickListener mListener;
 
 
-    public InventoryCategoryAdapter(Context context, List<ProductCategory> categories)
+    public InventoryCategoryAdapter(Context context, List<ProductCategory> categories, OnItemClickListener onItemClickListener)
     {
         this.context = context;
-        inflator = LayoutInflater.from(context);
+        inflater = LayoutInflater.from(context);
         this.categories = categories; //null
+        this.mListener = onItemClickListener;
+
     }
 
     @Override
     public InventoryCategoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflator.inflate(com.koleshop.appkoleshop.R.layout.item_rv_inventory_category, parent, false);
+        View view = inflater.inflate(com.koleshop.appkoleshop.R.layout.item_rv_inventory_category, parent, false);
         InventoryCategoryViewHolder holder = new InventoryCategoryViewHolder(view);
         return holder;
     }
@@ -44,6 +46,8 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
             holder.setSubtitle(productCategory.getDesc());
             holder.setImageUrl(productCategory.getImageUrl());
             holder.sendImageFetchRequest(context);
+            holder.setProductCategory(productCategory);
+            holder.setOnItemClickListener(mListener);
         }
         //data.remove(position);
         //notifyItemRemoved(position);
@@ -92,4 +96,9 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
         super.onViewRecycled(holder);
         holder.cancelImageFetchRequest();
     }*/
+
+    public interface OnItemClickListener {
+        void onItemClick(ProductCategory item);
+    }
+
 }
