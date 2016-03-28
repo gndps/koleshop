@@ -76,6 +76,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:gravity="right"
+                android:maxWidth="200dp"
+                android:maxLines="4"
                 android:text="Anmol Singh Brar\n20014 St. no. 14\nJujhar Singh Nagar\nBathinda\nPh. 9530979014"
                 android:textColor="@color/primary_text"
                 android:visibility="gone" />

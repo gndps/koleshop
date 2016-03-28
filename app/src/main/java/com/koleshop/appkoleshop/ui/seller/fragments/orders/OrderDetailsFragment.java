@@ -144,7 +144,7 @@ public class OrderDetailsFragment extends Fragment {
 
         //03. Set delivery address / seller name
         if (!customerView) {
-            String address = order.getBuyerSettings().getName();
+            String address = order.getAddress().getName();
             address += "\n" + order.getAddress().getAddress();
             address += "\nPh." + order.getAddress().getPhoneNumber();
             textViewAddress.setText(address);

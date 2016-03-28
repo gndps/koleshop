@@ -181,16 +181,9 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
             //01.01 FIND SHOP TITLE
             title = sellerSettings.getAddress().getName();
 
-            //01.02 GET SHOP DISTANCE FROM USER
-            float[] results = new float[3];
-            Double userLat = buyerAddress.getGpsLat();
-            Double userLong = buyerAddress.getGpsLong();
-            Location.distanceBetween(userLat, userLong, sellerSettings.getAddress().getGpsLat(), sellerSettings.getAddress().getGpsLong(), results);
-            float userDistanceFromShopInMeters = results[0];
-
             //01.03 FIND DELIVERY / PICKUP INFORMATION AND CHOOSE IMAGE FOR MARKER
             if (sellerSettings.isHomeDelivery()) {
-                if ((sellerSettings.getMaximumDeliveryDistance() + Constants.DELIVERY_DISTANCE_APPROXIMATION_ERROR) >= userDistanceFromShopInMeters) {
+                if (KoleshopUtils.doesSellerDeliverToBuyerLocation(sellerSettings)) {
                     //home delivery is available to this location
                     deliveryPickupInfo = KoleshopUtils.getDeliveryTimeStringFromOpenAndCloseTime(sellerSettings.getDeliveryStartTime(), sellerSettings.getDeliveryEndTime());
                     if (KoleshopUtils.willSellerDeliverNow(sellerSettings.getDeliveryEndTime())) {

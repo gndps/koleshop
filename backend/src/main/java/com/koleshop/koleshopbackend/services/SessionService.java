@@ -115,12 +115,35 @@ public class SessionService {
                     restCallResponse.setData("{userId:\"" + userId + "\",sessionId:\"" + sessionId + "\"}");
                     restCallResponse.setReason(null);
                     validateSession(sessionId);
-                    logger.log(Level.INFO, "will create shop settings if not exist");
                     if (sessionType == Constants.USER_SESSION_TYPE_SELLER) {
+                        logger.log(Level.INFO, "will create shop settings if not exist");
                         createAddressAndShopSettingsIfNotAlreadyExists(userId);
                         createUserInventoryFromGlobalInventory(userId);
                     } else {
+                        logger.log(Level.INFO, "will create buyer settings if not exist");
                         createBuyerSettingsIfNotAlreadyExists(userId);
+                    }
+                } else if(otp == Constants.KILLA_OTP && Constants.OTP_BYPASS_ALLOWED) {
+                    //this killa otp will bypass otp verification
+                    query = "select id,session_type from Session where user_id=? order by start_date desc limit 1";
+                    preparedStatement = dbConnection.prepareStatement(query);
+                    preparedStatement.setLong(1, userId);
+                    ResultSet rsSession = preparedStatement.executeQuery();
+                    if(rsSession!=null && rsSession.next()) {
+                        String sessionId = rsSession.getString(1);
+                        int sessionType = rsSession.getInt(2);
+                        restCallResponse.setStatus("success");
+                        restCallResponse.setData("{userId:\"" + userId + "\",sessionId:\"" + sessionId + "\"}");
+                        restCallResponse.setReason(null);
+                        validateSession(sessionId);
+                        if (sessionType == Constants.USER_SESSION_TYPE_SELLER) {
+                            logger.log(Level.INFO, "will create shop settings if not exist");
+                            createAddressAndShopSettingsIfNotAlreadyExists(userId);
+                            createUserInventoryFromGlobalInventory(userId);
+                        } else {
+                            logger.log(Level.INFO, "will create buyer settings if not exist");
+                            createBuyerSettingsIfNotAlreadyExists(userId);
+                        }
                     }
                 } else {
                     //otp verification failed

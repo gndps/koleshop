@@ -1,10 +1,10 @@
 package com.koleshop.koleshopbackend.services;
 
 import com.google.android.gcm.server.Message;
-import com.google.gson.JsonObject;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
 import com.koleshop.koleshopbackend.db.models.Address;
+import com.koleshop.koleshopbackend.db.models.EssentialInfo;
 import com.koleshop.koleshopbackend.db.models.KoleResponse;
 import com.koleshop.koleshopbackend.db.models.SellerSettings;
 import com.koleshop.koleshopbackend.gcm.GcmHelper;
@@ -14,7 +14,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -361,6 +360,39 @@ public class CommonService {
             preparedStatement.execute();
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
             return KoleResponse.successResponse();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "problem while capturing feedback", e);
+            return KoleResponse.failedResponse();
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+    }
+
+    public KoleResponse getEssentialInfo(boolean isBuyer) {
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        logger.info("getting essential info");
+
+        String query = "select * from EssentialInfo order by api_version desc limit 1";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            if(rs!=null) {
+                rs.first();
+            }
+            Long callUsPhone = rs.getLong("call_us_phone");
+            int apiVersion = rs.getInt("api_version");
+            EssentialInfo essentialInfo = new EssentialInfo(callUsPhone, apiVersion);
+
+            KoleResponse response = new KoleResponse();
+            response.setData(essentialInfo);
+            response.setSuccess(true);
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return response;
         } catch (Exception e) {
             logger.log(Level.SEVERE, "problem while capturing feedback", e);
             return KoleResponse.failedResponse();

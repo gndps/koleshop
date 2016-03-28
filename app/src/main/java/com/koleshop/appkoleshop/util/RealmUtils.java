@@ -10,6 +10,7 @@ import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.model.realm.Cart;
+import com.koleshop.appkoleshop.model.realm.EssentialInfo;
 import com.koleshop.appkoleshop.model.realm.ProductCategory;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Gundeep on 25/07/15.
@@ -178,6 +180,9 @@ public class RealmUtils {
         String TAG = "RealmUtils";
         try {
             Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
+            PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED, false);
+            PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED, false);
+            PreferenceUtils.setPreferences(mContext, Constants.KEY_CURRENT_REALM_VERSION, Constants.REALM_VERSION + "");
         } catch (Exception e) {
             Log.e(TAG, "Could not close or delete realm", e);
         }
@@ -238,5 +243,30 @@ public class RealmUtils {
         realm.copyToRealmOrUpdate(buyerSettings);
         realm.commitTransaction();
         realm.close();
+    }
+
+    public static void saveEssentialInfo(EssentialInfo essentialInfo) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(essentialInfo);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public static EssentialInfo getEssentialInfo() {
+        Realm realm = Realm.getDefaultInstance();
+        EssentialInfo essentialInfo = null;
+        RealmResults<EssentialInfo> result = realm.where(EssentialInfo.class).findAll();
+        if (result != null) {
+            result.sort("apiVersion", Sort.DESCENDING);
+            if(result!=null && result.size()>0) {
+                EssentialInfo essentialInfoRealm = result.first();
+                if (essentialInfoRealm != null) {
+                    essentialInfo = realm.copyFromRealm(essentialInfoRealm);
+                }
+            }
+        }
+        realm.close();
+        return essentialInfo;
     }
 }

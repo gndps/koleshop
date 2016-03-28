@@ -15,16 +15,20 @@ import com.koleshop.appkoleshop.util.CommonUtils;
 
 
 public class ChooseDeliveryOptionFragment extends Fragment {
+
     final static int IMAGE_BUTTON_PADDING = 64;
+    public static final String KEY_SELECTED_BUTTON = "key_pickup_delivery_selection";
+    public final static int PICK_UP_BUTTON = 3;
+    public final static int DELIVERY_BUTTON = 4;
+    public static final String HOME_DELIVERY_BUTTON_DISABLED = "key_home_delivery_disabled";
+
     Context context;
-    private static final String DELIVERY_OPTIONS_SELECTIONS_KEY = "11";
     ImageButton pickUp;
     ImageButton deliveryBoy;
     RippleView ripplePickUp;
     RippleView rippleDeliveryBoyButton;
-    int flag = 0;
-    public final static int FLAG_PICK_UP_BUTTON_SELECTED = 3;
-    public final static int FLAG_DELIVERY_BUTTON_SELECTED = 4;
+    int selectedButton = 0;
+    boolean homeDeliveryDisabled;
 
     public ChooseDeliveryOptionFragment() {}
 
@@ -32,64 +36,68 @@ public class ChooseDeliveryOptionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choose_delivery_option, container, false);
+        context = getActivity();
+
+        //inflate views
         pickUp = (ImageButton) view.findViewById(R.id.pick_up);
         deliveryBoy = (ImageButton) view.findViewById(R.id.delivery_boy);
-
         ripplePickUp = (RippleView) view.findViewById(R.id.ripple_effect_pick_button);
         rippleDeliveryBoyButton = (RippleView) view.findViewById(R.id.ripple_effect_deliver_button);
 
-        context = getActivity();
+        if(getArguments()!=null) {
+            selectedButton = getArguments().getInt(KEY_SELECTED_BUTTON);
+            homeDeliveryDisabled = getArguments().getBoolean(HOME_DELIVERY_BUTTON_DISABLED);
+        }
 
         fixImageButtonsSize();
-        ripplePickUp.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
-                selectImageButton(SelectedImageButton.BUTTON_PICKUP);
+        setupRippleClickListeners();
 
-            }
-        });
-        rippleDeliveryBoyButton.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
-                selectImageButton(SelectedImageButton.BUTTON_DELIVERY);
-            }
-        });
+        updateButtonSelection();
 
-        Bundle bundle = getArguments();
-        int getSelectedButton = bundle.getInt(DELIVERY_OPTIONS_SELECTIONS_KEY);
-        if (getSelectedButton == FLAG_PICK_UP_BUTTON_SELECTED) {
-            selectImageButton(SelectedImageButton.BUTTON_PICKUP);
-        } else if (getSelectedButton == FLAG_DELIVERY_BUTTON_SELECTED) {
-            selectImageButton(SelectedImageButton.BUTTON_DELIVERY);
-        }
         return view;
     }
 
-    public void selectImageButton(SelectedImageButton selectedImageButton) {
-        switch (selectedImageButton) {
-            case BUTTON_PICKUP:
-                flag = FLAG_PICK_UP_BUTTON_SELECTED;
+    private void setupRippleClickListeners() {
+        ripplePickUp.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
+            @Override
+            public void onComplete(RippleView rippleView) {
+                selectedButton = PICK_UP_BUTTON;
+                updateButtonSelection();
+
+            }
+        });
+        if(!homeDeliveryDisabled) {
+            rippleDeliveryBoyButton.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
+                @Override
+                public void onComplete(RippleView rippleView) {
+                    selectedButton = DELIVERY_BUTTON;
+                    updateButtonSelection();
+                }
+            });
+        }
+    }
+
+    public void updateButtonSelection() {
+        switch (selectedButton) {
+            case PICK_UP_BUTTON:
                 pickUp.setBackground(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.shape_pickup_button_selected));
                 fixImageButtonsSize();
-                deliveryBoy.setBackground(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.shape_delivery_button));
+                    deliveryBoy.setBackground(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.shape_delivery_button));
+                if(homeDeliveryDisabled) {
+                    deliveryBoy.setAlpha(0.3f);
+                }
                 break;
-            case BUTTON_DELIVERY:
+            case DELIVERY_BUTTON:
                 deliveryBoy.setBackground(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.shape_delivery_boy_button_selected));
                 pickUp.setBackground(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.shape_pick_button));
                 fixImageButtonsSize();
-                flag = FLAG_DELIVERY_BUTTON_SELECTED;
                 break;
         }
     }
 
 
    public int getSelectedButton() {
-        return this.flag;
-    }
-
-
-    enum SelectedImageButton {
-        BUTTON_PICKUP, BUTTON_DELIVERY
+        return selectedButton;
     }
 
     public void fixImageButtonsSize() {

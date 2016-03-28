@@ -15,6 +15,7 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.util.ArrayMap;
 import com.koleshop.api.commonEndpoint.model.ImageUploadRequest;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.realm.EssentialInfo;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.util.CloudEndpointDataExtractionUtil;
@@ -34,6 +35,7 @@ import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.api.yolo.inventoryEndpoint.model.KoleResponse;
 import com.koleshop.api.yolo.inventoryEndpoint.model.ProductVarietySelection;
 import com.koleshop.appkoleshop.util.ProductUtil;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
 
@@ -52,11 +54,19 @@ public class CommonIntentService extends IntentService {
     public static final String ACTION_LOAD_PRODUCT_CATEGORIES = "action_load_product_categories";
     public static final String ACTION_LOAD_BRANDS = "action_load_brands";
     public static final String ACTION_SAVE_FEEDBACK = "action_save_feedback";
+    public static final String ACTION_LOAD_ESSENTIAL_INFO = "action_load_essential_info";
     public static final String TAG = "CommonIntentService";
     Realm realm;
 
     public CommonIntentService() {
         super("CommonIntentService");
+    }
+
+    public static void loadEssentialInformationInBackground(Context context, boolean isBuyer) {
+        Intent intent = new Intent(context, CommonIntentService.class);
+        intent.setAction(ACTION_LOAD_ESSENTIAL_INFO);
+        intent.putExtra("isBuyer", isBuyer);
+        context.startService(intent);
     }
 
     @Override
@@ -161,6 +171,9 @@ public class CommonIntentService extends IntentService {
                 String userId = intent.getStringExtra("userId");
                 String sessionId = intent.getStringExtra("sessionId");
                 saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLat, gpsLong, networkName, isWifiConnected, userId, sessionId);
+            } else if (ACTION_LOAD_ESSENTIAL_INFO.equals(action)) {
+                boolean isBuyer = intent.getBooleanExtra("isBuyer", false);
+                loadEssentialInfo(isBuyer);
             }
         }
         realm.close();
@@ -921,6 +934,57 @@ public class CommonIntentService extends IntentService {
         intent.putExtra("userId", userId!=null?userId:"");
         intent.putExtra("sessionId", sessionId!=null?sessionId:"");
         context.startService(intent);
+    }
+
+    private void loadEssentialInfo(boolean isBuyer) {
+        CommonEndpoint commonEndpoint = null;
+        CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                // use 10.0.2.2 for localhost testing
+                .setRootUrl(Constants.SERVER_URL)
+                .setApplicationName(Constants.APP_NAME)
+                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                    @Override
+                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                        abstractGoogleClientRequest.setDisableGZipContent(true);
+                    }
+                });
+
+        commonEndpoint = builder.build();
+
+
+        com.koleshop.api.commonEndpoint.model.KoleResponse result = null;
+
+        try {
+            int count = 0;
+            int maxTries = 3;
+            while (count < maxTries) {
+                try {
+                    result = commonEndpoint.getEssentialInfo(isBuyer).execute();
+                    count = maxTries;
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
+                    count++;
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "exception", e);
+        }
+        if (result == null || !result.getSuccess()) {
+            //save feedback failed
+            Log.e(TAG, "get Essential Info failed");
+        } else {
+            Log.d(TAG, "get Essential Info success");
+            //success...save essential info to realm
+            EssentialInfo essentialInfo = new EssentialInfo();
+            ArrayMap<String, Object> arrayMap = (ArrayMap<String, Object>) result.getData();
+            essentialInfo.setCallUsPhone(Long.valueOf((String) arrayMap.get("callUsPhone")));
+            essentialInfo.setApiVersion(((BigDecimal) arrayMap.get("apiVersion")).intValue());
+            RealmUtils.saveEssentialInfo(essentialInfo);
+
+
+        }
     }
 
 }

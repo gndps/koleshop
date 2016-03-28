@@ -392,6 +392,9 @@ public class CommonUtils {
     }
 
     public static int getHoursDifference(Date date) {
+        if(date == null) {
+            return 0;
+        }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.set(Calendar.SECOND, 0);

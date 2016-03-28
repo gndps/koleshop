@@ -42,6 +42,7 @@ public class Constants {
     //configurable constants
     public static boolean RESET_REALM = false;
     public static boolean KOLE_CACHE_ALLOWED = true;
+    public static int REALM_VERSION = 2;
 
     public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
     public static String PUBLIC_PROFILE_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/profile/";
@@ -124,6 +125,8 @@ public class Constants {
     public static final String ACTION_OUT_OF_STOCK_FETCH_FAILED = "com.koleshop.action_out_of_stock_fetch_failed";
     public static final String ACTION_SAVE_FEEDBACK_SUCCESS = "com.koleshop.action_save_feedback_success";
     public static final String ACTION_SAVE_FEEDBACK_FAILED = "com.koleshop.action_save_feedback_failed";
+    public static final String ACTION_SHOP_FETCH_SUCCESS = "com.koleshop.action_shop_fetch_success";
+    public static final String ACTION_SHOP_FETCH_FAILED = "com.koleshop.action_shop_fetch_failed";
 
     //demo actions
     public static final String ACTION_INCREASE_VARIETY_COUNT = "com.koleshop.action_increase_variety_count";
@@ -146,6 +149,9 @@ public class Constants {
     public static final String KEY_SELLER_SETTINGS = "pref_seller_settings";
     public static final String KEY_ORDERS_NEED_REFRESHING = "pref_orders_need_refreshing";
     public static final String KEY_ORDERS_NOTIFICATION_MAP = "pref_orders_notification_map";
+    public static final String KEY_FAVORITE_SHOP_ID = "pref_favorite_shop_id";
+    public static final String KEY_FAVORITE_SHOP_NAME = "pref_favorite_shop_name";
+    public static final String KEY_CURRENT_REALM_VERSION = "pref_current_realm_version";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";

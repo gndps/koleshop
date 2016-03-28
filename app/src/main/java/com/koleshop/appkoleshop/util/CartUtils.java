@@ -1,6 +1,7 @@
 package com.koleshop.appkoleshop.util;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.koleshop.appkoleshop.model.cart.ProductVarietyCount;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
@@ -20,6 +21,8 @@ import io.realm.RealmResults;
  * Created by Gundeep on 02/03/16.
  */
 public class CartUtils {
+
+    private static final String TAG = "CartUtils";
 
     public static void increaseCount(String title, final ProductVariety productVariety, final SellerSettings sellerSettings) {
         Cart cart = CartsSingleton.getSharedInstance().getCart(sellerSettings);
@@ -85,16 +88,8 @@ public class CartUtils {
     }
 
     public static void clearCart(Cart cart) {
-        List<Cart> carts = CartsSingleton.getSharedInstance().getCarts();
-        if (carts != null) {
-            for (int i = carts.size() - 1; i > -1; i--) {
-                if (carts.get(i).getSellerId().equals(cart.getSellerId())) {
-                    //cart match...remove this cart
-                    carts.remove(cart);
-                    deleteCart(cart);
-                }
-            }
-        }
+        CartsSingleton.getSharedInstance().removeCart(cart);
+        deleteCart(cart);
     }
 
     public static void clearAllCarts() {

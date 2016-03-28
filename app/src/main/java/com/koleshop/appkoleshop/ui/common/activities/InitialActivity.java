@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -136,7 +137,8 @@ public class InitialActivity extends AppCompatActivity {
         if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
             //seller session
             //if logged in
-            if(Constants.RESET_REALM) {
+            int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
+            if(currentRealmVersion<Constants.REALM_VERSION) {
                 RealmUtils.resetRealm(mContext);
             }
             if (CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0) {
@@ -159,7 +161,8 @@ public class InitialActivity extends AppCompatActivity {
         } else if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_BUYER)) {
             //buyer session
             boolean userLoggedIn = CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0;
-            if(Constants.RESET_REALM) {
+            int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
+            if(currentRealmVersion<Constants.REALM_VERSION) {
                 RealmUtils.resetRealm(mContext);
             }
             BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();

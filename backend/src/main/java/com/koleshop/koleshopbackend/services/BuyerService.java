@@ -240,4 +240,67 @@ public class BuyerService {
     public List<InventoryProduct> searchProducts(Long sellerId, int limit, int offset, String searchQuery) {
         return new SellerService().searchProducts(sellerId, true, searchQuery, limit, offset);
     }
+
+    public SellerSettings getShop(Long shopId) {
+        logger.info("getting shop with id = " + shopId);
+
+        Connection dbConnection = DatabaseConnection.getConnection();
+        PreparedStatement preparedStatement = null;
+
+        //find nearby shops
+        String query = "SELECT ss.id as seller_settings_id,ss.user_id as seller_id,ss.image_url,ss.header_image_url,ss.open_time,ss.close_time,ss.pickup_from_shop," +
+                "ss.home_delivery,ss.max_delivery_distance,ss.min_order,ss.delivery_charges,ss.carry_bag_charges,ss.delivery_start_time," +
+                "ss.delivery_end_time,a.id as address_id,a.name,a.address,a.phone_number,a.country_code,a.nickname,a.gps_long,a.gps_lat,seller_status.shop_open " +
+                "FROM SellerSettings ss join Address a on ss.address_id=a.id " +
+                "JOIN SellerStatus seller_status on ss.user_id = seller_status.seller_id " +
+                "WHERE ss.user_id = ? ";
+
+        SellerSettings sellerSettings = null;
+
+        try {
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setLong(1, shopId);
+
+            logger.info("running get shop : " + preparedStatement.toString());
+
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                logger.info("extracting shop ");
+                String imageUrl = rs.getString("image_url");
+                String headerImageUrl = rs.getString("header_image_url");
+                Long addressId = rs.getLong("address_id");
+                Long sellerId = rs.getLong("seller_id");
+                Long sellerSettingsId = rs.getLong("seller_settings_id");
+                String addressName = rs.getString("name");
+                String addressString = rs.getString("address");
+                Long phoneNumber = rs.getLong("phone_number");
+                int countryCode = rs.getInt("country_code");
+                String nickname = rs.getString("nickname");
+                Double gpsLongitude = rs.getDouble("gps_long");
+                Double gpsLatitude = rs.getDouble("gps_lat");
+                int openTime = rs.getInt("open_time");
+                int closeTime = rs.getInt("close_time");
+                boolean homeDelivery = rs.getBoolean("home_delivery");
+                Long maxDeliveryDistance = rs.getLong("max_delivery_distance");
+                Float minOrder = rs.getFloat("min_order");
+                Float deliveryCharges = rs.getFloat("delivery_charges");
+                Float carryBagCharges = rs.getFloat("carry_bag_charges");
+                int deliveryStartTime = rs.getInt("delivery_start_time");
+                int deliveryEndTime = rs.getInt("delivery_end_time");
+                boolean shopOpen = rs.getBoolean("shop_open");
+
+                Address address = new Address(addressId, sellerId, addressName, addressString, 1, phoneNumber, countryCode, nickname, gpsLongitude, gpsLatitude);
+                sellerSettings = new SellerSettings(sellerSettingsId, sellerId, imageUrl, headerImageUrl, address, openTime, closeTime, true, homeDelivery, maxDeliveryDistance,
+                        minOrder, deliveryCharges, carryBagCharges, deliveryStartTime, deliveryEndTime, shopOpen);
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "problem in getting shop with id " + shopId, e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+        return sellerSettings;
+    }
 }

@@ -32,6 +32,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class OutOfStockFragment extends Fragment implements OutOfStockAdapter.OutOfStockAdapterListener {
 
@@ -167,6 +168,11 @@ public class OutOfStockFragment extends Fragment implements OutOfStockAdapter.Ou
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_OUT_OF_STOCK_LIST);
         adapter.setProductsList(products);
         adapter.notifyDataSetChanged();
+    }
+
+    @OnClick({R.id.button_retry_vinc, R.id.button_retry_vspo})
+    public void retry() {
+        fetchOrdersFromInternet();
     }
 
     @Override

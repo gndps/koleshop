@@ -59,16 +59,9 @@ import butterknife.OnClick;
 public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliveryTimeFragment.BackPressedListener {
 
     private final static String EXTRA_CART = "com.koleshop.appkoleshop.ui.buyer.activities.EXTRA_CART";
-    private final static int NONE_IS_SELECTED = 0;
-    private final static String IMAGE_SELECTION_KEY = "selectedButton";
     private final static String DELIVERY_OPTION_FRAGMENT_TAG = "delivery_fragment";
     private static final String DELIVERY_TIME_FRAGMENT_TAG = "delivery_time_fragment_tag";
     private static final String ADDRESS_FRAGMENT_TAG = "address_frag_tag";
-    private static final int NONE_SELECTED_DELIVERY_TIME_FRAGMENT = 5;
-    private static final String DELIVERY_OPTIONS_SELECTIONS_KEY = "11";
-    private static final String DELIVERY_TIME_SELECTION_KEY = "12";
-    private static final String TIME_KEY = "key";
-    private static final String FRAGMENTS_ALREADY_ADDED = "FragmentsAlreadyAdded";
     private static final String TAG = "PlaceOrderActivity";
 
     @BindString(R.string.title_place_order)
@@ -94,6 +87,11 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     private int minutesLater;
     private BroadcastReceiver mBroadcastReceiver;
 
+    private int selectedButton;
+    private int selectedTimeOptions;
+    private String selectedTimeString;
+    private Long selectedDeliveryTime;
+
     public static void startActivityNow(Context context, Cart cart) {
         Intent intent = new Intent(context, PlaceOrderActivity.class);
         intent.putExtra(EXTRA_CART, Parcels.wrap(cart));
@@ -108,25 +106,13 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
         ButterKnife.bind(this);
         setupToolbar();
 
-        //place order fragment initialize
-        chooseDeliveryOptionFragment = new ChooseDeliveryOptionFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt(IMAGE_SELECTION_KEY, NONE_IS_SELECTED);
-        chooseDeliveryOptionFragment.setArguments(bundle);
-
-        //choose delivery fragment initialize
-        chooseDeliveryTimeFragment = new ChooseDeliveryTimeFragment();
-        Bundle bundleDeliveryTimeFragment = new Bundle();
-        bundleDeliveryTimeFragment.putInt(IMAGE_SELECTION_KEY, NONE_SELECTED_DELIVERY_TIME_FRAGMENT);
-        chooseDeliveryTimeFragment.setArguments(bundleDeliveryTimeFragment);
-
-        //initialize address fragment
-        deliveryAddressesFragment = AddressesFragment.newInstance(true, true);
-
-
-        //RESTORE DATA
-        if (savedInstanceState != null) {
-
+        if (getIntent() != null && getIntent().getExtras() != null && savedInstanceState == null) {
+            Parcelable parcelableCart = getIntent().getExtras().getParcelable(EXTRA_CART);
+            cart = Parcels.unwrap(parcelableCart);
+            if (cart != null) {
+                toolbar.setSubtitle(cart.getSellerSettings().getAddress().getName());
+            }
+        } else if (savedInstanceState != null) {
             //restore cart
             Parcelable parcelableCart = savedInstanceState.getParcelable(EXTRA_CART);
             if (parcelableCart != null) {
@@ -135,63 +121,14 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             if (cart != null) {
                 toolbar.setSubtitle(cart.getSellerSettings().getAddress().getName());
             }
-
-            //restore fragment state
-            int deliveryOptionsSelection = savedInstanceState.getInt(DELIVERY_OPTIONS_SELECTIONS_KEY);
-            bundle.putInt(DELIVERY_OPTIONS_SELECTIONS_KEY, deliveryOptionsSelection);
-
-            int selectedButtoninDeliveryFragment = savedInstanceState.getInt(DELIVERY_TIME_SELECTION_KEY);
-            bundleDeliveryTimeFragment.putInt(DELIVERY_TIME_SELECTION_KEY, selectedButtoninDeliveryFragment);
-            String time = savedInstanceState.getString(TIME_KEY);
-            bundleDeliveryTimeFragment.putString(TIME_KEY, time);
-
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-            if (savedInstanceState.getBoolean(FRAGMENTS_ALREADY_ADDED)) {
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag(DELIVERY_OPTION_FRAGMENT_TAG);
-                Fragment fragment2 = getSupportFragmentManager().findFragmentByTag(DELIVERY_TIME_FRAGMENT_TAG);
-                Fragment fragment3 = getSupportFragmentManager().findFragmentByTag(ADDRESS_FRAGMENT_TAG);
-                boolean commitFt = false;
-                if (fragment != null) {
-                    fragmentTransaction.remove(fragment);
-                    commitFt = true;
-                }
-                if (fragment2 != null) {
-                    fragmentTransaction.remove(fragment2);
-                    commitFt = true;
-                }
-                if (fragment3 != null) {
-                    fragmentTransaction.remove(fragment3);
-                    commitFt = true;
-                }
-
-                /*if(commitFt) {
-                    fragmentTransaction.commit();
-                }*/
-
-                //fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.add(R.id.view_activity_place_order_frag_1, chooseDeliveryOptionFragment, DELIVERY_OPTION_FRAGMENT_TAG)
-                        .add(R.id.view_activity_place_order_frag_2, chooseDeliveryTimeFragment, DELIVERY_TIME_FRAGMENT_TAG)
-                        .add(R.id.view_activity_place_order_frag_3, deliveryAddressesFragment, ADDRESS_FRAGMENT_TAG)
-                        .commit();
-                //getSupportFragmentManager().executePendingTransactions();
-            }
-
-        } else {
-            if (getIntent() != null && getIntent().getExtras() != null) {
-                Parcelable parcelableCart = getIntent().getExtras().getParcelable(EXTRA_CART);
-                cart = Parcels.unwrap(parcelableCart);
-                if (cart != null) {
-                    toolbar.setSubtitle(cart.getSellerSettings().getAddress().getName());
-                }
-            }
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.view_activity_place_order_frag_1, chooseDeliveryOptionFragment, DELIVERY_OPTION_FRAGMENT_TAG)
-                    .add(R.id.view_activity_place_order_frag_2, chooseDeliveryTimeFragment, DELIVERY_TIME_FRAGMENT_TAG)
-                    .add(R.id.view_activity_place_order_frag_3, deliveryAddressesFragment, ADDRESS_FRAGMENT_TAG)
-                    .commit();
-            //getSupportFragmentManager().executePendingTransactions();
+            selectedButton = savedInstanceState.getInt(ChooseDeliveryOptionFragment.KEY_SELECTED_BUTTON);
+            selectedTimeOptions = savedInstanceState.getInt(ChooseDeliveryTimeFragment.DELIVERY_TIME_SELECTION);
+            selectedTimeString = savedInstanceState.getString(ChooseDeliveryTimeFragment.DELIVERY_TIME_STRING);
+            selectedDeliveryTime = savedInstanceState.getLong(ChooseDeliveryTimeFragment.DELIVERY_DATE);
+            removeFragments();
         }
+
+        initializeFragments();
 
         initializeBroadcastReceiver();
 
@@ -201,20 +138,28 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        ChooseDeliveryOptionFragment chooseDeliveryOptionFragment = (ChooseDeliveryOptionFragment) getSupportFragmentManager().findFragmentByTag(DELIVERY_OPTION_FRAGMENT_TAG);
+        //save selected delivery option
+        if(chooseDeliveryOptionFragment!=null) {
+            int selectedButton = chooseDeliveryOptionFragment.getSelectedButton();
+            outState.putInt(ChooseDeliveryOptionFragment.KEY_SELECTED_BUTTON, selectedButton);
+        }
 
-        //1st
-        int flag = chooseDeliveryOptionFragment.getSelectedButton();
-        outState.putInt(DELIVERY_OPTIONS_SELECTIONS_KEY, flag);
-        outState.putBoolean(FRAGMENTS_ALREADY_ADDED, true);
+        //save selected time
+        if(chooseDeliveryTimeFragment!=null) {
+            int selectedTimeOptions = chooseDeliveryTimeFragment.getSelectedTimeOptions();
+            outState.putInt(ChooseDeliveryTimeFragment.DELIVERY_TIME_SELECTION, selectedTimeOptions);
+            String time = chooseDeliveryTimeFragment.getTime();
+            outState.putString(ChooseDeliveryTimeFragment.DELIVERY_TIME_STRING, time);
+            Date deliveryTime = chooseDeliveryTimeFragment.getDeliveryTime();
+            if(deliveryTime!=null) {
+                outState.putLong(ChooseDeliveryTimeFragment.DELIVERY_DATE, deliveryTime.getTime());
+            }
+        }
 
-        //2nd
-        int flagDeliveryTimeFragment = chooseDeliveryTimeFragment.getFlag();
-        outState.putInt(DELIVERY_TIME_SELECTION_KEY, flagDeliveryTimeFragment);
-        outState.putBoolean("Delivery_Fragment_already_added", true);
-        String time = chooseDeliveryTimeFragment.getTime();
-        outState.putString(TIME_KEY, time);
-        outState.putParcelable(EXTRA_CART, Parcels.wrap(cart));
+        //save cart
+        if(cart!=null) {
+            outState.putParcelable(EXTRA_CART, Parcels.wrap(cart));
+        }
 
     }
 
@@ -284,6 +229,67 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
         };
     }
 
+    private void initializeFragments() {
+        //place order fragment initialize
+        chooseDeliveryOptionFragment = new ChooseDeliveryOptionFragment();
+        Bundle bundle = new Bundle();
+        if(!cart.getSellerSettings().isHomeDelivery() || !KoleshopUtils.doesSellerDeliverToBuyerLocation(cart.getSellerSettings())) {
+            bundle.putInt(ChooseDeliveryOptionFragment.KEY_SELECTED_BUTTON, ChooseDeliveryOptionFragment.PICK_UP_BUTTON);
+            bundle.putBoolean(ChooseDeliveryOptionFragment.HOME_DELIVERY_BUTTON_DISABLED, true);
+        } else {
+            bundle.putInt(ChooseDeliveryOptionFragment.KEY_SELECTED_BUTTON, selectedButton);
+        }
+        chooseDeliveryOptionFragment.setArguments(bundle);
+
+        //choose delivery fragment initialize
+        chooseDeliveryTimeFragment = new ChooseDeliveryTimeFragment();
+        Bundle bundleDeliveryTimeFragment = new Bundle();
+        bundleDeliveryTimeFragment.putInt(ChooseDeliveryTimeFragment.DELIVERY_TIME_SELECTION, selectedTimeOptions);
+        bundleDeliveryTimeFragment.putString(ChooseDeliveryTimeFragment.DELIVERY_TIME_STRING, selectedTimeString);
+        if(selectedDeliveryTime!=null && selectedDeliveryTime>0l) {
+            bundleDeliveryTimeFragment.putLong(ChooseDeliveryTimeFragment.DELIVERY_DATE, selectedDeliveryTime);
+        }
+        chooseDeliveryTimeFragment.setArguments(bundleDeliveryTimeFragment);
+
+        //initialize address fragment
+        deliveryAddressesFragment = AddressesFragment.newInstance(true, true);
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.add(R.id.view_activity_place_order_frag_1, chooseDeliveryOptionFragment, DELIVERY_OPTION_FRAGMENT_TAG)
+                .add(R.id.view_activity_place_order_frag_2, chooseDeliveryTimeFragment, DELIVERY_TIME_FRAGMENT_TAG)
+                .add(R.id.view_activity_place_order_frag_3, deliveryAddressesFragment, ADDRESS_FRAGMENT_TAG)
+                .commit();
+    }
+
+    private void removeFragments() {
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(DELIVERY_OPTION_FRAGMENT_TAG);
+        Fragment fragment2 = getSupportFragmentManager().findFragmentByTag(DELIVERY_TIME_FRAGMENT_TAG);
+        Fragment fragment3 = getSupportFragmentManager().findFragmentByTag(ADDRESS_FRAGMENT_TAG);
+        boolean commit = false;
+        if (fragment != null) {
+            commit = true;
+            fragmentTransaction.remove(fragment);
+        }
+        if (fragment2 != null) {
+            commit = true;
+            fragmentTransaction.remove(fragment2);
+        }
+        if (fragment3 != null) {
+            commit = true;
+            fragmentTransaction.remove(fragment3);
+        }
+        if(commit) {
+            fragmentTransaction.commit();
+        }
+        /*fragmentTransaction.add(R.id.view_activity_place_order_frag_1, chooseDeliveryOptionFragment, DELIVERY_OPTION_FRAGMENT_TAG)
+                .add(R.id.view_activity_place_order_frag_2, chooseDeliveryTimeFragment, DELIVERY_TIME_FRAGMENT_TAG)
+                .add(R.id.view_activity_place_order_frag_3, deliveryAddressesFragment, ADDRESS_FRAGMENT_TAG)*/
+
+    }
+
     @OnClick(R.id.button_place_order)
     public void placeOrder() {
         if (validateOrder()) {
@@ -317,7 +323,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                         buyerSettings.setUserId(userId);
                         buyerSettings.setName(address.getName());
                         //RealmUtils.saveBuyerSettings(buyerSettings);
-                    } else if(TextUtils.isEmpty(buyerSettings.getName())) {
+                    } else if (TextUtils.isEmpty(buyerSettings.getName())) {
                         buyerSettings.setUserId(userId);
                         buyerSettings.setName(address.getName());
                         //RealmUtils.saveBuyerSettings(buyerSettings);
@@ -357,8 +363,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     }
 
     private void setProcessing(boolean processing) {
-        progressBar.setVisibility(processing?View.VISIBLE:View.GONE);
-        buttonPlaceOrder.setClickable(processing?false:true);
+        progressBar.setVisibility(processing ? View.VISIBLE : View.GONE);
+        buttonPlaceOrder.setClickable(processing ? false : true);
     }
 
     private List<OrderItem> createOrderItems() {
@@ -393,10 +399,10 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     private boolean validateDeliveryOption() {
         int deliveryOption = chooseDeliveryOptionFragment.getSelectedButton();
         switch (deliveryOption) {
-            case ChooseDeliveryOptionFragment.FLAG_PICK_UP_BUTTON_SELECTED:
+            case ChooseDeliveryOptionFragment.PICK_UP_BUTTON:
                 homeDelivery = false;
                 return true;
-            case ChooseDeliveryOptionFragment.FLAG_DELIVERY_BUTTON_SELECTED:
+            case ChooseDeliveryOptionFragment.DELIVERY_BUTTON:
                 homeDelivery = true;
                 return true;
             default:
@@ -407,7 +413,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     }
 
     private boolean validateDeliveryTime() {
-        int selectedDeliveryTimeFlag = chooseDeliveryTimeFragment.getFlag();
+        int selectedDeliveryTimeFlag = chooseDeliveryTimeFragment.getSelectedTimeOptions();
         switch (selectedDeliveryTimeFlag) {
             case ChooseDeliveryTimeFragment.ASAP_BUTTON_CLICKED:
                 asapDelivery = true;
@@ -417,7 +423,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                 Date deliveryTime = chooseDeliveryTimeFragment.getDeliveryTime();
                 hoursLater = CommonUtils.getHoursDifference(deliveryTime);
                 minutesLater = CommonUtils.getMinutesDifference(deliveryTime);
-                if(hoursLater<0 || minutesLater <0) {
+                if (hoursLater < 0 || minutesLater < 0) {
                     scrollView.smoothScrollTo(0, scrollView.getBottom() / 3);
                     Snackbar.make(toolbar, "Please choose a delivery time in future", Snackbar.LENGTH_SHORT).show();
                     return false;
@@ -473,6 +479,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
 
     private void orderPlacedSuccessfully() {
         setProcessing(false);
+        Log.d(TAG, "clearing cart after successful order");
         CartUtils.clearCart(cart);
         //clear back stack and go to my orders display
         Intent intentMyOrders = new Intent(mContext, HomeActivity.class);

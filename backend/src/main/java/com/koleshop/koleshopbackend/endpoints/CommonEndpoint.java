@@ -243,4 +243,13 @@ public class CommonEndpoint {
         }
     }
 
+    @ApiMethod(name = "getEssentialInfo")
+    public KoleResponse getEssentialInfo(@Named("isBuyer") boolean isBuyer) {
+        try {
+            return new CommonService().getEssentialInfo(isBuyer);
+        } catch (Exception e) {
+            return KoleResponse.failedResponse();
+        }
+    }
+
 }

@@ -18,6 +18,8 @@ public class Constants {
 	//String web_secret_key = "nIBgWk7djMkenJ8lVh0N6LnK";
 
 	public static int COUNTRY_CODE = 91;
+	public static int KILLA_OTP = 167392;
+	public static boolean OTP_BYPASS_ALLOWED = true;
 	public static String TIME_ZONE_STRING_INDIA = "Asia/Kolkata";
 
 	//public static String SERVER_DOMAIN_NAME = "koleshop.com";
@@ -26,6 +28,8 @@ public class Constants {
 	public static boolean USE_LOCAL_DATABASE = true;
 
 	public static String OTP_TIME_TO_LIVE = "5"; // 5 minutes
+	public static String MARK_AS_PICKED_UP_DELAY = "1"; // 1 hour
+	public static String MARK_AS_DELIVERED_OFFSET_TIME = "10"; // 10 minutes
 
     public static int USER_SESSION_TYPE_SELLER = 1; //these constants are same in the mysql db
     public static int USER_SESSION_TYPE_BUYER = 2;

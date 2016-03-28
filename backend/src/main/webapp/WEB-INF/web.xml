@@ -28,6 +28,25 @@
         <load-on-startup>0</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>KoleshopServlet</servlet-name>
+        <servlet-class>com.koleshop.koleshopbackend.servlets.KoleshopServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>KoleshopServlet</servlet-name>
+        <url-pattern>/processpendingrequests</url-pattern>
+    </servlet-mapping>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>processpendingrequests</web-resource-name>
+            <url-pattern>/processpendingrequests</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>

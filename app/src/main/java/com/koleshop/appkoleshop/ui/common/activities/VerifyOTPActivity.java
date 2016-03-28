@@ -150,7 +150,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
     }
 
     public void verifyOtp(View v) {
-        if (editTextCode.getText().toString().length() != 4) {
+        if (editTextCode.getText().toString().length() > 6) {
             showInvalidCodeDialog();
         } else {
             Intent intent = new Intent(this, SessionIntentService.class);

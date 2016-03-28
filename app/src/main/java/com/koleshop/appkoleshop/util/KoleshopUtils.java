@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
@@ -25,6 +26,7 @@ import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.EditProduct;
 import com.koleshop.appkoleshop.model.parcel.EditProductVar;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 
@@ -318,4 +320,18 @@ public class KoleshopUtils {
         }
         return imageUrl;
     }
+
+    public static boolean doesSellerDeliverToBuyerLocation(SellerSettings sellerSettings) {
+        float[] results = new float[3];
+        BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
+        Double userLat = buyerAddress.getGpsLat();
+        Double userLong = buyerAddress.getGpsLong();
+        Location.distanceBetween(userLat, userLong, sellerSettings.getAddress().getGpsLat(), sellerSettings.getAddress().getGpsLong(), results);
+        float userDistanceFromShopInMeters = results[0];
+        if (results != null && results.length > 0) {
+            //distanceText = CommonUtils.getReadableDistanceFromMetres(userDistanceFromShopInMeters);
+        }
+        return (sellerSettings.getMaximumDeliveryDistance() + Constants.DELIVERY_DISTANCE_APPROXIMATION_ERROR) >= userDistanceFromShopInMeters;
+    }
+
 }

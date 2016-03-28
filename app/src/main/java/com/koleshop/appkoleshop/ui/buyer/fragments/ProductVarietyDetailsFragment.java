@@ -69,7 +69,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
         }
         price.setText(String.valueOf(productVariety.getPrice()));
         if (KoleshopUtils.isStarred(productVariety)) {
-            starImage.setImageDrawable(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.ic_star_golden));
+            starImage.setImageDrawable(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.ic_star_golden_24dp));
         } else {
             starImage.setImageDrawable(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.ic_star_outline_black_24dp));
         }
@@ -99,7 +99,7 @@ public class ProductVarietyDetailsFragment extends Fragment implements View.OnCl
                 if (KoleshopUtils.isStarred(productVariety)) {
                     starImage.setImageDrawable(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.ic_star_outline_black_24dp));
                 } else {
-                    starImage.setImageDrawable(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.ic_star_golden));
+                    starImage.setImageDrawable(AndroidCompatUtil.getDrawable(getActivity(), R.drawable.ic_star_golden_24dp));
                 }
                 break;
             case R.id.add_to_cart:

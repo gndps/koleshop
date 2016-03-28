@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
+import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.MyOrdersFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
@@ -106,6 +107,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 showDefaultFragment = false;
             }
             setupDrawerLayout(showDefaultFragment);
+            CommonIntentService.loadEssentialInformationInBackground(mContext, true);
         }
     }
 
@@ -231,7 +233,15 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             showNearbyShops();
         } else if (showDefaultFragment) {
             if (!openMyOrders) {
+                //load home fragment
                 showHome();
+
+                //if there is a favorite shop selected, then open this shop activity
+                String favoriteShopIdString = PreferenceUtils.getPreferences(mContext, Constants.KEY_FAVORITE_SHOP_ID);
+                if(!TextUtils.isEmpty(favoriteShopIdString)) {
+                    Long favoriteShopId = Long.parseLong(favoriteShopIdString);
+                    showShopActivity(favoriteShopId);
+                }
             } else {
                 showMyOrders();
             }
@@ -342,6 +352,12 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         }
         setElevation(8);
         setTitle(titleMyOrders);
+    }
+
+    private void showShopActivity(Long shopId) {
+        Intent intent = new Intent(mContext, ShopActivity.class);
+        intent.putExtra("sellerId", shopId);
+        startActivity(intent);
     }
 
     /*private void revealSearchBar(View view, final boolean reveal) {

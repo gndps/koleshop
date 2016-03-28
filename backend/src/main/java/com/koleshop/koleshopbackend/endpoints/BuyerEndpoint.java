@@ -12,7 +12,6 @@ import com.koleshop.koleshopbackend.db.models.KoleResponse;
 import com.koleshop.koleshopbackend.db.models.SellerSearchResults;
 import com.koleshop.koleshopbackend.db.models.SellerSettings;
 import com.koleshop.koleshopbackend.services.BuyerService;
-import com.koleshop.koleshopbackend.services.CommonService;
 import com.koleshop.koleshopbackend.services.SessionService;
 
 import java.util.List;
@@ -45,6 +44,25 @@ public class BuyerEndpoint {
         if (listOfNearbyShops != null) {
             response.setSuccess(true);
             response.setData(listOfNearbyShops);
+        } else {
+            response.setSuccess(false);
+        }
+        return response;
+    }
+
+    @ApiMethod(name = "getShop", httpMethod = ApiMethod.HttpMethod.POST)
+    public KoleResponse getShop(@Named("shopId") Long shopId) {
+
+        KoleResponse response = new KoleResponse();
+        SellerSettings shop = null;
+        try {
+            shop = new BuyerService().getShop(shopId);
+        } catch (Exception e) {
+            response.setData(e.getLocalizedMessage());
+        }
+        if (shop != null) {
+            response.setSuccess(true);
+            response.setData(shop);
         } else {
             response.setSuccess(false);
         }

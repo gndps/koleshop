@@ -2,6 +2,7 @@ package com.koleshop.appkoleshop.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.koleshop.appkoleshop.constant.Constants;
@@ -153,6 +154,20 @@ public class PreferenceUtils {
             return true;
         } else {
             return false;
+        }
+    }
+
+    public static int getCurrentRealmVersion(Context mContext) {
+        String currentRealmVersion = PreferenceUtils.getPreferences(mContext, Constants.KEY_CURRENT_REALM_VERSION);
+        if(TextUtils.isEmpty(currentRealmVersion)) {
+            return 0;
+        } else {
+            try {
+                int realmVersion = Integer.parseInt(currentRealmVersion);
+                return realmVersion;
+            } catch (Exception e) {
+                return 0;
+            }
         }
     }
 

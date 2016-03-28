@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ import butterknife.OnClick;
 
 public class MyOrdersFragment extends Fragment {
 
+    private static final String TAG = "MyOrdersFragment";
     @Bind(R.id.rv_fragment_my_orders)
     RecyclerView recyclerView;
     @Bind(R.id.view_flipper_fragment_my_orders)
@@ -104,6 +106,7 @@ public class MyOrdersFragment extends Fragment {
                         if (bundle != null) {
                             Parcelable ordersParcel = bundle.getParcelable("orders");
                             if (ordersParcel != null) {
+                                Log.d(TAG, "my orders parcel is NOT null");
                                 if (current_page == 0) {
                                     orders = Parcels.unwrap(ordersParcel);
                                     loadOrders();
@@ -112,6 +115,8 @@ public class MyOrdersFragment extends Fragment {
                                     orders.addAll(moreOrders);
                                     loadMoreOrders();
                                 }
+                            } else {
+                                Log.d(TAG, "my orders parcel is null");
                             }
                         }
                         break;

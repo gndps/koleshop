@@ -140,7 +140,7 @@ public class MultiSellerSearchViewHolder extends RecyclerView.ViewHolder {
             //04. SET SHOP OPEN STATUS and DELIVERY/PICKUP INFO
             String deliveryPickupInfo;
             if (sellerInfo.isHomeDelivery()) {
-                if ((sellerInfo.getMaximumDeliveryDistance() + Constants.DELIVERY_DISTANCE_APPROXIMATION_ERROR) >= userDistanceFromShopInMeters) {
+                if (KoleshopUtils.doesSellerDeliverToBuyerLocation(sellerInfo)) {
                     //home delivery is available to this location
                     deliveryPickupInfo = KoleshopUtils.getDeliveryTimeStringFromOpenAndCloseTime(sellerInfo.getDeliveryStartTime(), sellerInfo.getDeliveryEndTime());
                     if (KoleshopUtils.willSellerDeliverNow(sellerInfo.getDeliveryEndTime())) {

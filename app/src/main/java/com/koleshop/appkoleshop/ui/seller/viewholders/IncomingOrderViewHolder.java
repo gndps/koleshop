@@ -82,6 +82,7 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
         }
 
         final BuyerSettings buyerSettings = order.getBuyerSettings();
+        final String buyerName = order.getAddress().getName();
 
         //1. load image view
         final String buyerImageUrl = buyerSettings.getImageUrl();
@@ -89,7 +90,7 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
             Picasso.with(mContext)
                     .load(buyerImageUrl)
                     .networkPolicy(NetworkPolicy.OFFLINE)
-                    .placeholder(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true))
+                    .placeholder(KoleshopUtils.getTextDrawable(mContext, buyerName, true))
                     .into(imageViewAvatar, new Callback() {
                         @Override
                         public void onSuccess() {
@@ -101,17 +102,17 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
                             Picasso.with(mContext)
                                     .load(buyerImageUrl)
                                     .networkPolicy(NetworkPolicy.OFFLINE)
-                                    .placeholder(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true))
-                                    .error(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true))
+                                    .placeholder(KoleshopUtils.getTextDrawable(mContext, buyerName, true))
+                                    .error(KoleshopUtils.getTextDrawable(mContext, buyerName, true))
                                     .into(imageViewAvatar);
                         }
                     });
-        } else if (!TextUtils.isEmpty(buyerSettings.getName())) {
-            imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, buyerSettings.getName(), true));
+        } else if (!TextUtils.isEmpty(buyerName)) {
+            imageViewAvatar.setImageDrawable(KoleshopUtils.getTextDrawable(mContext, buyerName, true));
         }
 
         //2. set buyer name
-        textViewName.setText(buyerSettings.getName());
+        textViewName.setText(buyerName);
 
         //3. set delivery address in case of home delivery
         boolean pickup = false;

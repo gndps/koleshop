@@ -130,7 +130,7 @@ public class CartFragment extends Fragment implements CartFragmentAdapter.CartFr
 
     @OnClick(R.id.ib_more_in_cart)
     public void showPopUpMenu() {
-        PopupMenu popup = new PopupMenu(((CartActivity) getActivity()),clearCartButton);
+        PopupMenu popup = new PopupMenu(getActivity(),clearCartButton);
         popup.getMenuInflater().inflate(R.menu.popup_menu_clear_cart, popup.getMenu());
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override

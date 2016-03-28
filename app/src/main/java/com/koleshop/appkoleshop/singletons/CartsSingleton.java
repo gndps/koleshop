@@ -33,7 +33,7 @@ public class CartsSingleton {
         Realm realm = Realm.getDefaultInstance();
         List<Cart> carts = new ArrayList<>();
         RealmResults<Cart> realmCarts = realm.where(Cart.class).findAll();
-        for(Cart cart : realmCarts) {
+        for (Cart cart : realmCarts) {
             carts.add(realm.copyFromRealm(cart));
         }
         realm.close();
@@ -46,18 +46,17 @@ public class CartsSingleton {
     }
 
 
-
     public Cart getCart(SellerSettings sellerSettings) {
         Cart sellerCart = null;
         loadCartsFromRealm();
-        for(Cart singleCart : carts) {
-            if(singleCart!=null && singleCart.getSellerSettings()!=null && singleCart.getSellerSettings().getUserId().equals(sellerSettings.getUserId())) {
+        for (Cart singleCart : carts) {
+            if (singleCart != null && singleCart.getSellerSettings() != null && singleCart.getSellerSettings().getUserId().equals(sellerSettings.getUserId())) {
                 sellerCart = singleCart;
                 break;
             }
         }
 
-        if(sellerCart == null) {
+        if (sellerCart == null) {
             sellerCart = new Cart(sellerSettings);
             carts.add(sellerCart);
         }
@@ -66,15 +65,23 @@ public class CartsSingleton {
     }
 
     public void loadCartsFromRealm() {
-        if(carts==null) {
+        if (carts == null) {
             carts = getCartsFromRealm();
-            if(carts==null) {
+            if (carts == null) {
                 carts = new ArrayList<>();
             }
         }
     }
 
-    public void removeCart(Cart cart) {if(carts!=null) {carts.remove(cart);}
+    public void removeCart(Cart cart) {
+        if (carts != null) {
+            int loopSize = carts.size()-1;
+            for(int i=loopSize;i>=0;i--) {
+                if(carts.get(i).getSellerId().equals(cart.getSellerId())) {
+                    carts.remove(i);
+                }
+            }
+        }
     }
 
     public void setCarts(List<Cart> carts) {

@@ -522,9 +522,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void loadInitialData() {
-        if (Constants.RESET_REALM) {
-            deleteRealmPreferences();
-        }
 
         loadedProductCategories = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED);
         loadedBrands = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_BRANDS_LOADED);
@@ -542,6 +539,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (!loadedBrands) {
             loadBrands();
         }
+
+        CommonIntentService.loadEssentialInformationInBackground(mContext, false);
+
     }
 
     private void deleteRealmPreferences() {

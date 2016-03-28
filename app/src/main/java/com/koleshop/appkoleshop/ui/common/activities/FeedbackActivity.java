@@ -20,14 +20,19 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
+import com.koleshop.appkoleshop.model.realm.EssentialInfo;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
@@ -62,9 +67,13 @@ public class FeedbackActivity extends AppCompatActivity {
     TextView textViewFeedbackThankyou;
     @Bind(R.id.vf_activity_feedback)
     ViewFlipper viewFlipper;
+    @Bind(R.id.iv_we_love_you)
+    ImageView imageViewWeLoveYou;
 
     Context context;
     BroadcastReceiver mBroadcastReceiver;
+    Animation.AnimationListener listener;
+    Long callUsPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +83,19 @@ public class FeedbackActivity extends AppCompatActivity {
         context = this;
         initializeBroadcastReceiver();
         setupToolbar();
-        setClickListenersOnButtons();
+        setupFeedbackButton();
+        setupCallUsButton();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -103,6 +124,7 @@ public class FeedbackActivity extends AppCompatActivity {
                         //show a valuable life quote
                         Typeface type = Typeface.createFromAsset(getAssets(),"fonts/dancing-script.ttf");
                         textViewFeedbackThankyou.setTypeface(type);
+                        startRotationAnimation();
                         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_THANK_YOU);
                         break;
                     case Constants.ACTION_SAVE_FEEDBACK_FAILED:
@@ -125,22 +147,37 @@ public class FeedbackActivity extends AppCompatActivity {
         }
     }
 
-    private void setClickListenersOnButtons() {
+    private void setupFeedbackButton() {
         buttonSendFeedback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideSoftKeyboard();
                 sendFeedback();
             }
         });
-        buttonCallUs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent callIntent = new Intent(Intent.ACTION_DIAL);
-                callIntent.setData(Uri.parse("tel:123456789"));
-                startActivity(callIntent);
+    }
 
+    private void setupCallUsButton() {
+        EssentialInfo essentialInfo = RealmUtils.getEssentialInfo();
+        if(essentialInfo!=null) {
+            callUsPhone = essentialInfo.getCallUsPhone();
+            if(callUsPhone!=null &&  callUsPhone > 0) {
+                //all good
+                buttonCallUs.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                        String phoneCallString = "tel:" + callUsPhone;
+                        callIntent.setData(Uri.parse(phoneCallString));
+                        startActivity(callIntent);
+
+                    }
+                });
+            } else {
+                //hide call us button
+                buttonCallUs.setVisibility(View.GONE);
             }
-        });
+        }
     }
 
     private void sendFeedback() {
@@ -196,24 +233,37 @@ public class FeedbackActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void startRotationAnimation() {
+        listener = new Animation.AnimationListener() {
+            @Override public void onAnimationStart(Animation animation) {}
+            @Override public void onAnimationRepeat(Animation animation) {}
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                System.out.println("End Animation!");
+                //load_animations();
+            }
+        };
+        new AnimationUtils();
+        Animation rotation = AnimationUtils.loadAnimation(this, R.anim.rotate_infinite);
+        rotation.setAnimationListener(listener);
+        imageViewWeLoveYou.startAnimation(rotation);
     }
 
-    public String getScreenSize() {
+    private String getScreenSize() {
         DisplayMetrics dm = getResources().getDisplayMetrics();
         double density = dm.density * 160;
         double x = Math.pow(dm.widthPixels / density, 2);
         double y = Math.pow(dm.heightPixels / density, 2);
         double screenInches = Math.sqrt(x + y);
         return screenInches + "";
+    }
+
+    private void hideSoftKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     @OnClick(R.id.button_feedback_done)

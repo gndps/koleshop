@@ -26,15 +26,21 @@ import java.util.Date;
 
 public class ChooseDeliveryTimeFragment extends Fragment {
     private static final int CHOOSE_DELIVERY_BUTTON_HAS_BEEN_CLICKED = 6;
-    private static final String TIME_KEY = "key";
+    public static final String DELIVERY_TIME_STRING = "delivery_time_string";
+    public static final String DELIVERY_DATE = "delivery_date";
+    public static final String DELIVERY_TIME_SELECTION = "delivery_selection_time";
     private static boolean TOMORROW_CLICKED = false;
     private static final int ASAP_BUTTON = 3;
     private static final int CHOOSE_DELIVERY_TIME_BUTTON_SELECTED = 4;
+    private final static int STATE_ONE_SHOW_NORMAL_BUTTONS = 1;
+    public final static int ASAP_BUTTON_CLICKED = 3;
+    public final static int CHOOSE_DELIVERY_BUTTON_CLICKED = 4;
+    private static final int ANIMATION_TIME=150;
+    final static int IMAGE_BUTTON_PADDING = 64;
 
     View view;
     private Context context;
 
-    final static int IMAGE_BUTTON_PADDING = 64;
     private ImageButton asapButton;
     private ImageButton chooseDeliveryTimeButton;
     private TextView asapTextView;
@@ -47,9 +53,6 @@ public class ChooseDeliveryTimeFragment extends Fragment {
     private BackPressedListener backPressedListener;
     int hour, minutes;
     public int currentState = 0;
-    private final static int STATE_ONE_SHOW_NORMAL_BUTTONS = 1;
-    public final static int ASAP_BUTTON_CLICKED = 3;
-    public final static int CHOOSE_DELIVERY_BUTTON_CLICKED = 4;
     private ImageButton todayImageButton;
     private ImageButton tomorrowImageButton;
     private RippleView rippleTodayButton;
@@ -57,18 +60,12 @@ public class ChooseDeliveryTimeFragment extends Fragment {
     private boolean ASAP_CLICKED = false;
     private String time = "";
     private final int SHOW_TIME_PICKER = 5;
-    private boolean TIME_FETCHED = false;
     private boolean TIME_APPEARED = false;
     private int flag = 0;
-    private static final String DELIVERY_TIME_SELECTION_KEY = "12";
-    private static final int ANIMATION_TIME=180;
-    private boolean TimePicked=false;
     private Animation flip;
     private final float pivotXValue=200f;
     private final float pivotYValue=200f;
     private Animation notTimePickedAnimation;
-    private int deliveryTimeHours;
-    private int deliveryTimeMinutes;
     private Date deliveryTime;
 
     public ChooseDeliveryTimeFragment() {
@@ -82,19 +79,14 @@ public class ChooseDeliveryTimeFragment extends Fragment {
 
         asapButton = (ImageButton) view.findViewById(R.id.asap_button);
         chooseDeliveryTimeButton = (ImageButton) view.findViewById(R.id.choose_delivery_time_button);
-
         asapTextView = (TextView) view.findViewById(R.id.asap_textview);
         chooseDeliverTimeTextView = (TextView) view.findViewById(R.id.choose_deliver_time_text_view);
-        //View Flipper
         asapViewFlipper = (ViewFlipper) view.findViewById(R.id.view_flipper_asap_section);
         chooseDeliveryViewFlipper = (ViewFlipper) view.findViewById(R.id.view_flipper_choose_delivery_section);
-
         rippleChooseDeliverButton = (RippleView) view.findViewById(R.id.ripple_effect_choose_delivery_time_button);
         rippleAsapButton = (RippleView) view.findViewById(R.id.ripple_effect_asap_button);
-
         todayImageButton = (ImageButton) view.findViewById(R.id.today_button);
         tomorrowImageButton = (ImageButton) view.findViewById(R.id.tomorrow_button);
-
         rippleTodayButton = (RippleView) view.findViewById(R.id.ripple_for_today_button);
         rippleTomorrowButton = (RippleView) view.findViewById(R.id.ripple_for_tomorrow_button);
         currentState = STATE_ONE_SHOW_NORMAL_BUTTONS;
@@ -102,6 +94,25 @@ public class ChooseDeliveryTimeFragment extends Fragment {
         setClickListenersOnButtons();
         Bundle bundle = getArguments();
 
+        setupAnimations();
+
+        int selectedButton = bundle.getInt(DELIVERY_TIME_SELECTION);
+        if (selectedButton == ASAP_BUTTON) {
+            currentState = ASAP_BUTTON_CLICKED;
+        } else if (selectedButton == CHOOSE_DELIVERY_TIME_BUTTON_SELECTED) {
+            currentState = CHOOSE_DELIVERY_BUTTON_HAS_BEEN_CLICKED;
+        }
+        String time = bundle.getString(DELIVERY_TIME_STRING);
+        if(bundle.getLong(DELIVERY_DATE)>0) {
+            deliveryTime = new Date(bundle.getLong(DELIVERY_DATE));
+        }
+        this.time = time;
+        fixImageButtonsSize();
+        ASAP_CLICKED = true;
+        return view;
+    }
+
+    private void setupAnimations() {
         flipAnim = new ScaleAnimation(1f, 0f, 1f, 1f, Animation.ABSOLUTE, pivotXValue, Animation.ABSOLUTE, pivotYValue);
         notTimePickedAnimation=new ScaleAnimation(1f, 0f, 1f, 1f, Animation.ABSOLUTE, pivotXValue, Animation.ABSOLUTE, pivotYValue);
 
@@ -131,28 +142,16 @@ public class ChooseDeliveryTimeFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                    currentState = CHOOSE_DELIVERY_BUTTON_CLICKED;
-                    refreshTheButtons();
-                    flip = new ScaleAnimation(0f, 1f, 1f, 1f, Animation.ABSOLUTE, pivotXValue, Animation.ABSOLUTE, pivotYValue);
-                    showTodayTomorrowAnimation(false);
+                currentState = CHOOSE_DELIVERY_BUTTON_CLICKED;
+                refreshTheButtons();
+                flip = new ScaleAnimation(0f, 1f, 1f, 1f, Animation.ABSOLUTE, pivotXValue, Animation.ABSOLUTE, pivotYValue);
+                showTodayTomorrowAnimation(false);
             }
 
             @Override
             public void onAnimationRepeat(Animation animation) {
             }
         });
-
-        int getSelectedButton = bundle.getInt(DELIVERY_TIME_SELECTION_KEY);
-        if (getSelectedButton == ASAP_BUTTON) {
-            currentState = ASAP_BUTTON_CLICKED;
-        } else if (getSelectedButton == CHOOSE_DELIVERY_TIME_BUTTON_SELECTED) {
-            currentState = CHOOSE_DELIVERY_BUTTON_HAS_BEEN_CLICKED;
-        }
-        String time = bundle.getString(TIME_KEY);
-        this.time = time;
-        fixImageButtonsSize();
-        ASAP_CLICKED = true;
-        return view;
     }
 
     private void setClickListenersOnButtons() {
@@ -191,7 +190,6 @@ public class ChooseDeliveryTimeFragment extends Fragment {
 
     private void showTodayTomorrowAnimation(boolean show) {
         if(!show) {
-            TimePicked=true;
             flip.setDuration(ANIMATION_TIME);
             todayImageButton.startAnimation(flip);
             tomorrowImageButton.startAnimation(flip);
@@ -247,7 +245,7 @@ public class ChooseDeliveryTimeFragment extends Fragment {
                 if(flag == ASAP_BUTTON_CLICKED) {
                     flag = 0;
                 }
-                getTimePicker();
+                showTimePicker();
                 break;
             case CHOOSE_DELIVERY_BUTTON_HAS_BEEN_CLICKED:
                 flag =  CHOOSE_DELIVERY_BUTTON_CLICKED;
@@ -314,7 +312,7 @@ public class ChooseDeliveryTimeFragment extends Fragment {
         }
     }
 
-    private void getTimePicker() {
+    private void showTimePicker() {
 
         TimePickerDialog mTimePicker;
         mTimePicker = new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
@@ -352,22 +350,17 @@ public class ChooseDeliveryTimeFragment extends Fragment {
 
                 if (!time.equals("")) {
                     if (TOMORROW_CLICKED) {
-                        deliveryTimeHours = 24 + selectedHour;
-                        deliveryTimeMinutes = selectedMinute;
                         time = "Tomorrow" + "\r\n" + time;
                         chooseDeliverTimeTextView.setText(time);
-                        deliveryTime = CommonUtils.getDateWithHoursAndMinutes(deliveryTimeHours, deliveryTimeMinutes, true);
+                        deliveryTime = CommonUtils.getDateWithHoursAndMinutes(selectedHour, selectedMinute, true);
 
                     } else {
-                        deliveryTimeHours = selectedHour;
-                        deliveryTimeMinutes = selectedMinute;
                         time = "Today" + "\r\n" + time;
                         chooseDeliverTimeTextView.setText(time);
-                        deliveryTime = CommonUtils.getDateWithHoursAndMinutes(deliveryTimeHours, deliveryTimeMinutes, false);
+                        deliveryTime = CommonUtils.getDateWithHoursAndMinutes(selectedHour, selectedMinute, false);
                     }
                     chooseDeliveryTimeButton.setBackground(AndroidCompatUtil.getDrawable(context, R.drawable.shape_choose_delivery_time_button));
                     fixImageButtonsSize();
-                    TIME_FETCHED = true;
                     TIME_APPEARED = true;
 
                     currentState = STATE_ONE_SHOW_NORMAL_BUTTONS;
@@ -413,20 +406,12 @@ public class ChooseDeliveryTimeFragment extends Fragment {
         tomorrowImageButton.startAnimation(notTimePickedAnimation);
     }
 
-    public int getFlag() {
+    public int getSelectedTimeOptions() {
         return this.flag;
-    }
-
-    public int getDeliveryTimeHours() {
-        return deliveryTimeHours;
     }
 
     public Date getDeliveryTime() {
         return deliveryTime;
-    }
-
-    public int getDeliveryTimeMinutes() {
-        return deliveryTimeMinutes;
     }
 
     public interface BackPressedListener {

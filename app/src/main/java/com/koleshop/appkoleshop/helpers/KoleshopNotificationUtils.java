@@ -112,6 +112,9 @@ public class KoleshopNotificationUtils {
                             PendingIntent.FLAG_UPDATE_CURRENT
                     );
             mBuilder.setContentIntent(notifyIntent);
+            Uri notificationSound = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_glance);
+            mBuilder.setSound(notificationSound);
+            mBuilder.setAutoCancel(true);
             mBuilder.setSmallIcon(R.drawable.ic_stat_koleshop_noti);
             NotificationManager mNotificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -188,6 +191,8 @@ public class KoleshopNotificationUtils {
                 }
             }
 
+            dismissOldNotifications(orders, context);
+
             if (typeOfNotifications == 1) {
                 //notificationContentTitle is already configured
                 //notificationContent is also already configured
@@ -243,8 +248,8 @@ public class KoleshopNotificationUtils {
                             PendingIntent.FLAG_UPDATE_CURRENT
                     );
             mBuilder.setContentIntent(resultPendingIntent);
-            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            mBuilder.setSound(alarmSound);
+            Uri notificationSound = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_glance);
+            mBuilder.setSound(notificationSound);
             mBuilder.setSmallIcon(R.drawable.ic_stat_koleshop_noti);
             Log.d(TAG, "created notification");
             NotificationManager mNotificationManager =
@@ -298,8 +303,8 @@ public class KoleshopNotificationUtils {
             mBuilder.setContentTitle(sellerName);
             mBuilder.setAutoCancel(true);
             if (!playedSound) {
-                Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                mBuilder.setSound(alarmSound);
+                Uri notificationSound = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_glance);
+                mBuilder.setSound(notificationSound);
                 playedSound = true;
             }
             // Creates an explicit intent for an Activity in your app
@@ -320,6 +325,14 @@ public class KoleshopNotificationUtils {
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             // mId allows you to update the notification later on.
             mNotificationManager.notify(tag, mBuilder.build());
+        }
+    }
+
+    private static void dismissOldNotifications(List<OrderLite> orders, Context context) {
+        NotificationManager notificationManager = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        for(OrderLite order : orders) {
+            notificationManager.cancel(order.getOrderId().intValue());
         }
     }
 
