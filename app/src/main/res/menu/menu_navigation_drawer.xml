@@ -31,10 +31,10 @@
             android:icon="@drawable/ic_assignment_grey600_24dp"
             android:title="@string/navigation_drawer_orders" />
 
-        <item
+        <!--item
             android:id="@+id/drawer_sales"
             android:icon="@drawable/ic_graph"
-            android:title="@string/navigation_drawer_sales" />
+            android:title="@string/navigation_drawer_sales" /-->
 
         <item
             android:id="@+id/drawer_out_of_stock"

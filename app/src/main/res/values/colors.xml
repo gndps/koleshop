@@ -50,5 +50,16 @@
     <color name="yellow">#F8E71C</color>
     <color name="home_delivery_green">#CEFB93</color>
     <color name="star_blue">#577FA6</color>
+    <color name="logo_green">#97C566</color>
+    <color name="logo_red">#DF6F6A</color>
+    <color name="logo_orange">#F9B545</color>
+    <color name="logo_yellow">#F5E633</color>
+
+    <array name="progress_bar_colors">
+        <item>@color/logo_green</item>
+        <item>@color/logo_red</item>
+        <item>@color/logo_orange</item>
+        <item>@color/logo_yellow</item>
+    </array>
 
 </resources>

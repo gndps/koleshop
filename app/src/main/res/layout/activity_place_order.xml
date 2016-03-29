@@ -96,8 +96,8 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:indeterminate="true"
-                android:padding="12dp"
-                android:progressTint="@color/white"
+                android:padding="6dp"
+                android:progressDrawable="@drawable/progress_bar"
                 android:visibility="visible" />
 
         </RelativeLayout>

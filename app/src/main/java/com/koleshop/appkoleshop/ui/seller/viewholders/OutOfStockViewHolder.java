@@ -11,6 +11,7 @@ import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -60,7 +61,7 @@ public class OutOfStockViewHolder extends RecyclerView.ViewHolder {
         String subtitleText = variety.getQuantity() + " - " + CommonUtils.getPriceStringFromFloat(variety.getPrice(), true);
         textViewTitle.setText(titleText);
         textViewSubtitle.setText(subtitleText);
-        final String imageUrl = variety.getImageUrl();
+        final String imageUrl = KoleshopUtils.getSmallImageUrl(variety.getImageUrl());
         if(!TextUtils.isEmpty(imageUrl)) {
             Picasso.with(mContext)
                     .load(imageUrl)

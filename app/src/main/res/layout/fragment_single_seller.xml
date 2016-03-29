@@ -118,7 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_nilu_worried" />
+                    android:src="@drawable/ic_nilu_stressed" />
 
                 <TextView
                     android:id="@+id/tv_problem_in_single_seller_search"

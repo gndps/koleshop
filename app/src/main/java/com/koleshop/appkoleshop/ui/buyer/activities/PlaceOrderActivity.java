@@ -91,6 +91,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     private int selectedTimeOptions;
     private String selectedTimeString;
     private Long selectedDeliveryTime;
+    private boolean placeOrderOnResumeIfUserHasLoggedIn;
 
     public static void startActivityNow(Context context, Cart cart) {
         Intent intent = new Intent(context, PlaceOrderActivity.class);
@@ -125,6 +126,9 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             selectedTimeOptions = savedInstanceState.getInt(ChooseDeliveryTimeFragment.DELIVERY_TIME_SELECTION);
             selectedTimeString = savedInstanceState.getString(ChooseDeliveryTimeFragment.DELIVERY_TIME_STRING);
             selectedDeliveryTime = savedInstanceState.getLong(ChooseDeliveryTimeFragment.DELIVERY_DATE);
+
+            placeOrderOnResumeIfUserHasLoggedIn = savedInstanceState.getBoolean("placeOrderOnResumeIfUserHasLoggedIn");
+
             removeFragments();
         }
 
@@ -161,6 +165,8 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             outState.putParcelable(EXTRA_CART, Parcels.wrap(cart));
         }
 
+        outState.putBoolean("placeOrderOnResumeIfUserHasLoggedIn", placeOrderOnResumeIfUserHasLoggedIn);
+
     }
 
     @Override
@@ -169,6 +175,9 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_CREATED_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_CREATED_FAILED));
+        if(placeOrderOnResumeIfUserHasLoggedIn) {
+            placeOrder();
+        }
     }
 
     @Override
@@ -220,6 +229,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                         orderPlacedSuccessfully();
                         break;
                     case Constants.ACTION_ORDER_CREATED_FAILED:
+                        Log.d(TAG, "create order failed");
                         setProcessing(false);
                         Snackbar.make(buttonPlaceOrder, "Couldn't create order", Snackbar.LENGTH_SHORT).show();
                         //show snackbar to say that some problem in creating order
@@ -297,6 +307,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
             Long userId = PreferenceUtils.getUserId(mContext);
             if (userId <= 0) {
                 //start login activity
+                placeOrderOnResumeIfUserHasLoggedIn = true;
                 Intent intent = new Intent(mContext, VerifyPhoneNumberActivity.class);
                 intent.putExtra("finishOnVerify", true);
                 startActivity(intent);
@@ -355,6 +366,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                     order.setHomeDelivery(homeDelivery);
                     order.setAsap(asapDelivery);
                     order.setTotalAmount(deliveryCharges + carryBagCharges + totalCharges);
+                    Log.d(TAG, "placing order");
                     setProcessing(true);
                     BuyerIntentService.createNewOrder(mContext, order, hoursLater, minutesLater);
                 }
@@ -363,8 +375,9 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     }
 
     private void setProcessing(boolean processing) {
+        Log.d(TAG, "setProcessing = " + processing);
         progressBar.setVisibility(processing ? View.VISIBLE : View.GONE);
-        buttonPlaceOrder.setClickable(processing ? false : true);
+        buttonPlaceOrder.setClickable(!processing);
     }
 
     private List<OrderItem> createOrderItems() {
@@ -478,6 +491,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
     }
 
     private void orderPlacedSuccessfully() {
+        Log.d(TAG, "order placed successfully");
         setProcessing(false);
         Log.d(TAG, "clearing cart after successful order");
         CartUtils.clearCart(cart);

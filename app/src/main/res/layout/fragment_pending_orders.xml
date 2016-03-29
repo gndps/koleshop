@@ -38,13 +38,19 @@
 
     </ViewFlipper>
 
-    <ProgressBar
-        android:id="@+id/pb_load_more_fragment_pending_orders"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:layout_gravity="bottom"
-        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-        android:indeterminateTint="@color/accent"
-        android:indeterminate="true"/>
+        android:layout_gravity="bottom">
+
+        <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+            android:id="@+id/pb_load_more_fragment_pending_orders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
 </FrameLayout>

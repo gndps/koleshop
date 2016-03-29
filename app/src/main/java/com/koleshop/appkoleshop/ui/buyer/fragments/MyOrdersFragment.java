@@ -36,6 +36,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class MyOrdersFragment extends Fragment {
 
@@ -45,7 +46,7 @@ public class MyOrdersFragment extends Fragment {
     @Bind(R.id.view_flipper_fragment_my_orders)
     ViewFlipper viewFlipper;
     @Bind(R.id.pb_load_more_fragment_my_orders)
-    ProgressBar progressBarLoadMore;
+    SmoothProgressBar progressBarLoadMore;
 
     private final int VIEW_FLIPPER_CHILD_LOADING = 0x00;
     private final int VIEW_FLIPPER_CHILD_NO_INTERNET = 0x01;

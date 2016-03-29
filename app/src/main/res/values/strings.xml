@@ -187,5 +187,6 @@
     <string name="login_to_set_picture">Only logged in users can change picture</string>
     <string name="profile_picture">Profile Picture</string>
     <string name="send_feedback">Send Feedback</string>
+    <string name="empty_cart">No items in the cart\n\nYou can search or add from shops</string>
 
 </resources>

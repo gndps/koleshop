@@ -16,6 +16,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -41,6 +43,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
 
 public class CompleteOrdersFragment extends Fragment {
 
@@ -49,7 +53,7 @@ public class CompleteOrdersFragment extends Fragment {
     @Bind(R.id.rv_fragment_complete_orders)
     RecyclerView recyclerView;
     @Bind(R.id.pb_load_more_fragment_complete_orders)
-    ProgressBar progressBarLoadMore;
+    SmoothProgressBar progressBarLoadMore;
     @Bind(R.id.tv_nothing_here_yet)
     TextView textViewNothingHereYet;
     @Bind(R.id.iv_nothing_here_yet)

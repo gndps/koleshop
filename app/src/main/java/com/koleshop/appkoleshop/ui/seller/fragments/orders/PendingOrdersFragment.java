@@ -42,6 +42,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class PendingOrdersFragment extends Fragment {
     @Bind(R.id.view_flipper_fragment_pending_orders)
@@ -49,7 +50,7 @@ public class PendingOrdersFragment extends Fragment {
     @Bind(R.id.rv_fragment_pending_orders)
     RecyclerView recyclerView;
     @Bind(R.id.pb_load_more_fragment_pending_orders)
-    ProgressBar progressBarLoadMore;
+    SmoothProgressBar progressBarLoadMore;
     @Bind(R.id.tv_nothing_here_yet)
     TextView textViewNothingHereYet;
     @Bind(R.id.iv_nothing_here_yet)

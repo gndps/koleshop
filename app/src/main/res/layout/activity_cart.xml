@@ -37,7 +37,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:layout_marginTop="16dp"
-                android:text="No items in the cart\n\nYou can add items from shops"
+                android:text="@string/empty_cart"
                 android:textColor="@color/default_background_font" />
         </LinearLayout>
 

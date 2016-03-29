@@ -58,8 +58,7 @@ public class CartUtils {
                 if (provarcount.getCartCount() <= 1) {
                     list.remove(provarcount);
                     if (cart.getProductVarietyCountList() == null || cart.getProductVarietyCountList().size() == 0) {
-                        CartsSingleton.getSharedInstance().removeCart(cart);
-                        deleteCart(cart);
+                        clearCart(cart);
                         return;
                     }
                 } else {

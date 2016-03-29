@@ -87,6 +87,7 @@ public class ChangePictureActivity extends AppCompatActivity {
     private int widthDimensionInDp;
     private boolean isHeaderImage;
     private boolean buyerMode;
+    boolean showingProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +98,10 @@ public class ChangePictureActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             isHeaderImage = savedInstanceState.getBoolean("isHeaderImage");
             buyerMode = savedInstanceState.getBoolean("buyerMode");
+            currentPhotoPath = savedInstanceState.getString("currentPhotoPath");
+            currentImageFilename = savedInstanceState.getString("currentImageFilename");
+            imageUrl = savedInstanceState.getString("imageUrl");
+            imageUploadRequestId = savedInstanceState.getString("imageUploadRequestId");
         } else if (getIntent() != null && getIntent().getExtras() != null) {
             isHeaderImage = getIntent().getExtras().getBoolean("isHeaderImage");
             buyerMode = getIntent().getExtras().getBoolean("buyerMode");
@@ -104,6 +109,13 @@ public class ChangePictureActivity extends AppCompatActivity {
         setupToolbar();
         setupImageView();
         initializeBroadcastReceiver();
+        Log.d(TAG, "refresh image on create");
+        refreshImage();
+        if (savedInstanceState != null) {
+            Log.d(TAG, "saved instance state is not null");
+            showingProgressBar = savedInstanceState.getBoolean("showingProgressBar");
+            refreshProgressBarState();
+        }
     }
 
     @Override
@@ -136,7 +148,6 @@ public class ChangePictureActivity extends AppCompatActivity {
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(broadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_SUCCESS));
         lbm.registerReceiver(broadcastReceiver, new IntentFilter(Constants.ACTION_UPLOAD_IMAGE_FAILED));
-        refreshImage();
     }
 
     @Override
@@ -150,6 +161,12 @@ public class ChangePictureActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putBoolean("isHeaderImage", isHeaderImage);
         outState.putBoolean("buyerMode", buyerMode);
+        outState.putBoolean("showingProgressBar", showingProgressBar);
+        outState.putString("currentPhotoPath", currentPhotoPath);
+        outState.putString("currentImageFilename", currentImageFilename);
+        outState.putString("imageUrl", imageUrl);
+        outState.putString("imageUploadRequestId", imageUploadRequestId);
+
     }
 
     private void initializeBroadcastReceiver() {
@@ -157,16 +174,17 @@ public class ChangePictureActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equalsIgnoreCase(Constants.ACTION_UPLOAD_IMAGE_SUCCESS)) {
+                    Log.d(TAG, "image upload was success");
                     String tag = intent.getStringExtra("tag");
                     String filename = intent.getStringExtra("filename");
                     if (tag != null && !tag.isEmpty() && filename != null && !filename.isEmpty() && tag.equalsIgnoreCase(imageUploadRequestId)) {
                         NetworkUtils.setRequestStatusComplete(mContext, tag);
                         imageUrl = Constants.PUBLIC_PROFILE_IMAGE_URL_PREFIX + filename;
-                        if(!buyerMode) {
+                        if (!buyerMode) {
                             SettingsIntentService.refreshSellerSettings(mContext);
                         } else {
                             BuyerSettings buyerSettings = RealmUtils.getBuyerSettings();
-                            if(buyerSettings!=null) {
+                            if (buyerSettings != null) {
                                 buyerSettings.setImageUrl(imageUrl);
                             } else {
                                 buyerSettings = new BuyerSettings();
@@ -182,7 +200,8 @@ public class ChangePictureActivity extends AppCompatActivity {
                     String tag = intent.getStringExtra("tag");
                     if (tag != null && !tag.isEmpty() && tag.equalsIgnoreCase(imageUploadRequestId)) {
                         NetworkUtils.setRequestStatusComplete(mContext, tag);
-                        progressBar.setVisibility(View.GONE);
+                        Log.d(TAG, "-- " + 1 + " --");
+                        showProgressBar(false);
                         Snackbar.make(linearLayout, "Could not change the picture", Snackbar.LENGTH_SHORT).show();
                     }
                 }
@@ -192,7 +211,7 @@ public class ChangePictureActivity extends AppCompatActivity {
 
     private void setupToolbar() {
 
-        if(buyerMode) {
+        if (buyerMode) {
             toolbar.setTitle(yourPictureTitle);
         } else {
             toolbar.setTitle(shopTitle);
@@ -235,7 +254,7 @@ public class ChangePictureActivity extends AppCompatActivity {
     }
 
     private void refreshImage() {
-
+        Log.d(TAG, "refreshing image--- woowo");
         if (TextUtils.isEmpty(imageUrl)) {
             //01. Load image url from settings
             SellerSettings sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
@@ -253,7 +272,7 @@ public class ChangePictureActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                if(buyerSettings!=null && !TextUtils.isEmpty(buyerSettings.getImageUrl())) {
+                if (buyerSettings != null && !TextUtils.isEmpty(buyerSettings.getImageUrl())) {
                     imageUrl = buyerSettings.getImageUrl();
                 }
             }
@@ -261,7 +280,9 @@ public class ChangePictureActivity extends AppCompatActivity {
             //02. Load image url into image
             if (TextUtils.isEmpty(imageUrl)) {
                 //02.01 if image url is not available, then load the placeholder image
-                progressBar.setVisibility(View.GONE);
+                Log.d(TAG, "image url is empty");
+                Log.d(TAG, "-- " + 2 + " --");
+                showProgressBar(false);
                 if (!buyerMode) {
                     if (sellerSettings != null && sellerSettings.getAddress() != null
                             && !TextUtils.isEmpty(sellerSettings.getAddress().getName())) {
@@ -274,7 +295,9 @@ public class ChangePictureActivity extends AppCompatActivity {
             } else {
                 //02.02 if image url is available then load the picture into ui
                 if (!TextUtils.isEmpty(currentPhotoPath)) {
-                    progressBar.setVisibility(View.GONE);
+                    Log.d(TAG, "local image path is available");
+                    Log.d(TAG, "-- " + 3 + " --");
+                    showProgressBar(false);
                     Picasso.with(mContext)
                             .load(currentPhotoPath)
                             .networkPolicy(NetworkPolicy.OFFLINE)
@@ -294,7 +317,8 @@ public class ChangePictureActivity extends AppCompatActivity {
                                 }
                             });
                 } else {
-                    progressBar.setVisibility(View.VISIBLE);
+                    Log.d(TAG, "local image path not available...loading from url");
+                    showProgressBar(true);
                     Picasso.with(mContext)
                             .load(imageUrl)
                             .networkPolicy(NetworkPolicy.OFFLINE)
@@ -302,7 +326,8 @@ public class ChangePictureActivity extends AppCompatActivity {
                             .into(imageViewPicture, new Callback() {
                                 @Override
                                 public void onSuccess() {
-                                    progressBar.setVisibility(View.GONE);
+                                    Log.d(TAG, "-- " + 4 + " --");
+                                    showProgressBar(false);
                                 }
 
                                 @Override
@@ -313,12 +338,14 @@ public class ChangePictureActivity extends AppCompatActivity {
                                             .into(imageViewPicture, new Callback() {
                                                 @Override
                                                 public void onSuccess() {
-                                                    progressBar.setVisibility(View.GONE);
+                                                    Log.d(TAG, "-- " + 5 + " --");
+                                                    showProgressBar(false);
                                                 }
 
                                                 @Override
                                                 public void onError() {
-                                                    progressBar.setVisibility(View.GONE);
+                                                    Log.d(TAG, "-- " + 6 + " --");
+                                                    showProgressBar(false);
                                                 }
                                             });
                                 }
@@ -326,7 +353,7 @@ public class ChangePictureActivity extends AppCompatActivity {
                 }
             }
         } else {
-            progressBar.setVisibility(View.VISIBLE);
+            showProgressBar(true);
             Picasso.with(mContext)
                     .load(imageUrl)
                     .networkPolicy(NetworkPolicy.OFFLINE)
@@ -334,7 +361,8 @@ public class ChangePictureActivity extends AppCompatActivity {
                     .into(imageViewPicture, new Callback() {
                         @Override
                         public void onSuccess() {
-                            progressBar.setVisibility(View.GONE);
+                            Log.d(TAG, "-- " + 7 + " --");
+                            showProgressBar(false);
                         }
 
                         @Override
@@ -345,12 +373,14 @@ public class ChangePictureActivity extends AppCompatActivity {
                                     .into(imageViewPicture, new Callback() {
                                         @Override
                                         public void onSuccess() {
-                                            progressBar.setVisibility(View.GONE);
+                                            Log.d(TAG, "-- " + 8 + " --");
+                                            showProgressBar(false);
                                         }
 
                                         @Override
                                         public void onError() {
-                                            progressBar.setVisibility(View.GONE);
+                                            Log.d(TAG, "-- " + 9 + " --");
+                                            showProgressBar(false);
                                         }
                                     });
                         }
@@ -417,14 +447,17 @@ public class ChangePictureActivity extends AppCompatActivity {
             }
 
             //show progress bar
-            progressBar.setVisibility(View.VISIBLE);
+            Log.d(TAG, "progress bar will be set visible");
+            showProgressBar(true);
 
             //upload - happens on new thread
             imageUploadRequestId = CommonUtils.randomString(6);
             ImageUtils.uploadProfilePicture(mContext, currentPhotoPath, currentImageFilename, imageUploadRequestId, isHeaderImage);
         } else {
             //if no image taken, then set image view progress bar to gone
-            progressBar.setVisibility(View.GONE);
+            Log.d(TAG, "progress bar will be set GONE");
+            Log.d(TAG, "-- " + 10 + " --");
+            showProgressBar(false);
         }
     }
 
@@ -449,5 +482,21 @@ public class ChangePictureActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    private void showProgressBar(boolean show) {
+        showingProgressBar = show;
+        if (show) {
+            Log.d(TAG, "will show progress bar yo");
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            Log.d(TAG, "will hide progress bar yoyo");
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private void refreshProgressBarState() {
+        Log.d(TAG, "refreshing progress bar state ,show =" + showingProgressBar);
+        showProgressBar(showingProgressBar);
     }
 }

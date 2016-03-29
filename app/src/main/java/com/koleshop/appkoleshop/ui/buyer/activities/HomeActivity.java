@@ -155,7 +155,8 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
     @Override
     public void onBackPressed() {
-        if (backHandled || lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+        //if (backHandled || lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+        if (backHandled || lastFragmentTag.equalsIgnoreCase(FRAGMENT_NEARBY_SHOPS_TAG)) {
             super.onBackPressed();
         } else {
             showHome();
@@ -328,12 +329,13 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     }
 
     private void showHome() {
-        MenuItem item = navigationView.getMenu().findItem(R.id.drawer_home);
+        showNearbyShops();
+        /*MenuItem item = navigationView.getMenu().findItem(R.id.drawer_home);
         if (item != null) {
             displayView(item);
         }
         setElevation(8);
-        setTitle(titleHome);
+        setTitle(titleHome);*/
     }
 
     private void showNearbyShops() {

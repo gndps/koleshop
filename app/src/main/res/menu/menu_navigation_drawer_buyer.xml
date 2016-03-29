@@ -3,11 +3,11 @@
 
     <group android:checkableBehavior="single">
 
-        <item
+        <!--item
             android:id="@+id/drawer_home"
             android:checked="true"
             android:icon="@drawable/ic_home_grey600_24dp"
-            android:title="@string/navigation_drawer_home" />
+            android:title="@string/navigation_drawer_home" /-->
 
         <item
             android:id="@+id/drawer_nearby_shops"
@@ -31,15 +31,15 @@
             android:icon="@drawable/ic_assignment_grey600_24dp"
             android:title="@string/navigation_drawer_my_orders" />
 
-        <item
+        <!--item
             android:id="@+id/drawer_saved_items"
             android:icon="@drawable/ic_stars_grey600_24dp"
-            android:title="@string/navigation_drawer_saved_items" />
+            android:title="@string/navigation_drawer_saved_items" /-->
 
-        <item
+        <!--item
             android:id="@+id/drawer_favorite_shops"
             android:icon="@drawable/ic_favorite_grey600_24dp"
-            android:title="@string/navigation_drawer_favorite_shops" />
+            android:title="@string/navigation_drawer_favorite_shops" /-->
 
         <item
             android:id="@+id/drawer_addresses"
@@ -56,10 +56,10 @@
     <group
         android:id="@+id/buyer_drawer_settings"
         android:checkableBehavior="none">
-        <item
+        <!--item
             android:id="@+id/drawer_settings"
             android:icon="@drawable/ic_settings"
-            android:title="@string/navigation_drawer_settings" />
+            android:title="@string/navigation_drawer_settings" /-->
 
         <item
             android:id="@+id/drawer_login"

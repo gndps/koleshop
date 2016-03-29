@@ -7,6 +7,7 @@
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:colorControlHighlight">@color/highlight</item>
+        <item name="spbStyle">@style/GNowProgressBar</item>
     </style>
 
     <style name="SwitchStyle">
@@ -26,6 +27,19 @@
     <style name="TransparentAppTheme" parent="AppTheme">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="GNowProgressBar" parent="SmoothProgressBar">
+        <item name="spb_stroke_separator_length">0dp</item>
+        <item name="spb_sections_count">3</item>
+        <item name="spb_speed">1.8</item>
+        <item name="spb_progressiveStart_speed">1.8</item>
+        <item name="spb_progressiveStop_speed">1.8</item>
+        <item name="spb_interpolator">spb_interpolator_linear</item>
+        <item name="spb_mirror_mode">true</item>
+        <item name="spb_reversed">true</item>
+        <item name="spb_colors">@array/progress_bar_colors</item>
+        <item name="spb_progressiveStart_activated">true</item>
     </style>
 
 </resources>
