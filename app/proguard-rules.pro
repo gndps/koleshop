@@ -17,6 +17,7 @@
 #}
 -dontwarn android.support.**
 -dontwarn com.squareup.okhttp.**
+-dontwarn okio.**
 -keep class android.support.v7.** { *; }
 -keep interface android.support.v7.** { *; }
 

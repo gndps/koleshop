@@ -4,7 +4,6 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
-import com.google.api.server.spi.config.Nullable;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.db.models.Address;
 import com.koleshop.koleshopbackend.db.models.Brand;
@@ -21,6 +20,7 @@ import com.koleshop.koleshopbackend.services.KoleshopCloudStorageService;
 import com.koleshop.koleshopbackend.services.ProductService;
 import com.koleshop.koleshopbackend.services.SellerService;
 import com.koleshop.koleshopbackend.services.SessionService;
+import com.koleshop.koleshopbackend.utils.PropertiesCache;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -174,7 +174,7 @@ public class CommonEndpoint {
                 }
                 if (imageUploaded) {
                     //update the user profile picture url in the db
-                    String imageUrl = Constants.PUBLIC_IMAGES_BUCKET_PREFIX + Constants.PUBLIC_PROFILE_IMAGE_FOLDER + imageUploadRequest.getFileName();
+                    String imageUrl = PropertiesCache.getProp("PUBLIC_IMAGES_BUCKET_PATH") + Constants.PUBLIC_PROFILE_IMAGE_FOLDER + imageUploadRequest.getFileName();
 
                     if(userIsSeller) {
                         //if user is seller, update SellerSettings

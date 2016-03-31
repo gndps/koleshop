@@ -220,7 +220,7 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
         return !PreferenceUtils.getRegistrationId(this).isEmpty();
     }
 
-    @Deprecated
+    /*@Deprecated
     private void registerWithGoogleServers() {
         // Start IntentService to register this application with GCM.
         Intent intent = new Intent(this, RegistrationIntentService.class);
@@ -260,7 +260,7 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
             }
         }.execute(null, null, null);
 
-    }
+    }*/
 
     private void showProcessing(String processingMessage) {
         frameLayoutBottomButtons.setVisibility(View.GONE);

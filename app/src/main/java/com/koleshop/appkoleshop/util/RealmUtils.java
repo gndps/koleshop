@@ -28,6 +28,7 @@ import io.realm.Sort;
  */
 public class RealmUtils {
 
+    private static final String TAG = "RealmUtils";
     private static BuyerSettings buyerSettings;
 
     public static Long getParentCategoryIdForCategoryId(Long categoryId) {
@@ -200,12 +201,16 @@ public class RealmUtils {
     }
 
     public static void saveSellerSettings(SellerSettings sellerSettings) {
-        if (sellerSettings != null) {
-            Realm realm = Realm.getDefaultInstance();
-            realm.beginTransaction();
-            realm.copyToRealmOrUpdate(sellerSettings);
-            realm.commitTransaction();
-            realm.close();
+        try {
+            if (sellerSettings != null) {
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                realm.copyToRealmOrUpdate(sellerSettings);
+                realm.commitTransaction();
+                realm.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG,"some problem in saving seller settings to realm", e);
         }
     }
 
@@ -232,7 +237,9 @@ public class RealmUtils {
                 .equalTo("userId", userId);
         SellerSettings sellerSettingsRealm = realmQuery.findFirst();
         realm.beginTransaction();
-        sellerSettingsRealm.removeFromRealm();
+        if (sellerSettingsRealm != null) {
+            sellerSettingsRealm.removeFromRealm();
+        }
         realm.commitTransaction();
         realm.close();
     }
@@ -259,7 +266,7 @@ public class RealmUtils {
         RealmResults<EssentialInfo> result = realm.where(EssentialInfo.class).findAll();
         if (result != null) {
             result.sort("apiVersion", Sort.DESCENDING);
-            if(result!=null && result.size()>0) {
+            if (result != null && result.size() > 0) {
                 EssentialInfo essentialInfoRealm = result.first();
                 if (essentialInfoRealm != null) {
                     essentialInfo = realm.copyFromRealm(essentialInfoRealm);

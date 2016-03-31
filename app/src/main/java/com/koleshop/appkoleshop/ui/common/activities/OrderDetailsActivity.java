@@ -242,10 +242,14 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
     }
 
     public void deliveryTimeRemainingSelected(int minutes) {
-        order.setMinutesToDelivery(minutes);
-        order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
-        orderDetailsFragment.showProgressBar(true);
-        updateOrderInCloud(order);
+        if(minutes>0) {
+            order.setMinutesToDelivery(minutes);
+            order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
+            orderDetailsFragment.showProgressBar(true);
+            updateOrderInCloud(order);
+        } else {
+            Snackbar.make(viewFlipper, "Please select estimated delivery time", Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     public void updateOrderInCloud(Order order) {

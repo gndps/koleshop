@@ -13,21 +13,28 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.services.SellerIntentService;
 import com.koleshop.appkoleshop.services.SettingsIntentService;
 import com.koleshop.appkoleshop.ui.common.activities.FeedbackActivity;
 import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
@@ -89,6 +96,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     String imageViewAvatarUrl;
     String imageViewHeaderUrl;
 
+    SwitchCompat switchOpenClose;
+    ProgressBar progressBarOpenClose;
+    boolean dontSendToggleRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,7 +133,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         switch (itemId) {
 
-            case R.id.drawer_home:
+            /*case R.id.drawer_home:
                 title = titleHome;
                 DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
                 if (sellerSettings != null) {
@@ -134,11 +145,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 replaceFragment(dummyHomeFragment, FRAGMENT_HOME_TAG);
                 setItemChecked = true;
                 closeDrawers = true;
-                break;
+                break;*/
 
             case R.id.drawer_products:
                 // My shop
                 title = titleMyShop;
+                Log.d(TAG, "opening my shop");
                 InventoryCategoryFragment myInventoryCategoryFragment = new InventoryCategoryFragment();
                 Bundle bundleMyInventory = new Bundle();
                 bundleMyInventory.putBoolean("myInventory", true);
@@ -151,6 +163,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.drawer_inventory:
                 // Ware House
                 title = titleWareHouse;
+                Log.d(TAG, "opening warehouse");
                 InventoryCategoryFragment inventoryCategoryFragment = new InventoryCategoryFragment();
                 replaceFragment(inventoryCategoryFragment, FRAGMENT_WAREHOUSE_TAG);
                 setItemChecked = true;
@@ -159,6 +172,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.drawer_orders:
                 //Orders
+                Log.d(TAG, "opening seller orders activity");
                 Intent intentOrders = new Intent(mContext, SellerOrdersActivity.class);
                 startActivity(intentOrders);
                 closeDrawers = true;
@@ -168,6 +182,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.drawer_out_of_stock:
                 //Out of stock
                 title = titleOutOfStock;
+                Log.d(TAG, "opening out of stock");
                 OutOfStockFragment outOfStockFragment = new OutOfStockFragment();
                 replaceFragment(outOfStockFragment, FRAGMENT_OUT_OF_STOCK);
                 setItemChecked = true;
@@ -176,6 +191,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.drawer_settings:
                 //Settings
+                Log.d(TAG, "opening settings");
                 closeDrawers = true;
                 setItemChecked = false;
                 Intent intentSettings = new Intent(mContext, SellerSettingsActivity.class);
@@ -185,6 +201,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.drawer_login:
                 //Log In  or Log out
+                Log.d(TAG, "login clicked");
                 closeDrawers = true;
                 setItemChecked = false;
                 Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
@@ -192,6 +209,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.drawer_logout:
+                Log.d(TAG, "logout clicked");
                 closeDrawers = true;
                 setItemChecked = false;
                 AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -208,18 +226,21 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 builder.create().show();
                 break;
             case R.id.drawer_feedback:
+                Log.d(TAG, "opening feedback");
                 closeDrawers = true;
                 setItemChecked = false;
                 Intent feedback=new Intent(mContext,FeedbackActivity.class);
                 startActivity(feedback);
                 break;
             case R.id.drawer_legal:
+                Log.d(TAG, "opening legal");
                 closeDrawers = true;
                 setItemChecked = false;
                 Intent intentLegalWebPage = new Intent(mContext, LegalActivity.class);
                 startActivity(intentLegalWebPage);
                 break;
             default:
+                Log.d(TAG, "seller default clicked");
                 closeDrawers = true;
                 setItemChecked = true;
                 NotImplementedFragment notImplementedFragment2 = new NotImplementedFragment();
@@ -327,7 +348,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void showHome() {
-        displayItem(view.getMenu().findItem(R.id.drawer_home));
+        Log.d(TAG, "---");
+        showMyShop();
+        //displayItem(view.getMenu().findItem(R.id.drawer_home));
+    }
+
+    private void showMyShop() {
+        Log.d(TAG, "===");
+        displayItem(view.getMenu().findItem(R.id.drawer_products));
     }
 
     @Override
@@ -343,6 +371,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_TO_WAREHOUSE));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SWITCH_BACK_TO_MY_SHOP));
         lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_REFRESH_SELLER_SETTINGS));
+        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SHOP_STATUS_UPDATED_SUCCESS));
+        lbm.registerReceiver(homeActivityBroadcastReceiver, new IntentFilter(Constants.ACTION_SHOP_STATUS_UPDATED_FAILED));
         refreshSellerNameAndImage();
     }
 
@@ -354,7 +384,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        return super.onCreateOptionsMenu(menu);
+        //return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(com.koleshop.appkoleshop.R.menu.menu_seller_home, menu);
+        LinearLayout switchLayout = (LinearLayout) menu.findItem(R.id.menu_shop_switch).getActionView();
+        switchOpenClose = (SwitchCompat) switchLayout.findViewById(R.id.switch_shop_open_close);
+        progressBarOpenClose = (ProgressBar) switchLayout.findViewById(R.id.progress_bar_shop_open_close);
+        Log.d(TAG, "creating menu options");
+        refreshShopOpenCloseStatus();
+        switchOpenClose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+                if (!dontSendToggleRequest) {
+                    setShopToggleProcessing(true, "");
+                    SellerIntentService.startActionToggleStatus(mContext, isChecked);
+                } else {
+                    dontSendToggleRequest = false;
+                }
+            }
+        });
+        return true;
     }
 
     @Override
@@ -381,6 +429,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             if (inventoryCategoryFragment.isBackAllowed()) {
                 FragmentManager fragmentManager = getFragmentManager();
                 if (fragmentManager.getBackStackEntryCount() > 0) {
+                    //if warehouse was opened from my shop..then on back pressed -> show my shop
                     fragmentManager.popBackStack();
                     if (titleOnBackPressed != null && !titleOnBackPressed.isEmpty()) {
                         getSupportActionBar().setTitle(titleMyShop);
@@ -388,15 +437,17 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         titleOnBackPressed = "";
                     }
                 } else {
+                    //else show home fragment
                     showHome();
                 }
             }
         } else if (lastFragmentTag.equalsIgnoreCase(FRAGMENT_MY_SHOP_TAG)) {
             InventoryCategoryFragment myInventoryCategoryFragment = (InventoryCategoryFragment) getFragmentManager().findFragmentByTag(FRAGMENT_MY_SHOP_TAG);
             if (myInventoryCategoryFragment.isBackAllowed()) {
-                showHome();
+                super.onBackPressed();
             }
-        } else if (!lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+        //} else if (!lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+        } else if (!lastFragmentTag.equalsIgnoreCase(FRAGMENT_MY_SHOP_TAG)) {
             showHome();
         } else {
             super.onBackPressed();
@@ -456,13 +507,31 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 } else if (intent.getAction().equalsIgnoreCase(Constants.ACTION_REFRESH_SELLER_SETTINGS)) {
                     //refresh seller name and image
                     refreshSellerNameAndImage();
-
+                    refreshShopOpenCloseStatus();
                     //refresh shop open close status
-                    if(lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
+                    /*if(lastFragmentTag.equalsIgnoreCase(FRAGMENT_HOME_TAG)) {
                         //home fragment is shown
                         DummyHomeFragment homeFragment= (DummyHomeFragment) getFragmentManager().findFragmentByTag(FRAGMENT_HOME_TAG);
                         homeFragment.refreshShopOpenCloseStatus();
+                    }*/
+                } else if (Constants.ACTION_SHOP_STATUS_UPDATED_SUCCESS.equalsIgnoreCase(intent.getAction())) {
+                    boolean isChecked = intent.getBooleanExtra("isChecked", false);
+                    if (isChecked) {
+                        setShopToggleProcessing(false, "Open ");
+                    } else {
+                        setShopToggleProcessing(false, "Close ");
                     }
+                } else if (Constants.ACTION_SHOP_STATUS_UPDATED_FAILED.equalsIgnoreCase(intent.getAction())) {
+                    boolean isChecked = intent.getBooleanExtra("isChecked", false);
+                    dontSendToggleRequest = true;
+                    if (isChecked) {
+                        setShopToggleProcessing(false, "Close ");
+                        switchOpenClose.setChecked(false);
+                    } else {
+                        setShopToggleProcessing(false, "Open ");
+                        switchOpenClose.setChecked(true);
+                    }
+                    Snackbar.make(view, "Some problem in " + (isChecked ? "opening" : "closing") + " shop", Snackbar.LENGTH_LONG).show();
                 }
             }
         };
@@ -700,6 +769,36 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("CLOSE_APPLICATION", true);
         startActivity(intent);
+    }
+
+    public void refreshShopOpenCloseStatus() {
+        Log.d(TAG, "refreshing open close status of shop");
+        sellerSettings = KoleshopUtils.getSettingsFromCache(mContext);
+        if (sellerSettings != null) {
+            Log.d(TAG, "seller settings is NOT null");
+            switchOpenClose.setChecked(sellerSettings.isShopOpen());
+            if (!sellerSettings.isShopOpen()) {
+                Log.d(TAG, "will close the shop");
+                switchOpenClose.setText("Close ");
+            }
+        } else {
+            Log.d(TAG, "seller settings is null");
+            setShopToggleProcessing(true, null);
+            SettingsIntentService.refreshSellerSettings(mContext);
+        }
+    }
+
+    private void setShopToggleProcessing(boolean shopToggleProcessing, String toggleButtonTitle) {
+        Log.d(TAG, "will set shop toggle processing");
+        if (shopToggleProcessing) {
+            Log.d(TAG, "will set progress bar visible");
+            switchOpenClose.setText("");
+            progressBarOpenClose.setVisibility(View.VISIBLE);
+        } else {
+            Log.d(TAG, "will set progress bar gone");
+            switchOpenClose.setText(toggleButtonTitle);
+            progressBarOpenClose.setVisibility(View.GONE);
+        }
     }
 
 }

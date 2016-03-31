@@ -35,6 +35,7 @@ import com.google.gcloud.storage.Blob;
 import com.google.gcloud.storage.BlobId;
 import com.google.gcloud.storage.Storage;
 import com.google.gcloud.storage.StorageOptions;
+import com.koleshop.koleshopbackend.utils.PropertiesCache;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -151,7 +152,7 @@ public class KoleshopCloudStorageService {
     public static boolean uploadImage(ImageUploadRequest imageUploadRequest, String bucketUrl) {
 
         Storage storage = StorageOptions.defaultInstance().service();
-        BlobId blobId = BlobId.of(Constants.PUBLIC_IMAGES_BUCKET_NAME, bucketUrl + imageUploadRequest.getFileName());
+        BlobId blobId = BlobId.of(PropertiesCache.getProp("PUBLIC_IMAGES_BUCKET_NAME"), bucketUrl + imageUploadRequest.getFileName());
         Blob blob = Blob.load(storage, blobId);
 
         if (blob == null) {

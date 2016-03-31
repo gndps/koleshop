@@ -3,12 +3,12 @@
 
     <group android:checkableBehavior="single">
 
-        <item
+        <!--item
             android:id="@+id/drawer_home"
             android:checked="true"
             android:visible="true"
             android:icon="@drawable/ic_home_grey600_24dp"
-            android:title="@string/navigation_drawer_home" />
+            android:title="@string/navigation_drawer_home" /-->
 
         <item
             android:id="@+id/drawer_products"

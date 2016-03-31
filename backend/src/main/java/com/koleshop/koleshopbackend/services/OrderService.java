@@ -227,7 +227,7 @@ public class OrderService {
         Message gcmMessage = new Message.Builder()
                 .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_UPDATED)
                 .addData("type", Constants.GCM_NOTI_ORDER_UPDATED)
-                .addData("status", OrderStatus.INCOMING+"")
+                .addData("status", OrderStatus.INCOMING + "")
                 .addData("orderId", order.getId().toString())
                 .addData("name", order.getBuyerSettings().getName())
                 .addData("amount", order.getAmountPayable() + "")
@@ -248,6 +248,7 @@ public class OrderService {
         boolean rollbackTransaction = false;
 
         List<OrderItem> orderItems = order.getOrderItems();
+        List<Long> outOfStockVarietyIds = new ArrayList<>();
         if (orderItems == null || orderItems.size() == 0) {
             logger.log(Level.SEVERE, "order not update - order items size was zero");
             return null;
@@ -268,9 +269,19 @@ public class OrderService {
                 preparedStatement.setLong(3, order.getId());
                 preparedStatement.setLong(4, item.getProductVarietyId());
                 preparedStatement.addBatch();
+                if ((order.getStatus() == OrderStatus.READY_FOR_PICKUP || order.getStatus() == OrderStatus.OUT_FOR_DELIVERY) && item.getAvailableCount() < item.getOrderCount()) {
+                    outOfStockVarietyIds.add(item.getProductVarietyId());
+                }
                 i++;
                 if (i % 1000 == 0 || i == orderItems.size()) {
                     preparedStatement.executeBatch(); // Execute every 1000 items.
+                }
+            }
+
+            if (outOfStockVarietyIds != null && outOfStockVarietyIds.size() > 0) {
+                boolean outOfStocked = new InventoryService().setOutOfStock(outOfStockVarietyIds, order.getSellerSettings().getUserId());
+                if(!outOfStocked) {
+                    throw new Exception("Could not set the varieties to out of stock");
                 }
             }
 
@@ -484,10 +495,7 @@ public class OrderService {
         if (orderIds.size() > 0) {
 
             //03.01 Build the order fetching query
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < orderIds.size(); i++) {
-                builder.append("?,");
-            }
+
             /*String queryOld = "select o.id as order_id,o.customer_id,o.total_amount,o.not_available_amount,o.delivery_charges,o.carry_bag_charges,o.amount_payable," +
                     "o.order_time,o.requested_delivery_time,o.actual_delivery_time,o.delivery_or_pickup,o.status_id as order_status_id" +
                     "a.id as address_id,a.name as address_name,a.address,a.phone_number,a.country_code,a.nickname as address_nickname,a.gps_long,a.gps_lat," +
@@ -515,7 +523,7 @@ public class OrderService {
                     " join Address sa on sa.user_id = ss.user_id and sa.address_type = " + Constants.ADDRESS_TYPE_SELLER +
                     " join BuyerSettings bs on bs.user_id = o.customer_id" +
                     " join SellerStatus sst on sst.seller_id = ss.user_id" +
-                    " where o.id in (" + builder.deleteCharAt(builder.length() - 1).toString() +
+                    " where o.id in (" + CommonUtils.getQueryQuestionMarks(orderIds) +
                     ") order by o.id desc";
 
             try {

@@ -7,6 +7,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.koleshop.appkoleshop.R;
+import com.koleshop.appkoleshop.constant.Constants;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
@@ -35,6 +37,7 @@ public class VolleyUtil extends Application {
         RealmConfiguration config = new RealmConfiguration.Builder(mInstance).build();
         Realm.setDefaultConfiguration(config);
         setupPicassoDiskCache();
+        Constants.SERVER_URL = getApplicationContext().getResources().getString(R.string.server_url);
     }
 
     public RequestQueue getRequestQueue() {

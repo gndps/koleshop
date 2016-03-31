@@ -19,8 +19,6 @@ import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.ProductUtil;
 import com.koleshop.appkoleshop.network.volley.VolleyUtil;
 import com.koleshop.appkoleshop.ui.seller.views.ViewInventoryProductExpanded;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProduct;
-import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryProductVariety;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;

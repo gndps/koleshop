@@ -14,8 +14,10 @@ public class Constants {
 
     //google project id
     public static String GOOGLE_PROJECT_ID_OLD = "210363682882";
-    public static String GOOGLE_PROJECT_ID = "885947438841";
-    public static String GOOGLE_API_SCOPE = "audience:server:client_id:885947438841-cmjuupacclqrmd9u7a3m2e3ccsp8dmte.apps.googleusercontent.com";
+    //public static String GOOGLE_PROJECT_ID_DEV = "885947438841";
+    //public static String GOOGLE_PROJECT_ID = "451481633376";
+    public static String GOOGLE_API_SCOPE_DEV = "audience:server:client_id:885947438841-cmjuupacclqrmd9u7a3m2e3ccsp8dmte.apps.googleusercontent.com";
+    public static String GOOGLE_API_SCOPE = "audience:server:client_id:451481633376-ttm81fe7blvk2e40j0rdjrjbv2b5mla1.apps.googleusercontent.com";
 
     public static String SHOP_SETTINGS_PREFIX = "shop_settings_";
 
@@ -27,20 +29,12 @@ public class Constants {
     public static int ADDRESS_TYPE_BUYER = 0;
     public static int ADDRESS_TYPE_SELLER = 1;
 
-    public static String SERVER_URL = "https://koleshop-1.appspot.com/_ah/api/"; //production url
+    //public static String SERVER_URL_DEV = "https://koleshop-1.appspot.com/_ah/api/"; //development url
+    //server url is set from application class (volley util)
+    public static String SERVER_URL;// = "https://koleshop-green.appspot.com/_ah/api/"; //production url
     public static String LOCAL_SERVER_URL = "10.0.3.2:8080"; //local url
 
-    // The authority for the sync adapter's content provider
-    public static String AUTHORITY = "com.kolshop.kolshop.provider";
-    // An account type, in the form of a domain name
-    public static String ACCOUNT_TYPE = "com.kolshop.kolshop";
-    // The account name
-    public static String ACCOUNT = "dummyaccount_kolshop";
-    // Instance fields
-    public static String GOOGLE_USER_TOKEN = "google_user_token";
-
     //configurable constants
-    public static boolean RESET_REALM = false;
     public static boolean KOLE_CACHE_ALLOWED = true;
     public static int REALM_VERSION = 2;
 

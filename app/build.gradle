@@ -16,13 +16,19 @@ buildscript {
     }
 }
 
+//allprojects {
+//    repositories {
+//        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+//    }
+//}
+
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion "23.0.2"
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId 'com.koleshop.appkoleshop'
@@ -40,10 +46,20 @@ android {
     }
     buildTypes {
         release {
+            //production keys
+
+            //development keys
+            resValue "string", "google_maps_api_key", "AIzaSyAAN5MMiYDXiCguppP9G5kSiCAHB4HSYEA"
+            resValue "string", "server_url", "https://koleshop-1.appspot.com/_ah/api/"
+            resValue "string", "google_api_scope", "audience:server:client_id:885947438841-cmjuupacclqrmd9u7a3m2e3ccsp8dmte.apps.googleusercontent.com"
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-google-client.pro', 'proguard-butterknife.pro'
+            zipAlignEnabled true
         }
         debug {
+            resValue "string", "google_maps_api_key", "AIzaSyAAN5MMiYDXiCguppP9G5kSiCAHB4HSYEA"
+            resValue "string", "server_url", "https://koleshop-1.appspot.com/_ah/api/"
+            resValue "string", "google_api_scope", "audience:server:client_id:885947438841-cmjuupacclqrmd9u7a3m2e3ccsp8dmte.apps.googleusercontent.com"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-google-client.pro', 'proguard-butterknife.pro'
             zipAlignEnabled true
@@ -58,8 +74,8 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-
     //play services
+
     //compile 'com.google.android.gms:play-services:8.1.0'
     apt "org.parceler:parceler:1.0.3"
     compile('com.weiwangcn.betterspinner:library-material:1.1.0') {
@@ -74,7 +90,6 @@ dependencies {
     }
     //compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
-
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.android.support:appcompat-v7:23.2.0'
@@ -99,12 +114,14 @@ dependencies {
     compile 'com.android.support:percent:23.2.0'
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
     compile 'com.jakewharton:butterknife:7.0.1'
+//    compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
+//    apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.android.support:support-v13:23.2.0'
     compile 'com.getbase:floatingactionbutton:1.10.1'
     compile 'com.klinkerapps:sliding-activity:1.1.1'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-    compile ('com.github.ozodrukh:CircularReveal:1.3.1@aar') {
+    compile('com.github.ozodrukh:CircularReveal:1.3.1@aar') {
         transitive = true;
     }
     compile 'com.github.traex.rippleeffect:library:1.3'

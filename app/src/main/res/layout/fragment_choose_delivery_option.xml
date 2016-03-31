@@ -50,7 +50,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp"
-                        app:rv_rippleDuration="200">
+                        app:rv_rippleDuration="100">
 
                         <ImageButton
                             android:id="@+id/pick_up"
@@ -91,7 +91,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp"
-                        app:rv_rippleDuration="200">
+                        app:rv_rippleDuration="100">
 
                         <ImageButton
                             android:id="@+id/delivery_boy"

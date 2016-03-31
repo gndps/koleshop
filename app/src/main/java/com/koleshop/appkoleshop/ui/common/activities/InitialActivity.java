@@ -10,11 +10,15 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.GoogleAuthException;
@@ -25,22 +29,16 @@ import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.koleshop.appkoleshop.R;
-import com.koleshop.appkoleshop.model.parcel.SellerSettings;
-import com.koleshop.appkoleshop.model.realm.BuyerAddress;
-import com.koleshop.appkoleshop.ui.seller.activities.HomeActivity;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.util.CommonUtils;
-import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.activities.SelectSellerCategoryActivity;
-import com.koleshop.appkoleshop.services.RegistrationIntentService;
-import com.koleshop.appkoleshop.util.RealmUtils;
 
 import java.io.IOException;
 
 import butterknife.Bind;
+import butterknife.BindString;
 import butterknife.ButterKnife;
-import io.realm.Realm;
 
 public class InitialActivity extends AppCompatActivity {
 
@@ -65,6 +63,10 @@ public class InitialActivity extends AppCompatActivity {
     ImageButton btnBuy;
     @Bind(R.id.pb_initial_activity)
     ProgressBar progressBar;
+    @BindString(R.string.google_api_scope)
+    String GOOGLE_API_SCOPE;
+    @Bind(R.id.imageViewShopLogo)
+    ImageView imageViewLogo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,20 +74,7 @@ public class InitialActivity extends AppCompatActivity {
         mContext = this;
         setContentView(R.layout.activity_initial);
         ButterKnife.bind(this);
-
-        if (checkPlayServices()) {
-            if (!TEST_MODE) {
-                thugLife();
-                loadUserProfileIfLoggedIn();
-            } else {
-                Intent intent = new Intent(getApplicationContext(), TEST_CLASS);
-                startActivity(intent);
-            }
-        } else {
-            Log.i(TAG, "No valid Google Play Services APK found.");
-            return;
-        }
-
+        showStartAnimation();
     }
 
     @Override
@@ -102,85 +91,6 @@ public class InitialActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-    }
-
-    /**
-     * first method that run in InitialActivity
-     */
-    private void thugLife() {
-
-        //1. delete the network request statuses
-        new AsyncTask<Void, Void, Void>(
-        ) {
-            @Override
-            protected Void doInBackground(Void... params) {
-                PreferenceUtils.deleteNetworkRequestStatusPreferences(mContext);
-                return null;
-            }
-        }.execute();
-
-        //2. update the token on the server if needed
-        boolean deviceIdSyncedToServer = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_DEVICE_ID_SYNCED_TO_SERVER);
-        if (!deviceIdSyncedToServer) {
-            Intent tokenRefreshIntent = new Intent(mContext, RegistrationIntentService.class);
-            tokenRefreshIntent.setAction(RegistrationIntentService.REGISTRATION_INTENT_SERVICE_ACTION_UPDATE_TOKEN_ON_SERVER);
-            startService(tokenRefreshIntent);
-        }
-    }
-
-    /**
-     * second method that run in InitialActivity
-     */
-    private void loadUserProfileIfLoggedIn() {
-
-        String sessionType = PreferenceUtils.getPreferences(this, Constants.KEY_USER_SESSION_TYPE);
-        if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_SELLER)) {
-            //seller session
-            //if logged in
-            int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
-            if(currentRealmVersion<Constants.REALM_VERSION) {
-                RealmUtils.resetRealm(mContext);
-            }
-            if (CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0) {
-                //if settings setup is finished then open home
-                boolean settingsSetupFinished = PreferenceUtils.getPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED);
-                if (settingsSetupFinished) {
-                    //go to home activity
-                    Intent intent = new Intent(this, HomeActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                } else {
-                    //go to get started activity
-                    Intent intent = new Intent(this, GetStartedActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                }
-            } else {
-                goToNextScreen();
-            }
-        } else if (!sessionType.isEmpty() && sessionType.equalsIgnoreCase(Constants.SESSION_TYPE_BUYER)) {
-            //buyer session
-            boolean userLoggedIn = CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0;
-            int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
-            if(currentRealmVersion<Constants.REALM_VERSION) {
-                RealmUtils.resetRealm(mContext);
-            }
-            BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
-            boolean deliveryLocationSelected = buyerAddress != null;
-            //if(userLoggedIn || deliveryLocationSelected) {
-            if (deliveryLocationSelected) {
-                Intent intent = new Intent(this, com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            } else {
-                //user need to select the delivery location
-                goToNextScreen();
-            }
-
-        } else {
-            //let the user choose the session type
-        }
-
     }
 
     private boolean checkPlayServices() {
@@ -252,6 +162,59 @@ public class InitialActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void showStartAnimation() {
+        moveLogoFromCenterToOffset(imageViewLogo, new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                startLogoScaleAnimation();
+                startTagLineAppearAnimation();
+                startButtonsRotateAnimation();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    private void moveLogoFromCenterToOffset(View view, Animation.AnimationListener animationListener) {
+        RelativeLayout root = (RelativeLayout) findViewById(R.id.root_layout_initial_activity);
+        DisplayMetrics dm = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int statusBarOffset = dm.heightPixels - root.getMeasuredHeight();
+
+        int finalPos[] = new int[2];
+        view.getLocationOnScreen(finalPos);
+
+        //int xCenter = dm.widthPixels / 2;
+        //xCenter -= (view.getMeasuredWidth() / 2);
+        int yCenter = dm.heightPixels / 2 - (view.getMeasuredHeight() / 2) - statusBarOffset;
+
+        TranslateAnimation anim = new TranslateAnimation(0, 0, yCenter, finalPos[1]);
+        anim.setDuration(1000);
+        anim.setFillAfter(true);
+        anim.setAnimationListener(animationListener);
+        view.startAnimation(anim);
+    }
+
+    private void startLogoScaleAnimation() {
+
+    }
+
+    private void startTagLineAppearAnimation() {
+
+    }
+
+    private void startButtonsRotateAnimation() {
+
+    }
+
     private void pickUserAccount() {
         String[] accountTypes = new String[]{"com.google"};
         Intent intent = AccountPicker.newChooseAccountIntent(null, null,
@@ -316,7 +279,7 @@ public class InitialActivity extends AppCompatActivity {
 
         GetUsernameTask(Activity activity, String name) {
             this.mActivity = activity;
-            this.mScope = Constants.GOOGLE_API_SCOPE;
+            this.mScope = GOOGLE_API_SCOPE;
             this.mEmail = name;
         }
 

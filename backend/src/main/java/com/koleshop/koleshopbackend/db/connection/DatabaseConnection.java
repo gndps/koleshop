@@ -1,15 +1,15 @@
 package com.koleshop.koleshopbackend.db.connection;
 
+import com.google.appengine.api.utils.SystemProperty;
+import com.koleshop.koleshopbackend.common.Constants;
+import com.koleshop.koleshopbackend.servlets.GenericServlet;
+import com.koleshop.koleshopbackend.utils.PropertiesCache;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.google.appengine.api.utils.SystemProperty;
-import com.koleshop.koleshopbackend.servlets.GenericServlet;
-import com.koleshop.koleshopbackend.common.Configuration;
-import com.koleshop.koleshopbackend.common.Constants;
 
 
 public class DatabaseConnection {
@@ -42,9 +42,9 @@ public class DatabaseConnection {
     private static Connection getConnectionWithoutPool() {
         Connection connection = null;
 
-        String url = Configuration.GOOGLE_CLOUD_SQL_URL;
-        String username = Configuration.GOOGLE_CLOUD_SQL_ALTERNATIVE_USERNAME;
-        String password = Configuration.GOOGLE_CLOUD_SQL_PASSWORD;
+        String url = PropertiesCache.getInstance().getProperty("GOOGLE_CLOUD_SQL_URL");
+        String username = PropertiesCache.getInstance().getProperty("GOOGLE_CLOUD_SQL_ALTERNATIVE_USERNAME");
+        String password = PropertiesCache.getInstance().getProperty("GOOGLE_CLOUD_SQL_PASSWORD");
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (Exception e) {
@@ -63,9 +63,9 @@ public class DatabaseConnection {
     private static Connection getLocalConnectionWithoutPool() {
         Connection connection = null;
 
-        String url = Configuration.LOCAL_SQL_URL;
-        String username = Configuration.LOCAL_SQL_USERNAME;
-        String password = Configuration.LOCAL_SQL_PASSWORD;
+        String url = PropertiesCache.getInstance().getProperty("LOCAL_SQL_URL");
+        String username = PropertiesCache.getInstance().getProperty("LOCAL_SQL_USERNAME");
+        String password = PropertiesCache.getInstance().getProperty("LOCAL_SQL_PASSWORD");
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (Exception e) {
@@ -100,9 +100,9 @@ public class DatabaseConnection {
 
     public static Connection getGoogleAppEngineDBConnection() {
         Connection connection = null;
-        String url = Configuration.GOOGLE_APP_ENGINE_CLOUD_SQL_CONNECTION_STRING;
-        String username = Configuration.GOOGLE_CLOUD_SQL_USERNAME;
-        String password = Configuration.GOOGLE_CLOUD_SQL_PASSWORD;
+        String url = PropertiesCache.getInstance().getProperty("GOOGLE_APP_ENGINE_CLOUD_SQL_CONNECTION_STRING");
+        String username = PropertiesCache.getInstance().getProperty("GOOGLE_CLOUD_SQL_USERNAME");
+        String password = PropertiesCache.getInstance().getProperty("GOOGLE_CLOUD_SQL_PASSWORD");
         try {
             Class.forName("com.mysql.jdbc.GoogleDriver");
         } catch (Exception e) {

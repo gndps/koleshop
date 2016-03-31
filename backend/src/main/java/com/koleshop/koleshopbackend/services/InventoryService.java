@@ -6,6 +6,7 @@ import com.koleshop.koleshopbackend.db.models.InventoryCategory;
 import com.koleshop.koleshopbackend.db.models.InventoryProduct;
 import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
 import com.koleshop.koleshopbackend.db.models.ProductVarietySelection;
+import com.koleshop.koleshopbackend.utils.CommonUtils;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -334,6 +335,42 @@ public class InventoryService {
         } finally {
             DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
+    }
+
+    public boolean setOutOfStock(List<Long> outOfStockVarietyIds, Long userId) {
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        logger.log(Level.INFO, "product variety will be set as out of stock for variety ids : " + outOfStockVarietyIds.toString() + " for user id = " + userId);
+
+        String newQuery;
+        newQuery = "update ProductVariety pv join Product p on p.id = pv.product_id and p.user_id = ? set pv.limited_stock = '0' where pv.id in ( " +
+                CommonUtils.getQueryQuestionMarks(outOfStockVarietyIds) +
+                " )";
+
+        boolean updated = false;
+
+        try {
+            int index = 1;
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(newQuery);
+            preparedStatement.setLong(index++, userId);
+            for(Long varietyId : outOfStockVarietyIds) {
+                preparedStatement.setLong(index++, varietyId);
+            }
+
+            logger.log(Level.INFO, "query=" + preparedStatement.toString());
+
+            updated = preparedStatement.executeUpdate()>0;
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "some problem in set out of stock", e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+
+        return updated;
     }
 
     public boolean backInStock(Long varietyId, Long userId) {

@@ -49,16 +49,21 @@
                 android:paddingTop="72dp"
                 android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
 
-            <ProgressBar
-                android:id="@+id/pb_fragment_single_seller"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:layout_alignParentBottom="true"
-                android:indeterminate="true"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:indeterminateTintMode="src_in"
-                android:indeterminateTint="@color/primary"
-                android:visibility="gone"/>
+                android:layout_gravity="bottom">
+
+                <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+                    android:id="@+id/pb_fragment_single_seller"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    style="@style/GNowProgressBar"
+                    android:indeterminate="true"
+                    android:visibility="gone" />
+
+            </FrameLayout>
 
         </RelativeLayout>
 

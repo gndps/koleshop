@@ -483,8 +483,12 @@ public class CommonUtils {
     }
 
     public static boolean isTimeInPast(Date date) {
-        Long timeDifference = date.getTime() - new Date().getTime();
-        return timeDifference<=0;
+        if(date!=null) {
+            Long timeDifference = date.getTime() - new Date().getTime();
+            return timeDifference <= 0;
+        } else {
+            return false;
+        }
     }
 
     public static int getPixelsFromDp(Context mContext, int sizeInDp) {

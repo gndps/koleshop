@@ -190,7 +190,6 @@ public class InventoryCategoryFragment extends Fragment {
         if(!customerView)
         {
             menu.removeItem(R.id.items_in_cart);
-            getActivity().invalidateOptionsMenu();
         }
         super.onCreateOptionsMenu(menu, inflater);
     }

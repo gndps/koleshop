@@ -4,13 +4,10 @@ import org.omg.PortableInterceptor.LOCATION_FORWARD;
 
 public class Constants {
 
-	public static String GCM_API_KEY_OLD = "AIzaSyC-8kfTUQ47_KlN6MRvoC4Sigdc0kSY3D0";
-	public static String GCM_API_KEY = "AIzaSyDA0RGdxcUDTwmEnUa8RioynJVgJCgX914";
-
-	public static int USE_GATEWAY_NUMBER = 3;
+	public static int USE_GATEWAY_NUMBER = 2;
 
 	public static String SMS_GATEWAY_URL = "http://alerts.sinfini.com/api/web2sms.php?workingkey=A09ab6ac4f4a123f3b2b887e877f7e631&sender=SIDEMO";
-	public static String SMS_GATEWAY_URL_2 = "https://control.msg91.com/api/sendhttp.php?authkey=93914AeekgtISLEs4560ba93c&sender=GNDPSS&route=4&country=91";
+	public static String SMS_GATEWAY_URL_2 = "https://control.msg91.com/api/sendhttp.php?authkey=108732AbXr8EVCTG56fa66f8&sender=KOLSHP&route=4&country=91";
 	public static String SMS_GATEWAY_URL_3 = "http://api.textlocal.in/send/?hash=d5e932e2bc681c6e9f26152a08c814f02ab8e70d&user=gndpsingh@gmail.com&sender=TXTLCL";
 
 	//public static String ANDROID_CLIENT_ID = "210363682882-3kf1gq0536du05c7o4gi0itssaun7mp1.apps.googleusercontent.com";
@@ -19,7 +16,7 @@ public class Constants {
 
 	public static int COUNTRY_CODE = 91;
 	public static int KILLA_OTP = 167392;
-	public static boolean OTP_BYPASS_ALLOWED = true;
+	public static boolean OTP_BYPASS_ALLOWED = false;
 	public static String TIME_ZONE_STRING_INDIA = "Asia/Kolkata";
 
 	//public static String SERVER_DOMAIN_NAME = "koleshop.com";
@@ -56,10 +53,6 @@ public class Constants {
 	public static final String NEARBY_SHOPS_DISTANCE = "10000";
 
 
-
-	public static String PUBLIC_IMAGES_BUCKET_LOCATION = "https://storage.googleapis.com/";
-	public static String PUBLIC_IMAGES_BUCKET_NAME = "koleshop-bucket";
-	public static String PUBLIC_IMAGES_BUCKET_PREFIX = PUBLIC_IMAGES_BUCKET_LOCATION + PUBLIC_IMAGES_BUCKET_NAME + "/";
 	public static String PUBLIC_PRODUCT_IMAGE_FOLDER = "uploads/";
 	public static String PUBLIC_PROFILE_IMAGE_FOLDER = "profile/";
 	public static String PUBLIC_PROFILE_IMAGE_THUMBNAIL_FOLDER = "profile_thumb/";

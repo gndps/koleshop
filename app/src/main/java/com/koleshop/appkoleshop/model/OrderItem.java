@@ -10,14 +10,14 @@ import org.parceler.Parcel;
 public class OrderItem {
 
 
-    private Long productVarietyId;
-    private String name;
-    private String brand;
-    private String quantity;
-    private float pricePerUnit;
-    private String imageUrl;
-    private int orderCount;
-    private int availableCount;
+    Long productVarietyId;
+    String name;
+    String brand;
+    String quantity;
+    float pricePerUnit;
+    String imageUrl;
+    int orderCount;
+    int availableCount;
 
     public OrderItem() {
 

@@ -1,7 +1,7 @@
 package com.koleshop.koleshopbackend.servlets;
 
 import com.google.appengine.api.utils.SystemProperty;
-import com.koleshop.koleshopbackend.common.Configuration;
+import com.koleshop.koleshopbackend.utils.PropertiesCache;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -33,11 +33,14 @@ public class GenericServlet extends HttpServlet {
 
         if (SystemProperty.environment.value() !=
                 SystemProperty.Environment.Value.Production) {
+
+            PropertiesCache projectProperties = PropertiesCache.getInstance();
+
             PoolProperties p = new PoolProperties();
-            p.setUrl(Configuration.GOOGLE_CLOUD_SQL_URL);
+            p.setUrl(projectProperties.getProperty("GOOGLE_CLOUD_SQL_URL"));
             p.setDriverClassName("com.mysql.jdbc.Driver");
-            p.setUsername(Configuration.GOOGLE_CLOUD_SQL_ALTERNATIVE_USERNAME);
-            p.setPassword(Configuration.GOOGLE_CLOUD_SQL_PASSWORD);
+            p.setUsername(projectProperties.getProperty("GOOGLE_CLOUD_SQL_ALTERNATIVE_USERNAME"));
+            p.setPassword(projectProperties.getProperty("GOOGLE_CLOUD_SQL_PASSWORD"));
             p.setJmxEnabled(true);
             p.setTestWhileIdle(false);
             p.setTestOnBorrow(true);

@@ -107,10 +107,9 @@ public class DeliveryTimeRemainingDialogFragment extends DialogFragment {
                                                  if(min == 0) {
                                                      Toast.makeText(contextDialog, "Please select estimated delivery time", Toast.LENGTH_SHORT).show();
                                                  } else {
-
+                                                     dataFetcher.deliveryTimeRemainingSelected(min);
+                                                     dismiss();
                                                  }
-                                                 dataFetcher.deliveryTimeRemainingSelected(min);
-                                                 dismiss();
                                              }
 
                                          }

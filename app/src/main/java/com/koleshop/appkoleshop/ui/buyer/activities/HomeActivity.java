@@ -512,7 +512,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
         switch (viewId) {
 
-            case R.id.drawer_home:
+            /*case R.id.drawer_home:
                 //dummy home fragment
                 DummyHomeFragment dummyHomeFragment = new DummyHomeFragment();
                 Bundle bundle = new Bundle();
@@ -522,7 +522,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                 setItemChecked = true;
                 closeDrawers = true;
                 replaceFragment(dummyHomeFragment, FRAGMENT_HOME_TAG);
-                break;
+                break;*/
 
             case R.id.drawer_nearby_shops:
                 //Products

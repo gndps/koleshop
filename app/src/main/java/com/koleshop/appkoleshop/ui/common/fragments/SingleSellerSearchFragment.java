@@ -41,6 +41,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class SingleSellerSearchFragment extends Fragment {
 
@@ -70,7 +71,7 @@ public class SingleSellerSearchFragment extends Fragment {
     @BindString(R.string.no_search_results_found)
     String noSearchResultsString;
     @Bind(R.id.pb_fragment_single_seller)
-    ProgressBar progressBar;
+    SmoothProgressBar progressBar;
 
     private Context mContext;
     private boolean myInventory;

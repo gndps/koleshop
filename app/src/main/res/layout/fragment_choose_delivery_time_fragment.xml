@@ -57,7 +57,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:layout_marginTop="8dp"
-                            app:rv_rippleDuration="200">
+                            app:rv_rippleDuration="100">
 
                             <ImageButton
                                 android:id="@+id/asap_button"
@@ -94,7 +94,7 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp"
-                        app:rv_rippleDuration="200">
+                        app:rv_rippleDuration="100">
 
                         <ImageButton
                             android:id="@+id/today_button"
@@ -135,7 +135,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:layout_marginTop="8dp"
-                            app:rv_rippleDuration="200">
+                            app:rv_rippleDuration="100">
 
                             <ImageButton
                                 android:id="@+id/choose_delivery_time_button"
@@ -171,7 +171,7 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp"
-                        app:rv_rippleDuration="200">
+                        app:rv_rippleDuration="100">
 
                         <ImageButton
                             android:id="@+id/tomorrow_button"

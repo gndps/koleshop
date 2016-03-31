@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.services.SessionService;
 import com.koleshop.koleshopbackend.services.UserService;
+import com.koleshop.koleshopbackend.utils.PropertiesCache;
 
 public class GcmHelper {
 
@@ -26,7 +27,7 @@ public class GcmHelper {
         logger.log(Level.INFO, "will notify user...data=" + message.getData());
 
         try {
-            Sender sender = new Sender(Constants.GCM_API_KEY);
+            Sender sender = new Sender(PropertiesCache.getProp("GCM_API_KEY"));
             if(sender!=null) {
                 MulticastResult result = sender.send(message, deviceIds, numOfRetries);
 

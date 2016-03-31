@@ -24,6 +24,7 @@
 
 # com.google.client.util.IOUtils references java.nio.file.Files when on Java 7+
 -dontnote java.nio.file.Files, java.nio.file.Path
+-dontwarn java.nio.file.Files, java.nio.file.Path
 
 # Suppress notes on LicensingServices
 -dontnote **.ILicensingService

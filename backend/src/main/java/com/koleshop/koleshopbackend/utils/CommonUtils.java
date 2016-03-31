@@ -4,8 +4,10 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -30,7 +32,7 @@ public class CommonUtils {
         StringBuilder sb = new StringBuilder(len);
         char firstDigit = NON_ZERO_DIGITS.charAt(rnd.nextInt(NON_ZERO_DIGITS.length()));
         sb.append(firstDigit);
-        for (int i = 0; i < len-1; i++)
+        for (int i = 0; i < len - 1; i++)
             sb.append(DIGITS.charAt(rnd.nextInt(DIGITS.length())));
         return Integer.parseInt(sb.toString().trim());
     }
@@ -81,6 +83,18 @@ public class CommonUtils {
         calendar.setTime(date);
         calendar.add(Calendar.MINUTE, addMinutes);
         return calendar.getTime();
+    }
+
+    public static String getQueryQuestionMarks(List<Long> arrayList) {
+        if (arrayList != null || arrayList.size() > 0) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < arrayList.size(); i++) {
+                builder.append("?,");
+            }
+            return builder.deleteCharAt(builder.length() - 1).toString();
+        } else {
+            return null;
+        }
     }
 
 }
