@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ import butterknife.ButterKnife;
 
 public class OrderDetailsActivity extends SlidingActivity implements DeliveryTimeRemainingDialogFragment.DeliveryTimeDialogFragmentListener {
 
+    private static final String TAG = "OrderDetailsActivity";
     private static int VIEW_FLIPPER_CHILD_FRAGMENTS = 0X00;
     private static int VIEW_FLIPPER_CHILD_PROGRESS_BAR = 0X01;
     private static int VIEW_FLIPPER_CHILD_SOMETHING_WRONG = 0X02;
@@ -61,8 +63,8 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
         mContext = this;
         setTitle("Order Details");
         setPrimaryColors(
-                ContextCompat.getColor(mContext, R.color.primary),
-                ContextCompat.getColor(mContext, R.color.primary_dark)
+                ContextCompat.getColor(mContext, R.color.cool_red),
+                ContextCompat.getColor(mContext, R.color.cool_red_dark)
         );
         setContent(R.layout.activity_order_details);
         ButterKnife.bind(this);
@@ -93,9 +95,7 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
             refreshOrderFromInternet();
         }
         initializeBroadcastReceiver();
-        if (customerView) {
-            KoleshopNotificationUtils.removeThisOrderFromNotificationOrders(orderId);
-        }
+        KoleshopNotificationUtils.removeThisOrderFromNotificationOrders(orderId);
     }
 
     @Override
@@ -138,7 +138,9 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
                         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_SOMETHING_WRONG);
                         break;
                     case Constants.ACTION_ORDER_UPDATE_NOTIFICATION:
+                        Log.d(TAG, "order update notification received");
                         int refreshedOrderId = intent.getIntExtra("orderId", 0);
+                        Log.d(TAG, "order id = " + refreshedOrderId + ", current order id = " + orderId);
                         if (refreshedOrderId > 0 && refreshedOrderId == order.getId()) {
                             order = null;
                             refreshOrderFromInternet();
@@ -242,7 +244,7 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
     }
 
     public void deliveryTimeRemainingSelected(int minutes) {
-        if(minutes>0) {
+        if (minutes > 0) {
             order.setMinutesToDelivery(minutes);
             order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
             orderDetailsFragment.showProgressBar(true);
@@ -294,7 +296,7 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if(order == null) {
+        if (order == null) {
             return true;
         }
         int orderStatus = order.getStatus();
@@ -327,7 +329,7 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
                 showCancelButton(false);
                 break;
             case OrderStatus.READY_FOR_PICKUP:
-                if(customerView) {
+                if (customerView) {
                     showNotPickedUpOrNotDeliveredMenu(false);
                     showCancelButton(false);
                 } else {

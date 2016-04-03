@@ -33,7 +33,7 @@ public class LegalActivity extends AppCompatActivity {
 
         mWebview  = (WebView) findViewById(R.id.webView);
         mWebview.setWebViewClient(new ViewClient());
-        mWebview.loadUrl("https://www.facebook.com/page_guidelines.php");
+        mWebview.loadUrl("http://koleshop.github.io/legal/index.html");
     }
 
     @Override

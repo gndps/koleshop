@@ -5,6 +5,12 @@
         <description>will process any pending requests every 1 minutes</description>
         <schedule>every 1 minutes</schedule>
     </cron>
+
+    <cron>
+        <url>/updateessentialinfo</url>
+        <description>will update date today in the essential info</description>
+        <schedule>every day 09:20</schedule>
+    </cron>
     <!--cron>
         <url>/weeklyreport</url>
         <description>Mail out a weekly report</description>

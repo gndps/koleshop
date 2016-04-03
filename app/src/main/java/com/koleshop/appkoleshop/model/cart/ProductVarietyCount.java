@@ -4,13 +4,14 @@ import com.koleshop.appkoleshop.model.realm.ProductVariety;
 
 import org.parceler.Parcel;
 
+import io.realm.ProductVarietyCountRealmProxy;
 import io.realm.RealmObject;
 
 /**
  * Created by Gundeep on 02/03/16.
  */
 
-@Parcel(//implementations = {ProductVarietyCountRealmProxy.class},
+@Parcel(implementations = {ProductVarietyCountRealmProxy.class},
         value = Parcel.Serialization.BEAN,
         analyze = {ProductVarietyCount.class})
 public class ProductVarietyCount extends RealmObject {

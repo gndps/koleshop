@@ -2,13 +2,14 @@ package com.koleshop.appkoleshop.model.parcel;
 
 import org.parceler.Parcel;
 
+import io.realm.BuyerSettingsRealmProxy;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Gundeep on 10/03/16.
  */
-@Parcel(//implementations = {BuyerSettingsRealmProxy.class},
+@Parcel(implementations = {BuyerSettingsRealmProxy.class},
         value = Parcel.Serialization.BEAN,
         analyze = {BuyerSettings.class})
 public class BuyerSettings extends RealmObject {

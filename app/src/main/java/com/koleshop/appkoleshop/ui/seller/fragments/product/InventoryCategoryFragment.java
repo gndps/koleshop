@@ -301,36 +301,38 @@ public class InventoryCategoryFragment extends Fragment {
     private void inventoryLoadFailed() {
         viewFlipper.setDisplayedChild(2);
 
-        String title;
-        if (myInventory) {
-            title = "My Shop";
-        } else {
-            title = "Ware House";
-        }
-        if (CommonUtils.getUserId(mContext) == null || CommonUtils.getUserId(mContext) <= 0) {
-            new AlertDialog.Builder(mContext)
-                    .setTitle("Please login to open " + title)
-                    .setPositiveButton("LOGIN", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
-                            startActivity(intentLogin);
-                        }
-                    })
-                    .setNegativeButton("CANCEL", null)
-                    .show();
-        } else {
-            new AlertDialog.Builder(mContext)
-                    .setTitle("Problem in loading " + title)
-                    .setMessage("Please try again")
-                    .setPositiveButton("TRY AGAIN", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            loadInventoryCategories();
-                        }
-                    })
-                    .setNegativeButton("CANCEL", null)
-                    .show();
+        if(!customerView) {
+            String title;
+            if (myInventory) {
+                title = "My Shop";
+            } else {
+                title = "Ware House";
+            }
+            if (CommonUtils.getUserId(mContext) == null || CommonUtils.getUserId(mContext) <= 0) {
+                new AlertDialog.Builder(mContext)
+                        .setTitle("Please login to open " + title)
+                        .setPositiveButton("LOGIN", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent intentLogin = new Intent(mContext, VerifyPhoneNumberActivity.class);
+                                startActivity(intentLogin);
+                            }
+                        })
+                        .setNegativeButton("CANCEL", null)
+                        .show();
+            } else {
+                new AlertDialog.Builder(mContext)
+                        .setTitle("Problem in loading " + title)
+                        .setMessage("Please try again")
+                        .setPositiveButton("TRY AGAIN", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                loadInventoryCategories();
+                            }
+                        })
+                        .setNegativeButton("CANCEL", null)
+                        .show();
+            }
         }
     }
 

@@ -18,9 +18,11 @@ import com.koleshop.api.sessionApi.SessionApi;
 import com.koleshop.api.sessionApi.model.RestCallResponse;
 import com.koleshop.api.yolo.inventoryEndpoint.InventoryEndpoint;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.util.CloudEndpointDataExtractionUtil;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.json.JSONObject;
 import org.parceler.Parcels;
@@ -95,6 +97,11 @@ public class SellerIntentService extends IntentService {
                 Intent intent = new Intent(Constants.ACTION_SHOP_STATUS_UPDATED_SUCCESS);
                 intent.putExtra("isChecked", shopOpen);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                SellerSettings sellerSettings = RealmUtils.getSellerSettings(getApplicationContext());
+                if(sellerSettings!=null) {
+                    sellerSettings.setShopOpen(shopOpen);
+                    RealmUtils.saveSellerSettings(sellerSettings);
+                }
             } else {
                 //shop status update failed
                 Log.d(TAG, "shop status update failed");
@@ -149,7 +156,9 @@ public class SellerIntentService extends IntentService {
                 //out of stock fetched
                 Log.d(TAG, "out of stock items fetched");
 
-                if(response.getData() instanceof String && response.getData().equals("no products found")) {
+                //if(response.getData() instanceof String && response.getData().equals("no products found")) {
+                if(response.getSuccess() && response.getData() == null) {
+
                     //no items out of stock
                     Intent intent = new Intent(Constants.ACTION_NO_ITEMS_OUT_OF_STOCK);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);

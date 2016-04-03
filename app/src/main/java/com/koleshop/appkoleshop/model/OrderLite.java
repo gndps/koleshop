@@ -2,6 +2,7 @@ package com.koleshop.appkoleshop.model;
 
 import org.parceler.Parcel;
 
+import io.realm.OrderLiteRealmProxy;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -9,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by Gundeep on 19/03/16.
  */
 
-@Parcel(//implementations = {OrderLiteProxy.class},
+@Parcel(implementations = {OrderLiteRealmProxy.class},
         value = Parcel.Serialization.BEAN,
         analyze = {OrderLite.class})
 public class OrderLite extends RealmObject {

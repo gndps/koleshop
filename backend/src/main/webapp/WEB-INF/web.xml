@@ -35,6 +35,7 @@
     <servlet-mapping>
         <servlet-name>KoleshopServlet</servlet-name>
         <url-pattern>/processpendingrequests</url-pattern>
+        <url-pattern>/updateessentialinfo</url-pattern>
     </servlet-mapping>
 
     <security-constraint>

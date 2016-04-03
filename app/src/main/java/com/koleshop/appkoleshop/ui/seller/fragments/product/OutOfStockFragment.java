@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
@@ -31,6 +32,8 @@ import org.parceler.Parcels;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.BindDrawable;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -44,6 +47,10 @@ public class OutOfStockFragment extends Fragment implements OutOfStockAdapter.Ou
     TextView textViewNothingHereYet;
     @Bind(R.id.iv_nothing_here_yet)
     ImageView imageViewNothingHereYet;
+    @BindDrawable(R.drawable.ic_pinky_pipni)
+    Drawable pinkyHappy;
+    @BindString(R.string.no_out_of_stock)
+    String noItemsOutOfStock;
 
     private final int VIEW_FLIPPER_CHILD_LOADING = 0x00;
     private final int VIEW_FLIPPER_CHILD_NO_INTERNET = 0x01;
@@ -80,6 +87,7 @@ public class OutOfStockFragment extends Fragment implements OutOfStockAdapter.Ou
         initializeBroadcastReceiver();
         initializeRecyclerView();
         fetchOrdersFromInternet();
+        setupNoItemsOutOfStockView();
         return view;
     }
 
@@ -153,6 +161,11 @@ public class OutOfStockFragment extends Fragment implements OutOfStockAdapter.Ou
         recyclerView.setLayoutManager(layoutManager);
         adapter = new OutOfStockAdapter(mContext, this);
         recyclerView.setAdapter(adapter);
+    }
+
+    private void setupNoItemsOutOfStockView() {
+        imageViewNothingHereYet.setImageDrawable(pinkyHappy);
+        textViewNothingHereYet.setText(noItemsOutOfStock);
     }
 
     private void fetchOrdersFromInternet() {

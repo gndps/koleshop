@@ -207,6 +207,7 @@ public class SettingsIntentService extends IntentService {
                 //update the network request status
                 NetworkUtils.setRequestStatusSuccess(context, uniqueRequestId);
                 RealmUtils.saveSellerSettings(sellerSettings);
+                PreferenceUtils.setPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED, true);
             }
 
             if (listener != null) {

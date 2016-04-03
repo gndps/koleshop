@@ -84,7 +84,7 @@
     </string-array>
 
     <string name="pick_account">A google account is required to proceed</string>
-    <string name="not_online">Device not connected to internet</string>
+    <string name="not_online">Please check your connection</string>
     <string name="login_screen_heading">Koleshop Login</string>
 
     <string name="save">SAVE</string>
@@ -184,9 +184,10 @@
     <string name="not_delivered">Not delivered</string>
     <string name="not_picked_up">Not picked up</string>
     <string name="please_select_address">Please select an address to see nearby shops</string>
-    <string name="login_to_set_picture">Only logged in users can change picture</string>
+    <string name="login_to_set_picture">Please login to set picture</string>
     <string name="profile_picture">Profile Picture</string>
     <string name="send_feedback">Send Feedback</string>
     <string name="empty_cart">No items in the cart\n\nYou can search or add from shops</string>
+    <string name="no_out_of_stock">No items out of stock</string>
 
 </resources>

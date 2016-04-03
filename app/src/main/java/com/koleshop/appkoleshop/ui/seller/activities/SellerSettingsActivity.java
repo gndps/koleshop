@@ -332,7 +332,14 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
     private void loadSettingsIntoUi() {
         if(settings==null) {
             settings = new SellerSettings();
-            settings.setAddress(new Address());
+            Address address = new Address();
+            Long userId = PreferenceUtils.getUserId(mContext);
+            address.setId(0l);
+            address.setUserId(userId);
+            settings.setAddress(address);
+            settings.setPickupFromShop(true);
+            settings.setUserId(userId);
+            settings.setId(0l);
         }
 
         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_SETTINGS);

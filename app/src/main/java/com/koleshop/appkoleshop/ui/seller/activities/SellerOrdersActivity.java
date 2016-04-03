@@ -88,6 +88,8 @@ public class SellerOrdersActivity extends AppCompatActivity {
                 switch (action) {
                     case Constants.ACTION_ORDER_UPDATE_NOTIFICATION:
                         Long orderId = intent.getLongExtra("orderId", 0);
+                        Log.d(TAG, "order update notification received");
+                        Log.d(TAG, "order id = " + orderId);
                         if(orderId>0) {
                             int orderStatus = intent.getIntExtra("status", 0);
                             //order status accept and reject are handled inside incoming order fragment broadcast receiver

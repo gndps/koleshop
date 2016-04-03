@@ -445,7 +445,17 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
                 }
             default:
                 scrollView.smoothScrollTo(0, scrollView.getBottom() / 3);
-                Snackbar.make(toolbar, "Please choose a delivery time", Snackbar.LENGTH_SHORT).show();
+                int deliveryOption = chooseDeliveryOptionFragment.getSelectedButton();
+                switch (deliveryOption) {
+                    case ChooseDeliveryOptionFragment.PICK_UP_BUTTON:
+                        homeDelivery = false;
+                        Snackbar.make(toolbar, "Please choose a pickup time", Snackbar.LENGTH_SHORT).show();
+                        return true;
+                    case ChooseDeliveryOptionFragment.DELIVERY_BUTTON:
+                        homeDelivery = true;
+                        Snackbar.make(toolbar, "Please choose a delivery time", Snackbar.LENGTH_SHORT).show();
+                        return true;
+                }
                 return false;
         }
     }

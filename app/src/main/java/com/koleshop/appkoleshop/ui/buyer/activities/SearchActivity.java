@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.listeners.SearchActivityListener;
@@ -62,7 +63,7 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
     @BindString(R.string.navigation_drawer_inventory)
     String wareHouseString;
     @Bind(R.id.fab_add_new_product)
-    com.getbase.floatingactionbutton.FloatingActionButton floatingActionButton;
+    FloatingActionButton floatingActionButton;
     @Bind(R.id.text_on_floating_button)
     TextView noOfItemsViewer;
     @Bind(R.id.frame_layout_floating_cart)
@@ -133,13 +134,6 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
         ButterKnife.bind(this);
         updateHotCount();
         frameLayout.setVisibility(View.INVISIBLE);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
-                startActivity(cartActivityIntent);
-            }
-        });
 
         Bundle receivedBundle = null;
         if (getIntent() != null && getIntent().getExtras() != null) {
@@ -163,6 +157,7 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
             sellerSettings = Parcels.unwrap(savedInstanceState.getParcelable(ARG_SELLER_SETTINGS));
         }
 
+        configureTheFloatingCartButton();
         configureTheSearchBar();
         configureTheRootLayout();
         initializeBroadcastReceivers();
@@ -236,6 +231,21 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
                 finish();
             }
         });
+    }
+
+    private void configureTheFloatingCartButton() {
+        if (customerView) {
+            floatingActionButton.setVisibility(View.VISIBLE);
+            floatingActionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent cartActivityIntent = new Intent(mContext, CartActivity.class);
+                    startActivity(cartActivityIntent);
+                }
+            });
+        } else {
+            floatingActionButton.setVisibility(View.GONE);
+        }
     }
 
     private void configureTheSearchBar() {
@@ -504,9 +514,7 @@ public class SearchActivity extends AppCompatActivity implements SearchActivityL
 
                 if (CartUtils.getCartsTotalCount() == 0) {
                     noOfItemsViewer.setVisibility(View.INVISIBLE);
-                }
-                else if(frameLayout.getVisibility()==View.VISIBLE)
-                {
+                } else if (frameLayout.getVisibility() == View.VISIBLE) {
                     noOfItemsViewer.setVisibility(View.VISIBLE);
                     noOfItemsViewer.setText(CartUtils.getCartsTotalCount() + "");
                 }

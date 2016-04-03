@@ -5,13 +5,14 @@ import org.parceler.Parcel;
 import java.util.Date;
 
 import io.realm.RealmObject;
+import io.realm.SellerSettingsRealmProxy;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Gundeep on 14/01/16.
  */
 
-@Parcel(//implementations = {SellerSettingsRealmProxy.class},
+@Parcel(implementations = {SellerSettingsRealmProxy.class},
         value = Parcel.Serialization.BEAN,
         analyze = {SellerSettings.class})
 public class SellerSettings extends RealmObject{

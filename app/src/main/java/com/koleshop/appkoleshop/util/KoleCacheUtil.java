@@ -50,8 +50,8 @@ public class KoleCacheUtil {
                 List<ProductCategory> productCategories = query.equalTo("id", products.get(0).getCategoryId()).findAll();
                 if (productCategories != null && productCategories.size() > 0 && productCategories.get(0) != null) {
                     ProductCategory productCategory = productCategories.get(0);
-                    productCategory.setAddedToMyShop(categoryExistsInMyShop);
                     realm.beginTransaction();
+                    productCategory.setAddedToMyShop(categoryExistsInMyShop);
                     realm.copyToRealmOrUpdate(productCategory);
                     realm.commitTransaction();
                 }

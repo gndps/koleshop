@@ -8,6 +8,7 @@ import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,11 +24,22 @@ import javax.servlet.http.HttpServletResponse;
 public class KoleshopServlet extends HttpServlet {
 
     private static final Logger logger = Logger.getLogger(KoleshopServlet.class.getName());
+    private static final String PROCESS_PENDING_REQUESTS = "/processpendingrequests";
+    private static final String UPDATE_ESSENTIAL_INFO = "/updateessentialinfo";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        logger.log(Level.INFO, "processing pending requests " + new Date());
-        processPendingRequests();
+        logger.log(Level.INFO, "request received in KoleshopServlet " + new Date());
+        String servletPath = req.getServletPath();
+        logger.log(Level.INFO, "servlet path = " + servletPath);
+        switch (servletPath) {
+            case PROCESS_PENDING_REQUESTS:
+                processPendingRequests();
+                break;
+            case UPDATE_ESSENTIAL_INFO:
+                updateEssentialInfo();
+                break;
+        }
         super.doGet(req, resp);
     }
 
@@ -38,6 +50,9 @@ public class KoleshopServlet extends HttpServlet {
     }
 
     private void processPendingRequests() {
+
+        logger.log(Level.INFO, "processing pending requests " + new Date());
+
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
@@ -80,6 +95,36 @@ public class KoleshopServlet extends HttpServlet {
             DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
 
+
+    }
+
+    private void updateEssentialInfo() {
+
+        logger.log(Level.INFO, "updating daily essential information" + new Date());
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+
+        String updateEssentialInfo = "update EssentialInfo set date_today = ?";
+
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+
+            //01. update essential info
+            preparedStatement = dbConnection.prepareStatement(updateEssentialInfo);
+            preparedStatement.setTimestamp(1, new Timestamp(new Date().getTime()));
+            int updatedEssentialInfo = preparedStatement.executeUpdate();
+            logger.log(Level.INFO, updatedEssentialInfo + " essential info updated");
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "problem in updating essential info date_today", e);
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
 
     }
 

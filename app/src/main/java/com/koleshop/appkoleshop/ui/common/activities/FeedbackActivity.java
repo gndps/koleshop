@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -49,6 +52,7 @@ public class FeedbackActivity extends AppCompatActivity {
 
     private final static int VIEW_FLIPPER_CHILD_FEEDBACK_FORM = 0x00;
     private final static int VIEW_FLIPPER_CHILD_THANK_YOU = 0x01;
+    private static final String TAG = "FeedbackActivity";
 
     @Bind(R.id.pb_status_feedback)
     DilatingDotsProgressBar progressBar;
@@ -215,9 +219,24 @@ public class FeedbackActivity extends AppCompatActivity {
         String carrierName = manager.getNetworkOperatorName();
         String userId = String.valueOf(PreferenceUtils.getUserId(this));
         String sessionId = PreferenceUtils.getSessionId(this);
+
+        //get app version info
+        PackageInfo pInfo = null;
+        String version = "unknown";
+        String verCode = "unknown";
+        try {
+            pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = pInfo.versionName;
+            verCode = pInfo.versionCode + "";
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "some problem in finding app version", e);
+        }
+
+
+
         //show progress bar
         showProgressBar(true);
-        CommonIntentService.saveFeedback(this, message, deviceModel, deviceManufacturer, OS, dpHeight, dpWidth, screenSize, deviceTime, sessionType, gpsLat, gpsLong, carrierName, isWifiConnected, userId, sessionId);
+        CommonIntentService.saveFeedback(this, message, deviceModel, deviceManufacturer, OS, dpHeight, dpWidth, screenSize, deviceTime, sessionType, gpsLat, gpsLong, carrierName, isWifiConnected, userId, sessionId, version, verCode);
 
     }
 

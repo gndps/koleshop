@@ -10,6 +10,7 @@ import org.parceler.ParcelPropertyConverter;
 import org.parceler.Parcels;
 import org.parceler.converter.CollectionParcelConverter;
 
+import io.realm.CartRealmProxy;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -17,7 +18,7 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Gundeep on 02/03/16.
  */
-@Parcel(//implementations = {ProductVarietyCountRealmProxy.class},
+@Parcel(implementations = {CartRealmProxy.class},
         value = Parcel.Serialization.BEAN,
         analyze = {Cart.class})
 public class Cart extends RealmObject {
