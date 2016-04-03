@@ -235,9 +235,9 @@ public class CommonEndpoint {
     @ApiMethod(name = "saveFeedback")
     public KoleResponse saveFeedback(@Named("message") String message, @Named("deviceModel") String deviceModel, @Named("deviceManufacturer") String deviceManufacturer, @Named("osVersion") String osVersion, @Named("heightDp") String heightDp,
                                      @Named("widthDp") String widthDp, @Named("screenSize") String screenSize, @Named("deviceTime") String deviceTime, @Named("sessionType") String sessionType, @Named("gpsLong") String gpsLong, @Named("gpsLat") String gpsLat,
-                                     @Named("networkName") String networkName, @Named("isWifiConnected") String isWifiConnected, @Named("userId") String userId, @Named("sessionId") String sessionId) {
+                                     @Named("networkName") String networkName, @Named("isWifiConnected") String isWifiConnected, @Named("userId") String userId, @Named("sessionId") String sessionId, @Named("version") String version, @Named("versionCode") String versionCode) {
         try {
-            return new CommonService().saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLat, gpsLong, networkName, isWifiConnected, userId, sessionId);
+            return new CommonService().saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLat, gpsLong, networkName, isWifiConnected, userId, sessionId, version, versionCode);
         } catch (Exception e) {
             return KoleResponse.failedResponse();
         }

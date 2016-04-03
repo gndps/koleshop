@@ -18,6 +18,7 @@ public class Constants {
 	public static int KILLA_OTP = 167392;
 	public static boolean OTP_BYPASS_ALLOWED = false;
 	public static String TIME_ZONE_STRING_INDIA = "Asia/Kolkata";
+	public static long TIME_IN_FAR_FUTURE = 4615178253l;
 
 	//public static String SERVER_DOMAIN_NAME = "koleshop.com";
 	//public static String SERVER_OWNER_NAME = "koleshopserver";

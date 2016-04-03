@@ -112,10 +112,11 @@ public class NearbyShopsFragment extends Fragment {
             }
         };
 
+        updateHotCount();
+
     }
 
     public void updateHotCount() {
-        int new_number = CartUtils.getCartsTotalCount();
         if (noOfItemsViewer == null) {
            MenuItem item1 = this.menu.findItem(R.id.items_in_cart);
             final View showItemsInCart = MenuItemCompat.getActionView(item1);
@@ -180,15 +181,6 @@ public class NearbyShopsFragment extends Fragment {
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_NO_ADDRESS_SELECTED));
         fragmentHomeActivityListener.setBackButtonHandledByFragment(false);
         fragmentHomeActivityListener.setTitle(titleNearbyShops);
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //Do something after 100ms
-                updateHotCount(); }
-        }, 100);
-
-
         if (loading) {
             requestNearbyShopsFromInternet();
         }

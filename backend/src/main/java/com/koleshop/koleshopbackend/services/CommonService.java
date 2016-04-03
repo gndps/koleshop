@@ -328,11 +328,11 @@ public class CommonService {
     }
 
     public KoleResponse saveFeedback(String message, String deviceModel, String deviceManufacturer, String osVersion, String heightDp, String widthDp, String screenSize, String deviceTime, String sessionType,
-                                     String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId) {
+                                     String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId, String version, String versionCode) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        String query = "insert into Feedback(message, device_model, device_manufacturer, os_version, height_dp, width_dp, screen_size, device_time, session_type, gps_lat, gps_long, network_name, is_wifi, user_id, session_id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "insert into Feedback(message, device_model, device_manufacturer, os_version, height_dp, width_dp, screen_size, device_time, session_type, gps_lat, gps_long, network_name, is_wifi, user_id, session_id, app_version, app_version_code) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
             dbConnection = DatabaseConnection.getConnection();
@@ -354,6 +354,8 @@ public class CommonService {
             preparedStatement.setString(index++, isWifiConnected == null ? "" : isWifiConnected);
             preparedStatement.setString(index++, userId == null ? "" : userId);
             preparedStatement.setString(index++, sessionId == null ? "" : sessionId);
+            preparedStatement.setString(index++, version == null ? "" : version);
+            preparedStatement.setString(index++, versionCode == null ? "" : versionCode);
 
             logger.log(Level.INFO, "will execute this prepared statement=" + preparedStatement.toString());
 
@@ -386,7 +388,11 @@ public class CommonService {
             }
             Long callUsPhone = rs.getLong("call_us_phone");
             int apiVersion = rs.getInt("api_version");
-            EssentialInfo essentialInfo = new EssentialInfo(callUsPhone, apiVersion);
+            String latestAppVersion = rs.getString("latest_app_version");
+            String deprecatedAppVersion = rs.getString("deprecated_app_version");
+            Long deprecatedDate = rs.getTimestamp("deprecated_date")!=null?rs.getTimestamp("deprecated_date").getTime():Constants.TIME_IN_FAR_FUTURE;
+            Long dateToday = rs.getTimestamp("date_today").getTime();
+            EssentialInfo essentialInfo = new EssentialInfo(callUsPhone, apiVersion, latestAppVersion, deprecatedAppVersion, deprecatedDate, dateToday);
 
             KoleResponse response = new KoleResponse();
             response.setData(essentialInfo);

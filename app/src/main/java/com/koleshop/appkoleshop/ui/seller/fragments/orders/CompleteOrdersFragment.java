@@ -220,7 +220,9 @@ public class CompleteOrdersFragment extends Fragment {
         recyclerView.setLayoutManager(mLinearLayoutManager);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        setupScrollListenerOnRv();
+        if(orders.size() == ITEMS_PER_PAGE) {
+            setupScrollListenerOnRv();
+        }
         //todo dismiss complete order noti
     }
 

@@ -41,6 +41,7 @@
     <color name="delivery_settings_stroke_color_no">#C1751F</color>
     <color name="delivery_settings_stroke_color_yes">#4C9211</color>
     <color name="cool_red">#E15252</color>
+    <color name="cool_red_dark">#B44141</color>
     <color name="light_green_background">#F3FFEF</color>"
     <color name="gradient_start">#00F3FFEF</color>"
     <color name="gradient_end">#77333333</color>"

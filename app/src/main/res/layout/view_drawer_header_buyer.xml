@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_large"
                 android:layout_marginLeft="@dimen/spacing_large"
-                android:text="You are Awesome!"
+                android:text="Your Awesome Name!"
                 android:textColor="@color/offwhite_transparent"
                 android:fontFamily="sans-serif-medium"
                 android:layout_centerVertical="true"

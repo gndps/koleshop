@@ -4,13 +4,14 @@ import org.parceler.Parcel;
 
 import java.util.Date;
 
+import io.realm.BuyerAddressRealmProxy;
 import io.realm.RealmObject;
 
 /**
  * Created by Gundeep on 08/03/16.
  */
 
-@Parcel(//implementations = {AddressRealmProxy.class},
+@Parcel(implementations = {BuyerAddressRealmProxy.class},
         value = Parcel.Serialization.BEAN,
         analyze = {BuyerAddress.class})
 public class BuyerAddress extends RealmObject {

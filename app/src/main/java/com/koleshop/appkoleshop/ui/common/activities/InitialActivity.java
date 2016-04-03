@@ -7,18 +7,22 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.GoogleAuthException;
@@ -30,13 +34,19 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.model.realm.BuyerAddress;
+import com.koleshop.appkoleshop.services.RegistrationIntentService;
+import com.koleshop.appkoleshop.ui.seller.activities.HomeActivity;
 import com.koleshop.appkoleshop.util.CommonUtils;
+import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.ui.seller.activities.SelectSellerCategoryActivity;
+import com.koleshop.appkoleshop.util.RealmUtils;
 
 import java.io.IOException;
 
 import butterknife.Bind;
+import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
@@ -58,15 +68,19 @@ public class InitialActivity extends AppCompatActivity {
     Context mContext;
 
     @Bind(R.id.btn_sell_initial)
-    ImageButton btnSell;
+    ImageButton buttonSell;
     @Bind(R.id.btn_buy_initial)
-    ImageButton btnBuy;
+    ImageButton buttonBuy;
     @Bind(R.id.pb_initial_activity)
     ProgressBar progressBar;
     @BindString(R.string.google_api_scope)
     String GOOGLE_API_SCOPE;
     @Bind(R.id.imageViewShopLogo)
     ImageView imageViewLogo;
+    @Bind(R.id.textViewShopDescription)
+    TextView textViewShopDescription;
+    @BindDimen(R.dimen.initial_screen_logo_height)
+    int logoHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +88,13 @@ public class InitialActivity extends AppCompatActivity {
         mContext = this;
         setContentView(R.layout.activity_initial);
         ButterKnife.bind(this);
-        showStartAnimation();
+        if (checkPlayServices()) {
+            thugLife();
+            loadUserProfileIfLoggedIn();
+        } else {
+            Log.i(TAG, "No valid Google Play Services APK found.");
+            return;
+        }
     }
 
     @Override
@@ -85,6 +105,7 @@ public class InitialActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        KoleshopUtils.showTheUpdateNotificationsIfRequired(mContext);
     }
 
 
@@ -108,6 +129,111 @@ public class InitialActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * first method that run in InitialActivity
+     */
+    private void thugLife() {
+
+        //1. delete the network request statuses
+        new AsyncTask<Void, Void, Void>(
+        ) {
+            @Override
+            protected Void doInBackground(Void... params) {
+                PreferenceUtils.deleteNetworkRequestStatusPreferences(mContext);
+                return null;
+            }
+        }.execute();
+
+        //2. update the token on the server if needed
+        boolean deviceIdSyncedToServer = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_DEVICE_ID_SYNCED_TO_SERVER);
+        if (!deviceIdSyncedToServer) {
+            Intent tokenRefreshIntent = new Intent(mContext, RegistrationIntentService.class);
+            tokenRefreshIntent.setAction(RegistrationIntentService.REGISTRATION_INTENT_SERVICE_ACTION_UPDATE_TOKEN_ON_SERVER);
+            startService(tokenRefreshIntent);
+        }
+    }
+
+    /**
+     * second method that run in InitialActivity
+     */
+    private void loadUserProfileIfLoggedIn() {
+
+        Log.d(TAG, "will load user profile if logged in");
+        if (PreferenceUtils.isSessionTypeSeller(mContext)) {
+            //seller session
+            //if logged in
+            Log.d(TAG, "seller session logged in");
+            int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
+            if(currentRealmVersion<Constants.REALM_VERSION) {
+                RealmUtils.resetRealm(mContext);
+            }
+            if (CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0) {
+                //if settings setup is finished then open home
+                boolean settingsSetupFinished = PreferenceUtils.getPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED);
+                if (settingsSetupFinished) {
+                    //go to home activity
+                    Intent intent = new Intent(this, HomeActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } else {
+                    //go to get started activity
+                    Intent intent = new Intent(this, GetStartedActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+            } else {
+                showTheOptions();
+            }
+        } else if (PreferenceUtils.isSessionTypeBuyer(mContext)) {
+            //buyer session
+            Log.d(TAG, "buyer session logged in");
+            boolean userLoggedIn = CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0;
+            int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
+            if(currentRealmVersion<Constants.REALM_VERSION) {
+                RealmUtils.resetRealm(mContext);
+            }
+            BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
+            boolean deliveryLocationSelected = buyerAddress != null;
+            //if(userLoggedIn || deliveryLocationSelected) {
+            if (deliveryLocationSelected) {
+                Intent intent = new Intent(this, com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } else {
+                //user need to select the delivery location
+                showTheOptions();
+            }
+
+        } else {
+            //let the user choose the session type
+            showTheOptions();
+        }
+
+    }
+
+    private void showTheOptions() {
+        //animation will be shown
+        //buy/sell buttons will be shown
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                moveLogoFromCenterToOffset();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showAllUiAnimations();
+                    }
+                }, 1000);
+                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.notification_glance);
+                mp.start();
+            }
+        }, 1000);
+
+        /*Intent initialActivityIntent = new Intent(mContext, InitialActivity.class);
+        initialActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(initialActivityIntent);*/
+    }
+
     public void goBuy(View v) {
         sessionType = Constants.SESSION_TYPE_BUYER;
         next();
@@ -125,8 +251,8 @@ public class InitialActivity extends AppCompatActivity {
 
     private void setProgressing(boolean progressing) {
         progressBar.setVisibility(progressing ? View.VISIBLE : View.GONE);
-        btnBuy.setEnabled(!progressing);
-        btnSell.setEnabled(!progressing);
+        buttonBuy.setEnabled(!progressing);
+        buttonSell.setEnabled(!progressing);
     }
 
     public void goToNextScreen() {
@@ -162,56 +288,26 @@ public class InitialActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void showStartAnimation() {
-        moveLogoFromCenterToOffset(imageViewLogo, new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                startLogoScaleAnimation();
-                startTagLineAppearAnimation();
-                startButtonsRotateAnimation();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+    private void moveLogoFromCenterToOffset() {
+        imageViewLogo.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.pulse_logo_animation));
+        TranslateAnimation animationDescription = new TranslateAnimation(0, 0, 0, -200);
+        animationDescription.setDuration(1000);
+        animationDescription.setFillAfter(true);
+        textViewShopDescription.startAnimation(animationDescription);
     }
 
-    private void moveLogoFromCenterToOffset(View view, Animation.AnimationListener animationListener) {
-        RelativeLayout root = (RelativeLayout) findViewById(R.id.root_layout_initial_activity);
-        DisplayMetrics dm = new DisplayMetrics();
-        this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int statusBarOffset = dm.heightPixels - root.getMeasuredHeight();
+    private void showAllUiAnimations() {
+        textViewShopDescription.setVisibility(View.VISIBLE);
+        buttonBuy.setVisibility(View.VISIBLE);
+        buttonSell.setVisibility(View.VISIBLE);
 
-        int finalPos[] = new int[2];
-        view.getLocationOnScreen(finalPos);
+        AlphaAnimation alphaAnimation = new AlphaAnimation(0, 1);
+        alphaAnimation.setDuration(1000);
+        alphaAnimation.setFillAfter(true);
 
-        //int xCenter = dm.widthPixels / 2;
-        //xCenter -= (view.getMeasuredWidth() / 2);
-        int yCenter = dm.heightPixels / 2 - (view.getMeasuredHeight() / 2) - statusBarOffset;
-
-        TranslateAnimation anim = new TranslateAnimation(0, 0, yCenter, finalPos[1]);
-        anim.setDuration(1000);
-        anim.setFillAfter(true);
-        anim.setAnimationListener(animationListener);
-        view.startAnimation(anim);
-    }
-
-    private void startLogoScaleAnimation() {
-
-    }
-
-    private void startTagLineAppearAnimation() {
-
-    }
-
-    private void startButtonsRotateAnimation() {
+        textViewShopDescription.startAnimation(alphaAnimation);
+        buttonSell.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_clock_wise));
+        buttonBuy.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_counter_clock_wise));
 
     }
 
@@ -268,6 +364,7 @@ public class InitialActivity extends AppCompatActivity {
 
     private void internetConnectionCheck() {
         if (!CommonUtils.isConnectedToInternet(this)) {
+            setProgressing(false);
             Toast.makeText(this, R.string.not_online, Toast.LENGTH_LONG).show();
         }
     }
@@ -366,5 +463,14 @@ public class InitialActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }

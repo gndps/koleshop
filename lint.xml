@@ -1,0 +1,4 @@
+<lint>
+    <!-- TODO: Re-enable when butterknife is updated -->
+    <issue id="ResourceType" severity="Warning"/>
+</lint>

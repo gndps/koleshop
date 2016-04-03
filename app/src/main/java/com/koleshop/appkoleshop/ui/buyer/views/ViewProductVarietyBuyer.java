@@ -109,7 +109,7 @@ public class ViewProductVarietyBuyer extends RelativeLayout {
 
     private void loadImage() {
         if(variety!=null && !TextUtils.isEmpty(variety.getImageUrl())) {
-            final String imageUrl = KoleshopUtils.getThumbnailImageUrl(variety.getImageUrl());
+            final String imageUrl = KoleshopUtils.getSmallImageUrl(variety.getImageUrl());
             Picasso.with(context)
                     .load(imageUrl)
                     .networkPolicy(NetworkPolicy.OFFLINE)

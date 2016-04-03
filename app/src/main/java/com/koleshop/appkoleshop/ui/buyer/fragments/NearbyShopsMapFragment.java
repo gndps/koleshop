@@ -51,6 +51,8 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
     Context mContext;
     Marker userMarker;
     Marker nearestShopMarker;
+    Marker secondNearestShopMarker;
+    Marker thirdNearestShopMarker;
     BuyerAddress buyerAddress;
 
     // Declare a variable for the cluster manager.
@@ -112,6 +114,10 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
             Marker marker = addTheSellerMarker(seller);
             if (index == 0) {
                 nearestShopMarker = marker;
+            } else if (index == 1) {
+                secondNearestShopMarker = marker;
+            } else if (index == 2) {
+                thirdNearestShopMarker = marker;
             }
             index++;
         }
@@ -242,6 +248,12 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
 
         builder.include(userMarker.getPosition());
         builder.include(nearestShopMarker.getPosition());
+        if(secondNearestShopMarker!=null) {
+            builder.include(secondNearestShopMarker.getPosition());
+        }
+        if(thirdNearestShopMarker!=null) {
+            builder.include(thirdNearestShopMarker.getPosition());
+        }
         /* Bounds for showing all shops
         for (Marker markeru : markers.keySet()) {
             builder.include(markeru.getPosition());
@@ -250,7 +262,7 @@ public class NearbyShopsMapFragment extends SupportMapFragment implements OnMapR
         LatLngBounds bounds = builder.build();
 
         //camera update
-        int padding = 120; // offset from edges of the maep in pixels
+        int padding = 160; // offset from edges of the map in pixels
         try {
             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
             mGoogleMap.moveCamera(cu);

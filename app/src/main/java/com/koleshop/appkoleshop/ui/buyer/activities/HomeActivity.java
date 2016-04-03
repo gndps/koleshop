@@ -39,7 +39,6 @@ import com.koleshop.appkoleshop.ui.common.activities.LegalActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
 import com.koleshop.appkoleshop.ui.common.interfaces.FragmentHomeActivityListener;
-import com.koleshop.appkoleshop.ui.seller.fragments.DummyHomeFragment;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
@@ -86,6 +85,8 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     String titleAddresses;
     @BindString(R.string.navigation_drawer_my_orders)
     String titleMyOrders;
+    @BindString(R.string.login_to_set_picture)
+    String loginToSetPicture;
     private boolean firstTime;
     private boolean openMyOrders;
 
@@ -207,7 +208,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             @Override
             public void onClick(View v) {
                 if (!PreferenceUtils.isUserLoggedIn(mContext)) {
-                    Snackbar.make(imageViewAvatar, R.string.login_to_set_picture, Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(imageViewAvatar, loginToSetPicture, Snackbar.LENGTH_SHORT).show();
                 } else {
                     Intent intentChangePicture = new Intent(mContext, ChangePictureActivity.class);
                     intentChangePicture.putExtra("buyerMode", true);
@@ -289,6 +290,8 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             refreshAvatar = true;
         }
 
+        imageViewAvatar.setImageResource(R.drawable.ic_user_profile);
+
         if (refreshAvatar) {
             if (!TextUtils.isEmpty(imageViewAvatarUrl)) {
                 imageViewAvatarUrl = KoleshopUtils.getThumbnailImageUrl(imageViewAvatarUrl);
@@ -321,8 +324,6 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                                         });
                             }
                         });
-            } else {
-                imageViewAvatar.setImageResource(R.drawable.ic_user_profile);
             }
         }
 
@@ -739,7 +740,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
 
             builder.show();
         } else {
-            Snackbar.make(navigationView, "Only logged in users can change this", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(navigationView, loginToSetPicture, Snackbar.LENGTH_SHORT).show();
         }
     }
 

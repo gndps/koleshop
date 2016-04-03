@@ -122,7 +122,9 @@ public class MyOrdersFragment extends Fragment {
                         }
                         break;
                     case Constants.ACTION_ORDERS_FETCH_FAILED:
-                        if (orders == null || orders.isEmpty()) {
+                        if(!PreferenceUtils.isUserLoggedIn(mContext)) {
+                            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_NO_ORDERS);
+                        } else if (orders == null || orders.isEmpty()) {
                             viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_SOME_PROBLEM);
                         } else {
                             progressBarLoadMore.setVisibility(View.GONE);
@@ -147,7 +149,9 @@ public class MyOrdersFragment extends Fragment {
                         }
                         break;
                     case Constants.ACTION_ORDER_UPDATE_NOTIFICATION:
+                        Log.d(TAG, "order update notification in my orders fragment");
                         Long orderId = intent.getLongExtra("orderId", 0);
+                        Log.d(TAG, "order id = " + orderId);
                         if (orderId > 0) {
                             int newOrderStatus = intent.getIntExtra("status", 0);
                             if (newOrderStatus == OrderStatus.ACCEPTED) {
@@ -260,7 +264,9 @@ public class MyOrdersFragment extends Fragment {
         recyclerView.setLayoutManager(mLinearLayoutManager);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        setupScrollListenerOnRv();
+        if(orders.size() == ORDERS_LOAD_COUNT) {
+            setupScrollListenerOnRv();
+        }
     }
 
     private void loadMoreOrders() {

@@ -77,17 +77,20 @@ public class MyGcmListenerService extends GcmListenerService {
                     lbm.sendBroadcast(localBroadcastIntent);
                     break;
                 case GCM_NOTI_DELETE_OLD_SETTINGS_CACHE:
-                    Log.d(TAG, "user settings updated message received");
+                    //this module is deactivated for now
+                    /*Log.d(TAG, "user settings updated message received");
                     Log.d(TAG, "clearing seller settings so that it get updated on opening next time");
                     SettingsIntentService.refreshSellerSettings(this);
                     RealmUtils.clearSellerSettings(mContext);
                     Intent intent = new Intent(Constants.ACTION_RELOAD_SETTINGS);
                     LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
-                    localBroadcastManager.sendBroadcast(intent);
+                    localBroadcastManager.sendBroadcast(intent);*/
                     break;
                 case GCM_NOTI_ORDER_UPDATED:
+                    Log.d(TAG, "gcm order updated received");
                     try {
                         int orderStatus = Integer.parseInt(data.getString("status"));
+                        Log.d(TAG, "order status = " + orderStatus);
                         Long orderId = Long.valueOf(data.getString("orderId"));
                         String name = data.getString("name");
                         float amount = Float.parseFloat(data.getString("amount"));
@@ -98,9 +101,10 @@ public class MyGcmListenerService extends GcmListenerService {
                         orderUpdatedIntent.putExtra("name", name);
                         orderUpdatedIntent.putExtra("amount", amount);
                         orderUpdatedIntent.putExtra("imageUrl", imageUrl);
+                        Log.d(TAG, "broadcasting order update");
                         sendOrderedBroadcast(orderUpdatedIntent, null);
                     } catch (Exception e) {
-                        Log.e(TAG, "problem in order updated", e);
+                        Log.e(TAG, "problem in order updated notification", e);
                     }
                     break;
                 default:

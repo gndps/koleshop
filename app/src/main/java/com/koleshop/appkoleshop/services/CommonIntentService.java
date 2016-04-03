@@ -69,6 +69,10 @@ public class CommonIntentService extends IntentService {
         context.startService(intent);
     }
 
+    public boolean loadEssentialInformationSync(boolean isBuyer) {
+        return loadEssentialInfo(isBuyer);
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         realm = Realm.getInstance(getApplicationContext());
@@ -170,7 +174,9 @@ public class CommonIntentService extends IntentService {
                 String isWifiConnected = intent.getStringExtra("isWifiConnected");
                 String userId = intent.getStringExtra("userId");
                 String sessionId = intent.getStringExtra("sessionId");
-                saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLat, gpsLong, networkName, isWifiConnected, userId, sessionId);
+                String version = intent.getStringExtra("version");
+                String versionCode = intent.getStringExtra("versionCode");
+                saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLat, gpsLong, networkName, isWifiConnected, userId, sessionId, version, versionCode);
             } else if (ACTION_LOAD_ESSENTIAL_INFO.equals(action)) {
                 boolean isBuyer = intent.getBooleanExtra("isBuyer", false);
                 loadEssentialInfo(isBuyer);
@@ -865,7 +871,7 @@ public class CommonIntentService extends IntentService {
 
     private void saveFeedback(String message, String deviceModel, String deviceManufacturer, String osVersion,
                               String heightDp, String widthDp, String screenSize, String deviceTime, String sessionType,
-                              String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId) {
+                              String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId, String version, String versionCode) {
         CommonEndpoint commonEndpoint = null;
         CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -890,7 +896,7 @@ public class CommonIntentService extends IntentService {
             int maxTries = 3;
             while (count < maxTries) {
                 try {
-                    result = commonEndpoint.saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLong, gpsLat, networkName, isWifiConnected, userId, sessionId).execute();
+                    result = commonEndpoint.saveFeedback(message, deviceModel, deviceManufacturer, osVersion, heightDp, widthDp, screenSize, deviceTime, sessionType, gpsLong, gpsLat, networkName, isWifiConnected, userId, sessionId, version, versionCode).execute();
                     count = maxTries;
                 } catch (Exception e) {
                     Log.e(TAG, "exception", e);
@@ -915,10 +921,11 @@ public class CommonIntentService extends IntentService {
 
     public static void saveFeedback(Context context, String message, String deviceModel, String deviceManufacturer, String osVersion,
                                     String heightDp, String widthDp, String screenSize, String deviceTime, String sessionType,
-                                    String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId) {
+                                    String gpsLat, String gpsLong, String networkName, String isWifiConnected, String userId, String sessionId,
+                                    String version, String versionCode) {
         Intent intent = new Intent(context, CommonIntentService.class);
         intent.setAction(ACTION_SAVE_FEEDBACK);
-        intent.putExtra("message", message!=null?message:"");
+        intent.putExtra("message", message != null ? message : "");
         intent.putExtra("deviceModel", deviceModel!=null?deviceModel:"");
         intent.putExtra("deviceManufacturer", deviceManufacturer!=null?deviceManufacturer:"");
         intent.putExtra("osVersion", osVersion!=null?osVersion:"");
@@ -933,10 +940,12 @@ public class CommonIntentService extends IntentService {
         intent.putExtra("isWifiConnected", isWifiConnected!=null?isWifiConnected:"");
         intent.putExtra("userId", userId!=null?userId:"");
         intent.putExtra("sessionId", sessionId!=null?sessionId:"");
+        intent.putExtra("version", version!=null?version:"");
+        intent.putExtra("versionCode", versionCode!=null?versionCode:"");
         context.startService(intent);
     }
 
-    private void loadEssentialInfo(boolean isBuyer) {
+    private boolean loadEssentialInfo(boolean isBuyer) {
         CommonEndpoint commonEndpoint = null;
         CommonEndpoint.Builder builder = new CommonEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -974,16 +983,24 @@ public class CommonIntentService extends IntentService {
         if (result == null || !result.getSuccess()) {
             //save feedback failed
             Log.e(TAG, "get Essential Info failed");
+            return false;
         } else {
             Log.d(TAG, "get Essential Info success");
             //success...save essential info to realm
-            EssentialInfo essentialInfo = new EssentialInfo();
-            ArrayMap<String, Object> arrayMap = (ArrayMap<String, Object>) result.getData();
-            essentialInfo.setCallUsPhone(Long.valueOf((String) arrayMap.get("callUsPhone")));
-            essentialInfo.setApiVersion(((BigDecimal) arrayMap.get("apiVersion")).intValue());
-            RealmUtils.saveEssentialInfo(essentialInfo);
-
-
+            try {
+                EssentialInfo essentialInfo = new EssentialInfo();
+                ArrayMap<String, Object> arrayMap = (ArrayMap<String, Object>) result.getData();
+                essentialInfo.setCallUsPhone(Long.valueOf((String) arrayMap.get("callUsPhone")));
+                essentialInfo.setApiVersion(((BigDecimal) arrayMap.get("apiVersion")).intValue());
+                essentialInfo.setLatestAppVersion((String) arrayMap.get("latestAppVersion"));
+                essentialInfo.setDeprecatedAppVersion((String) arrayMap.get("deprecatedAppVersion"));
+                essentialInfo.setDeprecatedDate(Long.valueOf((String) arrayMap.get("deprecatedDate")));
+                essentialInfo.setDateToday(Long.valueOf((String) arrayMap.get("dateToday")));
+                RealmUtils.saveEssentialInfo(essentialInfo);
+            } catch (Exception e) {
+                Log.e(TAG, "some problem in parsing essential info", e);
+            }
+            return true;
         }
     }
 

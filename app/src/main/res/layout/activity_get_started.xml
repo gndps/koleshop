@@ -34,7 +34,7 @@
                 android:layout_marginTop="48dp"
                 android:fontFamily="sans-serif-light"
                 android:gravity="center"
-                android:text="Yippie!!\nYour shopkeeper account is active now" />
+                android:text="Shopkeeper account created!!" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -69,7 +69,8 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:gravity="center">
 
             <ProgressBar
                 android:layout_width="40dp"

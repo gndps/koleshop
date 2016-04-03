@@ -378,8 +378,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(homeActivityBroadcastReceiver);
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(homeActivityBroadcastReceiver);
     }
 
     @Override

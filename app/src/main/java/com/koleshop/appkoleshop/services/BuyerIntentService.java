@@ -192,20 +192,28 @@ public class BuyerIntentService extends IntentService {
             if (list != null && list.size() > 0) {
                 for (ArrayMap<String, Object> map : list) {
                     if (map != null) {
+                        Log.d(TAG, "--- get nearby shops --- 0");
                         SellerSettings sellerSettings = CloudEndpointDataExtractionUtil.getSellerSettings(map);
+                        Log.d(TAG, "--- get nearby shops --- 0.1");
                         sellerSettingsList.add(sellerSettings);
                     }
                 }
             }
+            Log.d(TAG, "--- get nearby shops --- 1");
 
             Intent intentNearbyShops = new Intent(Constants.ACTION_NEARBY_SHOPS_RECEIVE_SUCCESS);
 
             if (sellerSettingsList != null && sellerSettingsList.size() > 0) {
+                Log.d(TAG, "--- get nearby shops --- 2");
                 //nearby shops received successfully - now parcel with the broadcast
                 Parcelable parcelableListOfNearbyShops = Parcels.wrap(sellerSettingsList);
+                Log.d(TAG, "--- get nearby shops --- 3");
                 Parcelable parcelableBuyerAddress = Parcels.wrap(buyerAddress);
+                Log.d(TAG, "--- get nearby shops --- 4");
                 intentNearbyShops.putExtra("nearbyShopsList", parcelableListOfNearbyShops);
+                Log.d(TAG, "--- get nearby shops --- 5");
                 intentNearbyShops.putExtra("buyerAddress", parcelableBuyerAddress);
+                Log.d(TAG, "--- get nearby shops --- 6");
             }
 
             intentNearbyShops.putExtra("offset", offset);

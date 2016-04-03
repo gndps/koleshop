@@ -112,7 +112,7 @@ public class KoleshopNotificationUtils {
                             PendingIntent.FLAG_UPDATE_CURRENT
                     );
             mBuilder.setContentIntent(notifyIntent);
-            Uri notificationSound = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_glance);
+            Uri notificationSound = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_favorite);
             mBuilder.setSound(notificationSound);
             mBuilder.setAutoCancel(true);
             mBuilder.setSmallIcon(R.drawable.ic_stat_koleshop_noti);
@@ -248,7 +248,7 @@ public class KoleshopNotificationUtils {
                             PendingIntent.FLAG_UPDATE_CURRENT
                     );
             mBuilder.setContentIntent(resultPendingIntent);
-            Uri notificationSound = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_glance);
+            Uri notificationSound = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_favorite);
             mBuilder.setSound(notificationSound);
             mBuilder.setSmallIcon(R.drawable.ic_stat_koleshop_noti);
             Log.d(TAG, "created notification");
@@ -287,7 +287,7 @@ public class KoleshopNotificationUtils {
                     status = "Your order is ready for pickup";
                     break;
                 case OrderStatus.REJECTED:
-                    status = "Your order was declined";
+                    status = "Your order was not accepted by shopkeeper";
                     break;
                 case OrderStatus.NOT_DELIVERED:
                     status = "Your order could not be delivered";
@@ -392,6 +392,37 @@ public class KoleshopNotificationUtils {
             orderLite.removeFromRealm();
             realm.commitTransaction();
             realm.close();
+        }
+    }
+
+    public static void notifyAppUpdate(Context context, boolean immediate, int numberOfDaysInDeprecation) {
+        if(immediate) {
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(context)
+                            .setLargeIcon(ImageUtils.getBitmapFromDrawableResource(context, android.R.drawable.stat_notify_error))
+            .setSmallIcon(R.drawable.ic_stat_koleshop_noti)
+            .setContentTitle("Please update to the latest version")
+            .setContentText("This version of Koleshop is not working anymore. Please update the app from Play Store.");
+            mBuilder.setAutoCancel(true);
+            Uri uri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            mBuilder.setSound(uri);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(99999999, mBuilder.build());
+        } else {
+            String updateText = "This version of Koleshop will stop working in " + numberOfDaysInDeprecation + " days. Please update the app from Play Store.";
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(context)
+                            .setLargeIcon(ImageUtils.getBitmapFromDrawableResource(context, android.R.drawable.stat_notify_error))
+                            .setSmallIcon(R.drawable.ic_stat_koleshop_noti)
+                            .setContentTitle("Please update to the latest version")
+                            .setContentText(updateText);
+            mBuilder.setAutoCancel(true);
+            //Uri uri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            //mBuilder.setSound(uri);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(99999999, mBuilder.build());
         }
     }
 

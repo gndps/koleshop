@@ -178,7 +178,7 @@ public class RealmUtils {
     }
 
     public static void resetRealm(Context mContext) {
-        String TAG = "RealmUtils";
+        Log.d(TAG, "Resetting Realm...");
         try {
             Realm.deleteRealm(new RealmConfiguration.Builder(mContext).name("default.realm").build());
             PreferenceUtils.setPreferencesFlag(mContext, Constants.FLAG_PRODUCT_CATEGORIES_LOADED, false);
@@ -201,16 +201,24 @@ public class RealmUtils {
     }
 
     public static void saveSellerSettings(SellerSettings sellerSettings) {
+        Log.d(TAG, "saving seller settings into realm");
+        Log.d(TAG, "seller settings = " + sellerSettings.toString());
+        boolean transactionOpen = false;
+        Realm realm = Realm.getDefaultInstance();
         try {
             if (sellerSettings != null) {
-                Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
+                transactionOpen = true;
                 realm.copyToRealmOrUpdate(sellerSettings);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            if (transactionOpen) {
                 realm.commitTransaction();
                 realm.close();
             }
-        } catch (Exception e) {
-            Log.e(TAG,"some problem in saving seller settings to realm", e);
+            Log.e(TAG, "some problem in saving seller settings to realm", e);
         }
     }
 

@@ -29,14 +29,13 @@ public class Constants {
     public static int ADDRESS_TYPE_BUYER = 0;
     public static int ADDRESS_TYPE_SELLER = 1;
 
-    //public static String SERVER_URL_DEV = "https://koleshop-1.appspot.com/_ah/api/"; //development url
     //server url is set from application class (volley util)
-    public static String SERVER_URL;// = "https://koleshop-green.appspot.com/_ah/api/"; //production url
+    public static String SERVER_URL;
     public static String LOCAL_SERVER_URL = "10.0.3.2:8080"; //local url
 
     //configurable constants
     public static boolean KOLE_CACHE_ALLOWED = true;
-    public static int REALM_VERSION = 2;
+    public static int REALM_VERSION = 3;
 
     public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
     public static String PUBLIC_PROFILE_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/profile/";
@@ -146,6 +145,7 @@ public class Constants {
     public static final String KEY_FAVORITE_SHOP_ID = "pref_favorite_shop_id";
     public static final String KEY_FAVORITE_SHOP_NAME = "pref_favorite_shop_name";
     public static final String KEY_CURRENT_REALM_VERSION = "pref_current_realm_version";
+    public static final String KEY_LAST_UPDATE_NOTIFICATION_SHOWN_DATE = "pref_last_update_noti_shown_date";
 
     //Preferences Flags
     public static final String FLAG_PRODUCT_CATEGORIES_LOADED = "product_categories_loaded";
@@ -179,5 +179,8 @@ public class Constants {
     //Business logic constants
     public static final int DELIVERY_DISTANCE_APPROXIMATION_ERROR = 100; // 100 meters
     public static final int DEFAULT_COUNTRY_CODE = 91;
+    //notify users only is app will stop working in 15 day...but if it will stop working in 20 days...then don't notify
+    public static final int NOTIFY_USERS_ABOUT_UPDATE_BEFORE_APP_STOP_WORKING_IN_DAYS = 15;
+    public static final int MINIMUM_DAYS_BW_CONSECUTIVE_NOTIFICATIONS = 5;
 
 }

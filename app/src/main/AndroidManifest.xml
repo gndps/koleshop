@@ -34,11 +34,11 @@
     <application
         android:name=".network.volley.VolleyUtil"
         android:allowBackup="true"
-        android:icon="@mipmap/koleshop_logo"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme.Base">
         <activity
-            android:name=".ui.common.activities.SplashActivity"
+            android:name=".ui.common.activities.InitialActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name">
             <intent-filter>
@@ -231,7 +231,6 @@
             android:name=".services.NotificationIntentService"
             android:exported="false" />
 
-        <activity android:name=".ui.common.activities.InitialActivity"></activity>
     </application>
 
 </manifest>

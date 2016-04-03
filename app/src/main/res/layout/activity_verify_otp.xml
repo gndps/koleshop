@@ -20,6 +20,7 @@
             android:paddingLeft="72dp"
             android:shadowColor="@color/accent_material_dark"
             android:text="@string/login_screen_heading"
+            android:paddingBottom="16dp"
             android:textSize="30sp" />
 
         <ProgressBar

@@ -2,6 +2,7 @@ package com.koleshop.appkoleshop.model.parcel;
 
 import org.parceler.Parcel;
 
+import io.realm.AddressRealmProxy;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -9,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by gundeepsingh on 29/08/14.
  */
 
-@Parcel(//implementations = {AddressRealmProxy.class},
+@Parcel(implementations = {AddressRealmProxy.class},
         value = Parcel.Serialization.BEAN,
         analyze = {Address.class})
 public class Address extends RealmObject {

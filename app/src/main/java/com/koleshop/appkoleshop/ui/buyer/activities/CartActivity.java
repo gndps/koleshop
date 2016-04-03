@@ -86,7 +86,6 @@ public class CartActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(com.koleshop.appkoleshop.R.menu.menu_cart_activity, menu);
-
         return true;
     }
 
