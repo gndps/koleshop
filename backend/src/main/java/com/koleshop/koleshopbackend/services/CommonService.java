@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -391,7 +392,7 @@ public class CommonService {
             String latestAppVersion = rs.getString("latest_app_version");
             String deprecatedAppVersion = rs.getString("deprecated_app_version");
             Long deprecatedDate = rs.getTimestamp("deprecated_date")!=null?rs.getTimestamp("deprecated_date").getTime():Constants.TIME_IN_FAR_FUTURE;
-            Long dateToday = rs.getTimestamp("date_today").getTime();
+            Long dateToday = rs.getDate("date_today")!=null?rs.getTimestamp("date_today").getTime():new Date().getTime();
             EssentialInfo essentialInfo = new EssentialInfo(callUsPhone, apiVersion, latestAppVersion, deprecatedAppVersion, deprecatedDate, dateToday);
 
             KoleResponse response = new KoleResponse();
@@ -400,7 +401,7 @@ public class CommonService {
             DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
             return response;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "problem while capturing feedback", e);
+            logger.log(Level.SEVERE, "problem while getting essential info", e);
             return KoleResponse.failedResponse();
         } finally {
             DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
