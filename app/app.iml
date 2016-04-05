@@ -170,8 +170,8 @@
     <orderEntry type="library" exported="" name="library-material-1.1.0" level="project" />
     <orderEntry type="library" exported="" name="dspec-0.1.1" level="project" />
     <orderEntry type="library" exported="" name="palette-v7-23.0.0" level="project" />
-    <orderEntry type="library" exported="" name="google-http-client-android-1.20.0" level="project" />
     <orderEntry type="library" exported="" name="parceler-api-1.0.4" level="project" />
+    <orderEntry type="library" exported="" name="google-http-client-android-1.20.0" level="project" />
     <orderEntry type="library" exported="" name="com.amulyakhare.textdrawable-1.0.1" level="project" />
     <orderEntry type="library" exported="" name="superslim-0.4.13" level="project" />
     <orderEntry type="library" exported="" name="org.apache.http.legacy-android-23" level="project" />
