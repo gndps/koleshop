@@ -331,7 +331,12 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
                     String timeRemainingString = "";
                     if (!CommonUtils.isTimeInPast(actualDeliveryTime)) {
                         timeRemainingString = "Delivering in ";
-                        timeRemainingString += CommonUtils.getRelativeTime(actualDeliveryTime);
+                        String relativeTimeString = CommonUtils.getRelativeTime(actualDeliveryTime);
+                        if(TextUtils.isEmpty(relativeTimeString)) {
+                            timeRemainingString = "Delivering";
+                        } else {
+                            timeRemainingString += relativeTimeString;
+                        }
                     } else {
                         timeRemainingString = "Delivering";
                     }

@@ -159,6 +159,7 @@ public class PreferenceUtils {
 
     public static int getCurrentRealmVersion(Context mContext) {
         String currentRealmVersion = PreferenceUtils.getPreferences(mContext, Constants.KEY_CURRENT_REALM_VERSION);
+        Log.d(TAG, "currentRealmVersion = " + currentRealmVersion);
         if(TextUtils.isEmpty(currentRealmVersion)) {
             return 0;
         } else {

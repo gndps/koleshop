@@ -195,6 +195,10 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
                     saveProduct();
                 }
                 return true;
+            case R.id.action_create_similar:
+                //remove all ids from product and product variety
+                createSimilarProduct();
+                return true;
             /*case R.id.action_discard_product_changes:
                 processingAnimation(false);
                 onBackPressed();*/
@@ -712,6 +716,17 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
             }
         }).show();
 
+    }
+
+    private void createSimilarProduct() {
+        for(EditProductVar productVar : product.getEditProductVars()) {
+            productVar.setId(0l);
+        }
+        product.setId(0l);
+        Intent intent = new Intent(mContext, ProductActivity.class);
+        intent.putExtra("product", Parcels.wrap(product));
+        finish();
+        startActivity(intent);
     }
 
     protected void setupParent(View view) {

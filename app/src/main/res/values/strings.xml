@@ -83,7 +83,7 @@
         <item>Gallery</item>
     </string-array>
 
-    <string name="pick_account">A google account is required to proceed</string>
+    <string name="pick_account">Please pick an account to proceed</string>
     <string name="not_online">Please check your connection</string>
     <string name="login_screen_heading">Koleshop Login</string>
 
@@ -189,5 +189,6 @@
     <string name="send_feedback">Send Feedback</string>
     <string name="empty_cart">No items in the cart\n\nYou can search or add from shops</string>
     <string name="no_out_of_stock">No items out of stock</string>
+    <string name="action_create_similar">Create Similar Product</string>
 
 </resources>
