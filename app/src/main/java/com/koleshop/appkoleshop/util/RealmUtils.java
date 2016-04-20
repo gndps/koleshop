@@ -63,16 +63,20 @@ public class RealmUtils {
         return address;
     }
 
-    public static void createBuyerAddress(Double gpsLong, Double gpsLat, boolean defaultAddress) {
+    public static void createBuyerAddress(Double gpsLong, Double gpsLat) {
         Realm realm = Realm.getDefaultInstance();
+        RealmResults<BuyerAddress> realmAddresses = realm.where(BuyerAddress.class).findAll();
         realm.beginTransaction();
+        for(BuyerAddress realmAddress : realmAddresses) {
+            realmAddress.setDefaultAddress(false);
+        }
         BuyerAddress buyerAddress = realm.createObject(BuyerAddress.class);
         buyerAddress.setGpsLong(gpsLong);
         buyerAddress.setGpsLat(gpsLat);
         buyerAddress.setValidAddress(true);
         buyerAddress.setUpdatedDate(new Date());
         buyerAddress.setCountryCode(Constants.DEFAULT_COUNTRY_CODE);
-        buyerAddress.setDefaultAddress(defaultAddress);
+        buyerAddress.setDefaultAddress(true);
         buyerAddress.setAddressType(Constants.ADDRESS_TYPE_BUYER);
         realm.commitTransaction();
         realm.close();

@@ -175,7 +175,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(mContext);
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_CREATED_SUCCESS));
         lbm.registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_ORDER_CREATED_FAILED));
-        if(placeOrderOnResumeIfUserHasLoggedIn) {
+        if(placeOrderOnResumeIfUserHasLoggedIn && CommonUtils.isUserLoggedIn(mContext)) {
             placeOrder();
         }
     }
@@ -305,15 +305,19 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
         if (validateOrder()) {
             //check if user is signed up
             Long userId = PreferenceUtils.getUserId(mContext);
+            BuyerAddress buyerAddress = deliveryAddressesFragment.getSelectedAddress();
             if (userId <= 0) {
                 //start login activity
                 placeOrderOnResumeIfUserHasLoggedIn = true;
                 Intent intent = new Intent(mContext, VerifyPhoneNumberActivity.class);
                 intent.putExtra("finishOnVerify", true);
+                if (buyerAddress != null && buyerAddress.getPhoneNumber()!=null && buyerAddress.getPhoneNumber() > 10000) {
+                    String phoneNumber = String.valueOf(buyerAddress.getPhoneNumber());
+                    intent.putExtra("userPhoneNumber", phoneNumber);
+                }
                 startActivity(intent);
             } else {
                 //start processing order and show order screen when order is placed
-                BuyerAddress buyerAddress = deliveryAddressesFragment.getSelectedAddress();
                 if (buyerAddress != null) {
                     //01. save buyer address to db
                     Address address = new Address();

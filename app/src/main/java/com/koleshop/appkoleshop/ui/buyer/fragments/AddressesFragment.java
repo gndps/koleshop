@@ -263,7 +263,7 @@ public class AddressesFragment extends Fragment implements AddressRvAdapter.Addr
                     Double gpsLong = data.getDoubleExtra("gpsLong", 0l);
                     Double gpsLat = data.getDoubleExtra("gpsLat", 0l);
                     if(gpsLat>0 && gpsLong>0) {
-                        RealmUtils.createBuyerAddress(gpsLong, gpsLat, false);
+                        RealmUtils.createBuyerAddress(gpsLong, gpsLat);
                         loadAddressesFromRealm();
                     } else {
                         Toast.makeText(mContext, "Some problem occurred in creating address", Toast.LENGTH_SHORT).show();

@@ -11,6 +11,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,6 +48,7 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
     boolean skipAllowed;
     private BroadcastReceiver verifyActivityBroadcastReceiver;
     boolean finishOnVerify;
+    String userPhoneNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +69,13 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
         addTextListener();
         if(savedInstanceState!=null) {
             finishOnVerify = savedInstanceState.getBoolean("finishOnVerify");
+            userPhoneNumber = savedInstanceState.getString("userPhoneNumber");
         } else if(getIntent()!=null && getIntent().getExtras()!=null) {
             finishOnVerify = getIntent().getExtras().getBoolean("finishOnVerify");
+            userPhoneNumber = getIntent().getExtras().getString("userPhoneNumber");
+        }
+        if(!TextUtils.isEmpty(userPhoneNumber)) {
+            editTextPhone.setText(userPhoneNumber);
         }
     }
 
@@ -101,6 +108,7 @@ public class VerifyPhoneNumberActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("finishOnVerify", finishOnVerify);
+        outState.putString("userPhoneNumber", userPhoneNumber);
     }
 
     private void initializeBroadcastReceivers() {
