@@ -460,6 +460,9 @@ public class CommonUtils {
     }
 
     public static String getRelativeTime(Date date) {
+        if(date == null) {
+            return "";
+        }
         Long timeDifference = date.getTime() - new Date().getTime();
         String relativeTime;
         //date is in future

@@ -55,16 +55,19 @@ public class MyGcmListenerService extends GcmListenerService {
 
         if (from.startsWith("/topics/")) {
             // message received from some topic.
-            //not in use
+            // not in use
         } else {
             // normal downstream message.
-            handleGcmMessage(data);
+            if(CommonUtils.isUserLoggedIn(this)) {
+                handleGcmMessage(data);
+            }
         }
 
     }
 
     private void handleGcmMessage(Bundle data) {
         String type = data.getString("type");
+        Log.d(TAG, "<<<<gcm message received>>>>");
         Context mContext = getApplicationContext();
         String sessionType = "";
         if (type != null && !type.isEmpty()) {

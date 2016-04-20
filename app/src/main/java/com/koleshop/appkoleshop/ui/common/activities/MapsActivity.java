@@ -322,7 +322,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Intent intent = new Intent(this, HomeActivity.class);
             intent.putExtra("firstTime", true);
             //save gps long/lat in shared preferences
-            RealmUtils.createBuyerAddress(gpsLong, gpsLat, true);
+            Log.d(TAG, "creating buyer address with gps Long and Lat");
+            RealmUtils.createBuyerAddress(gpsLong, gpsLat);
             /*SharedPreferences.Editor editor = PreferenceUtils.getSharedPreferencesEditor(this);
             editor.putLong(Constants.KEY_GPS_LAT, Double.doubleToRawLongBits(gpsLat));
             editor.putLong(Constants.KEY_GPS_LONG, Double.doubleToRawLongBits(gpsLong));

@@ -12,11 +12,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
@@ -90,7 +88,8 @@ public class InitialActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         if (checkPlayServices()) {
             thugLife();
-            loadUserProfileIfLoggedIn();
+            realmMigrate();
+            configureHomePage();
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
             return;
@@ -134,7 +133,9 @@ public class InitialActivity extends AppCompatActivity {
      */
     private void thugLife() {
 
-        //1. delete the network request statuses
+        Log.d(TAG, "!! living thug life !!");
+
+        //1. DELETE THE NETWORK REQUEST STATUSES
         new AsyncTask<Void, Void, Void>(
         ) {
             @Override
@@ -144,71 +145,84 @@ public class InitialActivity extends AppCompatActivity {
             }
         }.execute();
 
-        //2. update the token on the server if needed
+        //2. UPDATE THE TOKEN ON SERVER IF REQD
         boolean deviceIdSyncedToServer = PreferenceUtils.getPreferencesFlag(mContext, Constants.FLAG_DEVICE_ID_SYNCED_TO_SERVER);
+        Log.d(TAG, "device id synced to server = " + deviceIdSyncedToServer);
         if (!deviceIdSyncedToServer) {
             Intent tokenRefreshIntent = new Intent(mContext, RegistrationIntentService.class);
             tokenRefreshIntent.setAction(RegistrationIntentService.REGISTRATION_INTENT_SERVICE_ACTION_UPDATE_TOKEN_ON_SERVER);
+            Log.d(TAG, "refreshing token");
             startService(tokenRefreshIntent);
         }
     }
 
     /**
      * second method that run in InitialActivity
+     * Load the user if logged in | buyer/seller home activity is loaded according to session
+     * If user is not logged in, then the home page to choose buyer/seller is shown
      */
-    private void loadUserProfileIfLoggedIn() {
+    private void configureHomePage() {
 
-        Log.d(TAG, "will load user profile if logged in");
+        Log.d(TAG, "checking user login status");
         if (PreferenceUtils.isSessionTypeSeller(mContext)) {
             //seller session
             //if logged in
             Log.d(TAG, "seller session logged in");
-            int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
-            if(currentRealmVersion<Constants.REALM_VERSION) {
-                RealmUtils.resetRealm(mContext);
-            }
             if (CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0) {
                 //if settings setup is finished then open home
+                Log.d(TAG, "user id is not null");
                 boolean settingsSetupFinished = PreferenceUtils.getPreferencesFlag(this, Constants.FLAG_SELLER_SETTINGS_SETUP_FINISHED);
                 if (settingsSetupFinished) {
                     //go to home activity
+                    Log.d(TAG, "settings setup finished...opening home activity");
                     Intent intent = new Intent(this, HomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
                     //go to get started activity
+                    Log.d(TAG, "go to get started activity");
                     Intent intent = new Intent(this, GetStartedActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
             } else {
+                Log.d(TAG, "user id is null");
                 showTheOptions();
             }
         } else if (PreferenceUtils.isSessionTypeBuyer(mContext)) {
             //buyer session
             Log.d(TAG, "buyer session logged in");
             boolean userLoggedIn = CommonUtils.getUserId(mContext) != null && CommonUtils.getUserId(mContext) > 0;
-            int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
-            if(currentRealmVersion<Constants.REALM_VERSION) {
-                RealmUtils.resetRealm(mContext);
-            }
             BuyerAddress buyerAddress = RealmUtils.getDefaultUserAddress();
             boolean deliveryLocationSelected = buyerAddress != null;
+            Log.d(TAG, "deliveryLocationSelected = " + deliveryLocationSelected);
             //if(userLoggedIn || deliveryLocationSelected) {
             if (deliveryLocationSelected) {
+                Log.d(TAG, "starting home activity for buyer");
                 Intent intent = new Intent(this, com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             } else {
                 //user need to select the delivery location
+                Log.d(TAG, "user need to select delivery location");
                 showTheOptions();
             }
 
         } else {
             //let the user choose the session type
+            Log.d(TAG, "no session selected, showing the options");
             showTheOptions();
         }
 
+    }
+
+    private void realmMigrate() {
+        //this is a workaround of realm migration
+        int currentRealmVersion = PreferenceUtils.getCurrentRealmVersion(mContext);
+        Log.d(TAG, "realm version fix , current realm version" + currentRealmVersion);
+        if(currentRealmVersion<Constants.REALM_VERSION) {
+            RealmUtils.resetRealm(mContext);
+        }
     }
 
     private void showTheOptions() {
@@ -257,11 +271,15 @@ public class InitialActivity extends AppCompatActivity {
 
     public void goToNextScreen() {
         String token = PreferenceUtils.getPreferences(mContext, Constants.KEY_GOOGLE_API_TOKEN);
+        Log.d(TAG, "go to next screen");
         if (token != null && !token.isEmpty()) {
+            Log.d(TAG, "token is not null");
             if (sessionType == Constants.SESSION_TYPE_SELLER) {
+                Log.d(TAG, "session type - seller");
                 goToVerifyPhoneNumberScreen();
             } else {
-                setLocationToStartShopping();
+                Log.d(TAG, "session type - buyer | will choose delivery location");
+                chooseDeliveryLocation();
             }
         } else {
             if (checkPlayServices()) {
@@ -271,7 +289,7 @@ public class InitialActivity extends AppCompatActivity {
         }
     }
 
-    private void setLocationToStartShopping() {
+    private void chooseDeliveryLocation() {
         Intent mapsActivityIntent = new Intent(mContext, MapsActivity.class);
         mapsActivityIntent.putExtra("twoButtonMode", false);
         mapsActivityIntent.putExtra("title", getString(R.string.title_set_delivery_location));
