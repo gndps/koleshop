@@ -11,6 +11,13 @@
         android:title="@string/action_save_product"
         app:showAsAction="always|withText" />
 
+    <item
+        android:id="@+id/action_create_similar"
+        android:icon="@drawable/ic_refresh_grey600_24dp"
+        android:orderInCategory="200"
+        android:title="@string/action_create_similar"
+        app:showAsAction="never" />
+
     <!--item
         android:id="@+id/action_discard_product_changes"
         android:icon="@drawable/ic_close_white_24dp"
