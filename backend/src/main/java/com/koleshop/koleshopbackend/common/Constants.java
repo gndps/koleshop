@@ -54,7 +54,11 @@ public class Constants {
 	public static final String NEARBY_SHOPS_DISTANCE = "10000";
 
 
-	public static String PUBLIC_PRODUCT_IMAGE_FOLDER = "uploads/";
+	public static String PUBLIC_PRODUCT_IMAGE_FOLDER_LARGE = "product_images/l/";
+	public static String PUBLIC_PRODUCT_IMAGE_FOLDER_MEDIUM = "product_images/m/";
+	public static String PUBLIC_PRODUCT_IMAGE_FOLDER_SMALL = "product_images/s/";
+	public static int PRODUCT_IMAGE_MEDIUM_SIZE = 300;
+	public static int PRODUCT_IMAGE_SMALL_SIZE = 150;
 	public static String PUBLIC_PROFILE_IMAGE_FOLDER = "profile/";
 	public static String PUBLIC_PROFILE_IMAGE_THUMBNAIL_FOLDER = "profile_thumb/";
 

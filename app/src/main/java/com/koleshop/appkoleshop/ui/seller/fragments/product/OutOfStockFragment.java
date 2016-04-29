@@ -31,7 +31,7 @@ import org.parceler.Parcels;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindDrawable;
 import butterknife.BindString;
 import butterknife.ButterKnife;
@@ -39,13 +39,13 @@ import butterknife.OnClick;
 
 public class OutOfStockFragment extends Fragment implements OutOfStockAdapter.OutOfStockAdapterListener {
 
-    @Bind(R.id.view_flipper_fragment_out_of_stock)
+    @BindView(R.id.view_flipper_fragment_out_of_stock)
     ViewFlipper viewFlipper;
-    @Bind(R.id.rv_fragment_out_of_stock)
+    @BindView(R.id.rv_fragment_out_of_stock)
     RecyclerView recyclerView;
-    @Bind(R.id.tv_nothing_here_yet)
+    @BindView(R.id.tv_nothing_here_yet)
     TextView textViewNothingHereYet;
-    @Bind(R.id.iv_nothing_here_yet)
+    @BindView(R.id.iv_nothing_here_yet)
     ImageView imageViewNothingHereYet;
     @BindDrawable(R.drawable.ic_pinky_pipni)
     Drawable pinkyHappy;

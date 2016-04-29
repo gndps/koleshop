@@ -31,7 +31,7 @@ import org.parceler.Parcels;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -39,11 +39,11 @@ import butterknife.ButterKnife;
  */
 public class AddressesFragment extends Fragment implements AddressRvAdapter.AddressesRvAdapterListener {
 
-    @Bind(R.id.rv_addresses)
+    @BindView(R.id.rv_addresses)
     FlingRecyclerView recyclerView;
-    @Bind(R.id.vf_addresses)
+    @BindView(R.id.vf_addresses)
     ViewFlipper viewFlipper;
-    @Bind(R.id.fab_fragment_addresses)
+    @BindView(R.id.fab_fragment_addresses)
     FloatingActionButton fab;
 
     AddressRvAdapter adapter;
@@ -266,7 +266,7 @@ public class AddressesFragment extends Fragment implements AddressRvAdapter.Addr
                         RealmUtils.createBuyerAddress(gpsLong, gpsLat);
                         loadAddressesFromRealm();
                     } else {
-                        Toast.makeText(mContext, "Some problem occurred in creating address", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Please select a valid gps location", Toast.LENGTH_SHORT).show();
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     //do nothing

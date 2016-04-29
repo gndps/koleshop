@@ -19,7 +19,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -32,15 +32,15 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
     Context mContext;
     private BuyerAddress buyerAddress;
 
-    @Bind(R.id.iv_vnsi_avatar)
+    @BindView(R.id.iv_vnsi_avatar)
     CircleImageView imageViewAvatar;
-    @Bind(R.id.iv_vnsi_online)
+    @BindView(R.id.iv_vnsi_online)
     ImageView imageViewOnline;
-    @Bind(R.id.tv_vnsi_name)
+    @BindView(R.id.tv_vnsi_name)
     TextView textViewName;
-    @Bind(R.id.tv_vnsi_timings)
+    @BindView(R.id.tv_vnsi_timings)
     TextView textViewTimings;
-    @Bind(R.id.tv_vnsi_distance)
+    @BindView(R.id.tv_vnsi_distance)
     TextView textViewDistance;
 
     public NearbyShopsListViewHolder(View itemView, Context context, BuyerAddress buyerAddress) {

@@ -34,7 +34,9 @@ public class VolleyUtil extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
-        RealmConfiguration config = new RealmConfiguration.Builder(mInstance).build();
+        RealmConfiguration config = new RealmConfiguration.Builder(mInstance)
+                //.deleteRealmIfMigrationNeeded()
+                .build();
         Realm.setDefaultConfiguration(config);
         setupPicassoDiskCache();
         Constants.SERVER_URL = getApplicationContext().getResources().getString(R.string.server_url);
@@ -49,7 +51,7 @@ public class VolleyUtil extends Application {
     }
 
     public void cancelRequestsWithTag(String tag) {
-        if(mRequestQueue!=null) {
+        if (mRequestQueue != null) {
             mRequestQueue.cancelAll(tag);
         }
     }
@@ -82,7 +84,7 @@ public class VolleyUtil extends Application {
 
     private void setupPicassoDiskCache() {
         Picasso.Builder builder = new Picasso.Builder(this);
-        builder.downloader(new OkHttpDownloader(this,Integer.MAX_VALUE));
+        builder.downloader(new OkHttpDownloader(this, Integer.MAX_VALUE));
         Picasso built = builder.build();
         //built.setIndicatorsEnabled(true);
         //built.setLoggingEnabled(true);

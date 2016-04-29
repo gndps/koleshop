@@ -46,7 +46,7 @@ import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -68,17 +68,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final String TAG = "MapsActivity";
 
-    @Bind(R.id.fl_main_action_button)
+    @BindView(R.id.fl_main_action_button)
     FrameLayout buttonMainAction;
-    @Bind(R.id.rl_back_next_button)
+    @BindView(R.id.rl_back_next_button)
     RelativeLayout buttonBackNext;
-    @Bind(R.id.reusable_back_button)
+    @BindView(R.id.reusable_back_button)
     Button leftButton;
-    @Bind(R.id.reusable_next_button)
+    @BindView(R.id.reusable_next_button)
     Button rightButton;
-    @Bind(R.id.reusable_action_button)
+    @BindView(R.id.reusable_action_button)
     Button actionButton;
-    @Bind(R.id.iv_gps_pin_icon)
+    @BindView(R.id.iv_gps_pin_icon)
     ImageView imageViewGpsPinIcon;
 
     @Override

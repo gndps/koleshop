@@ -27,26 +27,26 @@ import com.koleshop.appkoleshop.util.CommonUtils;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class OrderDetailsItemListFragment extends Fragment {
 
     private static final String TAG = "SellerListFragment";
-    @Bind(R.id.rv_fodil)
+    @BindView(R.id.rv_fodil)
     RecyclerView recyclerView;
-    @Bind(R.id.button_fodil_check_all)
+    @BindView(R.id.button_fodil_check_all)
     Button buttonCheckAll;
-    @Bind(R.id.tv_bill_details_total)
+    @BindView(R.id.tv_bill_details_total)
     TextView textViewTotal;
-    //@Bind(R.id.tv_bill_details_not_available)
+    //@BindView(R.id.tv_bill_details_not_available)
     //TextView textViewNotAvailable;
-    @Bind(R.id.tv_bill_details_delivery_charges)
+    @BindView(R.id.tv_bill_details_delivery_charges)
     TextView textViewDeliveryCharges;
-    @Bind(R.id.tv_bill_details_carry_bag_charges)
+    @BindView(R.id.tv_bill_details_carry_bag_charges)
     TextView textViewCarryBagCharges;
-    @Bind(R.id.tv_bill_details_amount_payable)
+    @BindView(R.id.tv_bill_details_amount_payable)
     TextView textViewAmountPayable;
 
     Context mContext;

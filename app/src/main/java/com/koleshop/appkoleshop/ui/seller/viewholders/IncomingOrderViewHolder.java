@@ -26,7 +26,7 @@ import com.zl.reik.dilatingdotsprogressbar.DilatingDotsProgressBar;
 import java.util.Calendar;
 import java.util.Date;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindDrawable;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -40,25 +40,25 @@ public class IncomingOrderViewHolder extends RecyclerView.ViewHolder {
     private int position;
     private boolean showProgressBar;
     private Context mContext;
-    @Bind(R.id.iv_iot_avatar)
+    @BindView(R.id.iv_iot_avatar)
     CircleImageView imageViewAvatar;
-    @Bind(R.id.button_iot_accept)
+    @BindView(R.id.button_iot_accept)
     Button buttonAccept;
-    @Bind(R.id.button_iot_reject)
+    @BindView(R.id.button_iot_reject)
     Button buttonReject;
-    @Bind(R.id.button_iot_details)
+    @BindView(R.id.button_iot_details)
     Button buttonDetails;
-    @Bind(R.id.tv_iot_address)
+    @BindView(R.id.tv_iot_address)
     TextView textViewAddress;
-    @Bind(R.id.tv_iot_name)
+    @BindView(R.id.tv_iot_name)
     TextView textViewName;
-    @Bind(R.id.tv_iot_price)
+    @BindView(R.id.tv_iot_price)
     TextView textViewPrice;
-    @Bind(R.id.tv_iot_timings)
+    @BindView(R.id.tv_iot_timings)
     TextView textViewTimings;
-    @Bind(R.id.iv_iot_home_delivery_pickup)
+    @BindView(R.id.iv_iot_home_delivery_pickup)
     ImageView imageViewDeliveryPickup;
-    @Bind(R.id.pb_status_incoming_order_tile)
+    @BindView(R.id.pb_status_incoming_order_tile)
     DilatingDotsProgressBar dotsProgressBar;
     @BindDrawable(R.drawable.ic_delivery_boy_colored_circle_24dp)
     Drawable drawableHomeDelivery;

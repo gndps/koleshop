@@ -19,35 +19,35 @@ import com.koleshop.appkoleshop.model.parcel.Address;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ShopSettingsFragment extends Fragment {
 
     private static final String TAG = "ShopSettingsFrag";
 
-    @Bind(R.id.met_seller_shop_name)
+    @BindView(R.id.met_seller_shop_name)
     MaterialEditText materialEditTextShopName;
 
-    @Bind(R.id.met_seller_shop_phone)
+    @BindView(R.id.met_seller_shop_phone)
     MaterialEditText materialEditTextShopPhone;
 
-    @Bind(R.id.met_seller_shop_address)
+    @BindView(R.id.met_seller_shop_address)
     MaterialEditText materialEditTextShopAddress;
 
-    @Bind(R.id.button_change_shop_gps_location)
+    @BindView(R.id.button_change_shop_gps_location)
     Button buttonChangeGpsLocation;
 
-    @Bind(R.id.tv_shop_settings_open_time)
+    @BindView(R.id.tv_shop_settings_open_time)
     TextView textViewOpenTime;
 
-    @Bind(R.id.tv_shop_settings_close_time)
+    @BindView(R.id.tv_shop_settings_close_time)
     TextView textViewCloseTime;
 
-    @Bind(R.id.cv_home_delivery)
+    @BindView(R.id.cv_home_delivery)
     CardView cardViewHomeDelivery;
 
-    @Bind(R.id.rl_gps_location)
+    @BindView(R.id.rl_gps_location)
     RelativeLayout relativeLayoutGpsLocationButton;
 
     private SellerSettings sellerSettings;

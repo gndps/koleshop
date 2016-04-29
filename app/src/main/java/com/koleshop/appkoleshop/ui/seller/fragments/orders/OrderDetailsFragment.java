@@ -27,42 +27,42 @@ import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.zl.reik.dilatingdotsprogressbar.DilatingDotsProgressBar;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class OrderDetailsFragment extends Fragment {
 
-    @Bind(R.id.tv_title_order_details_fragment)
+    @BindView(R.id.tv_title_order_details_fragment)
     TextView textViewTitle;
-    @Bind(R.id.iv_title_order_details_fragment)
+    @BindView(R.id.iv_title_order_details_fragment)
     ImageView imageViewTitleSellerOrderDetailsFragment;
-    @Bind(R.id.textview_price_order_details_fragment)
+    @BindView(R.id.textview_price_order_details_fragment)
     TextView textViewOrderPrice;
-    @Bind(R.id.vf_seller_details)
+    @BindView(R.id.vf_seller_details)
     ViewFlipper viewFlipperHeadline;
-    @Bind(R.id.textview_headline_description_fragment_order_details)
+    @BindView(R.id.textview_headline_description_fragment_order_details)
     TextView textViewHeadlineDescription;
-    @Bind(R.id.textview_headline_fragment_order_details)
+    @BindView(R.id.textview_headline_fragment_order_details)
     TextView textViewHeadline;
-    @Bind(R.id.iv_order_complete_status_fod)
+    @BindView(R.id.iv_order_complete_status_fod)
     ImageView imageViewOrderStatus;
-    @Bind(R.id.tv_order_complete_fod)
+    @BindView(R.id.tv_order_complete_fod)
     TextView textViewOrderStatus;
-    @Bind(R.id.tv_address_fod)
+    @BindView(R.id.tv_address_fod)
     TextView textViewAddress;
-    @Bind(R.id.tv_order_time_title_fod)
+    @BindView(R.id.tv_order_time_title_fod)
     TextView textViewOrderTimeTitle;
-    @Bind(R.id.tv_order_time_fod)
+    @BindView(R.id.tv_order_time_fod)
     TextView textViewOrderTime;
-    @Bind(R.id.tv_delivery_time_title_fod)
+    @BindView(R.id.tv_delivery_time_title_fod)
     TextView textViewDeliveryTimeTitle;
-    @Bind(R.id.tv_delivery_time_fod)
+    @BindView(R.id.tv_delivery_time_fod)
     TextView textViewDeliveryTime;
-    @Bind(R.id.button_cancel_fod)
+    @BindView(R.id.button_cancel_fod)
     Button buttonCancel;
-    @Bind(R.id.button_delivery_fod)
+    @BindView(R.id.button_delivery_fod)
     Button buttonDelivery;
-    @Bind(R.id.pb_status_order_details_fragment)
+    @BindView(R.id.pb_status_order_details_fragment)
     DilatingDotsProgressBar dilatingDotsProgressBar;
 
     public static int VIEW_FLIPPER_CHILD_ORDER_TIME_REMAINING = 0;

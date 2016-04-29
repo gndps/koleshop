@@ -40,7 +40,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -48,15 +48,15 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
 
 public class CompleteOrdersFragment extends Fragment {
 
-    @Bind(R.id.view_flipper_fragment_complete_orders)
+    @BindView(R.id.view_flipper_fragment_complete_orders)
     ViewFlipper viewFlipper;
-    @Bind(R.id.rv_fragment_complete_orders)
+    @BindView(R.id.rv_fragment_complete_orders)
     RecyclerView recyclerView;
-    @Bind(R.id.pb_load_more_fragment_complete_orders)
+    @BindView(R.id.pb_load_more_fragment_complete_orders)
     SmoothProgressBar progressBarLoadMore;
-    @Bind(R.id.tv_nothing_here_yet)
+    @BindView(R.id.tv_nothing_here_yet)
     TextView textViewNothingHereYet;
-    @Bind(R.id.iv_nothing_here_yet)
+    @BindView(R.id.iv_nothing_here_yet)
     ImageView imageViewNothingHereYet;
 
     private final int VIEW_FLIPPER_CHILD_LOADING = 0x00;

@@ -37,7 +37,7 @@ public class Constants {
     public static boolean KOLE_CACHE_ALLOWED = true;
     public static int REALM_VERSION = 3;
 
-    public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/uploads/";
+    public static String PUBLIC_PRODUCT_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/product_images/s/";
     public static String PUBLIC_PROFILE_IMAGE_URL_PREFIX = "https://storage.googleapis.com/koleshop-bucket/profile/";
     public static String REQUEST_STATUS_PREFIX = "image_upload_status_";
     public static int IMAGE_UPLOAD_DIMENSIONS = 400;

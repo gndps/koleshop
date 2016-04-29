@@ -43,7 +43,7 @@ import com.zl.reik.dilatingdotsprogressbar.DilatingDotsProgressBar;
 
 import java.util.Date;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -54,24 +54,24 @@ public class FeedbackActivity extends AppCompatActivity {
     private final static int VIEW_FLIPPER_CHILD_THANK_YOU = 0x01;
     private static final String TAG = "FeedbackActivity";
 
-    @Bind(R.id.pb_status_feedback)
+    @BindView(R.id.pb_status_feedback)
     DilatingDotsProgressBar progressBar;
     @BindString(R.string.send_feedback)
     String stringSendFeedback;
 
-    @Bind(R.id.header_text_view)
+    @BindView(R.id.header_text_view)
     TextView headerTextView;
-    @Bind(R.id.feedback_text)
+    @BindView(R.id.feedback_text)
     EditText feedbackText;
-    @Bind(R.id.button_send_feedback)
+    @BindView(R.id.button_send_feedback)
     Button buttonSendFeedback;
-    @Bind(R.id.button_call_us)
+    @BindView(R.id.button_call_us)
     Button buttonCallUs;
-    @Bind(R.id.textview_thankyou_feedback)
+    @BindView(R.id.textview_thankyou_feedback)
     TextView textViewFeedbackThankyou;
-    @Bind(R.id.vf_activity_feedback)
+    @BindView(R.id.vf_activity_feedback)
     ViewFlipper viewFlipper;
-    @Bind(R.id.iv_we_love_you)
+    @BindView(R.id.iv_we_love_you)
     ImageView imageViewWeLoveYou;
 
     Context context;

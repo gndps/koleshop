@@ -33,7 +33,7 @@ import com.koleshop.appkoleshop.ui.seller.fragments.orders.OrderDetailsItemListF
 
 import org.parceler.Parcels;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class OrderDetailsActivity extends SlidingActivity implements DeliveryTimeRemainingDialogFragment.DeliveryTimeDialogFragmentListener {
@@ -43,7 +43,7 @@ public class OrderDetailsActivity extends SlidingActivity implements DeliveryTim
     private static int VIEW_FLIPPER_CHILD_PROGRESS_BAR = 0X01;
     private static int VIEW_FLIPPER_CHILD_SOMETHING_WRONG = 0X02;
 
-    @Bind(R.id.vf_activity_order_details)
+    @BindView(R.id.vf_activity_order_details)
     ViewFlipper viewFlipper;
 
     Context mContext;

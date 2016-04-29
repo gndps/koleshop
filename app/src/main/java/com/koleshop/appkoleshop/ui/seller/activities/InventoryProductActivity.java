@@ -45,7 +45,7 @@ import org.parceler.Parcels;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class InventoryProductActivity extends AppCompatActivity implements InventoryProductFragment.InventoryProductFragmentInteractionListener {
@@ -61,9 +61,9 @@ public class InventoryProductActivity extends AppCompatActivity implements Inven
     private boolean myInventory = false;
     private boolean customerView = false;
     int selectedPage;
-    @Bind(R.id.fab_add_new_product)
+    @BindView(R.id.fab_add_new_product)
     FloatingActionButton menuMultipleActions;
-    @Bind(R.id.text_on_floating_button)
+    @BindView(R.id.text_on_floating_button)
     TextView floatingButtonText;
     Long selectedCategoryId;
     TextView noOfItemsViewer = null;

@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -66,13 +66,13 @@ public class PlaceOrderActivity extends AppCompatActivity implements ChooseDeliv
 
     @BindString(R.string.title_place_order)
     String titlePlaceOrder;
-    @Bind(R.id.app_bar_place_order)
+    @BindView(R.id.app_bar_place_order)
     Toolbar toolbar;
-    @Bind(R.id.scroll_view_activity_place_order)
+    @BindView(R.id.scroll_view_activity_place_order)
     ScrollView scrollView;
-    @Bind(R.id.pb_activity_place_order)
+    @BindView(R.id.pb_activity_place_order)
     ProgressBar progressBar;
-    @Bind(R.id.button_place_order)
+    @BindView(R.id.button_place_order)
     Button buttonPlaceOrder;
 
     boolean backHandledByFragment = false;

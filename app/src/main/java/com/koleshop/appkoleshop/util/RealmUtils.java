@@ -67,7 +67,8 @@ public class RealmUtils {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<BuyerAddress> realmAddresses = realm.where(BuyerAddress.class).findAll();
         realm.beginTransaction();
-        for(BuyerAddress realmAddress : realmAddresses) {
+        for(int i = 0; i < realmAddresses.size() ; i++) {
+            BuyerAddress realmAddress = realmAddresses.get(i);
             realmAddress.setDefaultAddress(false);
         }
         BuyerAddress buyerAddress = realm.createObject(BuyerAddress.class);

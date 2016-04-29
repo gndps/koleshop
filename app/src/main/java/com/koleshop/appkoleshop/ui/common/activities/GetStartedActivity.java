@@ -28,17 +28,17 @@ import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
 public class GetStartedActivity extends AppCompatActivity implements SettingsIntentService.SettingsReceiver {
 
-    @Bind(R.id.vf_ags)
+    @BindView(R.id.vf_ags)
     ViewFlipper viewFlipper;
-    @Bind(R.id.buttonGetStarted)
+    @BindView(R.id.buttonGetStarted)
     Button buttonGetStarted;
-    @Bind(R.id.tv_ags_message)
+    @BindView(R.id.tv_ags_message)
     TextView textViewMessage;
     private boolean firstTimeUser;
     private boolean settingsReceivedFromInternet;

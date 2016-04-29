@@ -21,7 +21,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -30,7 +30,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ViewProductVarietyBuyer extends RelativeLayout {
 
-    @Bind(R.id.icv_vpvb)
+    @BindView(R.id.icv_vpvb)
     ItemCountView itemCountView;
 
     private SellerSettings sellerSettings;

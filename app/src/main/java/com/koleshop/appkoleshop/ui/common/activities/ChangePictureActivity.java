@@ -52,7 +52,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindDrawable;
 import butterknife.BindString;
 import butterknife.ButterKnife;
@@ -63,17 +63,17 @@ public class ChangePictureActivity extends AppCompatActivity {
     private static final String TAG = "ChangePictureActivity";
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
-    @Bind(R.id.app_bar)
+    @BindView(R.id.app_bar)
     Toolbar toolbar;
-    @Bind(R.id.image_view_change_picture)
+    @BindView(R.id.image_view_change_picture)
     ImageView imageViewPicture;
     @BindString(R.string.title_shop_picture)
     String shopTitle;
     @BindString(R.string.profile_picture)
     String yourPictureTitle;
-    @Bind(R.id.ll_activity_change_picture)
+    @BindView(R.id.ll_activity_change_picture)
     LinearLayout linearLayout;
-    @Bind(R.id.pb_acp)
+    @BindView(R.id.pb_acp)
     ProgressBar progressBar;
     @BindDrawable(R.drawable.ic_user_profile)
     Drawable profileDrawable;

@@ -306,14 +306,15 @@ public class KoleshopUtils {
     }
 
     public static String getSmallImageUrl(String imageUrl) {
-        if (imageUrl != null && !imageUrl.isEmpty()) {
+        return imageUrl;
+        /*if (imageUrl != null && !imageUrl.isEmpty()) {
             if (imageUrl.contains("/product_images/")) {
                 imageUrl = imageUrl.replace("/product_images/", "/product_images_small/");
             }
             return imageUrl;
         } else {
             return null;
-        }
+        }*/
     }
 
     public static String getThumbnailImageUrl(String imageUrl) {

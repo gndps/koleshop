@@ -10,15 +10,15 @@ import android.widget.Button;
 
 import com.koleshop.appkoleshop.R;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
 public class HomeDeliveryFragment extends Fragment {
 
-    @Bind(R.id.button_home_delivery_settings_yes)
+    @BindView(R.id.button_home_delivery_settings_yes)
     Button buttonYes;
-    @Bind(R.id.button_home_delivery_settings_no)
+    @BindView(R.id.button_home_delivery_settings_no)
     Button buttonNo;
 
 

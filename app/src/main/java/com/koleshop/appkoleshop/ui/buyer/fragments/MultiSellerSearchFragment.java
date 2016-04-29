@@ -35,19 +35,19 @@ import org.parceler.Parcels;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
 public class MultiSellerSearchFragment extends Fragment {
 
-    @Bind(R.id.rv_multi_seller_search)
+    @BindView(R.id.rv_multi_seller_search)
     RecyclerView recyclerView;
-    @Bind(R.id.vf_fmss)
+    @BindView(R.id.vf_fmss)
     ViewFlipper viewFlipper;
-    @Bind(R.id.root_frame_layout_fmss)
+    @BindView(R.id.root_frame_layout_fmss)
     FrameLayout rootFrameLayout;
-    @Bind(R.id.tv_problem_in_multi_seller_search)
+    @BindView(R.id.tv_problem_in_multi_seller_search)
     TextView textViewProblemText;
     @BindString(R.string.some_problem_occurred)
     String problemString;

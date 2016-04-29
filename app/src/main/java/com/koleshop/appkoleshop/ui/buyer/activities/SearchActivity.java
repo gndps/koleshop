@@ -38,35 +38,35 @@ import com.koleshop.appkoleshop.util.CartUtils;
 import org.parceler.Parcels;
 
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
 public class SearchActivity extends AppCompatActivity implements SearchActivityListener {
 
-    @Bind(R.id.root_search_view)
+    @BindView(R.id.root_search_view)
     FrameLayout rootLinearLayout;
-    @Bind(R.id.button_back_amss)
+    @BindView(R.id.button_back_amss)
     ImageButton imageButtonBack;
-    @Bind(R.id.button_clear_tag_amss)
+    @BindView(R.id.button_clear_tag_amss)
     ImageButton imageButtonClearTag;
-    @Bind(R.id.cardview_search_amss)
+    @BindView(R.id.cardview_search_amss)
     CardView searchBar;
-    @Bind(R.id.tv_search_tag_amss)
+    @BindView(R.id.tv_search_tag_amss)
     TextView textViewSeachTag;
-    @Bind(R.id.et_search_amss)
+    @BindView(R.id.et_search_amss)
     EditText editTextSearch;
-    @Bind(R.id.search_tag_amss)
+    @BindView(R.id.search_tag_amss)
     FrameLayout frameLayoutSearchTag;
     @BindString(R.string.navigation_drawer_products)
     String myShopString;
     @BindString(R.string.navigation_drawer_inventory)
     String wareHouseString;
-    @Bind(R.id.fab_add_new_product)
+    @BindView(R.id.fab_add_new_product)
     FloatingActionButton floatingActionButton;
-    @Bind(R.id.text_on_floating_button)
+    @BindView(R.id.text_on_floating_button)
     TextView noOfItemsViewer;
-    @Bind(R.id.frame_layout_floating_cart)
+    @BindView(R.id.frame_layout_floating_cart)
     FrameLayout frameLayout;
     Context mContext;
 

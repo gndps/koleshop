@@ -3,13 +3,13 @@
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/default_background"
+    android:background="@color/offwhite"
     tools:context=".ui.seller.fragments.product.InventoryCategoryFragment">
 
     <ViewFlipper
         android:id="@+id/viewflipper_inventory_category"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center">
 
         <!-- progress bar | view flipper child 0 -->
@@ -41,9 +41,10 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_inventory_category"
             android:layout_width="match_parent"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:clipToPadding="false"
             android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
 
         <!-- no internet connection | view flipper child 2 -->

@@ -18,7 +18,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -28,17 +28,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class CartFragmentViewHolder extends RecyclerView.ViewHolder implements ItemCountView.ItemCountListener {
 
     private final Context mContext;
-    @Bind(R.id.civ_cart_item)
+    @BindView(R.id.civ_cart_item)
     CircleImageView circleImageView;
-    @Bind(R.id.tv_name_cart_item)
+    @BindView(R.id.tv_name_cart_item)
     TextView textViewName;
-    @Bind(R.id.tv_unit_price_cart_item)
+    @BindView(R.id.tv_unit_price_cart_item)
     TextView textViewUnitPrice;
-    @Bind(R.id.tv_total_cart_item)
+    @BindView(R.id.tv_total_cart_item)
     TextView textViewTotal;
-    @Bind(R.id.rl_view_cart_item)
+    @BindView(R.id.rl_view_cart_item)
     RelativeLayout relativeLayoutItem;
-    @Bind(R.id.icv_cart_item)
+    @BindView(R.id.icv_cart_item)
     ItemCountView itemCountView;
 
     private final SellerSettings sellerSettings;

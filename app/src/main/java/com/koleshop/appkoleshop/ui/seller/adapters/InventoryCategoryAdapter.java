@@ -42,7 +42,8 @@ public class InventoryCategoryAdapter extends RecyclerView.Adapter<InventoryCate
     public void onBindViewHolder(InventoryCategoryViewHolder holder, int position) {
         if(categories!=null) {
             ProductCategory productCategory = categories.get(position);
-            holder.setTitle(position+1 + ". " + productCategory.getName());
+            //holder.setTitle(position+1 + ". " + productCategory.getName()); ...this line adds the item number in front of category name
+            holder.setTitle(productCategory.getName());
             holder.setSubtitle(productCategory.getDesc());
             holder.setImageUrl(productCategory.getImageUrl());
             holder.sendImageFetchRequest(context);

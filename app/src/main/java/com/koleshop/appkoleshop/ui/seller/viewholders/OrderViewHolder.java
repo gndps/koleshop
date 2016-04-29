@@ -31,7 +31,7 @@ import org.parceler.Parcels;
 import java.util.Calendar;
 import java.util.Date;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindDrawable;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -45,28 +45,28 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
     private boolean customerView;
 
     @Nullable
-    @Bind(R.id.iv_ot_avatar)
+    @BindView(R.id.iv_ot_avatar)
     CircleImageView imageViewAvatar;
     @Nullable
-    @Bind(R.id.tv_ot_name)
+    @BindView(R.id.tv_ot_name)
     TextView textViewName;
     @Nullable
-    @Bind(R.id.tv_ot_details)
+    @BindView(R.id.tv_ot_details)
     TextView textViewDetails;
     @Nullable
-    @Bind(R.id.tv_ot_price)
+    @BindView(R.id.tv_ot_price)
     TextView textViewPrice;
     @Nullable
-    @Bind(R.id.iv_ot_order_status)
+    @BindView(R.id.iv_ot_order_status)
     ImageView imageViewOrderStatus;
     @Nullable
-    @Bind(R.id.tv_list_header)
+    @BindView(R.id.tv_list_header)
     TextView textViewHeader;
     @Nullable
-    @Bind(R.id.tv_relative_time_vot)
+    @BindView(R.id.tv_relative_time_vot)
     TextView textViewRelativeTime;
     @Nullable
-    @Bind(R.id.pb_ot_order_status)
+    @BindView(R.id.pb_ot_order_status)
     DilatingDotsProgressBar progressBarStatus;
     @BindDrawable(R.drawable.ic_check_grey600_24dp)
     Drawable drawableCheckGrey;

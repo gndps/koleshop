@@ -17,7 +17,7 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.zl.reik.dilatingdotsprogressbar.DilatingDotsProgressBar;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -26,15 +26,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class OutOfStockViewHolder extends RecyclerView.ViewHolder {
 
-    @Bind(R.id.civ_avatar_oos)
+    @BindView(R.id.civ_avatar_oos)
     CircleImageView imageView;
-    @Bind(R.id.tv_oos_title)
+    @BindView(R.id.tv_oos_title)
     TextView textViewTitle;
-    @Bind(R.id.tv_oos_subtitle)
+    @BindView(R.id.tv_oos_subtitle)
     TextView textViewSubtitle;
-    @Bind(R.id.button_back_in_stock)
+    @BindView(R.id.button_back_in_stock)
     Button buttonBackInStock;
-    @Bind(R.id.pb_status_oos)
+    @BindView(R.id.pb_status_oos)
     DilatingDotsProgressBar progressBar;
 
     private final Context mContext;

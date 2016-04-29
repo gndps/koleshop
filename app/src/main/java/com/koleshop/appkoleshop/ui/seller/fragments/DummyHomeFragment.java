@@ -35,7 +35,7 @@ import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import org.parceler.Parcels;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
@@ -43,13 +43,13 @@ public class DummyHomeFragment extends Fragment {
 
     boolean buyerMode;
     @Nullable
-    @Bind(R.id.tv_df_sales)
+    @BindView(R.id.tv_df_sales)
     TextView textViewSales;
     @Nullable
-    @Bind(R.id.tv_df_no_sales)
+    @BindView(R.id.tv_df_no_sales)
     TextView textViewNoSales;
     @Nullable
-    @Bind(R.id.ll_fdh)
+    @BindView(R.id.ll_fdh)
     LinearLayout linearLayout;
 
     Context mContext;
