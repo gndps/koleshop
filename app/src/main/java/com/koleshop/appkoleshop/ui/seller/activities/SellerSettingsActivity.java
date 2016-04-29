@@ -52,7 +52,7 @@ import org.parceler.Parcels;
 
 import java.util.Calendar;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
@@ -65,17 +65,17 @@ public class SellerSettingsActivity extends AppCompatActivity implements ShopSet
 
     @BindString(R.string.navigation_drawer_settings)
     String titleSellerSettings;
-    @Bind(R.id.switch_home_delivery_toggle)
+    @BindView(R.id.switch_home_delivery_toggle)
     Switch switchHomeDeliveryToggle;
-    @Bind(R.id.ib_delivery_settings)
+    @BindView(R.id.ib_delivery_settings)
     ImageButton imageButtonDeliverySettings;
-    @Bind(R.id.vf_seller_settings)
+    @BindView(R.id.vf_seller_settings)
     ViewFlipper viewFlipper;
-    @Bind(R.id.button_bar_back_next)
+    @BindView(R.id.button_bar_back_next)
     RelativeLayout buttonBarBackNext;
-    @Bind(R.id.reusable_back_button)
+    @BindView(R.id.reusable_back_button)
     Button buttonBack;
-    @Bind(R.id.reusable_next_button)
+    @BindView(R.id.reusable_next_button)
     Button buttonNext;
 
     boolean showingDeliverySettings;

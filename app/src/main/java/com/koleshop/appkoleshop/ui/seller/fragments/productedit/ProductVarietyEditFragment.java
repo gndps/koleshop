@@ -42,7 +42,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -53,19 +53,19 @@ import butterknife.ButterKnife;
  */
 public class ProductVarietyEditFragment extends Fragment implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
-    @Bind(R.id.met_product_edit_variety_quantity)
+    @BindView(R.id.met_product_edit_variety_quantity)
     MaterialEditText editTextQuantity;
-    @Bind(R.id.met_product_edit_variety_price)
+    @BindView(R.id.met_product_edit_variety_price)
     MaterialEditText editTextPrice;
-    @Bind(R.id.switch_product_edit)
+    @BindView(R.id.switch_product_edit)
     SwitchCompat switchStock;
-    @Bind(R.id.tv_product_edit_number)
+    @BindView(R.id.tv_product_edit_number)
     TextView textViewNumber;
-    @Bind(R.id.btn_product_edit_overflow)
+    @BindView(R.id.btn_product_edit_overflow)
     ImageButton buttonOverFlow;
-    @Bind(R.id.iv_product_edit)
+    @BindView(R.id.iv_product_edit)
     ImageView imageView;
-    @Bind(R.id.pb_image_upload_product_edit)
+    @BindView(R.id.pb_image_upload_product_edit)
     ProgressBar progressBarImage;
 
     private InteractionListener mListener;

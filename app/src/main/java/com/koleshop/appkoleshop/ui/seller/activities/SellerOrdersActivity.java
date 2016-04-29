@@ -24,7 +24,7 @@ import com.koleshop.appkoleshop.ui.seller.adapters.SellerOrderTabsAdapter;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
@@ -33,9 +33,9 @@ public class SellerOrdersActivity extends AppCompatActivity {
     private static final String TAG = "SellerOrdersActivity";
     @BindString(R.string.navigation_drawer_orders)
     String titleOrders;
-    @Bind(R.id.tab_seller_orders)
+    @BindView(R.id.tab_seller_orders)
     TabLayout tabLayout;
-    @Bind(R.id.view_pager_seller_orders)
+    @BindView(R.id.view_pager_seller_orders)
     ViewPager viewPager;
 
     Context mContext;

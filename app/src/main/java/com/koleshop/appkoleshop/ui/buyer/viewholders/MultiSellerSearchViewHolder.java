@@ -30,7 +30,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -39,19 +39,19 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class MultiSellerSearchViewHolder extends RecyclerView.ViewHolder {
 
-    @Bind(R.id.tv_title_msst)
+    @BindView(R.id.tv_title_msst)
     TextView textViewTitle;
-    @Bind(R.id.tv_subtitle_msst)
+    @BindView(R.id.tv_subtitle_msst)
     TextView textViewTimings;
-    @Bind(R.id.tv_distance_msst)
+    @BindView(R.id.tv_distance_msst)
     TextView textViewDistance;
-    @Bind(R.id.civ_avatar_msst)
+    @BindView(R.id.civ_avatar_msst)
     CircleImageView imageViewAvatar;
-    @Bind(R.id.button_more_results_msst)
+    @BindView(R.id.button_more_results_msst)
     Button buttonShowMoreResults;
-    @Bind(R.id.iv_status_msst)
+    @BindView(R.id.iv_status_msst)
     ImageView imageViewOnline;
-    @Bind(R.id.ll_search_results_vmsst)
+    @BindView(R.id.ll_search_results_vmsst)
     LinearLayout linearLayoutSearchResults;
 
     Context mContext;

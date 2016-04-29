@@ -43,23 +43,23 @@ import org.parceler.Parcels;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
 public class NearbyShopsFragment extends Fragment {
 
-    @Bind(R.id.tab_layout_fns)
+    @BindView(R.id.tab_layout_fns)
     TabLayout tabLayout;
-    @Bind(R.id.view_pager_fns)
+    @BindView(R.id.view_pager_fns)
     ViewPager viewPager;
-    @Bind(R.id.vf_fns)
+    @BindView(R.id.vf_fns)
     ViewFlipper viewFlipper;
     @BindString(R.string.navigation_drawer_nearby_shops)
     String titleNearbyShops;
-    @Bind(R.id.button_refresh_nearby_shops)
+    @BindView(R.id.button_refresh_nearby_shops)
     Button buttonRefresh;
-    @Bind(R.id.button_retry_nearby_shops)
+    @BindView(R.id.button_retry_nearby_shops)
     Button buttonRetry;
 
     boolean onlyHomeDeliveryShops;

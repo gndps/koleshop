@@ -55,7 +55,7 @@ import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -87,7 +87,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     String titleHome;
     @BindString(R.string.navigation_drawer_out_of_stock)
     String titleOutOfStock;
-    @Bind(R.id.navigation_view)
+    @BindView(R.id.navigation_view)
     NavigationView navigationView;
     CircleImageView imageViewAvatar;
     ImageView imageViewHeader;

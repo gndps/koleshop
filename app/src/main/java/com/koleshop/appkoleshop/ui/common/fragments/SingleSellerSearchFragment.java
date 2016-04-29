@@ -38,7 +38,7 @@ import org.parceler.Parcels;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -58,19 +58,19 @@ public class SingleSellerSearchFragment extends Fragment {
     private static final int VIEW_FLIPPER_CHILD_INTERNET_PROBLEM = 2;
     private static final int VIEW_FLIPPER_CHILD_NO_RESULTS = 3;
 
-    @Bind(R.id.rv_single_seller_search)
+    @BindView(R.id.rv_single_seller_search)
     RecyclerView recyclerView;
-    @Bind(R.id.vf_fss)
+    @BindView(R.id.vf_fss)
     ViewFlipper viewFlipper;
-    @Bind(R.id.root_frame_layout_fss)
+    @BindView(R.id.root_frame_layout_fss)
     FrameLayout rootFrameLayout;
-    @Bind(R.id.tv_problem_in_single_seller_search)
+    @BindView(R.id.tv_problem_in_single_seller_search)
     TextView textViewProblemText;
     @BindString(R.string.some_problem_occurred)
     String problemString;
     @BindString(R.string.no_search_results_found)
     String noSearchResultsString;
-    @Bind(R.id.pb_fragment_single_seller)
+    @BindView(R.id.pb_fragment_single_seller)
     SmoothProgressBar progressBar;
 
     private Context mContext;

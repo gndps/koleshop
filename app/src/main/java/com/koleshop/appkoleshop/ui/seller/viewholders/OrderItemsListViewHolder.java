@@ -20,7 +20,7 @@ import com.koleshop.appkoleshop.model.OrderItem;
 import com.koleshop.appkoleshop.ui.common.views.ItemCountView;
 import com.koleshop.appkoleshop.util.CommonUtils;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindDrawable;
 import butterknife.ButterKnife;
 
@@ -30,21 +30,21 @@ import butterknife.ButterKnife;
 public class OrderItemsListViewHolder extends RecyclerView.ViewHolder implements ItemCountView.ItemCountListener {
 
     private static final String TAG = "OrderItemsListViewHld";
-    @Bind(R.id.tv_vodis_name)
+    @BindView(R.id.tv_vodis_name)
     TextView textViewName;
-    @Bind(R.id.tv_requested_item_count_vodis)
+    @BindView(R.id.tv_requested_item_count_vodis)
     TextView textViewCount;
-    @Bind(R.id.tv_unit_price_vodis)
+    @BindView(R.id.tv_unit_price_vodis)
     TextView textViewUnitPrice;
-    @Bind(R.id.tv_vodis_price)
+    @BindView(R.id.tv_vodis_price)
     TextView textViewPrice;
-    @Bind(R.id.item_count_view_vodis)
+    @BindView(R.id.item_count_view_vodis)
     ItemCountView itemCountView;
-    @Bind(R.id.iv_vodis_status)
+    @BindView(R.id.iv_vodis_status)
     ImageView imageViewStatus;
-    @Bind(R.id.rl_vodis)
+    @BindView(R.id.rl_vodis)
     RelativeLayout relativeLayout;
-    @Bind(R.id.tv_delivered_count)
+    @BindView(R.id.tv_delivered_count)
     TextView textViewDeliveredCount;
     @BindDrawable(R.drawable.ic_double_check_24dp)
     Drawable drawableCheckGreen;

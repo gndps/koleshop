@@ -32,7 +32,7 @@ import com.koleshop.appkoleshop.util.KoleshopUtils;
 
 import org.parceler.Parcels;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -40,25 +40,25 @@ public class CartFragment extends Fragment implements CartFragmentAdapter.CartFr
 
     private static final String ARG_SELLER_SETTINGS = "argSellerSettings";
 
-    @Bind(R.id.tv_cart_store_name)
+    @BindView(R.id.tv_cart_store_name)
     TextView textViewCartStoreName;
-    @Bind(R.id.rv_fragment_cart)
+    @BindView(R.id.rv_fragment_cart)
     RecyclerView recyclerView;
-    @Bind(R.id.button_order_cart_fragment)
+    @BindView(R.id.button_order_cart_fragment)
     Button buttonOrder;
-    @Bind(R.id.tv_bill_details_total)
+    @BindView(R.id.tv_bill_details_total)
     TextView textViewBillTotal;
-    @Bind(R.id.rl_bill_details_not_available)
+    @BindView(R.id.rl_bill_details_not_available)
     RelativeLayout relativeLayoutBillNotAvailable;
-    @Bind(R.id.tv_bill_details_not_available)
+    @BindView(R.id.tv_bill_details_not_available)
     TextView textViewNoAvailable;
-    @Bind(R.id.tv_bill_details_delivery_charges)
+    @BindView(R.id.tv_bill_details_delivery_charges)
     TextView textViewDeliveryCharges;
-    @Bind(R.id.tv_bill_details_carry_bag_charges)
+    @BindView(R.id.tv_bill_details_carry_bag_charges)
     TextView textViewCarryBagCharges;
-    @Bind(R.id.tv_bill_details_amount_payable)
+    @BindView(R.id.tv_bill_details_amount_payable)
     TextView textViewAmountPayable;
-    @Bind(R.id.ib_more_in_cart)
+    @BindView(R.id.ib_more_in_cart)
     ImageButton clearCartButton;
     private SellerSettings sellerSettings;
     private Context mContext;

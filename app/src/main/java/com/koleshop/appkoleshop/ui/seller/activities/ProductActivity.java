@@ -64,7 +64,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.RealmList;
 
@@ -73,9 +73,9 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
     Context mContext;
     private EditProduct product;
     private BroadcastReceiver productEditBroadcastReceiver;
-    @Bind(R.id.container_product_edit_fragments)
+    @BindView(R.id.container_product_edit_fragments)
     LinearLayout containerVarietyFragments;
-    @Bind(R.id.sb_product)
+    @BindView(R.id.sb_product)
     NestedScrollView scrollView;
     static String tagFragmentBasicInfo = "frag_basic_info";
     static final int REQUEST_IMAGE_CAPTURE = 1;

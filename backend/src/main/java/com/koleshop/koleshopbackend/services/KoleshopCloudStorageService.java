@@ -35,6 +35,7 @@ import com.google.gcloud.storage.Blob;
 import com.google.gcloud.storage.BlobId;
 import com.google.gcloud.storage.Storage;
 import com.google.gcloud.storage.StorageOptions;
+import com.koleshop.koleshopbackend.utils.ImageUtils;
 import com.koleshop.koleshopbackend.utils.PropertiesCache;
 
 import java.nio.ByteBuffer;
@@ -146,7 +147,22 @@ public class KoleshopCloudStorageService {
     }
 
     public static boolean uploadProductImage(ImageUploadRequest imageUploadRequest) {
-        return uploadImage(imageUploadRequest, Constants.PUBLIC_PRODUCT_IMAGE_FOLDER);
+        boolean largeUploaded = uploadImage(imageUploadRequest,
+                Constants.PUBLIC_PRODUCT_IMAGE_FOLDER_LARGE);
+        boolean mediumUploaded = uploadImage(scaleImageUploadRequest(imageUploadRequest, Constants.PRODUCT_IMAGE_MEDIUM_SIZE)
+                , Constants.PUBLIC_PRODUCT_IMAGE_FOLDER_MEDIUM);
+        boolean smallUploaded = uploadImage(scaleImageUploadRequest(imageUploadRequest, Constants.PRODUCT_IMAGE_SMALL_SIZE)
+                , Constants.PUBLIC_PRODUCT_IMAGE_FOLDER_LARGE);
+        return largeUploaded && mediumUploaded && smallUploaded;
+    }
+
+    private static ImageUploadRequest scaleImageUploadRequest(ImageUploadRequest imageUploadRequest, int scaleSize) {
+        byte[] imageDataMedium = ImageUtils.scale(imageUploadRequest.getImageData(), scaleSize, scaleSize);
+        ImageUploadRequest imageUploadRequestScaled = new ImageUploadRequest();
+        imageUploadRequestScaled.setFileName(imageUploadRequest.getFileName());
+        imageUploadRequestScaled.setImageData(imageDataMedium);
+        imageUploadRequestScaled.setMimeType(imageUploadRequest.getMimeType());
+        return imageUploadRequestScaled;
     }
 
     public static boolean uploadImage(ImageUploadRequest imageUploadRequest, String bucketUrl) {

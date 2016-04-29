@@ -22,7 +22,7 @@ import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -30,10 +30,10 @@ import io.realm.RealmResults;
 
 public class ProductEditFragment extends Fragment {
 
-    @Bind(R.id.met_product_edit_name) MaterialEditText editTextProductName;
-    @Bind(R.id.mactv_product_edit_brand) MaterialAutoCompleteTextView editTextBrand;
-    @Bind(R.id.spinner_product_edit_1) MaterialBetterSpinner spinnerCategory;
-    @Bind(R.id.spinner_product_edit_2) MaterialBetterSpinner spinnerSubcategory;
+    @BindView(R.id.met_product_edit_name) MaterialEditText editTextProductName;
+    @BindView(R.id.mactv_product_edit_brand) MaterialAutoCompleteTextView editTextBrand;
+    @BindView(R.id.spinner_product_edit_1) MaterialBetterSpinner spinnerCategory;
+    @BindView(R.id.spinner_product_edit_2) MaterialBetterSpinner spinnerSubcategory;
 
     private ArrayList<ProductCategory> parentCategories;
     private ArrayList<ProductCategory> subCategories;

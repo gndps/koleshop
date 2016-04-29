@@ -43,7 +43,7 @@ import com.koleshop.appkoleshop.util.RealmUtils;
 
 import java.io.IOException;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
@@ -65,17 +65,17 @@ public class InitialActivity extends AppCompatActivity {
     String mEmail; // Received from newChooseAccountIntent(); passed to getToken()
     Context mContext;
 
-    @Bind(R.id.btn_sell_initial)
+    @BindView(R.id.btn_sell_initial)
     ImageButton buttonSell;
-    @Bind(R.id.btn_buy_initial)
+    @BindView(R.id.btn_buy_initial)
     ImageButton buttonBuy;
-    @Bind(R.id.pb_initial_activity)
+    @BindView(R.id.pb_initial_activity)
     ProgressBar progressBar;
     @BindString(R.string.google_api_scope)
     String GOOGLE_API_SCOPE;
-    @Bind(R.id.imageViewShopLogo)
+    @BindView(R.id.imageViewShopLogo)
     ImageView imageViewLogo;
-    @Bind(R.id.textViewShopDescription)
+    @BindView(R.id.textViewShopDescription)
     TextView textViewShopDescription;
     @BindDimen(R.dimen.initial_screen_logo_height)
     int logoHeight;

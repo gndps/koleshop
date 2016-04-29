@@ -38,7 +38,7 @@ import java.net.URL;
  */
 public class ImageUtils {
 
-    public static Bitmap getResizedBitmap(int targetW, int targetH, String imagePath) {
+    public static Bitmap getResizedBitmap(int targetW, int targetH, String imagePath, boolean squareCropImage) {
 
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -57,6 +57,11 @@ public class ImageUtils {
         bmOptions.inPurgeable = true;
 
         Bitmap bitmap = BitmapFactory.decodeFile(imagePath, bmOptions);
+
+        if(squareCropImage) {
+            bitmap = cropToSquare(bitmap);
+        }
+
         return (bitmap);
     }
 
@@ -105,7 +110,7 @@ public class ImageUtils {
     }
 
     public static byte[] getImageByteArrayForUpload(String imagePath) {
-        Bitmap bm = getResizedBitmap(Constants.IMAGE_UPLOAD_DIMENSIONS, Constants.IMAGE_UPLOAD_DIMENSIONS, imagePath);
+        Bitmap bm = getResizedBitmap(Constants.IMAGE_UPLOAD_DIMENSIONS, Constants.IMAGE_UPLOAD_DIMENSIONS, imagePath, true);
         byte[] ba = getByteArrayFromBitmap(bm, 90);
         return ba;
     }
@@ -258,6 +263,20 @@ public class ImageUtils {
         return bitmapImage;
 
     }*/
+
+    public static Bitmap cropToSquare(Bitmap bitmap){
+        int width  = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int newWidth = (height > width) ? width : height;
+        int newHeight = (height > width)? height - ( height - width) : height;
+        int cropW = (width - height) / 2;
+        cropW = (cropW < 0)? 0: cropW;
+        int cropH = (height - width) / 2;
+        cropH = (cropH < 0)? 0: cropH;
+        Bitmap cropImg = Bitmap.createBitmap(bitmap, cropW, cropH, newWidth, newHeight);
+
+        return cropImg;
+    }
 
 
 }

@@ -18,7 +18,7 @@ import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -30,12 +30,12 @@ import io.realm.RealmResults;
 public class ViewProductEdit extends CardView {
 
     TextInputLayout tilProductName, tilProductBrand;
-    @Bind(com.koleshop.appkoleshop.R.id.met_product_edit_name) MaterialEditText editTextProductName;
-    @Bind(com.koleshop.appkoleshop.R.id.mactv_product_edit_brand) MaterialAutoCompleteTextView editTextBrand;
-    @Bind(com.koleshop.appkoleshop.R.id.spinner_product_edit_1) MaterialBetterSpinner spinnerCategory;
-    @Bind(com.koleshop.appkoleshop.R.id.spinner_product_edit_2) MaterialBetterSpinner spinnerSubcategory;
-    @Bind(com.koleshop.appkoleshop.R.id.tv_spinner_subcategory_hint) TextView textViewSubcategoryHint;
-    //@Bind(R.id.tv_spinner_category_hint) TextView textViewCategoryHint;
+    @BindView(com.koleshop.appkoleshop.R.id.met_product_edit_name) MaterialEditText editTextProductName;
+    @BindView(com.koleshop.appkoleshop.R.id.mactv_product_edit_brand) MaterialAutoCompleteTextView editTextBrand;
+    @BindView(com.koleshop.appkoleshop.R.id.spinner_product_edit_1) MaterialBetterSpinner spinnerCategory;
+    @BindView(com.koleshop.appkoleshop.R.id.spinner_product_edit_2) MaterialBetterSpinner spinnerSubcategory;
+    @BindView(com.koleshop.appkoleshop.R.id.tv_spinner_subcategory_hint) TextView textViewSubcategoryHint;
+    //@BindView(R.id.tv_spinner_category_hint) TextView textViewCategoryHint;
 
     private EditProduct product;
     private Realm realm;

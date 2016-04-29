@@ -57,7 +57,7 @@ import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -69,25 +69,25 @@ public class ShopActivity extends AppCompatActivity {
     private static int VIEW_FLIPPER_CHILD_LOADING = 0x02;
     private static int VIEW_FLIPPER_CHILD_SHOP = 0x03;
 
-    @Bind(R.id.collapsing_toolbar_activity_shop)
+    @BindView(R.id.collapsing_toolbar_activity_shop)
     CollapsingToolbarLayout collapsingToolbarLayout;
-    @Bind(R.id.toolbar_activity_shop)
+    @BindView(R.id.toolbar_activity_shop)
     Toolbar toolbar;
-    @Bind(R.id.app_bar_layout_activity_shop)
+    @BindView(R.id.app_bar_layout_activity_shop)
     AppBarLayout appBarLayout;
-    @Bind(R.id.shop_menu_container)
+    @BindView(R.id.shop_menu_container)
     LinearLayout linearLayoutContainer;
-    @Bind(R.id.civ_avatar_activity_shop)
+    @BindView(R.id.civ_avatar_activity_shop)
     CircleImageView circleImageViewAvatarShop;
-    @Bind(R.id.image_view_activity_shop)
+    @BindView(R.id.image_view_activity_shop)
     ImageView headerImageView;
-    @Bind(R.id.tv_shop_activity_open_or_closed)
+    @BindView(R.id.tv_shop_activity_open_or_closed)
     TextView textViewOpenClosed;
-    @Bind(R.id.tv_shop_activity_delivery_timings)
+    @BindView(R.id.tv_shop_activity_delivery_timings)
     TextView textViewDeliveryTimings;
-    @Bind(R.id.favourite_shop_button)
+    @BindView(R.id.favourite_shop_button)
     ImageButton favoriteShopButton;//FloatingActionButton favoriteShopButton;
-    @Bind(R.id.vf_shop_activity)
+    @BindView(R.id.vf_shop_activity)
     ViewFlipper viewFlipper;
 
     SellerSettings sellerSettings;

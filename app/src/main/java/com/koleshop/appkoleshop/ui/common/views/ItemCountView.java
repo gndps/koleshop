@@ -11,7 +11,7 @@ import android.widget.ViewFlipper;
 
 import com.koleshop.appkoleshop.R;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -23,15 +23,15 @@ public class ItemCountView extends LinearLayout {
     public static final int VIEW_FLIPPER_OUT_OF_STOCK = 1;
     public static final int VIEW_FLIPPER_ADD_TO_CART = 2;
 
-    @Bind(R.id.vf_item_count)
+    @BindView(R.id.vf_item_count)
     ViewFlipper viewFlipper;
-    @Bind(R.id.button_minus_item_count)
+    @BindView(R.id.button_minus_item_count)
     Button buttonMinus;
-    @Bind(R.id.tv_count_item_count)
+    @BindView(R.id.tv_count_item_count)
     TextView textViewItemCount;
-    @Bind(R.id.button_plus_item_count)
+    @BindView(R.id.button_plus_item_count)
     Button buttonPlus;
-    @Bind(R.id.button_add_to_cart_view_item_count)
+    @BindView(R.id.button_add_to_cart_view_item_count)
     Button buttonAddToCart;
 
     boolean showZeroCount;

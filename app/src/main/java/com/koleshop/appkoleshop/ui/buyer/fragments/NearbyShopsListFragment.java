@@ -24,16 +24,16 @@ import org.parceler.Parcels;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class NearbyShopsListFragment extends Fragment {
 
-    @Bind(R.id.rv_fns_list)
+    @BindView(R.id.rv_fns_list)
     RecyclerView recyclerView;
-    @Bind(R.id.vf_fnsl)
+    @BindView(R.id.vf_fnsl)
     ViewFlipper viewFlipper;
-    @Bind(R.id.pb_fnsl)
+    @BindView(R.id.pb_fnsl)
     ProgressBar progressBar;
 
     private static int VIEW_RECYCLER_VIEW = 0;

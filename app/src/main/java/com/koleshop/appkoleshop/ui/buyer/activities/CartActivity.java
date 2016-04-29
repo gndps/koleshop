@@ -30,7 +30,7 @@ import com.koleshop.appkoleshop.util.PreferenceUtils;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
@@ -39,13 +39,13 @@ public class CartActivity extends AppCompatActivity {
     public static final int VIEW_FLIPPER_CHILD_NO_ITEMS = 0x00;
     public static final int VIEW_FLIPPER_CHILD_RECYCLER_VIEW = 0x01;
 
-    @Bind(R.id.appbar_cart_activity)
+    @BindView(R.id.appbar_cart_activity)
     Toolbar toolbar;
-    @Bind(R.id.ll_activity_cart)
+    @BindView(R.id.ll_activity_cart)
     LinearLayout linearLayout;
     @BindString(R.string.navigation_drawer_cart)
     String titleCart;
-    @Bind(R.id.vf_cart_activity)
+    @BindView(R.id.vf_cart_activity)
     ViewFlipper viewFlipper;
 
 

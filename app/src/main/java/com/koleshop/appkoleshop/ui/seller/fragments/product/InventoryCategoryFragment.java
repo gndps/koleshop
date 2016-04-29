@@ -10,8 +10,10 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,14 +45,14 @@ import com.koleshop.appkoleshop.ui.seller.adapters.InventoryCategoryAdapter;
 import com.koleshop.api.yolo.inventoryEndpoint.model.InventoryCategory;
 import com.koleshop.appkoleshop.util.KoleshopUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
-import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+//import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class InventoryCategoryFragment extends Fragment {
@@ -64,9 +66,9 @@ public class InventoryCategoryFragment extends Fragment {
     private boolean myInventory = false;
     private boolean customerView = false;
     private SellerSettings sellerSettings;
-    @Bind(R.id.multiple_actions)
+    @BindView(R.id.multiple_actions)
     FloatingActionsMenu menuMultipleActions;
-    @Bind(R.id.tv_no_products_fic)
+    @BindView(R.id.tv_no_products_fic)
     TextView textViewNoProducts;
 
     @Override
@@ -97,10 +99,10 @@ public class InventoryCategoryFragment extends Fragment {
         ButterKnife.bind(this, layout);
         recyclerView = (RecyclerView) layout.findViewById(com.koleshop.appkoleshop.R.id.rv_inventory_category);
         viewFlipper = (ViewFlipper) layout.findViewById(com.koleshop.appkoleshop.R.id.viewflipper_inventory_category);
-        recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
+        /*recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .margin(getResources().getDimensionPixelSize(com.koleshop.appkoleshop.R.dimen.recycler_view_left_margin),
                         getResources().getDimensionPixelSize(com.koleshop.appkoleshop.R.dimen.recycler_view_right_margin))
-                .build());
+                .build());*/
         inventoryCategoryAdapter = new InventoryCategoryAdapter(getActivity(), null, new InventoryCategoryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(ProductCategory productCategory) {
@@ -128,7 +130,9 @@ public class InventoryCategoryFragment extends Fragment {
         });
         //inventoryCategoryAdapter.
         recyclerView.setAdapter(inventoryCategoryAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
         /*recyclerView.addOnItemTouchListener(new KolRecyclerTouchListener(getActivity(), recyclerView, new KolClickListener() {
             @Override
             public void onItemClick(View v, int position) {

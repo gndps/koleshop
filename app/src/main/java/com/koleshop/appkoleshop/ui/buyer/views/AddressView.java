@@ -34,7 +34,7 @@ import com.koleshop.appkoleshop.util.RealmUtils;
 
 import org.parceler.Parcels;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 
@@ -43,21 +43,21 @@ import butterknife.ButterKnife;
  */
 public class AddressView extends CardView implements OnMapReadyCallback {
 
-    @Bind(R.id.tv_vat_nickname)
+    @BindView(R.id.tv_vat_nickname)
     TextView textViewNickname;
-    @Bind(R.id.mv_vat)
+    @BindView(R.id.mv_vat)
     MapView mapView;
-    @Bind(R.id.ll_vat_default)
+    @BindView(R.id.ll_vat_default)
     LinearLayout linearLayoutDefaultNoAddress;
-    @Bind(R.id.tv_vat_address)
+    @BindView(R.id.tv_vat_address)
     TextView textViewAddress;
-    @Bind(R.id.ib_vat_delete)
+    @BindView(R.id.ib_vat_delete)
     ImageButton buttonDelete;
-    @Bind(R.id.button_vat_edit_address)
+    @BindView(R.id.button_vat_edit_address)
     Button buttonEdit;
     @BindString(R.string.default_address_nickname)
     String defaultNickName;
-    @Bind(R.id.ll_vat)
+    @BindView(R.id.ll_vat)
     LinearLayout linearLayout;
 
     Context mContext;

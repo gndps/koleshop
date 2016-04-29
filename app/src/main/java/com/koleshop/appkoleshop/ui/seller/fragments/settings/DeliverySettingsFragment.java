@@ -15,7 +15,7 @@ import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DeliverySettingsFragment extends Fragment {
@@ -23,19 +23,19 @@ public class DeliverySettingsFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private SellerSettings sellerSettings;
 
-    @Bind(R.id.met_max_delivery_distance)
+    @BindView(R.id.met_max_delivery_distance)
     MaterialEditText metMaxDeliveryDistance;
 
-    @Bind(R.id.met_min_order)
+    @BindView(R.id.met_min_order)
     MaterialEditText metMinOrder;
 
-    @Bind(R.id.met_delivery_charges)
+    @BindView(R.id.met_delivery_charges)
     MaterialEditText metDeliveryCharges;
 
-    @Bind(R.id.tv_settings_deliery_start_time)
+    @BindView(R.id.tv_settings_deliery_start_time)
     TextView tvDeliveryStartTime;
 
-    @Bind(R.id.tv_settings_deliery_end_time)
+    @BindView(R.id.tv_settings_deliery_end_time)
     TextView tvDeliveryEndTime;
 
     public DeliverySettingsFragment() {

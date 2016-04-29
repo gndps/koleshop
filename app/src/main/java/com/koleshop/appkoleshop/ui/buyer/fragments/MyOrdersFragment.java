@@ -33,7 +33,7 @@ import org.parceler.Parcels;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -41,11 +41,11 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 public class MyOrdersFragment extends Fragment {
 
     private static final String TAG = "MyOrdersFragment";
-    @Bind(R.id.rv_fragment_my_orders)
+    @BindView(R.id.rv_fragment_my_orders)
     RecyclerView recyclerView;
-    @Bind(R.id.view_flipper_fragment_my_orders)
+    @BindView(R.id.view_flipper_fragment_my_orders)
     ViewFlipper viewFlipper;
-    @Bind(R.id.pb_load_more_fragment_my_orders)
+    @BindView(R.id.pb_load_more_fragment_my_orders)
     SmoothProgressBar progressBarLoadMore;
 
     private final int VIEW_FLIPPER_CHILD_LOADING = 0x00;
