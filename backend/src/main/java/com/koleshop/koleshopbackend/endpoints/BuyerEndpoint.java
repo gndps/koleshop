@@ -6,11 +6,11 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.config.Nullable;
 import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.models.Address;
-import com.koleshop.koleshopbackend.db.models.InventoryProduct;
-import com.koleshop.koleshopbackend.db.models.KoleResponse;
-import com.koleshop.koleshopbackend.db.models.SellerSearchResults;
-import com.koleshop.koleshopbackend.db.models.SellerSettings;
+import com.koleshop.koleshopbackend.models.db.Address;
+import com.koleshop.koleshopbackend.models.db.InventoryProduct;
+import com.koleshop.koleshopbackend.models.db.KoleResponse;
+import com.koleshop.koleshopbackend.models.db.SellerSearchResults;
+import com.koleshop.koleshopbackend.models.db.SellerSettings;
 import com.koleshop.koleshopbackend.services.BuyerService;
 import com.koleshop.koleshopbackend.services.SessionService;
 

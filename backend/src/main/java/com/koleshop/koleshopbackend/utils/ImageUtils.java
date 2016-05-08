@@ -1,15 +1,11 @@
 package com.koleshop.koleshopbackend.utils;
 
-import java.awt.Color;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.appengine.api.images.Image;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.Transform;
 
-import javax.imageio.ImageIO;
+import java.util.logging.Logger;
 
 /**
  * Created by Gundeep on 28/04/16.
@@ -18,29 +14,17 @@ public class ImageUtils {
 
     private static final Logger logger = Logger.getLogger(ImageUtils.class.getName());
 
-    public static byte[] scale(byte[] fileData, int width, int height) {
-        ByteArrayInputStream in = new ByteArrayInputStream(fileData);
-        try {
-            BufferedImage img = ImageIO.read(in);
-            if(height == 0) {
-                height = (width * img.getHeight())/ img.getWidth();
-            }
-            if(width == 0) {
-                width = (height * img.getWidth())/ img.getHeight();
-            }
-            Image scaledImage = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-            BufferedImage imageBuff = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
+    public static byte[] scale(byte[] oldImageData, int width, int height) {
 
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        ImagesService imagesService = ImagesServiceFactory.getImagesService();
 
-            ImageIO.write(imageBuff, "jpg", buffer);
+        Image oldImage = ImagesServiceFactory.makeImage(oldImageData);
+        Transform resize = ImagesServiceFactory.makeResize(width, height);
 
-            return buffer.toByteArray();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "problem occurred in scaling image", e);
-            return null;
-        }
+        Image newImage = imagesService.applyTransform(resize, oldImage);
+
+        byte[] newImageData = newImage.getImageData();
+        return newImageData;
     }
 
 }

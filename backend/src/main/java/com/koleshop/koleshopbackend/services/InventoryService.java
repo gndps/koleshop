@@ -1,11 +1,10 @@
 package com.koleshop.koleshopbackend.services;
 
-import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
-import com.koleshop.koleshopbackend.db.models.InventoryCategory;
-import com.koleshop.koleshopbackend.db.models.InventoryProduct;
-import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
-import com.koleshop.koleshopbackend.db.models.ProductVarietySelection;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.db.InventoryCategory;
+import com.koleshop.koleshopbackend.models.db.InventoryProduct;
+import com.koleshop.koleshopbackend.models.db.InventoryProductVariety;
+import com.koleshop.koleshopbackend.models.db.ProductVarietySelection;
 import com.koleshop.koleshopbackend.utils.CommonUtils;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 

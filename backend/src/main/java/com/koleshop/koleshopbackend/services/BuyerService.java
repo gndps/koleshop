@@ -1,20 +1,17 @@
 package com.koleshop.koleshopbackend.services;
 
 import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
-import com.koleshop.koleshopbackend.db.models.Address;
-import com.koleshop.koleshopbackend.db.models.BuyerSettings;
-import com.koleshop.koleshopbackend.db.models.InventoryCategory;
-import com.koleshop.koleshopbackend.db.models.InventoryProduct;
-import com.koleshop.koleshopbackend.db.models.SellerSearchResults;
-import com.koleshop.koleshopbackend.db.models.SellerSettings;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.db.Address;
+import com.koleshop.koleshopbackend.models.db.BuyerSettings;
+import com.koleshop.koleshopbackend.models.db.InventoryProduct;
+import com.koleshop.koleshopbackend.models.db.SellerSearchResults;
+import com.koleshop.koleshopbackend.models.db.SellerSettings;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
-import com.koleshop.koleshopbackend.utils.Reversed;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -44,33 +41,37 @@ public class BuyerService {
         logger.info("lat2 = " + lat2);
 
         List<SellerSettings> listOfNearbyShops = new ArrayList<>();
+
+
         Connection dbConnection = DatabaseConnection.getConnection();
         PreparedStatement preparedStatement = null;
 
-        logger.info("finding nearby shops - - -");
-
-        //find nearby shops
-        String query = "SELECT ss.id as seller_settings_id,ss.user_id as seller_id,ss.image_url,ss.header_image_url,ss.open_time,ss.close_time,ss.pickup_from_shop," +
-                "ss.home_delivery,ss.max_delivery_distance,ss.min_order,ss.delivery_charges,ss.carry_bag_charges,ss.delivery_start_time," +
-                "ss.delivery_end_time,a.id as address_id,a.name,a.address,a.phone_number,a.country_code,a.nickname,a.gps_long,a.gps_lat,seller_status.shop_open," +
-                " ( 6371000 * acos( cos( radians(?) ) * cos( radians( gps_lat ) ) " +
-                "* cos( radians( gps_long ) - radians(?) ) + sin( radians(?) ) * sin(radians(gps_lat)) ) ) AS distance " +
-                "FROM SellerSettings ss join Address a on ss.address_id=a.id " +
-                "JOIN SellerStatus seller_status on ss.user_id = seller_status.seller_id " +
-                "WHERE ss.valid = '1' and a.gps_long between ? and ? and a.gps_lat between ? and ? ";
-
-        if (homeDeliveryOnly) {
-            query += "and ss.home_delivery='1' ";
-        }
-        if (openShopsOnly) {
-            query += "and seller_status.shop_open = '1' ";
-        }
-
-        query += "HAVING distance < " + Constants.NEARBY_SHOPS_DISTANCE + " " +
-                "ORDER BY distance " +
-                "LIMIT ?, ?";
-
         try {
+            //dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            logger.info("finding nearby shops - - -");
+
+            //find nearby shops
+            String query = "SELECT ss.id as seller_settings_id,ss.user_id as seller_id,ss.image_url,ss.header_image_url,ss.open_time,ss.close_time,ss.pickup_from_shop," +
+                    "ss.home_delivery,ss.max_delivery_distance,ss.min_order,ss.delivery_charges,ss.carry_bag_charges,ss.delivery_start_time," +
+                    "ss.delivery_end_time,a.id as address_id,a.name,a.address,a.phone_number,a.country_code,a.nickname,a.gps_long,a.gps_lat,seller_status.shop_open," +
+                    " ( 6371000 * acos( cos( radians(?) ) * cos( radians( gps_lat ) ) " +
+                    "* cos( radians( gps_long ) - radians(?) ) + sin( radians(?) ) * sin(radians(gps_lat)) ) ) AS distance " +
+                    "FROM SellerSettings ss join Address a on ss.address_id=a.id " +
+                    "JOIN SellerStatus seller_status on ss.user_id = seller_status.seller_id " +
+                    "WHERE ss.valid = '1' and a.gps_long between ? and ? and a.gps_lat between ? and ? ";
+
+            if (homeDeliveryOnly) {
+                query += "and ss.home_delivery='1' ";
+            }
+            if (openShopsOnly) {
+                query += "and seller_status.shop_open = '1' ";
+            }
+
+            query += "HAVING distance < " + Constants.NEARBY_SHOPS_DISTANCE + " " +
+                    "ORDER BY distance " +
+                    "LIMIT ?, ?";
+
+
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setDouble(1, customerGpsLat);
             preparedStatement.setDouble(2, customerGpsLong);

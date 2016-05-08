@@ -11,18 +11,17 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
-import com.koleshop.koleshopbackend.db.models.Brand;
-import com.koleshop.koleshopbackend.db.models.InventoryProduct;
-import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
-import com.koleshop.koleshopbackend.db.models.deprecated.ProductVarietyAttribute;
-import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.models.ParentProductCategory;
-import com.koleshop.koleshopbackend.db.models.ProductCategory;
-import com.koleshop.koleshopbackend.db.models.deprecated.Product;
-import com.koleshop.koleshopbackend.db.models.deprecated.ProductInfoPackage;
-import com.koleshop.koleshopbackend.db.models.deprecated.ProductVariety;
-import com.koleshop.koleshopbackend.db.models.deprecated.ProductVarietyAttributeMeasuringUnit;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.db.Brand;
+import com.koleshop.koleshopbackend.models.db.InventoryProduct;
+import com.koleshop.koleshopbackend.models.db.InventoryProductVariety;
+import com.koleshop.koleshopbackend.models.db.deprecated.ProductVarietyAttribute;
+import com.koleshop.koleshopbackend.models.db.ParentProductCategory;
+import com.koleshop.koleshopbackend.models.db.ProductCategory;
+import com.koleshop.koleshopbackend.models.db.deprecated.Product;
+import com.koleshop.koleshopbackend.models.db.deprecated.ProductInfoPackage;
+import com.koleshop.koleshopbackend.models.db.deprecated.ProductVariety;
+import com.koleshop.koleshopbackend.models.db.deprecated.ProductVarietyAttributeMeasuringUnit;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 import com.koleshop.koleshopbackend.utils.ProductUtil;
 
@@ -112,6 +111,98 @@ public class ProductService {
         }
     }
 
+    public InventoryProduct addNewProductToInventory(InventoryProduct product, Long categoryId, Long userId, Long brandId) {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+        boolean rollbackTransaction = false;
+
+        String query = "insert into Inventory (name, brand, brand_id, category_id, private_user_id) values(?,?,?,?,?)";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setAutoCommit(false);
+            preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, product.getName());
+            preparedStatement.setString(2, product.getBrand());
+            preparedStatement.setLong(3, brandId);
+            preparedStatement.setLong(4, categoryId);
+            preparedStatement.setLong(5, userId);
+
+            // execute insert product SQL statement
+            preparedStatement.executeUpdate();
+            ResultSet keyResultSet = preparedStatement.getGeneratedKeys();
+            Long inventoryId = 0L;
+            if (keyResultSet.next()) {
+                inventoryId = keyResultSet.getLong(1);
+                product.setId(inventoryId);
+            }
+
+            if (inventoryId > 0) {
+                List<InventoryProductVariety> productVarieties = product.getVarieties();
+                for (InventoryProductVariety productVariety : productVarieties) {
+                    if(!productVariety.isValid()) {
+                        //this is a case when a variety is deleted from 'create similar product'
+                        continue;
+                    }
+                    //add product variety
+                    query = "insert into InventoryVariety (inventory_id, quantity, price, image, valid, global, private_user_id) " +
+                            "values (?,?,?,?,'1',?,?)";
+                    preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                    preparedStatement.setLong(1, inventoryId);
+                    preparedStatement.setString(2, productVariety.getQuantity());
+                    preparedStatement.setFloat(3, productVariety.getPrice());
+                    preparedStatement.setString(4, productVariety.getImageUrl());
+                    preparedStatement.setBoolean(5, false);
+                    preparedStatement.setLong(6, userId);
+                    preparedStatement.executeUpdate();
+                    ResultSet rs = preparedStatement.getGeneratedKeys();
+                    Long generatedInventoryVarietyId = 0L;
+                    if (rs.next()) {
+                        generatedInventoryVarietyId = rs.getLong(1);
+                    }
+                    if (generatedInventoryVarietyId > 0) {
+                        productVariety.setId(generatedInventoryVarietyId);
+                        //copy product from Inventory to Product
+                        query = "call copy_product_from_inventory(?,?)";
+                        preparedStatement = dbConnection.prepareStatement(query);
+                        preparedStatement.setLong(1, inventoryId);
+                        preparedStatement.setLong(2, userId);
+                        preparedStatement.executeQuery();
+                    } else {
+                        //product variety id not generated, some problem occurred;
+                        logger.log(Level.SEVERE, "inventory variety id not generated for userId = " + userId);
+                        rollbackTransaction = true;
+                        break;
+                    }
+                }
+
+            } else {
+                //product id not generated, some problem occurred;
+                logger.log(Level.SEVERE, "inventory id not generated for userId = " + userId);
+                rollbackTransaction = true;
+            }
+
+            if (rollbackTransaction) {
+                dbConnection.rollback();
+                logger.log(Level.SEVERE, "inventory/product creation failed for userId = " + userId);
+                product.setId(0L);
+                product = null;
+            } else {
+                dbConnection.commit();
+            }
+
+            DatabaseConnectionUtils.closeStatementAndConnection(preparedStatement, dbConnection);
+            return product;
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "product creation failed for userId = " + userId, e);
+            return null;
+        } finally {
+            DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
+        }
+    }
+
     public InventoryProduct updateProduct(InventoryProduct product, Long categoryId, Long userId, Long brandId) {
 
         Connection dbConnection = null;
@@ -136,16 +227,20 @@ public class ProductService {
             if(updated>0) {
                 //product belongs to the given userId
                 productInfoIsCorrect = true;
+                logger.log(Level.INFO, "product table was updated");
             } else {
                 //check that the product belongs the given userId
+                //this check is required for when product is not update (old information updated again)
                 query = "select count(*) from Product where id = ? and user_id = ?";
                 preparedStatement = dbConnection.prepareStatement(query);
                 ResultSet resultSetConfirm = preparedStatement.executeQuery();
                 if(resultSetConfirm!=null && resultSetConfirm.getInt(1) == 1) {
                     //the product information is correct
                     productInfoIsCorrect = true;
+                    logger.log(Level.INFO, "product belongs to this user");
                 } else {
                     productInfoIsCorrect = false;
+                    logger.log(Level.INFO, "product doesn't belong to this user");
                 }
             }
 
@@ -157,6 +252,7 @@ public class ProductService {
 
                     if (productVariety.getId()!=null && productVariety.getId() > 0) {
                         //update the product variety
+                        logger.log(Level.INFO, "updating existing product variety using id = " + productVariety.getId());
                         productVarietyId = productVariety.getId();
                         query = "update ProductVariety " +
                                 " set quantity=?, price=?, image=?, limited_stock=?, valid=? where id=?";
@@ -170,6 +266,7 @@ public class ProductService {
                         int update = preparedStatement.executeUpdate();
                         if (update <= 0) {
                             rollbackTransaction = true;
+                            logger.log(Level.WARNING, "will have to rollback product update transaction");
                             break;
                         }
                     } else {
@@ -183,7 +280,9 @@ public class ProductService {
                         preparedStatement.setLong(2, product.getId());
                         preparedStatement.setString(3, productVariety.getQuantity());
                         ResultSet rs = preparedStatement.executeQuery();
+                        logger.log(Level.INFO, "checking if product already exists in db or na = ");
                         if(rs!=null && rs.next()) {
+                            logger.log(Level.INFO, "a deleted product exists with quantity = " + productVariety.getQuantity());
                             productVarietyId = rs.getLong(1);
                             if(productVarietyId > 0) {
                                 query = "update ProductVariety " +
@@ -196,28 +295,90 @@ public class ProductService {
                                 preparedStatement.setLong(5, productVarietyId);
                                 int update = preparedStatement.executeUpdate();
                                 if (update <= 0) {
+                                    logger.log(Level.SEVERE, "could not update the deleted product");
                                     rollbackTransaction = true;
                                     break;
                                 }
+                                logger.log(Level.INFO, "deleted product added successfully to db again");
+                            } else {
+                                logger.log(Level.SEVERE, "delete product exists but id was zero");
+                                rollbackTransaction = true;
+                                break;
                             }
                         } else {
-                            //insert product variety
-                            query = "insert into ProductVariety (product_id, quantity, price, image, limited_stock, valid) " +
-                                    "values (?,?,?,?,?,'1');";
-                            preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                            //find inventory id -> insert new inventory variety -> copy inventory variety to product variety
+                            Long inventoryId = 0L;
+                            query = "select inventory_id from Product where id = ?";
+                            preparedStatement = dbConnection.prepareStatement(query);
                             preparedStatement.setLong(1, product.getId());
-                            preparedStatement.setString(2, productVariety.getQuantity());
-                            preparedStatement.setFloat(3, productVariety.getPrice());
-                            preparedStatement.setString(4, productVariety.getImageUrl());
-                            preparedStatement.setBoolean(5, productVariety.isLimitedStock());
-                            preparedStatement.executeUpdate();
-                            rs = preparedStatement.getGeneratedKeys();
-
-                            if (rs.next()) {
-                                productVarietyId = rs.getLong(1);
+                            ResultSet resultSetProduct = preparedStatement.executeQuery();
+                            if(resultSetProduct.next()) {
+                                inventoryId = resultSetProduct.getLong(1);
                             }
-                            if (productVarietyId > 0l) {
-                                productVariety.setId(productVarietyId);
+                            if (inventoryId > 0l) {
+                                logger.log(Level.INFO, "found inventory id for product id = " + product.getId());
+                                //found inventory id
+                                //now add a new inventory variety and then copy it to product variety
+                                query = "insert into InventoryVariety (inventory_id, quantity, price, image, valid, global, private_user_id) " +
+                                        "values (?,?,?,?,'1',?,?)";
+                                preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                                preparedStatement.setLong(1, inventoryId);
+                                preparedStatement.setString(2, productVariety.getQuantity());
+                                preparedStatement.setFloat(3, productVariety.getPrice());
+                                preparedStatement.setString(4, productVariety.getImageUrl());
+                                preparedStatement.setBoolean(5, false);
+                                preparedStatement.setLong(6, userId);
+                                preparedStatement.executeUpdate();
+                                rs = preparedStatement.getGeneratedKeys();
+                                Long addedInventoryVariety = 0l;
+
+                                if (rs.next()) {
+                                    addedInventoryVariety = rs.getLong(1);
+                                }
+
+                                if(addedInventoryVariety > 0 ) {
+                                    logger.log(Level.INFO, "added new inventory variety with inventoryId = " + inventoryId +
+                                    " , quantity = " + productVariety.getQuantity() + " and price = " + productVariety.getPrice());
+                                    //copy this to product variety
+                                    String copyQuery = "call copy_iv_to_pv(?,?,?)";
+                                    preparedStatement = dbConnection.prepareStatement(copyQuery);
+                                    preparedStatement.setLong(1, product.getId());
+                                    preparedStatement.setLong(2, addedInventoryVariety);
+                                    preparedStatement.setBoolean(3, true);
+                                    int copiedIvToPv = preparedStatement.executeUpdate();
+                                    if(copiedIvToPv > 0) {
+                                        //all done
+                                    } else {
+                                        rollbackTransaction = true;
+                                        break;
+                                    }
+                                } else {
+                                    rollbackTransaction = true;
+                                    break;
+                                }
+
+
+                                /* query = "insert into ProductVariety (product_id, quantity, price, image, limited_stock, valid) " +
+                                        "values (?,?,?,?,?,'1');";
+                                preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                                preparedStatement.setLong(1, product.getId());
+                                preparedStatement.setString(2, productVariety.getQuantity());
+                                preparedStatement.setFloat(3, productVariety.getPrice());
+                                preparedStatement.setString(4, productVariety.getImageUrl());
+                                preparedStatement.setBoolean(5, productVariety.isLimitedStock());
+                                preparedStatement.executeUpdate();
+                                rs = preparedStatement.getGeneratedKeys();
+
+                                if (rs.next()) {
+                                    productVarietyId = rs.getLong(1);
+                                }
+                                if (productVarietyId > 0l) {
+                                    productVariety.setId(productVarietyId);
+                                } else {
+                                    rollbackTransaction = true;
+                                    break;
+                                }*/
+
                             } else {
                                 rollbackTransaction = true;
                                 break;
@@ -258,7 +419,7 @@ public class ProductService {
         Long brandId = getBrandId(product);
         InventoryProduct savedProduct;
         if (product.getId() == 0) {
-            savedProduct = addNewProduct(product, categoryId, userId, brandId);
+            savedProduct = addNewProductToInventory(product, categoryId, userId, brandId);
         } else {
             savedProduct = updateProduct(product, categoryId, userId, brandId);
         }

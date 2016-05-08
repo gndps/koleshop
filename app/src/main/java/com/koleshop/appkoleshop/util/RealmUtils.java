@@ -156,7 +156,7 @@ public class RealmUtils {
             address.setValidAddress(false);
             address.setUpdatedDate(buyerAddress.getUpdatedDate());
         } else {
-            address.removeFromRealm();
+            address.deleteFromRealm();
         }
         realm.commitTransaction();
         realm.close();
@@ -251,7 +251,7 @@ public class RealmUtils {
         SellerSettings sellerSettingsRealm = realmQuery.findFirst();
         realm.beginTransaction();
         if (sellerSettingsRealm != null) {
-            sellerSettingsRealm.removeFromRealm();
+            sellerSettingsRealm.deleteFromRealm();
         }
         realm.commitTransaction();
         realm.close();

@@ -53,13 +53,11 @@ public class RegistrationIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        Log.d(TAG, "log something");
-        Log.d(TAG, "just chill");
-
         if (intent.getAction().equalsIgnoreCase(REGISTRATION_INTENT_SERVICE_ACTION_REGISTER)) {
+            Log.d(TAG, "will register device with google servers");
             registerDeviceWithGoogle(intent, true); //broadcast when device registered
         } else if (intent.getAction().equalsIgnoreCase(REGISTRATION_INTENT_SERVICE_ACTION_UPDATE_TOKEN_ON_SERVER)) {
-
+            Log.d(TAG, "updating google token on server");
             boolean latestTokenAvailable = PreferenceUtils.getPreferencesFlag(this, Constants.FLAG_LATEST_TOKEN_AVAILABLE);
 
             if(!latestTokenAvailable) {

@@ -23,6 +23,8 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.30'
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile files('libs/gcm-server.jar')
     compile 'com.google.appengine:appengine-endpoints:1.9.30'
     compile 'com.google.appengine:appengine-endpoints-deps:1.9.30'
     compile 'javax.servlet:servlet-api:2.5'
@@ -39,7 +41,7 @@ dependencies {
     compile 'com.google.appengine:appengine-testing:1.9.30'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.google.http-client:google-http-client-gson:1.19.0'
-    compile 'com.google.gcm:gcm-server:1.0.0'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
 }
 
 appengine {
@@ -50,5 +52,6 @@ appengine {
     endpoints {
         getClientLibsOnBuild = true
         getDiscoveryDocsOnBuild = true
+        clientLibJarOut = file("/Users/Gundeep/Desktop/generatedLibs")
     }
 }

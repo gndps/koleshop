@@ -1,6 +1,6 @@
 package com.koleshop.koleshopbackend.services;
 
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
 import java.sql.Connection;

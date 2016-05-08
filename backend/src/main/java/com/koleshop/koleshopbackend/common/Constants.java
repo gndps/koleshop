@@ -11,6 +11,10 @@ public class Constants {
 	public static String SMS_GATEWAY_URL_3 = "http://api.textlocal.in/send/?hash=d5e932e2bc681c6e9f26152a08c814f02ab8e70d&user=gndpsingh@gmail.com&sender=TXTLCL";
 
 	//public static String ANDROID_CLIENT_ID = "210363682882-3kf1gq0536du05c7o4gi0itssaun7mp1.apps.googleusercontent.com";
+	public static final String ADMIN_APP_CLIENT_ID = "885947438841-d7pforksa0jfvbea1rufcq0o1vef51q4.apps.googleusercontent.com";
+	public static final String WEB_CLIENT_ID = "885947438841-cmjuupacclqrmd9u7a3m2e3ccsp8dmte.apps.googleusercontent.com";
+	public static final String ANDROID_AUDIENCE = WEB_CLIENT_ID;
+	public static final String ADMIN_APP_TOPIC = "/topics/admin_messages";
 
 	//String web_secret_key = "nIBgWk7djMkenJ8lVh0N6LnK";
 

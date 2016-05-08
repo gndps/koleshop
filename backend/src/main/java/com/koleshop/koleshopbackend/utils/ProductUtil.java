@@ -1,9 +1,9 @@
 package com.koleshop.koleshopbackend.utils;
 
-import com.koleshop.koleshopbackend.db.models.deprecated.ProductVarietyAttribute;
-import com.koleshop.koleshopbackend.db.models.deprecated.Product;
-import com.koleshop.koleshopbackend.db.models.deprecated.ProductInfoPackage;
-import com.koleshop.koleshopbackend.db.models.deprecated.ProductVariety;
+import com.koleshop.koleshopbackend.models.db.deprecated.ProductVarietyAttribute;
+import com.koleshop.koleshopbackend.models.db.deprecated.Product;
+import com.koleshop.koleshopbackend.models.db.deprecated.ProductInfoPackage;
+import com.koleshop.koleshopbackend.models.db.deprecated.ProductVariety;
 
 import java.util.ArrayList;
 import java.util.List;

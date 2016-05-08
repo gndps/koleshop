@@ -1,6 +1,6 @@
 package com.koleshop.koleshopbackend.utils;
 
-import com.koleshop.koleshopbackend.db.models.RestCallResponse;
+import com.koleshop.koleshopbackend.models.db.RestCallResponse;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;

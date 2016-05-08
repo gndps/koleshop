@@ -1,13 +1,13 @@
 package com.koleshop.koleshopbackend.services;
 
-import com.google.android.gcm.server.Message;
 import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
-import com.koleshop.koleshopbackend.db.models.Address;
-import com.koleshop.koleshopbackend.db.models.EssentialInfo;
-import com.koleshop.koleshopbackend.db.models.KoleResponse;
-import com.koleshop.koleshopbackend.db.models.SellerSettings;
 import com.koleshop.koleshopbackend.gcm.GcmHelper;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.db.Address;
+import com.koleshop.koleshopbackend.models.db.EssentialInfo;
+import com.koleshop.koleshopbackend.models.db.KoleResponse;
+import com.koleshop.koleshopbackend.models.db.SellerSettings;
+import com.koleshop.koleshopbackend.models.gcm.Message;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
 import java.sql.Connection;
@@ -231,6 +231,7 @@ public class CommonService {
                 //delete any old caches stored in phones
                 Message gcmMessage = new Message.Builder()
                         .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE)
+                        .priority(Message.Priority.HIGH)
                         .addData("type", Constants.GCM_NOTI_DELETE_OLD_SETTINGS_CACHE)
                         .build();
                 GcmHelper.notifyUser(userId, gcmMessage, 2);

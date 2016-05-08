@@ -53,12 +53,13 @@
             style="@style/VerticalDivider"
             android:id="@+id/view_vertical_divider"
             android:layout_marginBottom="16dp"
+            android:visibility="gone"
             android:layout_marginTop="16dp" />
 
         <LinearLayout
             android:id="@+id/ll_inventory_product_click_area_2"
             android:layout_width="88dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:padding="8dp"
             android:gravity="center"
             android:clickable="true"

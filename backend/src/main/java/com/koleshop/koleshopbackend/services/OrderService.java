@@ -1,18 +1,17 @@
 package com.koleshop.koleshopbackend.services;
 
-import com.google.android.gcm.server.Message;
 import com.google.gson.Gson;
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.common.OrderStatus;
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
-import com.koleshop.koleshopbackend.db.models.Address;
-import com.koleshop.koleshopbackend.db.models.BuyerSettings;
-import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
-import com.koleshop.koleshopbackend.db.models.KoleResponse;
-import com.koleshop.koleshopbackend.db.models.Order;
-import com.koleshop.koleshopbackend.db.models.OrderItem;
-import com.koleshop.koleshopbackend.db.models.SellerSettings;
 import com.koleshop.koleshopbackend.gcm.GcmHelper;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.db.Address;
+import com.koleshop.koleshopbackend.models.db.BuyerSettings;
+import com.koleshop.koleshopbackend.models.db.KoleResponse;
+import com.koleshop.koleshopbackend.models.db.Order;
+import com.koleshop.koleshopbackend.models.db.OrderItem;
+import com.koleshop.koleshopbackend.models.db.SellerSettings;
+import com.koleshop.koleshopbackend.models.gcm.Message;
 import com.koleshop.koleshopbackend.utils.CommonUtils;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
@@ -226,6 +225,7 @@ public class OrderService {
         //send notification to seller
         Message gcmMessage = new Message.Builder()
                 .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_UPDATED)
+                .priority(Message.Priority.HIGH)
                 .addData("type", Constants.GCM_NOTI_ORDER_UPDATED)
                 .addData("status", OrderStatus.INCOMING + "")
                 .addData("orderId", order.getId().toString())
@@ -234,6 +234,10 @@ public class OrderService {
                 .addData("imageUrl", order.getBuyerSettings().getImageUrl() + "")
                 .build();
         GcmHelper.notifyUser(order.getSellerSettings().getUserId(), gcmMessage, 2);
+
+        //send notification to admin app
+        GcmHelper.notifyAdmin(gcmMessage, 2);
+
 
         return order;
     }
@@ -364,15 +368,19 @@ public class OrderService {
 
         Message gcmMessage = new Message.Builder()
                 .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_ORDER_UPDATED)
+                .priority(Message.Priority.HIGH)
                 .addData("type", Constants.GCM_NOTI_ORDER_UPDATED)
                 .addData("status", order.getStatus() + "")
                 .addData("orderId", order.getId().toString())
                 .addData("name", name)
                 .addData("amount", order.getAmountPayable() + "")
                 .addData("imageUrl", imageUrl)
+                .addData("updatedByBuyer", updatedByBuyer + "")
                 .build();
 
         GcmHelper.notifyUser(userId, gcmMessage, 3);
+
+        GcmHelper.notifyAdmin(gcmMessage, 3);
     }
 
     public Order getOrderForId(Long orderId, Long userId) {

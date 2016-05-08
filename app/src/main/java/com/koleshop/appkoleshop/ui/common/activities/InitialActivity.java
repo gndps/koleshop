@@ -104,7 +104,9 @@ public class InitialActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        KoleshopUtils.showTheUpdateNotificationsIfRequired(mContext);
+        if(PreferenceUtils.isSessionTypeSeller(mContext)) {
+            KoleshopUtils.showTheUpdateNotificationsIfRequired(mContext);
+        }
     }
 
 
