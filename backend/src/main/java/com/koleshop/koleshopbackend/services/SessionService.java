@@ -1,30 +1,28 @@
 package com.koleshop.koleshopbackend.services;
 
+import com.google.appengine.api.ThreadManager;
+import com.google.gson.Gson;
+import com.koleshop.koleshopbackend.common.Constants;
+import com.koleshop.koleshopbackend.gcm.GcmHelper;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.db.RestCallResponse;
+import com.koleshop.koleshopbackend.models.db.Session;
+import com.koleshop.koleshopbackend.models.gcm.Message;
+import com.koleshop.koleshopbackend.utils.CommonUtils;
+import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
+import com.koleshop.koleshopbackend.utils.Md5Hash;
+import com.koleshop.koleshopbackend.utils.RestClient;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.google.android.gcm.server.Message;
-import com.google.appengine.api.ThreadManager;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
-import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.models.RestCallResponse;
-import com.koleshop.koleshopbackend.db.models.Session;
-import com.koleshop.koleshopbackend.gcm.GcmHelper;
-import com.koleshop.koleshopbackend.utils.CommonUtils;
-import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
-import com.koleshop.koleshopbackend.utils.Md5Hash;
-import com.koleshop.koleshopbackend.utils.RestClient;
 
 public class SessionService {
 
@@ -315,6 +313,7 @@ public class SessionService {
                             if (update > 0) {
                                 Message gcmMessage = new Message.Builder()
                                         .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_INVENTORY_CREATED)
+                                        .priority(Message.Priority.HIGH)
                                         .addData("type", Constants.GCM_NOTI_USER_INVENTORY_CREATED)
                                         .addData("deviceAdded", "true")
                                         .build();

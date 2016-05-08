@@ -1,9 +1,5 @@
 package com.koleshop.koleshopbackend.services;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.services.storage.StorageScopes;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.ImagesService;
@@ -11,11 +7,8 @@ import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.Transform;
 import com.google.gcloud.storage.Acl;
 import com.google.gcloud.storage.BlobInfo;
-import com.google.gcloud.storage.Bucket;
-import com.google.gson.Gson;
-import com.google.gson.internal.bind.TypeAdapters;
 import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.models.ImageUploadRequest;
+import com.koleshop.koleshopbackend.models.db.ImageUploadRequest;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -40,7 +33,6 @@ import com.koleshop.koleshopbackend.utils.PropertiesCache;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -152,7 +144,7 @@ public class KoleshopCloudStorageService {
         boolean mediumUploaded = uploadImage(scaleImageUploadRequest(imageUploadRequest, Constants.PRODUCT_IMAGE_MEDIUM_SIZE)
                 , Constants.PUBLIC_PRODUCT_IMAGE_FOLDER_MEDIUM);
         boolean smallUploaded = uploadImage(scaleImageUploadRequest(imageUploadRequest, Constants.PRODUCT_IMAGE_SMALL_SIZE)
-                , Constants.PUBLIC_PRODUCT_IMAGE_FOLDER_LARGE);
+                , Constants.PUBLIC_PRODUCT_IMAGE_FOLDER_SMALL);
         return largeUploaded && mediumUploaded && smallUploaded;
     }
 

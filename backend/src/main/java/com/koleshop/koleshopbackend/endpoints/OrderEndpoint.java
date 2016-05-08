@@ -5,8 +5,8 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.models.KoleResponse;
-import com.koleshop.koleshopbackend.db.models.Order;
+import com.koleshop.koleshopbackend.models.db.KoleResponse;
+import com.koleshop.koleshopbackend.models.db.Order;
 import com.koleshop.koleshopbackend.services.OrderService;
 import com.koleshop.koleshopbackend.services.SessionService;
 

@@ -97,7 +97,7 @@ public class CartUtils {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Cart> carts = realm.where(Cart.class).findAll();
         realm.beginTransaction();
-        carts.clear();
+        carts.deleteAllFromRealm();
         realm.commitTransaction();
         realm.close();
 
@@ -131,7 +131,7 @@ public class CartUtils {
                     //this cart doesn't exist
                 } else {
                     realm.beginTransaction();
-                    realmCart.removeFromRealm();
+                    realmCart.deleteFromRealm();
                     realm.commitTransaction();
                 }
                 realm.close();

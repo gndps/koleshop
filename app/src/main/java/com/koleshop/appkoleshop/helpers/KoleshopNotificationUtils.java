@@ -375,7 +375,7 @@ public class KoleshopNotificationUtils {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<OrderLite> orders = realm.where(OrderLite.class).findAll();
         realm.beginTransaction();
-        orders.clear();
+        orders.deleteAllFromRealm();
         realm.commitTransaction();
         realm.close();
     }
@@ -389,7 +389,7 @@ public class KoleshopNotificationUtils {
         } else {
             OrderLite orderLite = ordersLite.first();
             realm.beginTransaction();
-            orderLite.removeFromRealm();
+            orderLite.deleteFromRealm();
             realm.commitTransaction();
             realm.close();
         }

@@ -2,6 +2,7 @@ package com.koleshop.appkoleshop.ui.seller.viewholders;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -119,6 +120,9 @@ public class InventoryProductViewHolder extends RecyclerView.ViewHolder implemen
     public void sendImageFetchRequest(final Context context) {
         //loading product image
         imageUrl = KoleshopUtils.getSmallImageUrl(imageUrl);
+        if(TextUtils.isEmpty(imageUrl)) {
+            imageUrl = null;
+        }
         Picasso.with(context)
                 .load(imageUrl)
                 .networkPolicy(NetworkPolicy.OFFLINE)

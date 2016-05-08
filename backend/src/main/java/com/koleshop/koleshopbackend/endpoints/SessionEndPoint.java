@@ -4,9 +4,9 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
-import com.koleshop.koleshopbackend.db.models.KoleResponse;
+import com.koleshop.koleshopbackend.models.db.KoleResponse;
 import com.koleshop.koleshopbackend.services.SessionService;
-import com.koleshop.koleshopbackend.db.models.RestCallResponse;
+import com.koleshop.koleshopbackend.models.db.RestCallResponse;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

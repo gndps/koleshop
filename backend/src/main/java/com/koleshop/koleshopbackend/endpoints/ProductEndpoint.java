@@ -5,11 +5,10 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.models.InventoryProduct;
-import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
-import com.koleshop.koleshopbackend.db.models.KoleResponse;
-import com.koleshop.koleshopbackend.db.models.RestCallResponse;
-import com.koleshop.koleshopbackend.db.models.deprecated.Product;
+import com.koleshop.koleshopbackend.models.db.InventoryProduct;
+import com.koleshop.koleshopbackend.models.db.InventoryProductVariety;
+import com.koleshop.koleshopbackend.models.db.KoleResponse;
+import com.koleshop.koleshopbackend.models.db.deprecated.Product;
 import com.koleshop.koleshopbackend.services.ProductService;
 import com.koleshop.koleshopbackend.services.SessionService;
 

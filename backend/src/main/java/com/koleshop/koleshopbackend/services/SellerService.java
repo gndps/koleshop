@@ -1,12 +1,11 @@
 package com.koleshop.koleshopbackend.services;
 
-import com.google.android.gcm.server.Message;
 import com.koleshop.koleshopbackend.common.Constants;
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
-import com.koleshop.koleshopbackend.db.models.InventoryProduct;
-import com.koleshop.koleshopbackend.db.models.InventoryProductVariety;
 import com.koleshop.koleshopbackend.gcm.GcmHelper;
-import com.koleshop.koleshopbackend.utils.CommonUtils;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.db.InventoryProduct;
+import com.koleshop.koleshopbackend.models.db.InventoryProductVariety;
+import com.koleshop.koleshopbackend.models.gcm.Message;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
 import java.sql.Connection;
@@ -45,6 +44,7 @@ public class SellerService {
             //delete any old caches stored in phones
             Message gcmMessage = new Message.Builder()
                     .collapseKey(Constants.GCM_NOTI_COLLAPSE_KEY_DELETE_OLD_SETTINGS_CACHE)
+                    .priority(Message.Priority.HIGH)
                     .addData("type", Constants.GCM_NOTI_DELETE_OLD_SETTINGS_CACHE)
                     .build();
             GcmHelper.notifyUser(sellerId, gcmMessage, 2);
@@ -145,11 +145,12 @@ public class SellerService {
                 " select * from ( " +
                 " select distinct(id) from ( " +
                 selectAllProductsQuery +
-                " ) ps limit ? offset ?) psTemp) order by brand asc, p.name asc, price asc ;";
+                " ) ps limit ? offset ?) psTemp) order by brand asc, id, p.name asc, price asc ;";
 
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(limitedSearchQuery);
 
             int index = 1;

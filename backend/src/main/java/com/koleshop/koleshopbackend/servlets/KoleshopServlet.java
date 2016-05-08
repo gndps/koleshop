@@ -2,7 +2,7 @@ package com.koleshop.koleshopbackend.servlets;
 
 import com.koleshop.koleshopbackend.common.Constants;
 import com.koleshop.koleshopbackend.common.OrderStatus;
-import com.koleshop.koleshopbackend.db.connection.DatabaseConnection;
+import com.koleshop.koleshopbackend.models.connection.DatabaseConnection;
 import com.koleshop.koleshopbackend.utils.DatabaseConnectionUtils;
 
 import java.io.IOException;
