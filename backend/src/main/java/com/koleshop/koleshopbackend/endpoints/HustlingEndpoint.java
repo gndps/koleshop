@@ -51,4 +51,18 @@ public class HustlingEndpoint {
         }
     }
 
+    @ApiMethod(name = "hustle.activateShopWithPhoneNumber")
+    public KoleResponse activateShopWithPhoneNumber(@Named("phoneNumber") Long phoneNumber, User user) {
+        if(user!=null) {
+            boolean activated = new HustleService().activateShopWithPhoneNumber(phoneNumber);
+            if(activated) {
+                return KoleResponse.successResponse();
+            } else {
+                return KoleResponse.failedResponse("invalid user");
+            }
+        } else {
+            return KoleResponse.failedResponse("you gotta hustle your own way!");
+        }
+    }
+
 }

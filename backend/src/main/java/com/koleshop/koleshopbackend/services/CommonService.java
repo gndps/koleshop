@@ -279,6 +279,7 @@ public class CommonService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
 
             preparedStatement.setLong(1, userId);
@@ -382,6 +383,7 @@ public class CommonService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
 
             ResultSet rs = preparedStatement.executeQuery();

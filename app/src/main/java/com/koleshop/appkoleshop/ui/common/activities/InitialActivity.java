@@ -353,9 +353,9 @@ public class InitialActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         setProgressing(false);
+                        Toast.makeText(mContext, R.string.pick_account, Toast.LENGTH_SHORT).show();
                     }
                 });
-                Toast.makeText(this, R.string.pick_account, Toast.LENGTH_SHORT).show();
             }
         } else if ((requestCode == REQUEST_CODE_RECOVER_FROM_AUTH_ERROR ||
                 requestCode == REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR)
@@ -430,9 +430,9 @@ public class InitialActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         setProgressing(false);
+                        internetConnectionCheck();
                     }
                 });
-                internetConnectionCheck();
             }
             return null;
         }

@@ -1,12 +1,14 @@
 package com.koleshop.appkoleshop.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -31,6 +33,7 @@ import com.koleshop.appkoleshop.model.realm.EssentialInfo;
 import com.koleshop.appkoleshop.model.realm.Product;
 import com.koleshop.appkoleshop.model.realm.ProductVariety;
 import com.koleshop.appkoleshop.services.CommonIntentService;
+import com.koleshop.appkoleshop.services.KeepGcmAliveService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -345,6 +348,9 @@ public class KoleshopUtils {
             @Override
             protected Void doInBackground(Void... params) {
                 EssentialInfo essentialInfo = RealmUtils.getEssentialInfo();
+                if(essentialInfo == null) {
+                    return null;
+                }
                 boolean isBuyer = PreferenceUtils.isSessionTypeBuyer(context);
                 if (essentialInfo != null) {
                     Log.d(TAG, "handshake info is not null");
@@ -434,6 +440,14 @@ public class KoleshopUtils {
             Log.e(TAG, "exception in doesTheAppNeedsImmediateUpdate", e);
             return false;
         }
+    }
+
+    public static void keepGcmConnectionAlive(Context context) {
+        Log.d(TAG, "keeping GCM connection alive");
+        Intent keepGcmAliveIntent = new Intent(context, KeepGcmAliveService.class);
+        keepGcmAliveIntent.setAction(KeepGcmAliveService.ACTION_KEEP_GCM_ALIVE);
+        WakefulBroadcastReceiver.startWakefulService(context, keepGcmAliveIntent);
+        //context.startService(keepGcmAliveIntent);
     }
 
 }

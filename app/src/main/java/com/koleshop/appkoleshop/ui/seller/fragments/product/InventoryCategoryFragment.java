@@ -372,7 +372,7 @@ public class InventoryCategoryFragment extends Fragment {
 
             //2. add products from warehouse
             final FloatingActionButton actionAddFromWarehouse = new FloatingActionButton(mContext);
-            actionAddFromWarehouse.setTitle("✓/✗ from Ware House");
+            actionAddFromWarehouse.setTitle(mContext.getString(R.string.add_from_warehouse));
             actionAddFromWarehouse.setSize(FloatingActionButton.SIZE_MINI);
             actionAddFromWarehouse.setColorNormalResId(R.color.white);
             actionAddFromWarehouse.setColorPressedResId(R.color.offwhite);

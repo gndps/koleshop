@@ -50,6 +50,7 @@ public class InventoryService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
 
             if (myInventory) {
@@ -91,6 +92,7 @@ public class InventoryService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
             if (myInventory) {
                 preparedStatement.setLong(1, userId);
@@ -166,6 +168,7 @@ public class InventoryService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(newQuery);
             preparedStatement.setLong(1, userId);
             preparedStatement.setLong(2, categoryId);
@@ -297,6 +300,7 @@ public class InventoryService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(newQuery);
             preparedStatement.setLong(1, userId);
 

@@ -29,12 +29,14 @@ import android.widget.TextView;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
+import com.koleshop.appkoleshop.network.volley.VolleyUtil;
 import com.koleshop.appkoleshop.services.CommonIntentService;
 import com.koleshop.appkoleshop.ui.buyer.fragments.AddressesFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.MyOrdersFragment;
 import com.koleshop.appkoleshop.ui.buyer.fragments.NearbyShopsFragment;
 import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
 import com.koleshop.appkoleshop.ui.common.activities.FeedbackActivity;
+import com.koleshop.appkoleshop.ui.common.activities.InitialActivity;
 import com.koleshop.appkoleshop.ui.common.activities.LegalActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.ui.common.fragments.NotImplementedFragment;
@@ -109,6 +111,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
             }
             setupDrawerLayout(showDefaultFragment);
             CommonIntentService.loadEssentialInformationInBackground(mContext, true);
+            KoleshopUtils.keepGcmConnectionAlive(mContext);
         }
     }
 
@@ -600,6 +603,7 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
                                 PreferenceUtils.setPreferences(mContext, Constants.KEY_USER_ID, "");
                                 PreferenceUtils.setPreferences(mContext, Constants.KEY_SESSION_ID, "");
                                 refreshLoginLogoutStates();
+                                //logoutAndGoToInitialScreen();
                             }
                         })
                         .setNegativeButton("CANCEL", null);
@@ -765,6 +769,13 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
     @Override
     public void setBackButtonHandledByFragment(boolean backHandled) {
         this.backHandled = backHandled;
+    }
+
+    private void logoutAndGoToInitialScreen() {
+        VolleyUtil.getInstance().clearAppData();
+        Intent intentInitialActivity = new Intent(mContext, InitialActivity.class);
+        intentInitialActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intentInitialActivity);
     }
 
 }

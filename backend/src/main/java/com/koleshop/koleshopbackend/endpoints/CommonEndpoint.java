@@ -127,7 +127,7 @@ public class CommonEndpoint {
     public List<Brand> getAllBrands(@Named("userId") Long userId, @Named("sessionId") String sessionId) {
         try {
             if (SessionService.verifyUserAuthenticity(userId, sessionId)) {
-                return new ProductService().getAllBrands();
+                return new ProductService().getAllBrands(userId);
             } else {
                 return null;
             }

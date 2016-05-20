@@ -60,3 +60,8 @@
 }
 
 -keep class org.parceler.Parceler$$Parcels
+
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+}

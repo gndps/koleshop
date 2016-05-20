@@ -420,6 +420,7 @@ public class ShopActivity extends AppCompatActivity {
         String openOrClosed = "";
 
         String deliveryPickupInfo;
+        String shopInfoSubtitle;
         if (sellerSettings.isHomeDelivery()) {
             if (KoleshopUtils.doesSellerDeliverToBuyerLocation(sellerSettings)) {
                 //home delivery is available to this location
@@ -428,16 +429,18 @@ public class ShopActivity extends AppCompatActivity {
                     //OPEN
                     openOrClosed = "Open";
                 } else {
-                    openOrClosed = "Open (delivery time over)";
+                    openOrClosed = "Open (Delivery Time Over)";
                 }
             } else {
                 //seller don't delivery at this location - ORANGE ICON
                 deliveryPickupInfo = "No delivery to your location";
                 openOrClosed = "Open";
             }
+            shopInfoSubtitle = "Min. order " + CommonUtils.getPriceStringFromFloat(sellerSettings.getMinimumOrder(), true) + "\n" + deliveryPickupInfo;
         } else {
             //only pickup available - ORANGE ICON
             deliveryPickupInfo = "Pickup Only";
+            shopInfoSubtitle = deliveryPickupInfo;
             openOrClosed = "Open (pickup only)";
         }
 
@@ -447,7 +450,7 @@ public class ShopActivity extends AppCompatActivity {
         }
 
         textViewOpenClosed.setText(openOrClosed);
-        textViewDeliveryTimings.setText(deliveryPickupInfo);
+        textViewDeliveryTimings.setText(shopInfoSubtitle);
 
     }
 

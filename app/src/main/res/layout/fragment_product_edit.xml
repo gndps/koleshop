@@ -58,7 +58,7 @@
                     app:met_primaryColor="@color/accent"
                     android:imeOptions="actionDone"
                     android:capitalize="words"
-                    android:inputType="textCapSentences|textNoSuggestions"
+                    android:inputType="textCapWords|textNoSuggestions"
                     android:maxLines="1" />
 
                 <com.rengwuxian.materialedittext.MaterialAutoCompleteTextView

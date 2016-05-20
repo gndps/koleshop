@@ -223,8 +223,8 @@ public class KoleCacheUtil {
         RealmQuery<ProductCategory> query2 = realm.where(ProductCategory.class);
         ProductCategory productCategory = query2.equalTo("id", product.getCategoryId()).findFirst();
         if (productCategory != null && productCategory.getId() > 0) {
-            productCategory.setAddedToMyShop(true);
             realm.beginTransaction();
+            productCategory.setAddedToMyShop(true);
             realm.copyToRealmOrUpdate(productCategory);
             realm.commitTransaction();
         }

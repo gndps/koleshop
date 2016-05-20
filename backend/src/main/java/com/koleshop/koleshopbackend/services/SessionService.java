@@ -56,6 +56,8 @@ public class SessionService {
                         gatewayUrl = Constants.SMS_GATEWAY_URL_3;
                     }
                     RestCallResponse otpRequestResponse = RestClient.sendGet(gatewayUrl, hashmap);
+                    /*RestCallResponse otpRequestResponse = null;
+                    if (true || otpRequestResponse.getStatus().equalsIgnoreCase("success")) {*/
                     if (otpRequestResponse.getStatus().equalsIgnoreCase("success")) {
                         RestCallResponse restCallResponse = new RestCallResponse();
                         restCallResponse.setStatus("success");
@@ -353,6 +355,7 @@ public class SessionService {
         String query = "update Session set valid='1' where id=?";
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setString(1, sessionId);
             System.out.println(query);
@@ -509,6 +512,7 @@ public class SessionService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setLong(1, phone);
             System.out.println(query);

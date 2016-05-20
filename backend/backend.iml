@@ -77,7 +77,7 @@
     <orderEntry type="library" exported="" name="protobuf-java-2.5.0" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-protobuf-1.15.0-rc" level="project" />
     <orderEntry type="library" exported="" name="gson-2.4" level="project" />
-    <orderEntry type="library" exported="" name="appengine-api-1.0-sdk-1.9.36" level="project" />
+    <orderEntry type="library" exported="" name="appengine-api-1.0-sdk-1.9.37" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-1.22.0" level="project" />
     <orderEntry type="library" exported="" name="google-oauth-client-appengine-1.22.0" level="project" />
     <orderEntry type="library" exported="" name="google-api-client-1.22.0" level="project" />

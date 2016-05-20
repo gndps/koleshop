@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -547,6 +548,7 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         removeEmptyProductVarieties();
         ProductIntentService.saveProduct(mContext, product, productSaveRequestTag);
         savingProduct = true;
+        addBrandIfNotExists();
     }
 
     private boolean validateProductBeforeSaving() {
@@ -754,5 +756,15 @@ public class ProductActivity extends AppCompatActivity implements ProductVariety
         if (activity != null && activity.getCurrentFocus() != null) {
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
         }
+    }
+
+    private void addBrandIfNotExists() {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                RealmUtils.addBrandIfNotExistsInRealm(product.getBrand());
+                return null;
+            }
+        }.execute();
     }
 }
