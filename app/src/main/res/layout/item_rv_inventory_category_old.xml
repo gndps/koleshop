@@ -14,7 +14,7 @@
         android:layout_marginTop="16dp"
         app:civ_border_width="1dp"
         app:civ_border_color="@color/black3"
-        android:src="@drawable/noun_flour_174576" />
+        android:src="@drawable/ic_koleshop_logo_24dp" />
 
     <LinearLayout
         android:layout_width="match_parent"

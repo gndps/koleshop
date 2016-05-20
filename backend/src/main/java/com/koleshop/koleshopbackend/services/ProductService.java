@@ -416,7 +416,7 @@ public class ProductService {
     }
 
     public InventoryProduct saveProduct(InventoryProduct product, Long categoryId, Long userId) {
-        Long brandId = getBrandId(product);
+        Long brandId = getBrandId(product, userId);
         InventoryProduct savedProduct;
         if (product.getId() == 0) {
             savedProduct = addNewProductToInventory(product, categoryId, userId, brandId);
@@ -426,28 +426,29 @@ public class ProductService {
         return savedProduct;
     }
 
+    @Deprecated
     private boolean adjustBrandIdOld(Product product) {
         if (product.getBrandId() == 0) {
-            Long newBrandId = insertBrandIfNotAlready(product.getBrand());
+            Long newBrandId = insertBrandIfNotAlready(product.getBrand(), 0l);
             product.setBrandId(newBrandId);
             return newBrandId > 0;
         } else
             return true;
     }
 
-    private long getBrandId(InventoryProduct product) {
+    private long getBrandId(InventoryProduct product, Long userId) {
         if (product.getBrand() == null || product.getBrand().isEmpty()) {
             product.setBrand("No Brand");
         }
-        Long brandId = insertBrandIfNotAlready(product.getBrand());
+        Long brandId = insertBrandIfNotAlready(product.getBrand(), userId);
         return brandId;
     }
 
-    private Long insertBrandIfNotAlready(String brand) {
+    private Long insertBrandIfNotAlready(String brand, Long userId) {
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        String query = "select id from Brand where name = ? ";
+        String query = "select id from Brand where name = ?";
 
         try {
             dbConnection = DatabaseConnection.getConnection();
@@ -461,9 +462,10 @@ public class ProductService {
                 return brandId;
             } else {
 
-                query = "insert ignore into Brand (name) values(?)";
+                query = "insert ignore into Brand (name,private_user_id) values(?,?)";
                 preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 preparedStatement.setString(1, brand);
+                preparedStatement.setLong(2, userId);
 
                 if (preparedStatement.executeUpdate() > 0) {
                     //brand inserted
@@ -502,6 +504,7 @@ public class ProductService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
 
             ResultSet rs = preparedStatement.executeQuery();
@@ -526,18 +529,21 @@ public class ProductService {
 
     }
 
-    public List<Brand> getAllBrands() {
+    public List<Brand> getAllBrands(Long userId) {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
 
-        String query = "select b.id,b.name from Brand b join Inventory i on i.brand_id = b.id " +
+        String query = "select b.id,b.name from Brand b join Inventory i on i.brand_id = b.id and (b.global = '1' or b.private_user_id = ?) " +
                 "join ProductCategory pc1 on pc1.id = i.category_id and pc1.valid = '1' " +
                 "join ProductCategory pc2 on pc1.parent_category_id = pc2.id and pc2.valid = '1' group by b.id;";
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
+
+            preparedStatement.setLong(1, userId);
 
             ResultSet rs = preparedStatement.executeQuery();
             List<Brand> brands = new ArrayList<>();
@@ -568,6 +574,7 @@ public class ProductService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
 
             ResultSet rs = preparedStatement.executeQuery();
@@ -620,6 +627,7 @@ public class ProductService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, shopId);
             preparedStatement.setInt(2, startIndex);
@@ -667,6 +675,7 @@ public class ProductService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             String productIdListString = "'" + productIds[0] + "'";
             for (int i = 1; i < productIds.length; i++) {
@@ -922,7 +931,7 @@ public class ProductService {
             return 0L;
         }
         if (product.getBrandId() == 0 && !product.getBrand().trim().isEmpty()) {
-            Long newBrandId = insertBrandIfNotAlready(product.getBrand());
+            Long newBrandId = insertBrandIfNotAlready(product.getBrand(), 0l);
             product.setBrandId(newBrandId);
         }
 

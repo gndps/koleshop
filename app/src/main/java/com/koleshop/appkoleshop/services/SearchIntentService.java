@@ -53,12 +53,13 @@ public class SearchIntentService extends IntentService {
     private static String EXTRA_SELLER_ID = "com.koleshop.appkoleshop.services.extra.EXTRA_SELLER_ID";
     private static String EXTRA_SELLER_SIDE_SEARCH = "com.koleshop.appkoleshop.services.extra.EXTRA_SELLER_SIDE_SEARCH";
     private static String EXTRA_MY_INVENTORY = "com.koleshop.appkoleshop.services.extra.EXTRA_MY_INVENTORY";
+    private static String EXTRA_RANDOM_SEARCH_ID = "com.koleshop.appkoleshop.services.extra.EXTRA_RANDOM_SEARCH_ID";
 
     public SearchIntentService() {
         super("SearchIntentService");
     }
 
-    public static void getMultiSellerResults(Context context, String searchQuery, boolean homeDeliveryOnly, boolean openShopsOnly, int limit, int offset) {
+    public static void getMultiSellerResults(Context context, String searchQuery, boolean homeDeliveryOnly, boolean openShopsOnly, int limit, int offset, String randomSearchId) {
         Intent intent = new Intent(context, SearchIntentService.class);
         intent.setAction(ACTION_SEARCH_MULTI_SELLER);
         intent.putExtra(EXTRA_SEARCH_QUERY, searchQuery);
@@ -66,10 +67,11 @@ public class SearchIntentService extends IntentService {
         intent.putExtra(EXTRA_OPEN_SHOPS_ONLY, openShopsOnly);
         intent.putExtra(EXTRA_LIMIT, limit);
         intent.putExtra(EXTRA_OFFSET, offset);
+        intent.putExtra(EXTRA_RANDOM_SEARCH_ID, randomSearchId);
         context.startService(intent);
     }
 
-    public static void getSingleSellerResults(Context context, String searchQuery, int limit, int offset, Long sellerId, boolean sellerSideSearch, boolean myInventory) {
+    public static void getSingleSellerResults(Context context, String searchQuery, int limit, int offset, Long sellerId, boolean sellerSideSearch, boolean myInventory, String randomSearchId) {
         Intent intent = new Intent(context, SearchIntentService.class);
         intent.setAction(ACTION_SEARCH_SINGLE_SELLER);
         intent.putExtra(EXTRA_SEARCH_QUERY, searchQuery);
@@ -78,6 +80,7 @@ public class SearchIntentService extends IntentService {
         intent.putExtra(EXTRA_SELLER_ID, sellerId);
         intent.putExtra(EXTRA_SELLER_SIDE_SEARCH, sellerSideSearch);
         intent.putExtra(EXTRA_MY_INVENTORY, myInventory);
+        intent.putExtra(EXTRA_RANDOM_SEARCH_ID, randomSearchId);
         context.startService(intent);
     }
 
@@ -91,7 +94,8 @@ public class SearchIntentService extends IntentService {
                 final boolean openShopsOnly = intent.getBooleanExtra(EXTRA_OPEN_SHOPS_ONLY, false);
                 final int limit = intent.getIntExtra(EXTRA_LIMIT, 10);
                 final int offset = intent.getIntExtra(EXTRA_OFFSET, 0);
-                getMultiSellerSearchResultsFromInternet(searchQuery, homeDeliveryOnly, openShopsOnly, limit, offset);
+                final String randomSearchId = intent.getStringExtra(EXTRA_RANDOM_SEARCH_ID);
+                getMultiSellerSearchResultsFromInternet(searchQuery, homeDeliveryOnly, openShopsOnly, limit, offset, randomSearchId);
             } else if (ACTION_SEARCH_SINGLE_SELLER.equalsIgnoreCase(action)) {
                 final String searchQuery = intent.getStringExtra(EXTRA_SEARCH_QUERY);
                 final int limit = intent.getIntExtra(EXTRA_LIMIT, 10);
@@ -99,16 +103,17 @@ public class SearchIntentService extends IntentService {
                 final Long sellerId = intent.getLongExtra(EXTRA_SELLER_ID, 0l);
                 final boolean sellerSideSearch = intent.getBooleanExtra(EXTRA_SELLER_SIDE_SEARCH, false);
                 final boolean myInventory = intent.getBooleanExtra(EXTRA_MY_INVENTORY, false);
+                final String randomSearchId = intent.getStringExtra(EXTRA_RANDOM_SEARCH_ID);
                 if(!sellerSideSearch) {
-                    getSingleSellerSearchResultsFromInternet(searchQuery, limit, offset, sellerId);
+                    getSingleSellerSearchResultsFromInternet(searchQuery, limit, offset, sellerId, randomSearchId);
                 } else {
-                    searchProductsForSeller(myInventory, searchQuery, limit, offset, sellerId);
+                    searchProductsForSeller(myInventory, searchQuery, limit, offset, sellerId, randomSearchId);
                 }
             }
         }
     }
 
-    private void getMultiSellerSearchResultsFromInternet(String searchQuery, boolean homeDeliveryOnly, boolean openShopsOnly, int limit, int offset) {
+    private void getMultiSellerSearchResultsFromInternet(String searchQuery, boolean homeDeliveryOnly, boolean openShopsOnly, int limit, int offset, String randomSearchId) {
         BuyerEndpoint buyerEndpoint = null;
         BuyerEndpoint.Builder builder = new BuyerEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -178,21 +183,24 @@ public class SearchIntentService extends IntentService {
                 Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_FETCH_SUCCESS);
                 Parcelable parcelableSearchResults = Parcels.wrap(searchResults);
                 intent.putExtra("searchResults", parcelableSearchResults);
+                intent.putExtra("randomSearchId", randomSearchId);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             } else {
                 //no search results found
                 Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_EMPTY);
+                intent.putExtra("randomSearchId", randomSearchId);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             }
         } else {
             Log.e(TAG, "search multiple sellers failed for query = " + searchQuery);
             if (result != null && result.getData() != null) Log.e(TAG, (String) result.getData());
             Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_FETCH_FAILED);
+            intent.putExtra("randomSearchId", randomSearchId);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }
 
-    private void getSingleSellerSearchResultsFromInternet(String searchQuery, int limit, int offset, Long sellerId) {
+    private void getSingleSellerSearchResultsFromInternet(String searchQuery, int limit, int offset, Long sellerId, String randomSearchId) {
         BuyerEndpoint buyerEndpoint = null;
         BuyerEndpoint.Builder builder = new BuyerEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -235,21 +243,24 @@ public class SearchIntentService extends IntentService {
                 Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_FETCH_SUCCESS);
                 Parcelable parcelableSearchResults = Parcels.wrap(productsList);
                 intent.putExtra("parcelableProducts", parcelableSearchResults);
+                intent.putExtra("randomSearchId", randomSearchId);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             } else {
                 //no search results found
                 Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_EMPTY);
+                intent.putExtra("randomSearchId", randomSearchId);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             }
         } else {
             Log.e(TAG, "search multiple sellers failed for query = " + searchQuery);
             if (result != null && result.getData() != null) Log.e(TAG, (String) result.getData());
             Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_FETCH_FAILED);
+            intent.putExtra("randomSearchId", randomSearchId);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }
 
-    private void searchProductsForSeller(boolean myInventory, String searchQuery, int limit, int offset, Long sellerId) {
+    private void searchProductsForSeller(boolean myInventory, String searchQuery, int limit, int offset, Long sellerId, String randomSearchId) {
         SellerEndpoint sellerEndpoint = null;
         SellerEndpoint.Builder builder = new SellerEndpoint.Builder(AndroidHttp.newCompatibleTransport(),
                 new AndroidJsonFactory(), null)
@@ -293,16 +304,19 @@ public class SearchIntentService extends IntentService {
                 Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_FETCH_SUCCESS);
                 Parcelable parcelableSearchResults = Parcels.wrap(productsList);
                 intent.putExtra("parcelableProducts", parcelableSearchResults);
+                intent.putExtra("randomSearchId", randomSearchId);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             } else {
                 //no search results found
                 Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_EMPTY);
+                intent.putExtra("randomSearchId", randomSearchId);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             }
         } else {
             Log.e(TAG, "search multiple sellers failed for query = " + searchQuery);
             if (result != null && result.getData() != null) Log.e(TAG, (String) result.getData());
             Intent intent = new Intent(Constants.ACTION_SEARCH_RESULTS_FETCH_FAILED);
+            intent.putExtra("randomSearchId", randomSearchId);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }

@@ -1,7 +1,9 @@
 package com.koleshop.appkoleshop.network.volley;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -9,8 +11,11 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
+import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -89,6 +94,17 @@ public class VolleyUtil extends Application {
         //built.setIndicatorsEnabled(true);
         //built.setLoggingEnabled(true);
         Picasso.setSingletonInstance(built);
+    }
+
+    public void clearAppData() {
+        try {
+            //clearRealmDb();
+            //clear prefs
+            SharedPreferences prefs = PreferenceUtils.getSharedPreferences(getApplicationContext());
+            prefs.edit().clear().commit();
+        } catch (Exception e) {
+            Log.e(TAG, "problem while clearing app data", e);
+        }
     }
 
 }

@@ -106,6 +106,7 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
 
             //04. SET SHOP OPEN STATUS and DELIVERY/PICKUP INFO
             String deliveryPickupInfo;
+            String shopSubtitleText;
             if (sellerInfo.isHomeDelivery()) {
                 if (KoleshopUtils.doesSellerDeliverToBuyerLocation(sellerInfo)) {
                     //home delivery is available to this location
@@ -122,13 +123,15 @@ public class NearbyShopsListViewHolder extends RecyclerView.ViewHolder {
                     deliveryPickupInfo = "No delivery to your location";
                     imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_orange_dot_24dp));
                 }
+                shopSubtitleText = "Min. order " + " " + CommonUtils.getPriceStringFromFloat(sellerInfo.getMinimumOrder(), true) + " - " + deliveryPickupInfo;
             } else {
                 //only pickup available - ORANGE ICON
                 deliveryPickupInfo = "Pickup Only";
                 imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_orange_dot_24dp));
+                shopSubtitleText = deliveryPickupInfo;
             }
 
-            textViewTimings.setText(deliveryPickupInfo);
+            textViewTimings.setText(shopSubtitleText);
             if (!sellerInfo.isShopOpen()) {
                 //seller is offline - GREY ICON
                 imageViewOnline.setImageDrawable(AndroidCompatUtil.getDrawable(mContext, R.drawable.ic_grey_dot_24dp));

@@ -26,7 +26,7 @@
     <servlet>
         <servlet-name>GenericServlet</servlet-name>
         <servlet-class>com.koleshop.koleshopbackend.servlets.GenericServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>

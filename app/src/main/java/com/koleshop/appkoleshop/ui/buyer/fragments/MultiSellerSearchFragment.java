@@ -74,6 +74,7 @@ public class MultiSellerSearchFragment extends Fragment {
     private boolean searchBarHidden;
     private boolean searchBarStateKnown;
     private final String TAG = "MultiSellerSearchFrag";
+    private String randomSearchId = "";
 
     public MultiSellerSearchFragment() {
         // Required empty public constructor
@@ -165,17 +166,26 @@ public class MultiSellerSearchFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 if (Constants.ACTION_SEARCH_RESULTS_FETCH_SUCCESS.equalsIgnoreCase(action)) {
-                    results = Parcels.unwrap(intent.getExtras().getParcelable(ARG_SEARCH_RESULTS));
-                    loadTheResultsIntoUi();
+                    String randomSearchIdReceived = intent.getExtras().getString("randomSearchId");
+                    if (randomSearchIdReceived.equalsIgnoreCase(randomSearchId)) {
+                        results = Parcels.unwrap(intent.getExtras().getParcelable(ARG_SEARCH_RESULTS));
+                        loadTheResultsIntoUi();
+                    }
                 } else if (Constants.ACTION_SEARCH_RESULTS_EMPTY.equalsIgnoreCase(action)) {
-                    viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_NO_RESULTS);
-                } else if (Constants.ACTION_SEARCH_RESULTS_FETCH_FAILED.equalsIgnoreCase(action)) {
-                    if (!CommonUtils.isConnectedToInternet(mContext)) {
-                        viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_INTERNET_PROBLEM);
-                        textViewProblemText.setText(problemString);
-                    } else {
+                    String randomSearchIdReceived = intent.getExtras().getString("randomSearchId");
+                    if (randomSearchIdReceived.equalsIgnoreCase(randomSearchId)) {
                         viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_NO_RESULTS);
-                        textViewProblemText.setText(noSearchResultsString);
+                    }
+                } else if (Constants.ACTION_SEARCH_RESULTS_FETCH_FAILED.equalsIgnoreCase(action)) {
+                    String randomSearchIdReceived = intent.getExtras().getString("randomSearchId");
+                    if (randomSearchIdReceived.equalsIgnoreCase(randomSearchId)) {
+                        if (!CommonUtils.isConnectedToInternet(mContext)) {
+                            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_INTERNET_PROBLEM);
+                            textViewProblemText.setText(problemString);
+                        } else {
+                            viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_NO_RESULTS);
+                            textViewProblemText.setText(noSearchResultsString);
+                        }
                     }
                 } else if (Constants.ACTION_COLLAPSE_EXPANDED_PRODUCT.equalsIgnoreCase(action)) {
                     boolean expand = false;
@@ -229,7 +239,8 @@ public class MultiSellerSearchFragment extends Fragment {
     }
 
     private void getSearchResultsFromInternet() {
-        SearchIntentService.getMultiSellerResults(mContext, searchQuery, false, false, 10, 0);
+        randomSearchId = CommonUtils.randomString(10);
+        SearchIntentService.getMultiSellerResults(mContext, searchQuery, false, false, 10, 0, randomSearchId);
     }
 
     public SellerSearchResults getResultAtPosition(int position) {

@@ -307,7 +307,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder {
         if (order != null) {
             switch (order.getStatus()) {
                 case OrderStatus.INCOMING:
-                    orderDetailsText = "Ordering";
+                    orderDetailsText = mContext.getString(R.string.order_placed);
                     showProgressBar = true;
                     break;
                 case OrderStatus.ACCEPTED:

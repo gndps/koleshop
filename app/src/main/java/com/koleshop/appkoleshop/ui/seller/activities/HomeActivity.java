@@ -34,10 +34,12 @@ import android.widget.TextView;
 
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.network.volley.VolleyUtil;
 import com.koleshop.appkoleshop.services.SellerIntentService;
 import com.koleshop.appkoleshop.services.SettingsIntentService;
 import com.koleshop.appkoleshop.ui.common.activities.FeedbackActivity;
 import com.koleshop.appkoleshop.ui.common.activities.ChangePictureActivity;
+import com.koleshop.appkoleshop.ui.common.activities.InitialActivity;
 import com.koleshop.appkoleshop.ui.common.activities.LegalActivity;
 import com.koleshop.appkoleshop.ui.common.activities.VerifyPhoneNumberActivity;
 import com.koleshop.appkoleshop.constant.Constants;
@@ -114,6 +116,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             showHome();
             initializeBroadcastReceivers();
             loadInitialData();
+            KoleshopUtils.keepGcmConnectionAlive(mContext);
         }
     }
 
@@ -220,6 +223,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 PreferenceUtils.setPreferences(mContext, Constants.KEY_SESSION_ID, "");
                                 view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_login).setVisible(true);
                                 view.getMenu().findItem(com.koleshop.appkoleshop.R.id.drawer_logout).setVisible(false);
+                                //logoutAndGoToInitialScreen();
                             }
                         })
                         .setNegativeButton("CANCEL", null);
@@ -799,6 +803,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             switchOpenClose.setText(toggleButtonTitle);
             progressBarOpenClose.setVisibility(View.GONE);
         }
+    }
+
+    private void logoutAndGoToInitialScreen() {
+        VolleyUtil.getInstance().clearAppData();
+        Intent intentInitialActivity = new Intent(mContext, InitialActivity.class);
+        intentInitialActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intentInitialActivity);
     }
 
 }

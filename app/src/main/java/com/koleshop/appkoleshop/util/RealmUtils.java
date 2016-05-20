@@ -4,10 +4,12 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.model.parcel.BuyerSettings;
 import com.koleshop.appkoleshop.model.parcel.SellerSettings;
+import com.koleshop.appkoleshop.model.realm.Brand;
 import com.koleshop.appkoleshop.model.realm.BuyerAddress;
 import com.koleshop.appkoleshop.model.realm.Cart;
 import com.koleshop.appkoleshop.model.realm.EssentialInfo;
@@ -274,19 +276,57 @@ public class RealmUtils {
     }
 
     public static EssentialInfo getEssentialInfo() {
-        Realm realm = Realm.getDefaultInstance();
-        EssentialInfo essentialInfo = null;
-        RealmResults<EssentialInfo> result = realm.where(EssentialInfo.class).findAll();
-        if (result != null) {
-            result.sort("apiVersion", Sort.DESCENDING);
-            if (result != null && result.size() > 0) {
-                EssentialInfo essentialInfoRealm = result.first();
-                if (essentialInfoRealm != null) {
-                    essentialInfo = realm.copyFromRealm(essentialInfoRealm);
+        try {
+            Realm realm = Realm.getDefaultInstance();
+            EssentialInfo essentialInfo = null;
+            RealmResults<EssentialInfo> result = realm.where(EssentialInfo.class).findAll();
+            if (result != null) {
+                result.sort("apiVersion", Sort.DESCENDING);
+                if (result != null && result.size() > 0) {
+                    EssentialInfo essentialInfoRealm = result.first();
+                    if (essentialInfoRealm != null) {
+                        essentialInfo = realm.copyFromRealm(essentialInfoRealm);
+                    }
                 }
             }
+            realm.close();
+            return essentialInfo;
+        } catch (Exception e) {
+            Log.e(TAG, "exception in getEssentialInfo", e);
+            return null;
         }
-        realm.close();
-        return essentialInfo;
+    }
+
+    public static void addBrandIfNotExistsInRealm(String brand) {
+        try {
+            Realm realm = Realm.getDefaultInstance();
+            RealmQuery<Brand> brandRealmQuery = realm.where(Brand.class);
+
+            final RealmResults<Brand> brandRealmResults = brandRealmQuery.findAllSorted("name");
+            List<String> brands = new ArrayList<>();
+
+            Long maxBrandId = 0l;
+            for (Brand b : brandRealmResults) {
+                brands.add(b.getName().toLowerCase());
+                if (b.getId() > maxBrandId) {
+                    maxBrandId = b.getId();
+                }
+            }
+
+            if (brands.contains(brand.toLowerCase())) {
+                //brand already exists
+                realm.close();
+            } else {
+                //add brand to realm
+                Long newBrandId = maxBrandId + 1;
+                Brand newBrand = new Brand(newBrandId, brand);
+                realm.beginTransaction();
+                realm.copyToRealmOrUpdate(newBrand);
+                realm.commitTransaction();
+                realm.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "addBrandIfNotExistsInRealm: problem occurred", e);
+        }
     }
 }

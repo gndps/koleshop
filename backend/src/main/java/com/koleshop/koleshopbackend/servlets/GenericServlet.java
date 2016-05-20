@@ -8,6 +8,8 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -22,6 +24,8 @@ public class GenericServlet extends HttpServlet {
 
     public static DataSource datasource;
 
+    private static final Logger logger = Logger.getLogger(GenericServlet.class.getName());
+
     /**
      * @see javax.servlet.http.HttpServlet#HttpServlet()
      */
@@ -31,6 +35,16 @@ public class GenericServlet extends HttpServlet {
 
     public void init(ServletConfig config) throws ServletException {
 
+        //initializeMysqlPool();
+        initializeLogger();
+
+    }
+
+    private void initializeLogger() {
+        logger.log(Level.INFO, "Generic Servlet logger initialized...wohoo!!");
+    }
+
+    private void initializeMysqlPool() {
         if (SystemProperty.environment.value() !=
                 SystemProperty.Environment.Value.Production) {
 
@@ -62,7 +76,6 @@ public class GenericServlet extends HttpServlet {
             datasource.setPoolProperties(p);
 
         }
-
     }
 
     public static Connection getConnectionFromDBPool() throws SQLException {

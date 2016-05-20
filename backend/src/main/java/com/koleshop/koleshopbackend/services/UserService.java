@@ -28,6 +28,7 @@ public class UserService {
         String query = "select device_id from DeviceUser where user_id=?";
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setLong(1, userId);
             System.out.println(query);

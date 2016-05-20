@@ -43,6 +43,7 @@
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -231,6 +232,27 @@
             android:name=".services.NotificationIntentService"
             android:exported="false" />
 
+        <receiver
+            android:name=".receiver.BootCompleteReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.KoleshopAlarmReceiver" />
+
+        <service
+            android:name=".services.KeepGcmAliveService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".receiver.NetworkConnectivityListener"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

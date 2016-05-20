@@ -464,6 +464,7 @@ public class OrderService {
         try {
             logger.log(Level.INFO, "finding order ids");
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setLong(1, userId);
             //if pagination is true then set the limit and offset
@@ -536,6 +537,7 @@ public class OrderService {
 
             try {
                 dbConnection = DatabaseConnection.getConnection();
+                dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
                 preparedStatement = dbConnection.prepareStatement(query);
                 int index = 1;
                 for (Long orderId : orderIds) {

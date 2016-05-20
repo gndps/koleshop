@@ -12,12 +12,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -99,6 +99,7 @@ public class SingleSellerSearchFragment extends Fragment {
     private int current_page;
     private static final int ITEMS_PER_PAGE = 20;
     private boolean loadMoreOnScrollToEnd;
+    private String randomSearchId;
 
     public SingleSellerSearchFragment() {
         // Required empty public constructor
@@ -198,6 +199,7 @@ public class SingleSellerSearchFragment extends Fragment {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
         super.onPause();
     }
+
     private void initializeBroadcastReceivers() {
 
         mBroadcastReceiver = new BroadcastReceiver() {
@@ -209,12 +211,21 @@ public class SingleSellerSearchFragment extends Fragment {
 
                     //SEARCH RESULTS RECEIVERS
                     if (Constants.ACTION_SEARCH_RESULTS_FETCH_SUCCESS.equalsIgnoreCase(action)) {
-                        List<Product> listOfFetchedProducts = KoleshopUtils.getProductListFromEditProductList((List<EditProduct>) Parcels.unwrap(intent.getExtras().getParcelable(ARG_PARCELABLE_PRODUCTS)));
-                        searchResultsFetchSuccess(listOfFetchedProducts);
+                        String randomSearchIdReceived = intent.getExtras().getString("randomSearchId");
+                        if (randomSearchIdReceived.equalsIgnoreCase(randomSearchId)) {
+                            List<Product> listOfFetchedProducts = KoleshopUtils.getProductListFromEditProductList((List<EditProduct>) Parcels.unwrap(intent.getExtras().getParcelable(ARG_PARCELABLE_PRODUCTS)));
+                            searchResultsFetchSuccess(listOfFetchedProducts);
+                        }
                     } else if (Constants.ACTION_SEARCH_RESULTS_EMPTY.equalsIgnoreCase(action)) {
-                        searchResultsFetchEmpty();
+                        String randomSearchIdReceived = intent.getExtras().getString("randomSearchId");
+                        if (randomSearchIdReceived.equalsIgnoreCase(randomSearchId)) {
+                            searchResultsFetchEmpty();
+                        }
                     } else if (Constants.ACTION_SEARCH_RESULTS_FETCH_FAILED.equalsIgnoreCase(action)) {
-                        searchResultsFetchFailed();
+                        String randomSearchIdReceived = intent.getExtras().getString("randomSearchId");
+                        if (randomSearchIdReceived.equalsIgnoreCase(randomSearchId)) {
+                            searchResultsFetchFailed();
+                        }
                     }
 
 
@@ -259,7 +270,7 @@ public class SingleSellerSearchFragment extends Fragment {
                         int position = intent.getIntExtra("position", 0);
                         if (varietyId > 0) {
                             adapter.increaseVarietyCount(position, varietyId);
-                            ((SearchActivity)getActivity()).updateHotCount();
+                            ((SearchActivity) getActivity()).updateHotCount();
                             adapter.notifyItemChanged(position);
                         } else {
                             return;
@@ -269,7 +280,7 @@ public class SingleSellerSearchFragment extends Fragment {
                         int position = intent.getIntExtra("position", 0);
                         if (varietyId > 0) {
                             adapter.decreaseVarietyCount(position, varietyId);
-                            ((SearchActivity)getActivity()).updateHotCount();
+                            ((SearchActivity) getActivity()).updateHotCount();
                             adapter.notifyItemChanged(position);
                         } else {
                             return;
@@ -298,7 +309,7 @@ public class SingleSellerSearchFragment extends Fragment {
     }
 
     private void searchResultsFetchSuccess(List<Product> fetchedProducts) {
-        if(current_page == 0) {
+        if (current_page == 0) {
             //initialize the rv and adapter
             products = fetchedProducts;
             adapter.setProductsList(products);
@@ -315,7 +326,7 @@ public class SingleSellerSearchFragment extends Fragment {
     }
 
     private void searchResultsFetchEmpty() {
-        if(current_page == 0) {
+        if (current_page == 0) {
             viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_NO_RESULTS);
             textViewProblemText.setText(noSearchResultsString);
         } else {
@@ -325,7 +336,7 @@ public class SingleSellerSearchFragment extends Fragment {
     }
 
     private void searchResultsFetchFailed() {
-        if(current_page == 0) {
+        if (current_page == 0) {
             if (!CommonUtils.isConnectedToInternet(mContext)) {
                 viewFlipper.setDisplayedChild(VIEW_FLIPPER_CHILD_INTERNET_PROBLEM);
             } else {
@@ -343,7 +354,10 @@ public class SingleSellerSearchFragment extends Fragment {
     }
 
     private void getSearchResultsFromInternet() {
-        SearchIntentService.getSingleSellerResults(mContext, searchQuery, ITEMS_PER_PAGE, current_page*ITEMS_PER_PAGE, sellerId, !customerView, myInventory);
+        if (!TextUtils.isEmpty(searchQuery)) {
+            randomSearchId = CommonUtils.randomString(10);
+            SearchIntentService.getSingleSellerResults(mContext, searchQuery, ITEMS_PER_PAGE, current_page * ITEMS_PER_PAGE, sellerId, !customerView, myInventory, randomSearchId);
+        }
     }
 
     public void setSearchActivityListener(SearchActivityListener listener) {
@@ -377,7 +391,7 @@ public class SingleSellerSearchFragment extends Fragment {
                         searchBarStateKnown = true;
                     }
 
-                    if(loadMoreOnScrollToEnd) {
+                    if (loadMoreOnScrollToEnd) {
                         //02. Load more results
                         visibleItemCount = recyclerView.getChildCount();
                         totalItemCount = mLinearLayoutManager.getItemCount();
@@ -429,7 +443,7 @@ public class SingleSellerSearchFragment extends Fragment {
                     }
 
 
-                    if(loadMoreOnScrollToEnd) {
+                    if (loadMoreOnScrollToEnd) {
                         //02. load more on scroll
                         visibleItemCount = recyclerView.getChildCount();
                         totalItemCount = mLinearLayoutManager.getItemCount();
@@ -464,8 +478,8 @@ public class SingleSellerSearchFragment extends Fragment {
     }
 
     private void addMoreSearchResults(List<Product> moreProducts) {
-        if(moreProducts!=null && moreProducts.size()>0) {
-            if(products!=null) {
+        if (moreProducts != null && moreProducts.size() > 0) {
+            if (products != null) {
                 products.addAll(moreProducts);
                 try {
                     adapter.setProductsList(products);

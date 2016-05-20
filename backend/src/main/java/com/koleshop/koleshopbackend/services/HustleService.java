@@ -25,6 +25,7 @@ public class HustleService {
 
         try {
             dbConnection = DatabaseConnection.getConnection();
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
@@ -54,6 +55,32 @@ public class HustleService {
         koleResponse.setSuccess(true);
         koleResponse.setData("its working yo!");
         return koleResponse;
+    }
+
+    public boolean activateShopWithPhoneNumber(Long phoneNumber) {
+        logger.log(Level.INFO, "Checking if user is valid...");
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        String query = "update SellerSettings ss join Address a on ss.address_id = a.id where a.phone_number = ?";
+
+        try {
+            dbConnection = DatabaseConnection.getConnection();
+            preparedStatement = dbConnection.prepareStatement(query);
+            preparedStatement.setLong(1, phoneNumber);
+            logger.log(Level.INFO, "executing prepared statement = " + preparedStatement.toString());
+            int update = preparedStatement.executeUpdate();
+            if(update > 0) {
+                logger.log(Level.INFO, "seller activation successful");
+                return true;
+            } else {
+                logger.log(Level.INFO, "problem in activating seller");
+                return false;
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "some problem in hustle login", e);
+            return false;
+        }
     }
 
 }

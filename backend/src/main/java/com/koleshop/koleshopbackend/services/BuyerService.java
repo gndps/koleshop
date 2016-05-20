@@ -47,8 +47,9 @@ public class BuyerService {
         PreparedStatement preparedStatement = null;
 
         try {
-            //dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             logger.info("finding nearby shops - - -");
+            logger.info("using transaction read uncommitted - - -");
 
             //find nearby shops
             String query = "SELECT ss.id as seller_settings_id,ss.user_id as seller_id,ss.image_url,ss.header_image_url,ss.open_time,ss.close_time,ss.pickup_from_shop," +
@@ -259,6 +260,7 @@ public class BuyerService {
         SellerSettings sellerSettings = null;
 
         try {
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             preparedStatement = dbConnection.prepareStatement(query);
             preparedStatement.setLong(1, shopId);
 
