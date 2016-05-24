@@ -48,6 +48,8 @@ public class OrderEndpoint {
                 order = new OrderService().updateOrder(order, true);
             } else if (SessionService.verifyUserAuthenticity(order.getSellerSettings().getUserId(), sessionId)) {
                 order = new OrderService().updateOrder(order, false);
+            } else if (SessionService.verifyHustleUserAuthenticity(order.getSellerSettings().getUserId(), sessionId)) {
+                order = new OrderService().updateOrder(order, false);
             }
         } catch (Exception e) {
             response.setData(e.getLocalizedMessage());
