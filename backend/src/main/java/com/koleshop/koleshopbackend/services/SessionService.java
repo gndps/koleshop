@@ -590,6 +590,10 @@ public class SessionService {
         return verifyUserAuthenticity(userId, sessionId, 0);
     }
 
+    public static boolean verifyHustleUserAuthenticity(Long userId, String sessionId) {
+        return sessionId.equalsIgnoreCase(Constants.ADMIN_SESSION_ID);
+    }
+
     public static boolean verifyUserAuthenticity(Long userId, String sessionId, int requiredSessionType) {
 
         if (userId == null || sessionId == null || userId < 1 || sessionId.isEmpty()) {

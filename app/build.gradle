@@ -46,8 +46,8 @@ android {
         applicationId 'com.koleshop.appkoleshop'
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 4
-        versionName "1.03"
+        versionCode 5
+        versionName "1.04"
         // multidex support.
         multiDexEnabled false
     }

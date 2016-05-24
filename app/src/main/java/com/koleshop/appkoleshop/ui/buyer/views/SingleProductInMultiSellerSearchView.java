@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -100,28 +101,30 @@ public class SingleProductInMultiSellerSearchView extends RelativeLayout impleme
 
     public void setImage(String imageUrl) {
         final String smallSizeImageUrl = KoleshopUtils.getSmallImageUrl(imageUrl);
-        Picasso.with(mContext)
-                .load(smallSizeImageUrl)
-                .networkPolicy(NetworkPolicy.OFFLINE)
-                .centerCrop().fit()
-                .placeholder(R.drawable.ic_koleshop_grey_24dp)
-                .into(circleImageViewProductMasterList, new Callback() {
-                    @Override
-                    public void onSuccess() {
+        if(!TextUtils.isEmpty(smallSizeImageUrl)) {
+            Picasso.with(mContext)
+                    .load(smallSizeImageUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .centerCrop().fit()
+                    .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                    .into(circleImageViewProductMasterList, new Callback() {
+                        @Override
+                        public void onSuccess() {
 
-                    }
+                        }
 
-                    @Override
-                    public void onError() {
-                        Picasso.with(mContext)
-                                .load(smallSizeImageUrl)
-                                .networkPolicy(NetworkPolicy.OFFLINE)
-                                .centerCrop().fit()
-                                .placeholder(R.drawable.ic_koleshop_grey_24dp)
-                                .error(R.drawable.ic_koleshop_grey_24dp)
-                                .into(circleImageViewProductMasterList);
-                    }
-                });
+                        @Override
+                        public void onError() {
+                            Picasso.with(mContext)
+                                    .load(smallSizeImageUrl)
+                                    .networkPolicy(NetworkPolicy.OFFLINE)
+                                    .centerCrop().fit()
+                                    .placeholder(R.drawable.ic_koleshop_grey_24dp)
+                                    .error(R.drawable.ic_koleshop_grey_24dp)
+                                    .into(circleImageViewProductMasterList);
+                        }
+                    });
+        }
     }
 
     private String makeDescription() {

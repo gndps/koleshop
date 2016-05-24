@@ -399,7 +399,7 @@ public class OrderService {
     }
 
     private enum OrderQueryType {
-        Incoming, Pending, Complete, CustomerOrders
+        Incoming, Pending, Complete, CustomerOrders, RecentOrders
     }
 
     public List<Order> getIncomingOrders(Long userId) {
@@ -416,6 +416,10 @@ public class OrderService {
 
     public List<Order> getMyOrders(Long userId, boolean pagination, int limit, int offset) {
         return getOrders(userId, OrderQueryType.CustomerOrders, pagination, limit, offset);
+    }
+
+    public List<Order> getRecentOrders(Long userId, boolean pagination, int limit, int offset) {
+        return getOrders(userId, OrderQueryType.RecentOrders, pagination, limit, offset);
     }
 
     public List<Order> getOrders(Long userId, OrderQueryType status, boolean pagination, int limit, int offset) {
@@ -448,6 +452,10 @@ public class OrderService {
             case CustomerOrders:
                 query = "select id from Orders where customer_id=? order by id desc ";
                 logger.log(Level.INFO, "getting my orders for user_id = " + userId);
+                break;
+            case RecentOrders:
+                query = "select id from Orders where seller_id in (select user_id from SellerSettings where valid = '1') or seller_id = '37' or seller_id = ? order by date_modified desc ";
+                logger.log(Level.INFO, "getting recent orders for user_id = " + userId);
                 break;
             default:
                 query = "select id from Orders where seller_id=? order by id desc ";
