@@ -183,4 +183,7 @@ public class Constants {
     public static final int NOTIFY_USERS_ABOUT_UPDATE_BEFORE_APP_STOP_WORKING_IN_DAYS = 15;
     public static final int MINIMUM_DAYS_BW_CONSECUTIVE_NOTIFICATIONS = 5;
 
+    public static final float DEFAULT_INDIA_LATITUDE = 28.563218f;
+    public static final float DEFAULT_INDIA_LONGITUDE = 77.369720f;
+
 }
