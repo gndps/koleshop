@@ -69,4 +69,13 @@ public class Constants {
 	public static int ADDRESS_TYPE_BUYER_INT = 0;
 	public static int ADDRESS_TYPE_SELLER_INT = 1;
 
+	public static final String ADMIN_SESSION_ID = "yo-this-is-a-fucking-fake-session-id-bhencho-lkajskldf!@#$&(124jlksajhdf872y89hfis98adfhnsad9@#!$$%*uf908saidnf09saydf0h8ua";
+
+	public static Double CENTRAL_LATITUDE = 28.570642d;
+	public static Double CENTRAL_LONGITUDE = 77.362034d; //central latitude and longitude falls near Sector 50 Smart Shop
+	public static Double FAR_NORTH_LATITUDE = 28.635139d;
+	public static Double FAR_SOUTH_LATITUDE = 28.518371d;
+	public static Double FAR_EAST_LONGITUDE = 77.408605d;
+	public static Double FAR_WEST_LONGITUDE = 77.302607d;
+
 }

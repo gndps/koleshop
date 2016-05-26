@@ -360,6 +360,19 @@ public class HomeActivity extends AppCompatActivity implements FragmentHomeActiv
         setTitle(titleMyOrders);
     }
 
+    public void showAddressesAndChangeGpsLocation() {
+        MenuItem item = navigationView.getMenu().findItem(R.id.drawer_addresses);
+        if (item != null) {
+            //show address fragment
+            AddressesFragment addressesFragment = AddressesFragment.newInstance(false, false, true);
+            replaceFragment(addressesFragment, FRAGMENT_ADDRESSES_TAG);
+            drawerLayout.closeDrawer(GravityCompat.START);
+            item.setChecked(true);
+        }
+        setElevation(8);
+        setTitle(titleAddresses);
+    }
+
     private void showShopActivity(Long shopId) {
         Intent intent = new Intent(mContext, ShopActivity.class);
         intent.putExtra("sellerId", shopId);

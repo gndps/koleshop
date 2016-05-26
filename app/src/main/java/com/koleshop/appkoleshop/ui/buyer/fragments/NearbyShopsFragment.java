@@ -59,6 +59,8 @@ public class NearbyShopsFragment extends Fragment {
     String titleNearbyShops;
     @BindView(R.id.button_refresh_nearby_shops)
     Button buttonRefresh;
+    @BindView(R.id.button_change_gps_location)
+    Button buttonChangeGpsLocation;
     @BindView(R.id.button_retry_nearby_shops)
     Button buttonRetry;
 
@@ -247,6 +249,12 @@ public class NearbyShopsFragment extends Fragment {
                 requestNearbyShopsFromInternet();
             }
         });
+        buttonChangeGpsLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeGpsLocation();
+            }
+        });
     }
 
     private void loadNearbyShopsList(List<SellerSettings> sellers, BuyerAddress buyerAddress) {
@@ -297,6 +305,10 @@ public class NearbyShopsFragment extends Fragment {
         //fragmentHomeActivityListener.setTitle(selectedSeller.getAddress().getName());
         //fragmentHomeActivityListener.setElevation(8);
         //ft.commit();
+    }
+
+    private void changeGpsLocation() {
+        ((HomeActivity)getActivity()).showAddressesAndChangeGpsLocation();
     }
 
 
