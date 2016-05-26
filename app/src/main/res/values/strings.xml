@@ -172,7 +172,7 @@
     <string name="refresh">REFRESH</string>
     <string name="no_search_results_found">No search results found</string>
     <string name="some_problem_occurred">Some problem occurred</string>
-    <string name="no_nearby_shops">No nearby shops are using Koleshop\nBtw any shopkeeper can download and start using it</string>
+    <string name="no_nearby_shops">No nearby shops are on Koleshop\nHave you entered the correct GPS Location?</string>
     <string name="place_order">PLACE ORDER</string>
     <string name="title_place_order">Place Order</string>
     <string name="navigation_drawer_feedback">FEEDBACK</string>
@@ -192,5 +192,6 @@
     <string name="action_create_similar">Create Similar Product</string>
     <string name="add_from_warehouse">Add from Ware House</string>
     <string name="order_placed">Order Placed</string>
+    <string name="change_gps_location">CHANGE GPS LOCATION</string>
 
 </resources>

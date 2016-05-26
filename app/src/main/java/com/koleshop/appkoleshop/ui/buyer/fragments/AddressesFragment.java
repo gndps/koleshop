@@ -52,6 +52,7 @@ public class AddressesFragment extends Fragment implements AddressRvAdapter.Addr
     Context mContext;
     BroadcastReceiver mBroadcastReceiver;
     boolean showOnlyDefaultAddress;
+    boolean addNewAddress;
 
     private final int REQUEST_CODE_DIALOG_FRAGMENT = 1;
     private final int REQUEST_CODE_ADD_NEW_ADDRESS = 2;
@@ -75,6 +76,16 @@ public class AddressesFragment extends Fragment implements AddressRvAdapter.Addr
         return addressesFragment;
     }
 
+    public static AddressesFragment newInstance(boolean horizontalScroll, boolean showOnlyDefaultAddress, boolean addNewAddress) {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("horizontalScroll", horizontalScroll);
+        bundle.putBoolean("showOnlyDefaultAddress", showOnlyDefaultAddress);
+        bundle.putBoolean("addNewAddress", addNewAddress);
+        AddressesFragment addressesFragment = new AddressesFragment();
+        addressesFragment.setArguments(bundle);
+        return addressesFragment;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -87,6 +98,7 @@ public class AddressesFragment extends Fragment implements AddressRvAdapter.Addr
         if (bundle != null) {
             horizontalScroll = bundle.getBoolean("horizontalScroll", false);
             showOnlyDefaultAddress = bundle.getBoolean("showOnlyDefaultAddress", false);
+            addNewAddress = bundle.getBoolean("addNewAddress", false);
             showFabButton(false);
         }
         initializeBroadcastReceivers();
@@ -97,6 +109,10 @@ public class AddressesFragment extends Fragment implements AddressRvAdapter.Addr
                 selectLocationForNewAddress();
             }
         });
+        if(addNewAddress) {
+            addNewAddress = false;
+            selectLocationForNewAddress();
+        }
         return view;
     }
 

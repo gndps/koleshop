@@ -26,6 +26,9 @@ public class BuyerService {
 
     public List<SellerSettings> getNearbyShops(Long customerId, Double customerGpsLat, Double customerGpsLong, boolean homeDeliveryOnly, boolean openShopsOnly, int limit, int offset) {
 
+        customerGpsLat = correctGpsLat(customerGpsLat);
+        customerGpsLong = correctGpsLong(customerGpsLong);
+
         logger.info("finding nearby shops - ");
 
         int rectangleDistanceInMetres = 50000;
@@ -305,5 +308,29 @@ public class BuyerService {
             DatabaseConnectionUtils.finallyCloseStatementAndConnection(preparedStatement, dbConnection);
         }
         return sellerSettings;
+    }
+
+    private Double correctGpsLat(Double gpsLat) {
+        try {
+            if (gpsLat > Constants.FAR_NORTH_LATITUDE || gpsLat < Constants.FAR_SOUTH_LATITUDE) {
+                gpsLat = Constants.CENTRAL_LATITUDE;
+            }
+            return gpsLat;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "wtf gpsLat");
+            return Constants.CENTRAL_LATITUDE;
+        }
+    }
+
+    private Double correctGpsLong(Double gpsLong) {
+        try {
+            if (gpsLong > Constants.FAR_EAST_LONGITUDE || gpsLong < Constants.FAR_WEST_LONGITUDE) {
+                gpsLong = Constants.CENTRAL_LONGITUDE;
+            }
+            return gpsLong;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "wtf gpsLong");
+            return Constants.CENTRAL_LONGITUDE;
+        }
     }
 }

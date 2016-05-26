@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.koleshop.appkoleshop.R;
 import com.koleshop.appkoleshop.constant.Constants;
 import com.koleshop.appkoleshop.ui.buyer.activities.HomeActivity;
+import com.koleshop.appkoleshop.util.AndroidCompatUtil;
 import com.koleshop.appkoleshop.util.CommonUtils;
 import com.koleshop.appkoleshop.util.PreferenceUtils;
 import com.koleshop.appkoleshop.util.RealmUtils;
@@ -49,7 +50,7 @@ import com.koleshop.appkoleshop.util.RealmUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMapLoadedCallback {
 
     private GoogleMap mMap;
     public static final int REQUEST_CODE_GET_LOCATION = 0x01;
@@ -63,6 +64,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean locationChanged;
     private GoogleApiClient mGoogleApiClient;
     private boolean goToLastLocationWhenAvailable;
+    private boolean moveToIndiaOnLoad;
     LocationRequest mLocationRequest;
 
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -131,6 +133,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         checkGpsEnabled();
         buildGoogleApiClient();
         createLocationRequest();
+        disableButtonsTillMapLoad();
     }
 
     @Override
@@ -188,15 +191,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "--- map ready ---");
         mMap = googleMap;
 
         // Add a pin to location if gps coordinates are provided
         LatLng gpsLatLng;
         if ((gpsLat == null && gpsLong == null) || (gpsLat == 0 && gpsLong == 0)) {
             //request gps location here
+            Log.d(TAG, "--- map ready 1 ---");
             mGoogleApiClient.connect();
             goToLastLocationWhenAvailable = true;
         } else {
+            Log.d(TAG, "--- map ready 2 ---");
             gpsLatLng = new LatLng(gpsLat, gpsLong);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gpsLatLng, 14.0f));
         }
@@ -220,6 +226,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         });
         mMap.setPadding(0, 0, 0, 0);
+        mMap.setOnMapLoadedCallback(this);
     }
 
     protected void onStart() {
@@ -310,7 +317,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void sendResultToCallingActivity() {
-        if(getCallingActivity()!=null) {
+        if (getCallingActivity() != null) {
             Intent intent = new Intent();
             intent.putExtra("gpsLat", gpsLat);
             intent.putExtra("gpsLong", gpsLong);
@@ -345,6 +352,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     protected void createLocationRequest() {
+        Log.d(TAG, "--- create location request ---");
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(2000);
         mLocationRequest.setFastestInterval(1000);
@@ -352,6 +360,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     protected void startLocationUpdates() {
+        Log.d(TAG, "--- start location updates ---");
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
@@ -359,16 +368,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onConnected(Bundle bundle) {
 
+        Log.d(TAG, "--- on connected ---");
+
         Location gpsLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
-        if(goToLastLocationWhenAvailable) {
+        if (goToLastLocationWhenAvailable) {
+            Log.d(TAG, "--- calling get my location ---");
             mMap.getMyLocation();
         }
         if (gpsLocation != null) {
+            Log.d(TAG, "--- gps location is not null ---");
             if (goToLastLocationWhenAvailable && mMap != null) {
+                Log.d(TAG, "--- ******* ---");
                 LatLng gpsLatLng = new LatLng(gpsLocation.getLatitude(), gpsLocation.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gpsLatLng, 14.0f));
             }
+        } else {
+            Log.d(TAG, "--- gps location is null ---");
+            moveToIndiaOnLoad = true;
         }
 
         startLocationUpdates(); //no need to start location updates coz google maps handle it automatically
@@ -387,7 +404,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onLocationChanged(Location location) {
-
+        Log.d(TAG, "--- on location changed ---");
     }
 
     private void startSearch() {
@@ -413,7 +430,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(this, data);
-                if(place!=null && place.getLatLng()!=null) {
+                if (place != null && place.getLatLng() != null) {
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.fromLatLngZoom(place.getLatLng(), 16.0f)));
                 }
                 Log.i(TAG, "Place: " + place.getName());
@@ -426,6 +443,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.d(TAG, "result cancelled");
                 // The user canceled the operation.
             }
+        }
+    }
+
+    @Override
+    public void onMapLoaded() {
+        Log.d(TAG, "--- map loaded ---");
+        if (twoButtonMode) {
+            rightButton.setEnabled(true);
+            rightButton.setClickable(true);
+        } else {
+            actionButton.setEnabled(true);
+            actionButton.setClickable(true);
+            actionButton.setText(actionButtonTitle);
+            buttonMainAction.setBackgroundColor(AndroidCompatUtil.getColor(getApplicationContext(), R.color.accent));
+        }
+        if(moveToIndiaOnLoad && mMap != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Constants.DEFAULT_INDIA_LATITUDE, Constants.DEFAULT_INDIA_LONGITUDE), 10));
+        }
+    }
+
+    private void disableButtonsTillMapLoad() {
+        if (twoButtonMode) {
+            rightButton.setEnabled(false);
+            rightButton.setClickable(false);
+        } else {
+            actionButton.setEnabled(false);
+            actionButton.setClickable(false);
+            actionButton.setText("Please Wait...");
+            buttonMainAction.setBackgroundColor(AndroidCompatUtil.getColor(getApplicationContext(), R.color.disabled_text));
         }
     }
 }
