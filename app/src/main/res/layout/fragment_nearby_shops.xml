@@ -1,10 +1,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.buyer.fragments.NearbyShopsFragment"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    tools:context=".ui.buyer.fragments.NearbyShopsFragment">
 
     <ViewFlipper
         android:id="@+id/vf_fns"
@@ -20,9 +20,9 @@
                 android:id="@+id/tab_layout_fns"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
                 android:background="@color/primary"
-                app:tabIndicatorColor="@android:color/white"/>
+                android:fontFamily="sans-serif-light"
+                app:tabIndicatorColor="@android:color/white" />
 
             <android.support.v4.view.ViewPager
                 android:id="@+id/view_pager_fns"
@@ -35,7 +35,7 @@
             android:id="@+id/pb_fns"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -57,19 +57,35 @@
                 android:layout_marginTop="25dp"
                 android:fontFamily="sans-serif-light"
                 android:gravity="center"
-                android:textColor="@color/primary_text"
-                android:text="@string/no_nearby_shops" />
+                android:text="@string/no_nearby_shops"
+                android:textColor="@color/primary_text" />
 
-            <Button
-                android:id="@+id/button_refresh_nearby_shops"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/refresh"
-                android:textColor="@color/primary_text"
-                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
                 android:layout_marginBottom="16dp"
-                android:layout_centerHorizontal="true"/>
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button_change_gps_location"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/change_gps_location"
+                    android:textColor="@color/primary_text" />
+
+                <Button
+                    android:id="@+id/button_refresh_nearby_shops"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/refresh"
+                    android:textColor="@color/primary_text" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 
@@ -89,21 +105,21 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
                 android:layout_gravity="center"
+                android:fontFamily="sans-serif-light"
                 android:text="Please check connection and try again"
                 android:textColor="@color/default_background_font" />
 
             <Button
                 android:id="@+id/button_retry_nearby_shops"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/string_retry"
-                android:textColor="@color/primary_text"
-                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
                 android:layout_marginBottom="16dp"
-                android:layout_centerHorizontal="true"/>
+                android:text="@string/string_retry"
+                android:textColor="@color/primary_text" />
 
         </LinearLayout>
 
@@ -123,8 +139,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
                 android:layout_gravity="center"
+                android:fontFamily="sans-serif-light"
                 android:text="@string/please_select_address"
                 android:textColor="@color/default_background_font" />
 
