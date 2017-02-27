@@ -12,9 +12,11 @@ How to run the app:
 5. Create a new google cloud sql instance in the project and use [this database dump file](http://bit.ly/koleshop_db_dump) to create the database.
 6. Now update the [config-production.properties](https://github.com/gndps/koleshop/blob/master/backend/src/main/webapp/config-production.properties) or the [config-development.properties](https://github.com/gndps/koleshop/blob/master/backend/src/main/webapp/config-development.properties) file. Update all the parameters related to Google Cloud Sql
 7. Enable Cloud messaging in your google project and Create a GCM key (now called FCM) to enable push notifications in the app. And update the GCM Api key inside the same config file as in previous step.
-8. Uncomment the line `compile project(path: ':backend', configuration: 'android-endpoints')` in build.gradle(app) to compile the endpoints libs from the backend project. (Other way is to generate the jar libraries using gradlew export)
-9. `Build>Deploy Module to app engine` inside Android Studio. This project uses Google Cloud Endpoints v1 and this step deploys the backend cloud endpoints to the app engine. Clicking on deploy will ask you to choose the google cloud project.
-10. Now install the Android app on your phone and it should be working.
+8. Create a new bucket in google cloud storage. Create a folder named `<your-bucket-name>/profile`, `<your-bucket-name>/profile_thumb`, `<your-bucket-name>/category-pics` and `<your-bucket-name>/product_images/s` and update the path `com.koleshop.koleshopbackend.common.Constants#PUBLIC_PROFILE_IMAGE_FOLDER` and other paths in the same section of this file.
+9. Now upload the category pics from [here](http://bit.ly/koleshopCategoryPics) to your google cloud storage directory & product images from [here](http://bit.ly/koleshopProductImagesSmall) to `<your-bucket-name>/product_images/s`. Update the category-pics url in mysql db table `ProductCategory`, column `image_url`. Also update the product images url in Table `InventoryVariety` and 'ProductVariety'
+10. Uncomment the line `compile project(path: ':backend', configuration: 'android-endpoints')` in build.gradle(app) to compile the endpoints libs from the backend project. (Other way is to generate the jar libraries using gradlew export)
+11. `Build>Deploy Module to app engine` inside Android Studio. This project uses Google Cloud Endpoints v1 and this step deploys the backend cloud endpoints to the app engine. Clicking on deploy will ask you to choose the google cloud project.
+12. Build & Run the Android app on phone.
 
 Caveats:
 - Only activated shops are shown in the nearby shops list. You must go to the mysql db and activate any new shop manually.
